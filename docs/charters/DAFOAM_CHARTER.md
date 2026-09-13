@@ -1239,3 +1239,34 @@ It moves no bar, grades nothing retroactively, and reclassifies no item frozen b
 **Consequences, and none of them is a filing.** (1) **Standing rule 31 is already breached on both D6R2 arms** and this charter records that, so no successor may cite either arm's `Mesh OK.` as evidence about the mesh that ran. (2) Rule 7's per-iteration quality budget is therefore **not** satisfied by the solver's own check — it needs an instrument of ours that actually refuses, driven against a known-bad mesh before any freeze. (3) The upstream behaviour is a **defect candidate** for this family's register and, like every other one, it is **`NOT FILED ANYWHERE`**; §10 and rule 7 are untouched, and **filing remains Sanaa's alone**.
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §22 CORRECTION 2 — 2026-09-13, same day — **THE SECOND CORRECTION IN ONE DAY, AND THE LARGEST IS A "HAS NEVER RUN" THAT WAS FALSE BY 2,031 LOG LINES**
+
+**Version: unchanged at v1.0h.** Additive; nothing above this section is edited, inserted into or renumbered (`cmp -n 160379` against a pre-append copy, exit 0). No gate, threshold, cap or label is altered.
+
+### C2.1 **"THE CRM ADJOINT HAS NEVER RUN ON THIS BOX" IS FALSE, AND IT REACHED THE OWNER'S DESK**
+
+**The claim, as this supervisor relayed it upward and as the D6R3 R1 draft registered it:** the CRM adjoint had never run here, evidenced by `Main iteration` and `KSP Residual` appearing **zero** times in all four A6 logs against `Global Adjoint States: 5,244,840`. **The evidence was real and the conclusion did not follow.** It is true of **A6's 579,072-cell mesh** and **false of the case**.
+
+**Measured, on the artifacts:** `CURRICULUM-D8-a6-twist-opt/opt.log` carries **475 `Main iteration` and 475 `KSP Residual`**; D8R's `O-P` carries **1,080 and 1,521** — on a `runScript.py` at md5 `0de915d2…`, **byte-identical to the published `CRM_Wing` producer**, at 41,760 cells, with an endpoint finite-difference table of **20 components, 20 PASS, 0 sign flips**. From that log: **one flow adjoint = 182.1 s wall = 12.140 core-min** (median of the 10 within-pair deltas among 20 adjoint stamps), **one primal = 69.44 s = 4.629 core-min**.
+
+**The failure mode, named, because it is not the same as §22.6's.** §22.6 catches a number copied from a sentence. **This is a negative existence claim scoped to one artifact set and then reported without its scope.** A search that finds nothing has found nothing *where it looked*, and the record must carry where it looked. **The clause: a "never" or a "zero" is reported WITH THE SEARCH THAT PRODUCED IT — the paths searched, the pattern used, and what a positive would have looked like.** Same family as the constitution's planted-zero rule (rule 3): a zero from a reader not shown able to see a non-zero is not evidence, and a zero from a reader not shown *where it read* is not a scope.
+
+**Consequence, and it is large and in the lab's favour.** D6R3's gradient term was priced at **529.1 core-min** by extrapolation from a different wing at a different Mach. **Withdrawn.** Re-anchored on the measured adjoint, the item costs **24,900 core-min verbatim (cap 74,700, $21.29 derived)** and **58,800 core-min with the y+ ≈ 1 deviation applied (cap 176,400, $50.27 derived)** — against the **≈425,000 core-min / ≈$363** this supervisor put in front of the owner. **The earlier figure is withdrawn; it was wrong by roughly seventeen-fold and it was wrong in the direction that discourages the work.**
+
+### C2.2 **§22.7's NON-ORTHOGONALITY ATTRIBUTION IS CORRECTED IN TWO PLACES. THE FINDING STANDS; TWO OF ITS LABELS DO NOT**
+
+Re-measured rather than adopted, by the lane that had to build a guard against these values:
+
+- **`71.23798136` is NOT exclusively the optimisation mesh's value.** It appears in **both** logs' check blocks. §22.7 and standing rule 31 present it as O\_mp's as-run figure against FM10's; the correct statement is that **O\_mp's worst is `80.90429398`** across 202 blocks with **76 over 70.0**, and **FM10's is `79.21261137`** across 6 blocks with **6 over 70.0**.
+- **The `Non-orthogonality check OK.` finding is stronger than stated, not weaker.** **All 202** O\_mp blocks and **all 6** FM10 blocks print it, and OpenFOAM's own `severely non-orthogonal (> 70 degrees)` line appears **76 and 6 times immediately above the `OK` it does not prevent.** The four `Failed 1 mesh checks.` lines remain all aspect-ratio, so the channel is live. **§22.7's conclusion — a declared threshold that never refuses is not a threshold — is unchanged and better evidenced.**
+
+**One gap registered unaccommodated rather than smoothed:** D6R2's worst aspect-ratio trip `1050.3162` breached the MACH wing's declared `1000.0` but sits **inside** the published CRM dictionary's `2000.0`, so under a verbatim CRM setup the budget reads OK. **Kept verbatim, recorded, and the control that demonstrates it is carried in the table marked `OK` rather than hidden.**
+
+### C2.3 THE STANDING CONSEQUENCE — **TWO CORRECTIONS IN ONE DAY, BOTH FROM THIS SUPERVISOR, AND BOTH CAUGHT BY A LANE**
+
+Correction 1 was a figure copied from prose. Correction 2 is a scope dropped from a negative. **Neither was caught by the supervisor who wrote it; both were caught by a lane that re-measured instead of adopting.** That is the four §3 checks working in the direction they are least comfortable — **a supervisor's relayed claim is evidence, not a check, exactly as a lane's is** — and this charter records it in those terms so that no future reading treats a supervisor's number as pre-verified. **Adopt nothing you can re-measure; re-measure anything you are about to build a guard against.**
+
+**SUBMISSIONS PARKED.**
