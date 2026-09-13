@@ -200,3 +200,146 @@ so the defect is not closed while mislabelled images stand.
 
 *Appended by a cfd `lab-lane`, 2026-09-12. No solver launched. Alters no gate, threshold,
 cap or label. Submissions parked.*
+
+---
+
+# ADDENDUM 2 — 2026-09-13 — **L1 LANDED. THE FIELDS FIGURE IS NOW THE FINEST LEVEL, THE MESH FIGURE IS STILL THE COARSEST, AND THE LADDER FIGURE SHOWS BOTH HALVES OF THE ANSWER AT ONCE.**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+Alters no gate, threshold, band, cap or label. No solver launched. Submissions parked.
+
+`L1` completed at **2026-09-13T03:35:40Z**, `rc = 0`, `End` line, last `Time = 8000`
+== `endTime 8000`, in `log.rhoSimpleFoam.resume.2`. It is now the **finest completed
+level**, so the head of this file's *"this caption is to be updated the moment L2 or L1
+lands"* is discharged here.
+
+**SANAA'S TWO CLAUSES, RE-APPLIED TO THE LEVELS THAT NOW EXIST:**
+
+| her clause | what is applied now |
+|---|---|
+| *"the coarse mesh (or medium mesh if the coarse isnt converged)"* | **L3, 15,360 cells, 480 wing faces — unchanged.** `M6I_R1_L3_mesh_surface.png` stands as the mesh figure. L3 converged, so her rule still selects it, and at 4× the surface resolution per step the L1 grid is not legible as a mesh picture. |
+| *"all fields should be stored as the fine mesh result fields (whenever we have it)"* | **L1, 983,040 cells, 7,680 wing faces — NEW.** We now have it. `M6I_R1_L1_field_p_surface.png` replaces L3 as the field figure. The L3 field image is **kept, not deleted**, as the coarse-end member of the ladder. |
+
+---
+
+## `M6I_R1_L1_field_p_surface.png` — **MESH SHOWN: L1 (fine). NUMBERS: L1 (fine).**
+
+> **ONERA M6 wing — surface static pressure `p`, level L1 of the M6I import ladder,
+> 983,040 cells, 7,680 wing faces, time 8000.** Solve `M6I-R1-L1-TVD-RESUME2`,
+> `rhoSimpleFoam`, Spalart–Allmaras, 4 ranks, completed 2026-09-13T03:35:40Z with
+> `rc = 0` and an `End` line. Coloured by the **CELLS** association (the array the solver
+> wrote), scalar bar carries the field name and its numbers. Camera convention `--up z`,
+> the same one the L3 pair used, so the two images are directly comparable.
+> **Face-count guard: expected 7,680 from `constant/polyMesh/boundary`, rendered 7,680 —
+> EXACT MATCH.** Planted colour control **PASSED: the collapsed-map plant moved 91.80 %
+> of body pixels** (floor 10 %), read back off the saved PNG.
+>
+> 🔴 **STILL NO SHOCK, AND THE PICTURE MUST NOT BE PRESENTED AS A VALIDATED M6 FIELD.**
+> Measured by the frozen grader on this very level: `cfd_cp_rise_at_shock` **0.1098**
+> against the experiment's **0.4240** at η = 0.65, and **0.0827** against **0.6400** at
+> η = 0.90 — against the registered shock-strength limb S1 (≥ 0.212, ≥ 0.320). Sixty-four
+> times the cells of L3 bought the shock rise only **0.0875 → 0.1098 at η = 0.65**. The
+> smooth expansion in this image is the wing's real computed state, not a rendering
+> artifact, and it is not what AR-138 measured.
+>
+> 🔴 **THE COLOUR RANGE IS SET BY 1 % OF THE SURFACE AND THAT IS DISCLOSED, NOT TUNED
+> AWAY.** The bar reads **[20,523.9 , 202,655.4] Pa**, i.e. `Cp` **[−1.617 , +2.028]** at
+> `q∞ = 49,977.1 Pa`. Measured from the `.vtp` the renderer read: both extremes sit in
+> tip-edge cells at `y ∈ [1.485, 1.502]` — the **η ≈ 1.00 rounded tip**, which the
+> pre-registration §2 already excludes as the region where chord and surface normal are
+> least well defined. Only **1.05 %** of wing cells exceed `|Cp| > 1.2`; the 1st–99th
+> percentile band is `Cp` **[−1.169 , +0.813]**. The renderer rescales to the true data
+> range and has no range flag, so the wing washes toward mid-grey. **No hand-picked range
+> was substituted to make the picture prettier** — the number is stated instead.
+> (`Cp = +2.028` also exceeds the compressible stagnation ceiling ≈ +1.17 at M∞ = 0.8395
+> and is recorded here as a tip-cell overshoot, not defended.)
+>
+> **Renderer exit code was 1, and that is disclosed.** `pvbatch` raised
+> `GLXBadContext / X_GLXMakeCurrent` **after** the `WROTE` line, the face-count guard and
+> the planted colour control had all been emitted — a teardown fault in the X context, not
+> a render fault. The evidence the image is real is the guard and the plant, both printed
+> before the fault, plus the sidecar
+> `M6I_R1_L1_field_p_surface.json` carrying `graded_tree_untouched: true`.
+
+---
+
+## `M6I_R1_L1_cp_vs_agard.png` — **MESH SHOWN: none (a graph). NUMBERS: L1 (fine).**
+
+> **ONERA M6 — surface pressure at the six registered AGARD stations, M6I level L1
+> (983,040 cells, 8,000 iterations) against AGARD AR-138 TABLE B1-14 TEST 2308
+> (M = 0.8395, α = 3.06°, Re = 11.72e6).** Produced by `scripts/plot_m6i_cp.py`; the
+> upper/lower split is transcribed from the frozen grader
+> `scripts/grade_m6_agard_cp.py:cfd_curve()`, not re-decided.
+>
+> 🔴 **THIS FIGURE IS A `GATE FAIL` AND SHOWS WHY IN ONE GLANCE.** Graded by
+> `scripts/grade_m6_agard_cp.py` (blob `e9d5c04b` at `4c931d97c`, hash-verified against
+> the committed blob immediately before the run), output
+> `verification/runs/M6I_runs/L1/m6i_grade_L1.json`. Planted control fired:
+> `reader_saw_the_plant: true`, RMS moved **0.0984** against a required **0.0617**.
+> **11 of 12 Cp rows miss the registered RMS ≤ 0.050 band; both shock stations miss B2.**
+> The one row inside the band is **η = 0.65 lower, RMS 0.0494** — the first row anywhere
+> in this family to sit inside B1, and it is a lower-surface row.
+>
+> **What the eye should take from it:** the lower surface (dashed, squares) now lies on
+> the experiment across all six stations. The upper surface (solid, circles) reaches
+> −`Cp` ≈ **0.98** where the experiment reaches ≈ **1.21**, and then **decays smoothly to
+> the trailing edge where the experiment holds a plateau and drops through a shock.**
+> The missing physics is on the suction side and it is a shock, not an offset.
+
+---
+
+## `M6I_R1_LADDER_cp_vs_agard.png` — **MESH SHOWN: none (a graph). NUMBERS: L3, L2 AND L1 TOGETHER.**
+
+> **ONERA M6 — the whole M6I grid ladder at the six registered AGARD stations: L3
+> (15,360 cells, 3,000 it), L2 (122,880 cells, 5,000 it), L1 (983,040 cells, 8,000 it),
+> against AGARD AR-138 TABLE B1-14 TEST 2308.** Cells rise ×8 per step; wing faces ×4 per
+> step (480 → 1,920 → 7,680).
+>
+> **THIS IS THE FIGURE THAT CARRIES THE ARGUMENT, AND IT SAYS TWO OPPOSITE THINGS AT
+> ONCE — BOTH MEASURED, NEITHER ASSERTED.**
+>
+> 1. **The Cp deviation IS converging.** All **12 of 12** station/surface rows fall
+>    monotonically L3 → L2 → L1 on `rms_dev`. Span-averaged (weighted by graded
+>    orifices): **0.3328 → 0.2045 → 0.1423**. The upper-surface suction peak climbs
+>    monotonically at every station — at η = 0.65, −`Cp` **0.435 → 0.732 → 0.965** against
+>    the experiment's **1.181**, i.e. 37 % → 62 % → 82 % of the measured peak.
+> 2. **The shock is NOT converging.** `x_shock_cfd` at η = 0.65 reads **0.9531 (L3) →
+>    0.8851 (L2) → 0.8851 (L1)** — *identical* across the ×8 refinement from L2 to L1 —
+>    and at η = 0.90 it reads **0.9233 at all three levels.** The D1 detector is finding
+>    the trailing-edge recovery, not a shock, at every level. B2's `|Δx|` therefore does
+>    **not improve at all** between L2 and L1 (0.4099 and 0.6436, unchanged).
+>
+> **Nothing on this figure may be presented as grid convergence of a validated result.**
+> The pre-registration `A3_M6_AGARD_CP_VALIDATION_PREREGISTRATION.md` §0/§8.2 registers
+> this comparison as **VALIDATION ON A SINGLE GRID**, and `M6I_R1_SOLVE_PREREGISTRATION.md`
+> ADDENDUM 3 registers that **fewer than three shock-bearing levels ⇒ NO three-level
+> order and NO GCI is computed, quoted or implied.** None of the three levels is
+> shock-bearing under S1, so **no observed order and no GCI appears anywhere in this
+> caption**, and the monotone `rms_dev` sequence above is reported as a *sequence*, never
+> as a converged extrapolation.
+>
+> 🔴 **A LEGIBILITY DEFECT IN THIS FIGURE, DISCLOSED RATHER THAN QUIETLY SHIPPED.** The
+> L1-only figure separates upper from lower by **marker shape and line style**, so it
+> survives greyscale. This three-level figure separates the *levels* by **lightness of
+> one hue alone** — `plot_m6i_cp.py` shades additional cases rather than re-encoding them
+> — and at η = 0.20 the legend box overlaps the L1 lower-surface entry. **The level
+> identity on this figure is therefore weaker than the surface identity.** Read the
+> per-level numbers from the caption above or from the grade JSONs, not from the shades.
+> No palette-validator pass is claimed: ADDENDUM 1 established that the skill's validator
+> is **blind in this environment** (a deliberately failing pair produced zero bytes and
+> exit 0), and a pass from a reader not shown able to see a failure is not evidence
+> (CLAUDE.md rule 3).
+
+---
+
+## THE MESH FIGURE IS DELIBERATELY NOT L1, AND HERE IS THE MEASUREMENT BEHIND THAT
+
+`M6I_R1_L3_mesh_surface.png` **stays** as the mesh figure of this campaign, per Sanaa's
+first clause. L1's wing carries **7,680 faces against L3's 480 — 16× as many** — and at
+1920×1080 with black cell edges the L1 surface reads as a dark hatch, not a mesh: the
+measured ink fraction of the L1 field render is **0.0773** with edges over 7,680 faces in
+the same frame where L3's 480 faces are individually countable. **Coarse mesh for
+legibility, finest fields for the numbers**, exactly as she put it.
+
+*Appended by a cfd `lab-lane`, 2026-09-13. No solver launched. Alters no gate, threshold,
+band, cap or label. No agent's message is Sanaa's consent. Submissions parked.*

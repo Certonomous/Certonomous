@@ -1,0 +1,56 @@
+{
+  "tool": "render_openfoam_3d_paraview.py",
+  "case": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L1",
+  "patches": [
+    "wing"
+  ],
+  "expected_faces_from_boundary": 7680,
+  "rendered_faces_measured": 7680,
+  "per_patch": {
+    "wing": 7680
+  },
+  "guard": "rendered surface cells == sum(nFaces) over rendered patches; equality MEASURED, not assumed",
+  "graded_tree_census_before": "9c56cd510081071c1024e877cbd7df67",
+  "graded_tree_census_after": "9c56cd510081071c1024e877cbd7df67",
+  "graded_tree_untouched": true,
+  "image": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/RENDERS/M6I_R1_L1_field_p_surface.png",
+  "field": "p",
+  "field_association": "CELLS",
+  "field_range": [
+    20523.86328125,
+    202655.359375
+  ],
+  "field_units": "Pa",
+  "field_units_source": "the field file's own `dimensions` header at the loaded time -- NEVER inferred from the field name; `p` is Pa in a compressible solve and kinematic m^2/s^2 in an incompressible one",
+  "field_dimensions_kg_m_s_K_mol_A_cd": [
+    1,
+    -1,
+    -2,
+    0,
+    0,
+    0,
+    0
+  ],
+  "time_loaded": 8000.0,
+  "times_available": [
+    8000.0
+  ],
+  "surface_colour": "coloured by the field named above, with a scalar bar",
+  "planted_colour_control": {
+    "passed": true,
+    "plant": "colour transfer function collapsed to a single value",
+    "collapsed_to": 111589.611328125,
+    "original_range": [
+      20523.86328125,
+      202655.359375
+    ],
+    "body_pixels": 160310,
+    "body_pixels_changed": 147157,
+    "body_fraction_changed": 0.9179527166115651,
+    "floor": 0.1,
+    "reader": "the saved PNG, read back off disk"
+  },
+  "q_ref_half_U2": null,
+  "q_ref_note": "not applicable: no --field, or the field is not a kinematic pressure",
+  "utc": "2026-09-13T04:02:46Z"
+}
