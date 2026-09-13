@@ -28753,3 +28753,59 @@ thirty-two carefully categorised false hits did earlier the same night.
 L-581, L-582, L-583, L-584, and the `head -10` that truncated a live run's ranks off a process
 sweep an hour earlier. **Every one is a limit the reader imposed on itself, invisible in its own
 output.***
+
+
+## L-586 — A TEST AGAINST A GROWING TREE TESTS THE STATE, NOT THE CODE: the branch that DECIDES cannot be entered until the run finishes, so it executes for the first time IN PRODUCTION on the one night it matters
+
+**The hazard, in one line.** *A comparator's deciding path is guarded by a completion test.
+Until the run completes, every rehearsal takes the early return — so the code that produces
+the verdict has never once executed when the verdict is finally needed.*
+
+**What it cost.** `K2h_L3` solved cleanly to `endTime` after 1,919.60 core-min — `rc=0`,
+`End`, all six AD7.3 clauses satisfiable — and the comparator then died on an uncaught
+`FileNotFoundError`. `GRADE.K2h_L3.json` was **zero bytes**: no verdict, no value, no render,
+after a five-hour run. The defect was **four gating call sites taking `time=ENDTIME` as a
+DEFAULT PARAMETER**, reading a directory the case can never write.
+
+**Why no test caught it, and this is the whole lesson.** The crash site sits past
+`if comp != "COMPLETE": return`. **`D-COMPLETE` cannot return `COMPLETE` until the solver
+finishes**, so the branch was *unenterable* by construction. The one pre-landing test of the
+comparator returned `INCOMPLETE` on "no STATUS" and "no `End` line", took the early return,
+and **its output carries no `planted_zero` key at all** — checked by the key's ABSENCE, not
+inferred. Every rehearsal exercised the branch that *could* be reached; **the branch that
+decides ran for the first time in production.**
+
+**The tell that the instrument was already broken in a visible way, if anyone had looked at
+the shape rather than the lines.** Every call site on the **refusal and diagnostics** path
+passed its time explicitly. Only the **gating** sites inherited the default. ***The
+comparator was correct everywhere it did not decide and defaulted to an impossible directory
+everywhere it did*** — an asymmetry that is legible in the source without running anything,
+and that points at exactly the paths no test could enter.
+
+**Distinct from `L-575`, and the pair is the point.** L-575 was a **reader that could not
+match** — a `ps … | grep` whose pattern could never have found the process it declared dead.
+This is a **branch that could not be entered**. Different mechanism, *identical* diagnostic
+question: **ask what your check would have to SEE in order to FAIL, and then ask whether it
+can currently see it.** In L-575 the answer was "a process name it cannot match"; here it is
+"a completed run that does not exist yet". Both times the check reported success while
+discriminating nothing.
+
+**The remedy is a SHAPE, not a rule.** ***A comparator's deciding path must be driven
+against a SYNTHETIC COMPLETE tree before the real one lands*** — because a real tree only
+becomes complete **once**, and that once is the night the number is needed. A synthetic tree
+costs seconds, can be built the moment the registration is frozen, and is the only thing that
+exercises the half of the instrument that produces the answer. The repair was driven exactly
+that way: seven branches on synthetic trees, each with a positive control, before the
+repaired grader was allowed near the real artifact.
+
+**A guard worth stating honestly while doing this.** The repair added an assertion that the
+graded read time equals the caption's disclosure time. **It cannot currently fire** — both
+values derive from the same local — so it is a **REGRESSION GUARD, not a live
+discriminator**, and it was reported as one. *Do not let a check that could not have failed
+be quoted as evidence that it passed.* On that run the correspondence held by **shared
+provenance**, which is a stronger reason than an assert.
+
+*Found at the `K2h_L3` landing, 2026-09-13. Repair `ab65cd45e5c7d485caba38d7c5d4ff1ddcc8889d`
+under `VERIFICATION_CHARTER` §2d.1, committed BEFORE it ran and before any `DPbar` existed;
+landing `c5b942df05ac663fbb7db1f739bc9e9ae17587e1`; ADDENDUM 9 in
+`docs/campaigns/F14-cooling-ladder/K2h_PREREGISTRATION.md`.*
