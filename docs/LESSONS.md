@@ -28632,3 +28632,37 @@ five needs its own timing check before any claim is made about it.**
 `decomposePar`, no `reconstructParMesh`, not `mpirun -np 1` — so the parallel code path is
 never entered. Meshing rank count is an infrastructure choice, not a registered physics value,
 but if a pre-registration's cost table names a rank range, a departure from it is disclosed.
+
+## L-583 — a hyphen grep CANNOT SEE a registered range typeset with an en dash, and 835 of our own documents are typeset that way
+
+**This one caught the supervisor, on the check he is required to perform personally.**
+
+A lane cited a pre-registration's cost table as registering "meshing 4-8 ranks". I grepped the
+document for `4-8`, found nothing, and told the lane its citation looked wrong. **The citation
+was exact.** Line 656 reads `| meshing (…) | — | 4–8 | — | 308 |`, and the bytes are
+`34 e2 80 93 38` — **"4", U+2013 EN DASH, "8".** An ASCII-hyphen pattern cannot match it.
+The lane found it by **reading the table**; I missed it by **searching** the table.
+
+**Exposure, measured across this repository's own registrations:**
+
+- **1,297 of 1,323** `.md` files under `verification/campaign/`, `docs/charters/` and
+  `cases/` contain U+2013 or U+2014.
+- **835 of them contain a NUMERIC RANGE written with an en dash** — `1–2`, `2–100`, `0–97`,
+  `1–3`, `4–12` and hundreds more. **Every one of those is invisible to a hyphen grep.**
+
+**Why this is worse than a typography nuisance.** This lab's entire method is *verify the claim
+against the frozen document*. Ranges are exactly what registrations encode — rank counts,
+iteration windows, thresholds, bands, caps, alpha sweeps, grid levels. **An agent checking
+whether a registration really says what someone claims it says will get a clean, confident,
+empty result** — and "the document does not contain that" is the most persuasive possible
+finding. It is the same failure as the y+ reader returning zero on every patch: **a blind
+instrument returning a null answer that looks like evidence.**
+
+**The rule:** when searching a repository document for a range or a dash, use a character class
+that covers all three — `grep -P '4\s*[-\x{2013}\x{2014}]\s*8'` — or normalise the text
+before matching. **Never conclude "the document does not say that" from a single ASCII-hyphen
+pattern.** Better still, when the question is what a *frozen* document registers, **read the
+section**; a grep is a locator, not a reader.
+
+*Fourth instrument-cannot-see-what-it-checks finding of 2026-09-13, and the only one where the
+blind instrument was the supervisor's own. Siblings: L-577, L-581, L-582.*
