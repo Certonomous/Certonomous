@@ -4,12 +4,17 @@ FoamFile{version 2.0;format ascii;class dictionary;location "system";object fvSo
 // change and M6I measured what happens when it is altered casually.
 solvers
 {
-    // NO maxIter CAP. Carried at 50 in the first ramp attempt "to keep the diagnostic
-    // affordable"; on a LIVE pressure equation that cap DIVERGED the solve -- initial residual
-    // 0.999995 to FINAL 5.13e+08 and p max 4.41e+24 Pa -- while the uncapped solver in the same
-    // run converged 0.999993 -> 9.95e-03 in 231 iterations. A cap that is harmless on an inert
-    // equation is destructive on a working one.
-    p       { solver GAMG; tolerance 1e-10; relTol 0.01; smoother GaussSeidel; }
+    // PROBE P2 -- THE SINGLE REGISTERED CHANGE: NO GAMG ON THE PRESSURE SOLVE AT ALL.
+    // V10's SIGFPE is in libOpenFOAM, not in the thermophysical model: the stack is
+    // GAMGSolver -> Vcycle -> solveCoarsestLevel -> PBiCGStab::scalarSolve -> sumProd<double>.
+    // sumProd faulting means the COARSEST-LEVEL AGGLOMERATED SYSTEM holds non-finite values or
+    // products that overflow a double. That is the same cause as the very first finding of this
+    // act -- GAMG running to its 1000-iteration ceiling for a 1.4x residual reduction on a grid
+    // whose maximum aspect ratio is 4437. One cause, two symptoms: a coarse hierarchy that
+    // cannot solve, first stalling and now overflowing.
+    // PBiCGStab/DIC removes the coarse hierarchy from the problem entirely, so it is the
+    // DEFINITIVE test of whether agglomeration is the cause rather than a tuning of it.
+    p       { solver PBiCGStab; preconditioner DIC; tolerance 1e-10; relTol 0.01; }
     "(U|e|h|nuTilda)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-11; relTol 0.01; }
     rho     { solver diagonal; }
 }
