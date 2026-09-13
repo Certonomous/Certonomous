@@ -1101,3 +1101,68 @@ that **A3.6's check passes**: the pressure component is non-zero and of plausibl
 instrument built after being fooled by an inert equation now confirms the equation is live.
 
 **Ledger, unchanged: six runs, three findings, zero results.**
+
+---
+
+# ADDENDUM 8 — 2026-09-13, A FIELD-BASED DIVERGENCE CRITERION. Version 1.8.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, threshold, cap or label.** Registered **before** anything is extracted from the
+run it governs.
+
+## A8.1 🔴 WHY THE EXISTING CRITERIA COULD NOT SEE IT — THE FIFTH INSTANCE
+
+Probe P2's branch 3 was registered as *"runs, does not fault, does not converge in a stated
+iteration count"*, and the count was set at 2000 linear iterations. **Both the supervisor's
+wording and the lane's number aimed at the LINEAR SOLVER'S ITERATION COUNT while the divergence
+lives in the FIELD.**
+
+Observed in V12: linear solves converge cleanly — 0.9939 → 6.08×10⁻³ in **2** iterations,
+0.00454 → 3.06×10⁻⁵ in **6**, 0.9672 → 6.36×10⁻³ in **3** — while `p max` goes
+**3.76×10¹⁵ → 1.93×10¹⁶ Pa** against a freestream of 4007.39. Largest single solve: 1000, which is
+PBiCGStab's own default, well under the registered 2000.
+
+> **"THE SOLVER IS ITERATING FINE" AND "THE ANSWER IS DIVERGING" ARE INDEPENDENT FACTS, AND ONLY
+> ONE OF THEM WAS BEING WATCHED.**
+
+This is the **fifth** time in this act a registered criterion has been aimed at a quantity the
+failure does not move (A2.1, A3.2, A4.1, A5.1, and now this).
+
+## A8.2 THE REGISTERED CRITERION — ON THE FIELD, NOT ON THE SOLVER
+
+> **DIVERGENT** iff `p max` exceeds **100 × p∞ = 400,739 Pa**, *or* `p max` grows by more than a
+> factor of **10 between consecutive checkpoints**.
+> **BOUNDED** iff `p max` stays under 10 × p∞ = 40,074 Pa for 20 consecutive iterations.
+> Between the two: **UNDECIDED**, and reported as such rather than resolved by preference.
+
+Read from the written checkpoints, **before** any timing and **before** any linear-solver
+diagnostic. A run may satisfy every residual criterion and be `DIVERGENT` by this one; that is the
+point.
+
+## A8.3 WHAT IS EXTRACTED FROM A DIVERGING RUN, AND WHAT EACH ANSWER MEANS
+
+`p max` location per checkpoint, and — decisively — **whether that location is STABLE**:
+
+| observation | diagnosis | rung |
+|---|---|---|
+| runaway **stays in one place** and grows | that place is defective | **mesh-quality rung** — wing-body junction or tip |
+| runaway **at the farfield** | boundary treatment | **boundary-condition rung** |
+| runaway **MOVES or SPREADS** | **a local mesh defect does not migrate** | **scheme or boundary treatment**, not the mesh |
+| runaway **everywhere at once** | the ramp is not holding | **A7.4's named branch: the ramp's relaxation** |
+
+**Stability across checkpoints is the discriminator**, because a mesh defect is fixed in space and
+a scheme or boundary fault is not.
+
+## A8.4 🔴 WHEN THE INFORMATION IS EXHAUSTED — AN EXPECTED-VALUE DECISION, **NOT A CAP**
+
+**Sanaa's ruling stands in full: nothing stops on time or on budget** (directive #17). This is not
+a cap and must not become one.
+
+> **Once THREE consecutive checkpoints show a consistent `p max` location, the information this
+> run can produce has been extracted and further iterations buy nothing.** Stopping there is an
+> expected-value judgement about what the next iteration would tell us — the same judgement as
+> declining a fine mesh whose answer is already known — and it is recorded with the three
+> checkpoints that support it.
+
+**Registered now so that "enough" is not decided later by fatigue.**
