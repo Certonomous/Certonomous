@@ -1263,3 +1263,79 @@ output. This amendment is itself the first live exercise of the repair: appendin
 this document's whole-file `sha256`, which is exactly what used to break C1 — and C1 now
 passes, because the frozen text at `09396b48` is unchanged and this text is appended below
 it.**
+
+---
+
+## AMENDMENT 6 — 2026-09-13, before first compute. C4: A FORCE MAY NOT BE READ FROM A RUN THAT DID NOT FINISH, OR FROM A PROPELLER THAT DID NOT ROTATE
+
+**Legality.** Rule 2, before first compute. **Condition: no PPTC solve has been graded by
+`analyse_pptc.py`.** Checked at `/home/ubuntu/certonomous-runs/PPTC_VP1304/` — the run root
+the runs actually use — as A5 established. **Nothing registered moves.** C4 is
+**refusal-only**: standing rule 5 lets a gate turn a reading *into* `NOT A RESULT` and never
+the reverse, so C4 can withhold a KT and **can never produce, improve or rescue one**. No
+gate, threshold, band, cap or label is touched.
+
+### A6.1 The gap
+
+C1, C2 and C3 test the freeze, the physics constants and the parser. **None of them asks
+whether the run finished or whether the propeller rotated.** Without C4 this comparator
+reads KT and KQ off a force file whatever produced it.
+
+### A6.2 The hazard is measured, not hypothesised
+
+On the CRM wing-body act, `SOLVE_T_SST` died of SIGFPE at iteration 22 with its field at
+`p max 3.86761822375e+129`, and **six of its twenty-one steps still carried a pressure Cd
+inside the admissible band [0, 0.2]** — +0.0800, +0.0538, +0.0404, +0.0170, +0.0004,
++0.0091 — while the total ran to −4.414128e+88. A plausible, band-passing coefficient out of
+a destroyed solution.
+
+**On this act the same shape has a sharper form.** `dead_lever_audit.sh:8-12`: a `cellZone`
+naming a zone that does not exist means **MRF silently does nothing, the propeller does not
+rotate**, and the case converges to a tidy number that looks like a bad mesh rather than
+like no rotation at all. **A KT from a stationary propeller is the same family as SST's quiet
+pressure Cd: a plausible number from a dead configuration.**
+
+### A6.3 The clauses
+
+| | clause | basis |
+|---|---|---|
+| **G-1** | the run satisfies **standing rule 4** in full — rc, `End`, last time == `endTime`, fields at `endTime`, the step set, and the **age guard** | the D631 **strongest** reading: distinct physics steps **unioned across log segments**, set == {1…endTime}, via `scripts/solver_log_set.py` |
+| **G-2** | the **MRF lever is live** — `MRFProperties` names a `cellZone`, that zone is on disk, it is non-empty, and `omega` ≠ 0 | structural; **needs no registered threshold** |
+| **G-3** | a field ceiling | 🔴 **`BLOCKED` pending registration — and deliberately not invented** |
+
+**On G-3, stated plainly because the temptation was real.** CRM's comparator gates `p` and
+`max|U|` against `2·p₀` and `2·U∞`. **Those numbers do not transfer**: PPTC is
+incompressible, its `p` is kinematic, and its velocity scale is blade tip speed, not a
+freestream. **This pre-registration registers no field bound or divergence criterion** —
+swept for one before writing this. Importing CRM's constants would be exactly the error this
+act has already made three times: *a number carried across from the run that is not the run.*
+**G-1 alone would have refused the SST artifact G-3 exists for** — rc=136, no `End` line, 21
+steps of its registered length.
+
+### A6.4 The controls, driven in both directions, on every invocation
+
+Nine clauses. **Eight fixtures each built to break exactly one clause and required to
+REFUSE *on that clause* — a gate that refuses for the wrong reason is not evidence about the
+right one — and the clean fixture required to stay READABLE, because a gate that refuses
+everything is not a gate.**
+
+| fixture | required |
+|---|---|
+| clean run | **READABLE** |
+| `rc != 0` (SST's shape) | REFUSE on G-1 |
+| no `End` line (SST's shape) | REFUSE on G-1 |
+| stopped short (SST reached 21 of its length) | REFUSE on G-1 |
+| no `endTime` fields | REFUSE on G-1 |
+| `endTime` fields older than `0/` — the age guard | REFUSE on G-1 |
+| MRF `cellZone` absent from disk — **dead lever** | REFUSE on G-2 |
+| MRF `omega` == 0 — **dead lever** | REFUSE on G-2 |
+| `MRFProperties` absent entirely | REFUSE on G-2 |
+
+They run **before the instrument is pointed at anything**, as C1's do. Fixtures are built in
+a temporary directory and never in a run tree.
+
+### A6.5 Status
+
+**Pre-compute. C1 PASS, C2 PASS, C4 armed. C3 still requires a case with forces output.**
+Exercised against the real staged `SMOKE360_J0.7985`, which C4 refuses on G-1: it carries
+`0.orig`, `constant` and `system` and has not solved.

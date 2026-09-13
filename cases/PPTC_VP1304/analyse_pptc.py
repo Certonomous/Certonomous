@@ -34,6 +34,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 
 # --------------------------------------------------------------------------------------
 # FROZEN CONSTANTS.  Every value below is quoted from the frozen pre-registration, which is
@@ -41,6 +42,12 @@ import tempfile
 # --------------------------------------------------------------------------------------
 
 PREREG = 'cases/PPTC_VP1304/PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md'
+
+# Repository root derived from THIS file's location (cases/PPTC_VP1304/), never from
+# cwd: the comparator is run detached from the case directory, and a cwd-derived root
+# would resolve into the run tree.
+REPO_ROOT_FOR_SCRIPTS = os.path.abspath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 
 # The grading path is pinned to the frozen pre-registration AS AMENDED, and the whole
 # history of that pin is recorded here so a reader can see what changed and when.
@@ -574,6 +581,353 @@ def check_plant(case: str, name: str, window: int, verbose: bool = True) -> None
 # Grading
 # --------------------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------------------
+# C4 -- MAY A FORCE BE READ FROM THIS CASE AT ALL?   (amendment 6, 2026-09-13)
+# --------------------------------------------------------------------------------------
+# REFUSAL-ONLY, and that is what makes it addable without touching a frozen threshold:
+# standing rule 5 lets a gate turn a reading INTO `NOT A RESULT` and never the reverse, so
+# nothing here can produce, improve or rescue a KT -- it can only decline to serve one.
+#
+# 🔴 WHY.  C1, C2 and C3 test the freeze, the physics constants and the parser.  NONE of
+# them asks whether the run FINISHED or whether the propeller ROTATED.  Without C4 this
+# comparator reads KT and KQ off a force file whatever produced it.
+#
+# THE HAZARD IS MEASURED, NOT HYPOTHESISED.  On the CRM wing-body act, `SOLVE_T_SST` died of
+# SIGFPE at iteration 22 with its field at p max 3.86761822375e+129, and SIX OF ITS
+# TWENTY-ONE STEPS still carried a pressure Cd inside the admissible band [0, 0.2] -- +0.0800,
+# +0.0538, +0.0404, +0.0170, +0.0004, +0.0091 -- while the total ran to -4.414128e+88.
+# A PLAUSIBLE, BAND-PASSING COEFFICIENT OUT OF A DESTROYED SOLUTION.  And on THIS act the
+# same shape has a sharper form: `dead_lever_audit.sh:8-12` records that a `cellZone MRFzone`
+# naming a zone that does not exist means MRF SILENTLY DOES NOTHING, THE PROPELLER DOES NOT
+# ROTATE, and the case converges to a tidy number that looks like a bad mesh rather than like
+# no rotation at all.  A KT from a stationary propeller is the same family as SST's quiet
+# pressure Cd: a plausible number from a dead configuration.
+#
+# 🔴 WHAT IS DELIBERATELY *NOT* IMPORTED.  The CRM comparator's field clause gates p and
+# max|U| against ceilings registered in THAT act (2*p0 and 2*U_inf, in Pa and m/s).  THOSE
+# NUMBERS DO NOT TRANSFER: PPTC is incompressible, its `p` is kinematic, and its velocity
+# scale is the blade tip speed, not a freestream.  THIS PRE-REGISTRATION REGISTERS NO FIELD
+# BOUND OR DIVERGENCE CRITERION -- swept for one before writing this.  So the field-ceiling
+# clause is reported `BLOCKED pending registration` AND IS NOT INVENTED HERE.  Importing
+# CRM's constants would be exactly the error this act has already made three times: a number
+# carried across from the run that is not the run.
+#
+# WHAT REMAINS IS STILL DECISIVE.  G-1 alone would have refused SST: rc=136, no `End` line,
+# and 21 of its registered steps reached.  A run that did not finish cannot hand over a force.
+
+SOLVER = 'simpleFoam'
+
+
+def _read_rc(case: str):
+    """PPTC writes a bare integer to RC.txt and `exec_rc=N` to SOLVER_RC.txt
+    (`launch_pptc.sh:104,110`).  Both are read; they must agree if both exist."""
+    vals = {}
+    p1 = os.path.join(case, 'RC.txt')
+    if os.path.isfile(p1):
+        m = re.search(r'(-?\d+)', open(p1).read())
+        if m:
+            vals['RC.txt'] = int(m.group(1))
+    p2 = os.path.join(case, 'SOLVER_RC.txt')
+    if os.path.isfile(p2):
+        m = re.search(r'exec_rc=(-?\d+)', open(p2).read())
+        if m:
+            vals['SOLVER_RC.txt'] = int(m.group(1))
+    if not vals:
+        return None, 'neither RC.txt nor SOLVER_RC.txt is present'
+    if len(set(vals.values())) > 1:
+        return None, f'the two rc files disagree: {vals}'
+    return next(iter(vals.values())), None
+
+
+def _controldict_int(case: str, key: str):
+    p = os.path.join(case, 'system', 'controlDict')
+    if not os.path.isfile(p):
+        return None
+    m = re.search(r'^\s*%s\s+([^;]+);' % re.escape(key), open(p).read(), re.M)
+    if not m:
+        return None
+    try:
+        return float(m.group(1).strip())
+    except ValueError:
+        return None
+
+
+def check_completion(case: str) -> dict:
+    """Standing rule 4 on a PPTC run, using the D631 STRONGEST READING of the
+    ExecutionTime clause: DISTINCT physics steps UNIONED ACROSS LOG SEGMENTS, required to be
+    exactly {1 .. endTime}.  That reading is `scripts/solver_log_set.py`, adopted from
+    `cases/navier_class/SUBOFF_A1/grade_suboff_a1h.py:212`; a line count in one file
+    double-counts every step a resume re-ran."""
+    r: dict = {'case': case}
+    rc, rc_err = _read_rc(case)
+    r['rc'], r['rc_error'] = rc, rc_err
+    r['clause_rc_zero'] = (rc == 0)
+
+    end_time = _controldict_int(case, 'endTime')
+    delta_t = _controldict_int(case, 'deltaT') or 1.0
+    r['endTime'], r['deltaT'] = end_time, delta_t
+    if end_time is None:
+        r['clause_end_line'] = r['clause_last_eq_endTime'] = False
+        r['clause_exec_count'] = False
+        r['ok'] = False
+        r['error'] = 'system/controlDict carries no readable endTime'
+        return r
+
+    repo_scripts = os.path.join(REPO_ROOT_FOR_SCRIPTS, 'scripts')
+    if repo_scripts not in sys.path:
+        sys.path.insert(0, repo_scripts)
+    import solver_log_set as _sls
+    sc = _sls.scan(case, SOLVER, end_time=end_time, delta_t=delta_t)
+    r['clause_end_line'] = sc['end_line']
+    r['clause_last_eq_endTime'] = sc.get('clause_last_eq_endTime', False)
+    r['clause_exec_count'] = sc.get('clause_exec_count', False)
+    r['last_Time'] = sc['last_time']
+    r['n_steps_distinct'] = sc['n_steps']
+    r['n_missing_steps'] = sc.get('n_missing_steps')
+    r['n_log_segments'] = sc['n_segments']
+    r['exec_count_reading'] = ('D631: distinct physics steps unioned across segments, '
+                               'set == {1..endTime}')
+
+    # fields at endTime, and THE AGE GUARD, in whichever layout the run used
+    procs = sorted(d for d in os.listdir(case) if re.fullmatch(r'processor\d+', d)) \
+        if os.path.isdir(case) else []
+    r['n_processor_trees'] = len(procs)
+    roots = [os.path.join(case, d) for d in procs] or [case]
+    tname = None
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        for nm in os.listdir(root):
+            try:
+                if abs(float(nm) - end_time) < 1e-9:
+                    tname = nm
+                    break
+            except ValueError:
+                continue
+        if tname:
+            break
+    r['endTime_dirname'] = tname
+    missing, newest_anchor = [], -1.0
+    worst_margin = None
+    for root in roots:
+        td = os.path.join(root, tname) if tname else None
+        zero = os.path.join(root, '0')
+        if os.path.isdir(zero):
+            for f in os.listdir(zero):
+                try:
+                    newest_anchor = max(newest_anchor, os.path.getmtime(os.path.join(zero, f)))
+                except OSError:
+                    pass
+        if not td or not os.path.isdir(td):
+            missing.append(f'{os.path.basename(root)}/{tname}')
+            continue
+        present = set(os.listdir(td))
+        for f in ('U', 'p'):
+            if f not in present:
+                missing.append(f'{os.path.basename(root)}/{tname}/{f}')
+    r['fields_missing'] = missing[:10]
+    r['clause_fields'] = (tname is not None and not missing)
+    if r['clause_fields'] and newest_anchor > 0:
+        for root in roots:
+            for f in ('U', 'p'):
+                fp = os.path.join(root, tname, f)
+                try:
+                    d = os.path.getmtime(fp) - newest_anchor
+                except OSError:
+                    d = -1.0
+                if worst_margin is None or d < worst_margin:
+                    worst_margin = d
+    r['age_margin_worst_s'] = worst_margin
+    r['clause_age_guard'] = (worst_margin is not None and worst_margin > 0.0)
+
+    r['ok'] = all([r['clause_rc_zero'], r['clause_end_line'], r['clause_last_eq_endTime'],
+                   r['clause_exec_count'], r['clause_fields'], r['clause_age_guard']])
+    return r
+
+
+def check_live_lever(case: str) -> dict:
+    """🔴 DID THE PROPELLER ACTUALLY ROTATE?
+
+    `constant/MRFProperties` names a `cellZone`.  If that zone is absent from
+    `constant/polyMesh/cellZones`, or holds no cells, or its `omega` is zero, MRF does
+    nothing and the solve is of a STATIONARY propeller -- which still produces a tidy,
+    finite, plausible KT.  Structural, so it needs no registered threshold: a zone either
+    exists and is non-empty, or it does not."""
+    r: dict = {}
+    mrf = os.path.join(case, 'constant', 'MRFProperties')
+    if not os.path.isfile(mrf):
+        r['ok'] = False
+        r['reason'] = 'constant/MRFProperties is absent: nothing rotates this propeller'
+        return r
+    body = open(mrf).read()
+    m = re.search(r'cellZone\s+(\w+)', body)
+    if not m:
+        r['ok'] = False
+        r['reason'] = 'MRFProperties names no cellZone'
+        return r
+    zone = m.group(1)
+    r['cellZone'] = zone
+    om = re.search(r'omega\s+(?:constant\s+)?(-?[0-9.eE+-]+)', body)
+    r['omega'] = float(om.group(1)) if om else None
+    zpaths = [os.path.join(case, 'constant', 'polyMesh', 'cellZones')]
+    zpaths += [os.path.join(case, d, 'constant', 'polyMesh', 'cellZones')
+               for d in sorted(os.listdir(case))
+               if re.fullmatch(r'processor\d+', d)] if os.path.isdir(case) else []
+    found, ncells = False, 0
+    for zp in zpaths:
+        if not os.path.isfile(zp):
+            continue
+        txt = open(zp, errors='replace').read()
+        if re.search(r'^\s*%s\s*$' % re.escape(zone), txt, re.M):
+            found = True
+            seg = txt.split(zone, 1)[1]
+            mm = re.search(r'nCells|^\s*(\d+)\s*$', seg, re.M)
+            if mm and mm.group(1):
+                ncells += int(mm.group(1))
+    r['zone_found'] = found
+    r['cells_in_zone'] = ncells
+    if not found:
+        r['ok'] = False
+        r['reason'] = (f'MRFProperties names cellZone {zone!r} but no cellZones file on disk '
+                       'contains it. MRF IS A DEAD LEVER: the propeller does not rotate and '
+                       'the case still converges to a plausible KT '
+                       '(dead_lever_audit.sh:8-12).')
+        return r
+    if r['omega'] is not None and abs(r['omega']) == 0.0:
+        r['ok'] = False
+        r['reason'] = f'MRF omega is {r["omega"]}: the propeller does not rotate'
+        return r
+    r['ok'] = True
+    return r
+
+
+def force_is_readable(case: str, verbose: bool = True) -> dict:
+    """C4.  Refusal-only.  Any one clause withholds every force from this case."""
+    r: dict = {'refusals': [], 'clauses': {}}
+
+    comp = check_completion(case)
+    r['completion'] = comp
+    r['clauses']['G-1_run_completed'] = bool(comp.get('ok'))
+    if not comp.get('ok'):
+        failed = [k.replace('clause_', '') for k in
+                  ('clause_rc_zero', 'clause_end_line', 'clause_last_eq_endTime',
+                   'clause_exec_count', 'clause_fields', 'clause_age_guard')
+                  if not comp.get(k)]
+        r['refusals'].append(
+            'G-1: standing rule 4 is not satisfied; clauses failing: '
+            + ', '.join(failed) + '. A run that did not finish cannot hand over a force.')
+
+    lever = check_live_lever(case)
+    r['live_lever'] = lever
+    r['clauses']['G-2_propeller_rotates'] = bool(lever.get('ok'))
+    if not lever.get('ok'):
+        r['refusals'].append('G-2: ' + str(lever.get('reason')))
+
+    # G-3 is registered as UNAVAILABLE rather than invented.  See the header note.
+    r['clauses']['G-3_field_ceiling'] = 'BLOCKED'
+    r['field_ceiling_note'] = (
+        'BLOCKED pending registration: this pre-registration registers no field bound or '
+        'divergence criterion, and CRM\'s ceilings (2*p0, 2*U_inf) are compressible-case '
+        'constants that do not transfer to an incompressible propeller. NOT INVENTED HERE. '
+        'G-1 alone would have refused the CRM SST artifact this clause exists for '
+        '(rc=136, no End line, 21 steps of its registered length).')
+
+    r['readable'] = not r['refusals']
+    r['basis'] = ('REFUSAL-ONLY (standing rule 5): this gate can turn a force reading into '
+                  'NOT A RESULT and can never produce, improve or rescue one.')
+    if verbose:
+        if r['readable']:
+            print('    C4 PASS -- run complete under rule 4, and the MRF lever is live '
+                  f'(cellZone {lever.get("cellZone")}, omega {lever.get("omega")})')
+        else:
+            for x in r['refusals']:
+                print('    C4 REFUSE -- ' + x)
+    return r
+
+
+def _c4_fixture(root: str, end: int = 5, rc: int = 0, end_line: bool = True,
+                steps=None, zone: str = 'MRFzone', zone_on_disk: bool = True,
+                omega: float = 94.2, fields: bool = True, age_ok: bool = True) -> str:
+    """A synthetic PPTC run that PASSES C4, unless asked to break exactly one clause."""
+    os.makedirs(os.path.join(root, 'system'), exist_ok=True)
+    os.makedirs(os.path.join(root, 'constant', 'polyMesh'), exist_ok=True)
+    open(os.path.join(root, 'system', 'controlDict'), 'w').write(
+        'application simpleFoam;\nendTime %d;\ndeltaT 1;\n' % end)
+    open(os.path.join(root, 'RC.txt'), 'w').write('%d\n' % rc)
+    open(os.path.join(root, 'constant', 'MRFProperties'), 'w').write(
+        'MRF1\n{\n    cellZone %s;\n    active yes;\n    omega constant %g;\n}\n'
+        % (zone, omega))
+    open(os.path.join(root, 'constant', 'polyMesh', 'cellZones'), 'w').write(
+        ('1\n(\n%s\n{\n    type cellZone;\n    cellLabels List<label>\n5000\n(\n)\n;\n}\n)\n'
+         % zone) if zone_on_disk else '0\n(\n)\n')
+    ts = steps if steps is not None else list(range(1, end + 1))
+    body = ''.join('Time = %d\n\nExecutionTime = %d s  ClockTime = %d s\n\n' % (t, t, t)
+                   for t in ts)
+    open(os.path.join(root, 'log.simpleFoam'), 'w').write(
+        'Build : v2606\n' + body + ('End\n' if end_line else ''))
+    t0 = time.time() - 10000.0
+    os.makedirs(os.path.join(root, '0'), exist_ok=True)
+    for f in ('U', 'p'):
+        fp = os.path.join(root, '0', f)
+        open(fp, 'w').write('// 0\n')
+        os.utime(fp, (t0, t0))
+    if fields:
+        td = os.path.join(root, str(end))
+        os.makedirs(td, exist_ok=True)
+        for f in ('U', 'p'):
+            fp = os.path.join(td, f)
+            open(fp, 'w').write('// t\n')
+            m = t0 + (500.0 if age_ok else -500.0)
+            os.utime(fp, (m, m))
+    return root
+
+
+def readable_controls(verbose: bool = True) -> None:
+    """C4's FAILING-DIRECTION CONTROLS.  Every clause driven to REFUSE on a fixture built
+    to break it, AND the clean fixture required to stay READABLE -- a gate that refuses
+    everything is not a gate.  Run ALWAYS, before the instrument is pointed at anything
+    (`spd_gate.py:257`).  Fixtures live in a tempdir, never in a run tree."""
+    cases = [
+        ('rc != 0 -- SST shape', dict(rc=136), 'G-1'),
+        ('no End line -- SST shape', dict(end_line=False), 'G-1'),
+        ('stopped short -- SST reached 21 of its length', dict(steps=[1, 2, 3]), 'G-1'),
+        ('no endTime fields', dict(fields=False), 'G-1'),
+        ('age guard: endTime fields older than 0/', dict(age_ok=False), 'G-1'),
+        ('MRF cellZone absent from disk -- DEAD LEVER', dict(zone_on_disk=False), 'G-2'),
+        ('MRF omega == 0 -- DEAD LEVER', dict(omega=0.0), 'G-2'),
+    ]
+    fired = []
+    with tempfile.TemporaryDirectory() as td:
+        clean = force_is_readable(_c4_fixture(os.path.join(td, 'clean')), verbose=False)
+        if not clean['readable']:
+            raise Refusal('CONTROL FAILED: C4 refuses a clean run. A gate that refuses '
+                          'everything is not a gate: ' + '; '.join(clean['refusals']))
+        fired.append('clean-accepted')
+        for i, (name, kw, clause) in enumerate(cases):
+            r = force_is_readable(_c4_fixture(os.path.join(td, 'f%d' % i), **kw),
+                                  verbose=False)
+            if r['readable']:
+                raise Refusal(f'CONTROL FAILED: C4 accepted a case built to break it '
+                              f'({name}). The clause cannot fail and is therefore not a '
+                              'clause.')
+            if not any(x.startswith(clause) for x in r['refusals']):
+                raise Refusal(f'CONTROL FAILED: {name} refused, but not on {clause} -- '
+                              f'it refused on {r["refusals"][0][:60]!r}. A gate that '
+                              'refuses for the wrong reason is not evidence about the '
+                              'right one.')
+            fired.append(clause + '/' + name.split(' --')[0].split(':')[0].strip())
+        # MRFProperties missing entirely
+        root = _c4_fixture(os.path.join(td, 'nomrf'))
+        os.remove(os.path.join(root, 'constant', 'MRFProperties'))
+        r = force_is_readable(root, verbose=False)
+        if r['readable']:
+            raise Refusal('CONTROL FAILED: C4 accepted a case with no MRFProperties.')
+        fired.append('G-2/MRFProperties-absent')
+    if verbose:
+        print(f'  C4 controls ARMED: {len(fired)} clauses driven '
+              f'({len(fired) - 1} to REFUSE, the clean fixture to READABLE).')
+
+
 def nearest_registered_J(J: float) -> float:
     j = min(MEASURED, key=lambda x: abs(x - J))
     if abs(j - J) > 1e-3:
@@ -628,6 +982,13 @@ def main() -> int:
 
         if not a.case or a.J is None:
             raise Refusal('--case and --J are required unless --selftest is given')
+
+        print('C4  READABLE   may a force be read from this case at all? (refusal-only)')
+        readable_controls()
+        _fr = force_is_readable(a.case)
+        if not _fr['readable']:
+            raise Refusal('C4: no force may be read from this case.\n    '
+                          + '\n    '.join(_fr['refusals']))
 
         print('C3  PLANT      planting a known perturbation into EACH reader and reading it back')
         print(f'    thrust set {FORCES_THRUST} over {PATCHES_THRUST}')
