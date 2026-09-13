@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rdf:RDF xmlns="https://cir.nii.ac.jp/schema/1.0/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:dcterms="http://purl.org/dc/terms/"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/"
+         xmlns:prism="http://prismstandard.org/namespaces/basic/2.0/"
+         xmlns:datacite="https://schema.datacite.org/meta/kernel-4/"
+         xmlns:ndl="http://ndl.go.jp/dcndl/terms/"
+         xmlns:cinii="http://ci.nii.ac.jp/ns/1.0/"
+         xmlns:jpcoar="https://github.com/JPCOAR/schema/blob/master/2.0/">
+    <Article rdf:about="https://cir.nii.ac.jp/crid/1573105974176827520.rdf">
+    <productIdentifier rdf:parseType="Resource">
+        <identifier rdf:datatype="https://cir.nii.ac.jp/schema/1.0/NAID">10005732529</identifier>
+    </productIdentifier>
+    <dc:title xml:lang="en">Confined Turbulent Mixed Convection in the Presence of Horizontal Buoyant Wall jet</dc:title>
+    <creator>
+        <Researcher rdf:about="https://cir.nii.ac.jp/crid/1583105974176827520">
+            <foaf:name xml:lang="en">BLAY D.</foaf:name>
+        </Researcher>
+    </creator>
+    <publication rdf:parseType="Resource">
+        <prism:publicationName xml:lang="en">HTD Vol.213, Fundamentals of Mixed Convection</prism:publicationName>
+        <dc:publisher>ASME</dc:publisher>
+        <prism:publicationDate>1992</prism:publicationDate>
+    </publication>
+    <relatedProduct>
+        <Article rdf:about="https://cir.nii.ac.jp/crid/1390001204782461312">
+            <relationType>isCitedBy</relationType>
+            <jpcoar:relatedTitle xml:lang="ja">換気効率指標の数値解析検証用の2次元室内気流実験 : 不完全混合室内の居住域換気効率の評価に関する研究</jpcoar:relatedTitle>
+            <jpcoar:relatedTitle xml:lang="en">MODEL EXPERIMENT OF FLOW AND TEMPERATURE FIELD IN ROOM FOR VALIDATING NUMERICAL SIMULATION ANALYSIS OF NEWLY PROPOSED VENTILATION EFFECTIVENESS : Study on evaluation of ventilation effectiveness of occupied space in room</jpcoar:relatedTitle>
+            <jpcoar:relatedTitle xml:lang="ja-Kana">カンキ コウリツ シヒョウ ノ スウチ カイセキ ケンショウヨウ ノ 2ジゲン シツナイ キリュウ ジッケン フカンゼン コンゴウ シツナイ ノ キョジュウイキ カンキ コウリツ ノ ヒョウカ ニ カンスル ケンキュウ</jpcoar:relatedTitle>
+        </Article>
+    </relatedProduct>
+    <dataSourceIdentifier rdf:datatype="https://cir.nii.ac.jp/schema/1.0/CIA">10005732529</dataSourceIdentifier>
+    </Article>
+</rdf:RDF>
