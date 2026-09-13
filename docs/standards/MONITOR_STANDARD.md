@@ -2917,3 +2917,49 @@ whole case for the `ast` pass over the argument from one instance.
 | md5 of this file's HEAD blob before the append | `be28a13cda80ef4cae2762c4cd51227a` |
 | md5 of this file's first **2851** lines after it | `be28a13cda80ef4cae2762c4cd51227a` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 2c. DISPOSITION OF THE EIGHT — **FREEZE-TIME QUESTION 3, AS A ONE-COMMAND CHECK RATHER THAN A PROSE INSTRUCTION**
+
+**The eight are NOT a triage project and are not being triaged.** Most will be `dropped`-shaped
+and harmless, the graders are frozen, and **a sweep-and-repair pass over other teams'
+comparators at one in the morning is exactly the verification Sanaa's directive is aimed at.**
+**Enumerated, untriaged, and checked at the next freeze** is the proportionate disposition.
+
+> **FREEZE-TIME QUESTION 3 — when a registration NAMES a comparator, the lane freezing it runs
+> the check on that comparator.** It costs a second; it runs **where the reader who would be
+> misled is actually reading**; and a dead prefix-variant can still be **repaired before
+> anything is pinned.**
+
+**`scripts/check_comparator_dead_values.py`** — the check, so that question 3 is a command and
+not a habit:
+
+- **Deliberately narrow.** Not *"assigned and never read"* (348 across 55 % of the lab's
+  graders, mostly harmless) — only the **prefix-extension of a name that IS read in the same
+  function**, which is the `dloc_c`/`dloc` shape that makes a reader land on the wrong quantity.
+- **REPORTS, DOES NOT REFUSE.** Exit **1** on an occurrence, **0** when clean. **It informs a
+  freeze; it does not block one.** A harmless duplicate is *declared in the registration*; a
+  genuine mis-wiring is *repaired before the pin*. **A check that blocked would be triaged
+  around at 01:00 and deleted by morning.**
+- 🔴 **`--selftest` IS A PLANTED CONTROL (rule 3), and both limbs are driven.** POSITIVE: it must
+  FIND `dloc_c` **and** `dropped`, the two known-true instances in `grade_m6_agard_cp.py` —
+  **one found by hand, one only by the sweep.** NEGATIVE: it must **not** report `dloc`, `rise`
+  or `devs`, which are read. **Measured: SELFTEST PASS, exit 0.**
+- **And a clean report is demonstrably reachable**, which is the other half of rule 3: run on
+  `verification/runs/M6I_runs/extract_cp_m6i.py` it returns **clean, exit 0**. **A checker that
+  could only ever say "found something" would make its own silence worthless.**
+
+**The three freeze-time questions for this team now read:** can any threshold be **met by
+arithmetic identity** rather than exceeded by construction; can any registered guard **fire
+during correct routine use**; and does the named comparator carry a **dead prefix-variant of a
+live name**. **All three are answerable before compute, and all three are free there.**
+
+| addendum to the v1.15 record | |
+|---|---|
+| sections added | **1** (§2c); prior sections and record tables unchanged |
+| members / instances added to either clause | **0** |
+| files **repaired** from the strict set | **0** — enumerated, untriaged, deferred to the next freeze |
+| instruments shipped | **1** — `scripts/check_comparator_dead_values.py`, **selftest PASS on both limbs** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `254545fe3a5b4651140b31b4a3bea847` |
+| md5 of this file's first **2919** lines after it | `254545fe3a5b4651140b31b4a3bea847` |
+| the two digests | **EQUAL — assertion MEASURED** |
