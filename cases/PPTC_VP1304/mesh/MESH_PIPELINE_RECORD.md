@@ -669,3 +669,78 @@ exists to prevent. Raised to the cfd supervisor to rule.
 Route 2 — build as registered, disclose the limitation — is accepted. **It is blocked on the
 same measurement the withdrawn claim was**: no certificate will carry "not achieved by a factor
 of N" while N is unestablished.
+
+---
+
+## CORRECTION 1 — ADDENDUM F, 2026-09-13. THE LE RADIUS IS ~1.4–1.8 mm, NOT 0.24 mm, AND §6.3's SHORTFALL IS UNDER 1.6× WHERE IT WAS MEASURED AT ALL
+
+*lines whose number changed above this section: 0*
+
+### F.1 The instrument, and the guard that makes it trustworthy
+
+`measure_le_radius.py`. gmsh's curvature sizing gives **h = 2πR_curv/N**, so on a
+curvature-bound facet the size is a **direct readout**: R = N·h/(2π). No circle fit, no
+chord-extremum search — the two things that failed in addendum E.
+
+**The guard:** every facet is classified **CURVATURE-bound / FLOOR-bound / MAX-bound**, and a
+station where the clamp binds on more than 20 % of its LE facets is **REFUSED, not averaged**.
+A facet sized by a clamp reports the clamp as a confident number, which is worse than an honest
+bound.
+
+**Leading edge separated from trailing by PROVENANCE, not curvature.** Both are high-curvature
+bands and the TE is the sharper. Facets within 1.5 mm of a CAD curve are TE or tip *by
+construction* (addendum D: the TE is one of the five 114.465 mm root-to-tip curves; **the LE has
+none**). The CAD curves come from `gmsh -1`, independent of any surface.
+
+### F.2 Validated by refusing on the case that caused the error
+
+Run against the very tessellation that produced the withdrawn claim (N = 12, floor 0.40 mm):
+blade facets **42.2 % curvature-bound, 48.6 % FLOOR-bound, 9.2 % max-bound**. It **REFUSED at
+r/R 0.70, 0.80, 0.90 and 0.95** — 100 % clamp-bound at three — which are *exactly* the stations
+the circle fits failed at. **The guard names the cause where the fit merely failed.**
+
+### F.3 The three accepted stations, and why they are believable
+
+| r/R | R_LE (mm) | section t (mm) | R/t |
+|---|---|---|---|
+| 0.40 | **1.8233** | 10.79 | 0.169 |
+| 0.50 | **1.7322** | 8.30 | 0.209 |
+| 0.60 | **1.4380** | 6.77 | 0.212 |
+
+**R/t = 0.197 ± 0.020 across three independent stations.** A consistent ratio is what a real
+section family produces; it is not what an artefact produces. The thickness values come from a
+separate instrument (`compare_sections.py`) on a separate tessellation, so the ratio is not
+self-referential.
+
+**Addendum D's 0.2424 mm was not a weak measurement of the LE — it was a measurement of
+something else**, most probably the sharp TE or a facet-scale artefact, and the chord-extremum
+search could not distinguish them because it never stably located the LE.
+
+### F.4 §6.3 re-assessed — and the parse ruling now carries the whole result
+
+At the fine level's 0.278 mm blade surface cell:
+
+| r/R | R_LE | literal, cell ≤ R/8 | conventional, cell ≤ R/4 |
+|---|---|---|---|
+| 0.40 | 1.8233 | need 0.2279 → **short 1.22×** | need 0.4558 → **PASSES** |
+| 0.50 | 1.7322 | need 0.2165 → **short 1.28×** | need 0.4330 → **PASSES** |
+| 0.60 | 1.4380 | need 0.1797 → **short 1.55×** | need 0.3595 → **PASSES** |
+
+**The withdrawn 9.3× was wrong by nearly an order of magnitude.** On the **literal parse ruled
+to govern** (addendum E.5) the shortfall is under **1.6×** where measured; on the conventional
+parse there is **no shortfall at all**. The parse ruling — made *before* these numbers existed —
+is now the entire difference between a disclosed limitation and none.
+
+### F.5 What is still NOT established
+
+**r/R = 0.70 is REFUSED, and 0.70 is the radius the act is referenced to.** The outboard
+stations being 100 % floor-bound at a 0.40 mm floor establishes only **R < 0.764 mm** there —
+and that bound is **inconsistent** with extrapolating R/t = 0.197, which would predict ≈0.9 mm
+at r/R = 0.9. Either the outboard LE sharpens faster than the ratio implies, or something else
+binds. **The three-station ratio is not extrapolated across the refusals.**
+
+A measurement run is in progress with the floor dropped **0.40 → 0.05 mm**, resolving radii down
+to 0.0955 mm, ceiling 1.0 mm to bound the work.
+
+> **Route 2's disclosure still waits on r/R = 0.70 and outboard. No certificate carries a
+> shortfall factor from three inboard stations while the reference radius is refused.**
