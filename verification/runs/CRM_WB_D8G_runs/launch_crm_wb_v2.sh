@@ -116,6 +116,21 @@ if [ "$RESUME" = "no" ] && [ "$STARTUP_ITERS" -gt 0 ]; then
   fi
 fi
 
+# ---- ASSERT THE HANDOVER ITSELF. A ZERO EXIT IS NOT EVIDENCE OF OUTPUT. Stage 1 could exit 0
+# ---- having written no time directory, and `startFrom latestTime` would then resolve to 0 and
+# ---- silently restart stage 2 from the uniform freestream -- which is exactly the void reading
+# ---- this act already produced once. Verification must BIND the action, not accompany it.
+if [ "$RESUME" = "no" ] && [ "$STARTUP_ITERS" -gt 0 ]; then
+  HANDOVER=$(find processor0 -maxdepth 1 -type d -regextype posix-extended \
+             -regex '.*/[0-9]+(\.[0-9]+)?$' -printf '%f\n' 2>/dev/null | sort -g | tail -1)
+  [ -n "${HANDOVER:-}" ] || fail "stage 1 exited 0 but processor0 holds NO time directory at all"
+  [ "$HANDOVER" != "0" ] || fail "stage 1 exited 0 but the latest time in processor0 is still 0 -- nothing was handed over, and stage 2 would silently restart from the uniform freestream"
+  MISSING=0
+  for d in processor*; do [ -d "$d/$HANDOVER" ] || MISSING=$((MISSING+1)); done
+  [ "$MISSING" -eq 0 ] || fail "stage-1 handover time $HANDOVER is missing from $MISSING processor tree(s)"
+  echo "HANDOVER ASSERTED: stage 1 wrote t=$HANDOVER in every one of $(ls -d processor* | wc -l) processor trees; startFrom latestTime will resolve to it"
+fi
+
 echo "=== STAGE 2: REGISTERED schemes restored, graded answer produced here ==="
 cp system/fvSchemes.registered  system/fvSchemes
 cp system/fvSolution.registered system/fvSolution
