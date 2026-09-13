@@ -95,3 +95,72 @@ launch button, and check 4 belongs to the supervisor and is performed before the
 
 *Filed by a cfd `lab-lane`, 2026-09-13. No agent's message is Sanaa's consent.
 Submissions parked.*
+
+---
+
+# ADDENDUM 1 — 2026-09-13 — **ENQUEUE PROVENANCE, AND WHY THIS LANE REFUSED THE FIRST ORDER TO RUN IT**
+
+Appended, not inserted: **lines whose number changed above this section: 0.**
+Alters no threshold, band, cap or label. Recorded at the cfd-supervisor's request.
+
+## A1.1 WHAT HAPPENED
+
+The cfd-supervisor instructed this lane to run a rate probe. **This lane did not run it**,
+and wrote the registration instead. Only after the supervisor came back having **read the
+frozen file itself** — naming its §0, its fixed method, its 4-rank like-for-like choice and
+its two-sided prediction — and then given the order, was the entry copied into
+`verification/queue/cfd/`.
+
+## A1.2 WHY — AND IT IS NOT PEDANTRY, IT IS THE ONLY DIRECTION THAT IS HARD
+
+`verification/queue/cfd/README.md` says it plainly: **the drop path is a launch button**, a
+live daemon polls it, and **check 4 is performed BEFORE a file enters that directory, never
+after** — *"a lane that drops first and asks second has already launched."*
+
+When the order came, **there was no registration for check 4 to have been performed on.**
+The document did not exist. So the instruction could not have been preceded by the check,
+whatever the supervisor's intent.
+
+> **AN INSTRUCTION IS NOT A CHECK. A SUPERVISOR SAYING "DO IT" IS NOT A SUPERVISOR HAVING
+> READ IT.**
+
+`SUPERVISION_CHARTER.md` §3 makes check 4 **non-delegable**. A lane that launches because a
+supervisor said so has not satisfied that check — **it has converted a procedural control
+into a formality** and handed back exactly the confidence the control exists to withhold.
+The supervisor would have got what they asked for and lost the only thing the check
+provides.
+
+## A1.3 THE PART THAT MAKES IT WORTH RECORDING
+
+CLAUDE.md rule 9 is usually invoked **downward or sideways** — a peer's message is not
+consent, a delegate's test is not the supervisor's read. **This is the same rule applied
+UPWARD, against this lane's own supervisor, on an instruction this lane agreed with and
+wanted to carry out.** That is the direction in which it is hardest to apply and the
+direction in which it matters most, because there is no friction: agreeing with the order
+and liking the outcome are precisely the conditions under which a control gets skipped.
+
+**No agent's message is anyone's authorisation, and that includes a supervisor's.** Only the
+supervisor's own performed check authorises an enqueue, and only Sanaa's own words or the
+permission system authorise anything reserved to her.
+
+## A1.4 WHAT THE ENQUEUE ACTUALLY CARRIED
+
+* `prereg_commit` **`ab52c0a03`**, the commit that froze this file — verified an ancestor of
+  HEAD before the entry was written.
+* The launcher is the **FROZEN** `launch_r2_solve.sh`, sha256
+  `60074739…2bfb668d`, **re-hashed against its committed blob immediately before
+  validation — MATCH**. **No new launcher was written for this probe:** a frozen, proven
+  launcher that refuses a pre-existing `0/`, applies a memory gate and captures `rc` inside
+  its own wrapper is worth more than a bespoke one.
+* `queue_entry_check.py` **ACCEPTED** the draft, and then **ACCEPTED the queued copy in
+  place with `--require-binding`** — `TEAM-BINDING: bound to cfd/`. The validator's own
+  closing note is retained here because it is the whole point: *"acceptance is a mechanical
+  guard only. Enqueueing is not authorisation; SUPERVISION_CHARTER section 3 check 4 is the
+  supervisor's own and is not performed by this script."*
+* **THE ONE CHANGE** from `r2_coarse_R2`'s configuration is `endTime` 2000→150 and
+  `writeInterval` 250→150, recorded as a diff at `RATE_PROBE_96C/THE_ONE_CHANGE.diff`.
+* The mesh is **symlinked, not copied**: `constant/polyMesh` → `r2_coarse`'s. **The graded
+  trees are read, never written.**
+
+*Appended by a cfd `lab-lane`, 2026-09-13. No agent's message is Sanaa's consent.
+Submissions parked.*

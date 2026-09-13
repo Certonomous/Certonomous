@@ -1,0 +1,38 @@
+{
+  "team": "cfd",
+  "case_id": "DRIVAER-RATE-PROBE-96C",
+  "prereg_commit": "ab52c0a038cd5f22ea76c7af9788300b482837d7",
+  "prereg_path": "verification/campaign/DRIVAER_RATE_PROBE_PREREGISTRATION_2026-09-13.md",
+  "solver_class": "openfoam-steady",
+  "run_as": "ubuntu",
+  "run_uid": 1000,
+  "_WHAT": "A RATE PROBE, NOT A SOLVE, AND NOTHING FROM IT IS EVER GRADED -- no Cd, no Cl, no field, no residual and no convergence statement may be quoted, cited or carried into any record; the fields are discarded. Section 0 of the registration says so at the top rather than in a footer, because a blurred probe/run boundary is how a CL from a uniform pressure field acquires the runner's blessing. WHAT IT MEASURES: the per-cell-iteration cost of simpleFoam on THIS box. DRIVAER_COST_BASIS_REGISTRATION_2026-09-13.md re-derived the family's basis as 9.93e-06 core-s per cell-iteration from three completed runs, but those ran on the 16-core r7a.4xlarge and the box is now 96 cores; a 4-rank job's per-cell-iteration cost is set by per-core memory bandwidth, which is an INSTANCE property, so the basis is NOT claimed to hold here and this probe tests whether it does. METHOD FIXED BEFORE THE RUN: existing r2_coarse polyMesh symlinked read-only, no re-meshing, a COPY of r2_coarse_R2's configuration, graded trees untouched, 4 ranks LIKE-FOR-LIKE with the basis so any difference is hardware and not parallel layout, endTime 150 with the first 50 iterations discarded as ramp, and the rate taken as the MEDIAN of >= 99 successive ExecutionTime DIFFERENCES. NO FIGURE IS TAKEN FROM A CUMULATIVE TOTAL DIVIDED BY AN ITERATION COUNT -- that is the error the CRM act paid for, 21.4 s/iteration read off an early cumulative and multiplied by 6,000. REGISTERED PREDICTION, SO THE PROBE CAN BE WRONG: median wall time per iteration in [0.30, 0.75] s, derived from the two 16-core measurements on THIS mesh at THESE ranks (0.4400 and 0.4700) widened ~1.6x each way to admit a genuine memory-bandwidth difference without admitting everything. INSIDE -> the basis transfers and is registered for this box. OUTSIDE -> the basis does NOT transfer, the measured value is registered for this box, the 16-core figure is retained for the 16-core box only, AND THAT IS A RESULT NOT A FAILURE: it would establish that this lab's cost bases are instance-specific and must be re-measured after every resize. Either way the number is recorded. NOT A RESULT if rc != 0, no End line, fewer than 150 iterations, fewer than 99 usable differences, or any write into a graded tree. THE ONE CHANGE from r2_coarse_R2's configuration is endTime 2000->150 and writeInterval 250->150, recorded as a diff in THE_ONE_CHANGE.diff beside the probe.",
+  "launch_cmd": [
+    "env",
+    "USER=ubuntu",
+    "bash",
+    "/home/ubuntu/Certonomous/cases/navier_class/DRIVAER/mesh/launch_r2_solve.sh",
+    "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/RATE_PROBE_96C",
+    "4",
+    "30",
+    "1"
+  ],
+  "launch_cmd_note": "launch_r2_solve.sh ROOT NP CAP_MIN PRED_GIB -- THE FROZEN LAUNCHER, sha256 60074739b918ce76089818607064ee0f642e365da3d24b991505b72b4afb668d, UNMODIFIED and re-hashed against its committed blob before this entry was written. No new launcher was written for this probe: a frozen, proven launcher is worth more than a bespoke one. It REFUSES if 0/ exists or any time directory exists (the age guard cannot be defeated by a pre-existing 0/), applies a pre-launch MEMORY refusal against available-4 GiB, stamps 0.orig -> 0 at launch so 0/U dates the rule-4 age guard, and captures rc INSIDE the wrapper -- `setsid timeout cmd` exits 0 for every outcome, so an rc read around a setsid line is meaningless. No spend cap terminates the solver (directive #17); CAP_MIN is a PREDICTION SCORED at completion under rule 12.",
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/RATE_PROBE_96C",
+  "cwd_note": "Fresh probe tree. 0.orig/ and system/ copied from r2_coarse_R2; constant/polyMesh, triSurface and extendedFeatureEdgeMesh SYMLINKED to r2_coarse's, so the mesh is read, never copied and never written. NO numeric time directory and NO 0/ -- verified before enqueue, which is what keeps the launcher's age-guard refusal meaningful.",
+  "ranks": 4,
+  "checkpoint_policy": "writeInterval 150 = one write, at endTime. A 150-iteration probe cannot lose 30 minutes of work because it does not last 30 minutes: at the registered rate it runs ~66 s. Checkpointing exists to bound loss, and here the whole run is cheaper than a checkpoint's worth of it. purgeWrite 2 inherited, unchanged.",
+  "iteration_rate_s": 0.44,
+  "cost_core_min_estimate": 4.4,
+  "cost_basis": "DERIVED, NOT MEASURED -- this box cannot read its own billing (COMPUTE_BUDGET_CHARTER section 5); $0.0513/core-h is REPORTED-BY-OWNER. 150 iterations x 4 ranks at the 16-core measured MEDIAN 0.44 s/iteration = 4.4 core-minutes, ~$0.004 derived. THE ESTIMATE USES THE VERY BASIS THE PROBE EXISTS TO TEST, and that is stated rather than hidden: if the probe lands outside its band the estimate is wrong by the same factor, which is precisely the finding. Plus decomposePar on 186,709 cells, under a core-minute.",
+  "cap_core_min_registered": 30.0,
+  "memory_floor_gb": 8.0,
+  "memory_footprint_gb": 1.0,
+  "memory_basis": "DECLARED, NOT A MEASURED PEAK RSS: r2_coarse_R2's own RUN_META.txt records predicted_peak_GiB=1 and that run completed within it on the same mesh at the same ranks. Declared, not measured, and not offered as measured.",
+  "enqueued_by": "cfd rate-probe lane (lab-lane), on the cfd-supervisor's EXPLICIT check-4 discharge of 2026-09-13: they read the frozen registration itself, not merely confirmed a commit existed, and then gave the order. THE LANE DECLINED THE EARLIER INSTRUCTION TO RUN THIS PROBE because at that time no registration existed to have been checked -- an instruction is not a check. A DECLARED, UNENFORCEABLE field: a statement of record, not a credential.",
+  "grading_freeze": [
+    "verification/campaign/DRIVAER_RATE_PROBE_PREREGISTRATION_2026-09-13.md",
+    "verification/campaign/DRIVAER_COST_BASIS_REGISTRATION_2026-09-13.md",
+    "cases/navier_class/DRIVAER/mesh/launch_r2_solve.sh"
+  ]
+}

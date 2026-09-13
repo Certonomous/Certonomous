@@ -1,0 +1,8 @@
+14c14
+< endTime         2000;
+---
+> endTime         150;
+17c17
+< writeInterval   250;
+---
+> writeInterval   150;
