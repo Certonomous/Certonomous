@@ -1060,3 +1060,107 @@ reasonably conclude the shaft need not have been meshed at all. **It does, and i
 > (torque) or bounded to the physical model (the shaft extension). **Modelled, not
 > integrated.** Removing them from the mesh would change the answer on the blades; removing
 > them from the integral is what makes the answer comparable.
+
+---
+
+## AMENDMENT 4 — 2026-09-13, before first compute. THE SMOKE MAY RUN ON A LAYERLESS MESH UNDER THE WALL-FUNCTION CLAUSE, THE y+ WINDOW IS WIDENED TO THE LOG-LAYER RANGE, AND NEITHER OF THOSE CURES §6.4
+
+*lines whose number changed above this section: 0*
+
+**Version 1.4.** This amendment **alters no gate, threshold, cap or label** of the graded
+result. It changes one *mesh specification* (§6.3) and one *wall-treatment window* (§6.3,
+§5 of Sanaa's directive). The bands of §4, the gate of §4.8, the prediction of §5, the
+smoke predictions of §8.3 and every verdict label are untouched.
+
+**Legality.** CLAUDE.md rule 2: before first compute, amendments are legal **and must state
+the condition and how it was checked.** *The condition is that no compute has occurred for
+this act.* **How it was checked:** a recursive search of the act's entire run tree
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/` for any solver time directory, any
+`postProcessing/`, any `forces*` output and any `log.simpleFoam*` returned **nothing**, and
+**that reader was shown able to return something**: the identical search over a planted tree
+containing one empty `log.simpleFoam` and one empty `postProcessing/` returned both
+(CLAUDE.md rule 3 — a zero from a reader not shown able to see a non-zero is not evidence).
+Mesh builds have occurred; no solver has been launched, and no `KT` or `KQ` value exists
+anywhere in this act.
+
+### A4.1 What §6.3 says, and what is being changed
+
+Registered, §6.3: *"Prism layers on blades, hub, cap and shaft: **6 layers, growth ratio
+1.2**, first-cell height set for **y+ 30 to 60 with wall functions** (registered wall
+treatment…)"*.
+
+Two distinct clauses live in that sentence and this amendment separates them.
+
+**(a) The layer clause.** Registered: 6 layers at ratio 1.2 on four patches.
+**Amended: the smoke of §8.3 may be run on a mesh carrying ZERO prism layers.** The
+justification is the sentence's own second clause: the registered wall treatment is a
+**wall function**, and a wall function does not require a prism layer — it requires the
+first cell centre to lie in the logarithmic layer. A layerless hexahedral cell at the
+surface satisfies that condition or it does not, and which it is, is a measurement.
+Layer coverage remains **DISCLOSED, never a gate**, and a shortfall caps the fidelity chip
+rather than moving a band (the standing ruling already carried on every birth certificate of
+this act). **This amendment applies to the SMOKE of §8.3 only. The graded design-point
+family of §10 item 3 is not amended and still carries the §6.3 layer specification.**
+
+**(b) The y+ window.** Registered: **30 to 60**. **Amended: 30 to 300**, the validity range
+of the log-layer wall function, for the smoke only. This is registered as what it is — a
+**widening of a registered specification**, made before the measurement that tests it, and
+declared so that the measurement can still fail: y+ outside 30–300 fails it.
+
+### A4.2 THE y+ PREDICTION, REGISTERED HERE BEFORE IT IS MEASURED
+
+The mesh this applies to carries a **0.625 mm** surface cell on `blades` (refinement level
+5 on a 20 mm background). With no layer, the first cell centre sits at **0.3125 mm**. From a
+flat-plate skin-friction estimate `Cf = 0.058 Re_c^-0.2` at J = 0.7985, n = 15 s⁻¹,
+ν = 1.124e-6 m²/s, ρ = 998.99 kg/m³:
+
+| station | U [m/s] | Re_c | u_τ [m/s] | **predicted y+** |
+|---|---|---|---|---|
+| r/R = 0.30 (root) | 4.632 | 3.02e5 | 0.2233 | **62** |
+| r/R = 0.70 | 8.773 | 8.13e5 | 0.3831 | **107** |
+| r/R = 0.90 | 11.018 | 8.25e5 | 0.4804 | **134** |
+
+> **REGISTERED PREDICTION.** Measured `blades` y+ after 300 iterations lies in **50 to 200**
+> (mean over the patch), i.e. **inside the amended 30–300 window and ABOVE the originally
+> registered 30–60 window.** A measurement outside 50–200 falsifies this prediction and is
+> recorded as a miss; a measurement outside 30–300 fails clause (b) and stops the layerless
+> route.
+
+**The instrument is fixed here and may not be chosen at run time.** y+ is read with the
+solver's own spelling `simpleFoam -postProcess -func yPlus` and **never** with the generic
+`postProcess`, which on this build (OpenFOAM v2606, `_481094f-20260618`) returns zero on
+every patch and exits clean — measured 53 of 53 patch readings across two solvers. The
+reading passes through `scripts/yplus_reader_guard.py`, which refuses both failure modes.
+
+### A4.3 WHAT THIS AMENDMENT DOES NOT DO — and the reason it is written in the same breath
+
+**It does not waive §6.4 and it does not waive §6.5.** The only 360° mesh on disk,
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/F360_coarse`, **fails four blocking gates**
+(`BIRTH_CERTIFICATE.txt`, `log.checkMesh`): max non-orthogonality 162.92° against < 70; max
+skewness 191.88 against < 4; max adjacent-cell volume ratio 3383.04 against ≤ 1.25; and
+**316 cells of negative volume**, minimum −5.72499e-10 m³, against the lab's `> 0`.
+§6.5 is unchanged: *born clean or it does not enter.*
+
+**Consequence, registered:** a solver run on that mesh can produce a y+ field and a
+dead-lever reading, and it **cannot produce a KT or a KQ of any grade.** Any thrust
+coefficient obtained from it is labelled **NOT A RESULT** on the mesh gate alone, before its
+value is looked at. Nothing in this amendment permits otherwise, and no later reading of it
+may be used to argue otherwise.
+
+### A4.4 COST — the registered smoke line does not cover this mesh
+
+§9 sizes the smoke at **0.8 M cells, 4 ranks, 300 iterations, 12 core-min** — a 72° passage.
+The 360° mesh is **19,700,035 cells**, 24.6× that. At §9's own declared basis of
+3.0e-6 core-s per cell per iteration the same 300 iterations cost **295.5 core-min**, and the
+§9 table's full-360 line assumed 4.0 M cells, which is **4.9× short of the mesh that was
+built**. Registered here so the overrun is a predicted number and not a discovery:
+**a 300-iteration smoke on F360_coarse is estimated at 295.5 core-min**, against the 12
+core-min smoke line. Per Sanaa's NO CAP ruling no run is stopped by it; the act's registered
+cap of 19,890 core-min is **not raised**, and the calibration row is mandatory at completion.
+
+### A4.5 Status
+
+**Pre-compute. No gate, threshold, cap or label is altered.** The layer clause is relaxed for
+the smoke only; the y+ window is widened for the smoke only; the quality gates of §6.4, the
+admissibility rule of §6.5, and the smoke predictions of §8.3 (KT sign POSITIVE, KT between
+0.4 and 0.6, a NEGATIVE KT stops the case) stand exactly as frozen.
