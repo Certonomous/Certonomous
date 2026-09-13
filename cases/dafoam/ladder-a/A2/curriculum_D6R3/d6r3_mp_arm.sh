@@ -90,8 +90,20 @@ cp -r "$PUB/FFD" "$ARMDIR/"
 # one.  This is the gate that makes the words "zero deviations" checkable rather than asserted.
 S=$(md5sum "$ARMDIR/runScript.py" | cut -d' ' -f1)
 [ "$S" = "$PRODUCER_MD5" ] || { say REFUSE "G-VERBATIM: staged runScript md5 $S != frozen $PRODUCER_MD5"; exit 11; }
-grep -q "primalFuncStdTol" "$ARMDIR/runScript.py" && { say REFUSE "G-VERBATIM: primalFuncStdTol present; this arm carries NO deviation"; exit 11; }
-grep -q "primalMinResTolDiff" "$ARMDIR/runScript.py" && { say REFUSE "G-VERBATIM: primalMinResTolDiff assigned; the published default 1.0e2 must stand"; exit 11; }
+# Scope BOTH checks to the daOptions dict and match an ASSIGNED KEY, not a bare word.  The frozen
+# producer mentions primalMinResTolDiff in its RUN RECORD -- `daOptions.get("primalMinResTolDiff",
+# "ABSENT-published-default")` -- and the first version of this guard matched that and refused a
+# correct launch.  Same over-broad match I had already repaired in the stager: a lesson is not
+# applied until EVERY call site asserts it (L-221/L-222).  It failed CLOSED, which is the right
+# direction for a guard to be wrong in.
+DOPT=$(python3 -c "
+import sys
+s=open('$ARMDIR/runScript.py').read()
+body=s.split('daOptions = {')[1].split(chr(10)+'}')[0]
+bad=[k for k in ('\"primalFuncStdTol\"','\"primalMinResTolDiff\"') if k in body]
+print(','.join(bad))
+")
+[ -z "$DOPT" ] || { say REFUSE "G-VERBATIM: forbidden key(s) ASSIGNED in daOptions: $DOPT"; exit 11; }
 PUBFAIL=""
 for f in controlDict fvSchemes fvSolution decomposeParDict createPatchDict; do
   A=$(md5sum "$PUB/system/$f" | cut -d' ' -f1); B=$(md5sum "$ARMDIR/system/$f" | cut -d' ' -f1)
