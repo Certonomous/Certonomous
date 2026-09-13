@@ -1,0 +1,131 @@
+{
+  "configuration_named_by_geometry": "hull WITH sail AND four identical stern appendages at the BASELINE axial position; NO ring wing, NO ring-wing struts",
+  "width": "HALF (z >= 0)",
+  "half_model": {
+    "symmetry_plane": "z = 0 (x-y plane)",
+    "valid_for_the_whole_alpha_sweep_because": "the body is mirror-symmetric about z = 0 and the pitch free stream lies in that plane at every alpha",
+    "fins_in_domain": [
+      "fin000_upper_rudder",
+      "fin090_horizontal",
+      "fin180_lower_rudder"
+    ],
+    "fin_not_in_domain": "fin270_horizontal (mirror of fin090 through z=0)",
+    "force_accounting": "total = 2 x half-model, hull and fin patches alike"
+  },
+  "level": "L1",
+  "base_cell_m": 0.0787,
+  "background": {
+    "nx": 140,
+    "ny": 76,
+    "nz": 38,
+    "cells": 404320,
+    "bbox": [
+      [
+        -2.0,
+        -2.9906,
+        0.0
+      ],
+      [
+        9.018,
+        2.9906,
+        2.9906
+      ]
+    ]
+  },
+  "octree_levels": {
+    "hull": 4,
+    "sail": [
+      6,
+      7
+    ],
+    "fin": [
+      6,
+      7
+    ],
+    "sailTeBox": 9,
+    "finTeBox": 9,
+    "nLayers": 6
+  },
+  "cell_sizes_m": {
+    "base": 0.0787,
+    "hull_surface": 0.00491875,
+    "sail_surface": 0.0012296875,
+    "fin_surface": 0.0012296875,
+    "sail_TE_box": 0.0001537109375,
+    "fin_TE_box": 0.0001537109375
+  },
+  "boxes_m": {
+    "sailTeBox": [
+      [
+        1.289412531708,
+        0.24384,
+        -0.0026218
+      ],
+      [
+        1.2924125317080002,
+        0.46158140240000006,
+        0.0026218
+      ]
+    ],
+    "finTeBox000": [
+      [
+        4.0013416562,
+        0.07868544999999999,
+        -0.004459739580869372
+      ],
+      [
+        4.007987363200001,
+        0.258,
+        0.004459739580869372
+      ]
+    ],
+    "finTeBox180": [
+      [
+        4.0013416562,
+        -0.258,
+        -0.004459739580869372
+      ],
+      [
+        4.007987363200001,
+        -0.07868544999999999,
+        0.004459739580869372
+      ]
+    ],
+    "finTeBox090": [
+      [
+        4.0013416562,
+        -0.004459739580869372,
+        0.07868544999999999
+      ],
+      [
+        4.007987363200001,
+        0.004459739580869372,
+        0.258
+      ]
+    ]
+  },
+  "fin_geometry_m": {
+    "h_TE": 4.0069873632,
+    "tip_radius": 0.254,
+    "root_radius_at_TE": 0.08268545,
+    "chord_tip": 0.1524,
+    "chord_root": 0.23228535,
+    "te_trunc_frac": 0.98,
+    "TE_base_full_mm_tip": 1.4629943860705052,
+    "TE_base_full_mm_root": 2.2298697904346856,
+    "max_full_thickness_mm_root": 46.470454281867,
+    "max_full_thickness_mm_tip": 30.488781288000002
+  },
+  "PREDICTED": {
+    "cells_across_sail_TE_base": 8.528345616264295,
+    "cells_across_fin_TE_base_at_tip": 9.517828788667073,
+    "cells_across_fin_TE_base_at_root": 14.506903846284105,
+    "CELLS_ACROSS_THE_APPENDAGE_ROOT": 37.79045837407227,
+    "cells_across_the_appendage_TIP_thickness": 24.793926333316392,
+    "cells_along_the_fin_ROOT_chord": 188.8978703939009,
+    "cells_along_the_fin_TIP_chord": 123.93392630241422,
+    "cells_along_the_fin_EXPOSED_SPAN": 139.3155171537484,
+    "hull_axial_faces": 885.6112023583227
+  },
+  "note": "PREDICTED values are octree arithmetic, NOT measurements.  Every gate reads the BUILT mesh via probe_appended_features.py, never this file."
+}

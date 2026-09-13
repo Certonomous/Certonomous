@@ -1989,3 +1989,159 @@ coverage from 87 % to ≥ 95 % with `maxThicknessToMedialRatio` **doubled** and 
 forecast. It is **reported beside the coverage it paid for, with L1's 12.3194 printed next to it
 for scale**, so a reader comparing the two meshes is given the trade rather than left to
 discover it.
+
+---
+---
+
+# ADDENDUM 10 — 2026-09-13 — **L1R GRADED AGAINST §A9.5: THREE OF FOUR PREDICTIONS ARE WRONG, THE REGISTERED FAILURE BRANCH FIRES, AND THE MESH IS `GATE FAIL` ON NON-ORTHOGONALITY**
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+
+**THE BUILD.** `rc = 0`, wall 3,380 s at 16 ranks = **901.33 core-min MEASURED**.
+**10,649,635 cells · 32,760,088 faces.** Corrected fins (§A7.4) + the junction-layer package
+(§A9.4) + `maxBoundarySkewness 4` + `writeFlags (noRefinement)` removed (§A9.3).
+
+## A10.1 🔴 `GATE FAIL` — MAXIMUM NON-ORTHOGONALITY **70.00441** AGAINST A **≤ 70°** GATE
+
+Read as MESH_STANDARD §14 requires — **the reported maximum, never `checkMesh`'s verdict line.**
+**70.00441 > 70. GATE FAIL.** By **0.00441°.**
+
+> **AND THIS IS §A8.1's FINDING DELIVERING ITS OWN PROOF.** L1 landed at **69.96064** and L1R at
+> **70.00441** — the two meshes sit **0.044° apart, straddling the gate**, and the dictionary's
+> relaxed bound is **exactly 70**. **Which side of the gate this family lands on is decided at
+> the fourth decimal place by a constraint we set ourselves.** A gate resolved by its own
+> constraint to four decimals is not measuring the mesh. §A8.1 argued that from one number; two
+> numbers on opposite sides of the threshold demonstrate it.
+>
+> **The `GATE FAIL` is reported as a `GATE FAIL` regardless.** The gate is the gate, it was
+> registered, and 70.00441 exceeds it. **What this lane does not do is call 0.004° a quality
+> difference.**
+
+**The distribution, which no dictionary entry bounds, IMPROVED:** average non-orthogonality
+**9.8770 → 9.0867**.
+
+## A10.2 THE PREDICTIONS, GRADED AGAINST §A9.5's REGISTERED VALUES
+
+| | prediction | L1 | **L1R measured** | **verdict** |
+|---|---|---|---|---|
+| **P1** | fin coverage **≥ 95 %**, layers **≥ 5.5** of 6 | 87.2 %, 4.8 | **88.7–89.1 %, 4.99–5.02** | **WRONG** |
+| **P2** | hull coverage **≥ 96 %** | 91.5 % | **91.1 %** | **WRONG — and in the WRONG DIRECTION** |
+| **P3** | fin `Q1` **below 3.0 %**, to 2.0–2.8 % | 3.026–3.057 % | **3.294–3.333 %** | **WRONG — and in the WRONG DIRECTION** |
+| **P4** | hull `Q1` inside A1b's 0.35–1.4 % | 0.537 % | **0.553 %** | **RIGHT** |
+
+**THE JUNCTION-LAYER PACKAGE BOUGHT 1.5–1.9 POINTS OF FIN COVERAGE, MADE THE HULL MARGINALLY
+WORSE, AND MADE THE FIN CONCAVE AREA SHARE WORSE, FOR 901.33 CORE-MINUTES.** That is the
+result. It is reported as the result.
+
+**The mechanism registered in §A9.4 — medial-axis collapse at the fin roots — is therefore NOT
+the dominant cause of the layer deficit, or `maxThicknessToMedialRatio` is not the lever that
+addresses it here.** §A9.2's *location* finding stands on its own measurement (5.56 × enrichment
+at the fin roots) and is untouched by this; **what is falsified is the CURE, not the
+DIAGNOSIS.** No replacement mechanism is proposed here, because this lane does not have one
+and inventing one after a failed fix is how a second wrong fix gets bought.
+
+## A10.3 🔴 P3's REGISTERED FAILURE BRANCH **FIRES**, EXACTLY AS WRITTEN
+
+§A9.5 fixed the disposition **before the number existed**:
+
+> *"IF P3 IS WRONG AND `Q1` STAYS ABOVE 3.0 %, the honest reading is that the fins' concave
+> population is **not** near-wall but sits in the refinement transitions around the fin distance
+> regions — in which case layers cannot fix it, the refinement structure must change instead,
+> and **the forces are REPORTED, NOT GRADED, we run anyway, and we disclose.**"*
+
+**`Q1` = 3.294–3.333 % on the fins. THE BRANCH FIRES. IT IS APPLIED AS WRITTEN AND NOT
+RENEGOTIATED:**
+
+> **THE FIN FORCES ON THIS FAMILY ARE `REPORTED, NOT GRADED`.** Under A1b's frozen thresholds
+> (`bc73dc0ca`), `F > 3.0 %` is MATERIAL, and `Q1` is the mesh-side predictor with A1b's
+> directional prediction `F > Q1`. **No `Z`, `M`, `Z_w'` or `M_w'` derived from the fin patches
+> of this mesh family may be graded against Roddy's band.** The sweep may still run; its fin
+> forces are reported with this number beside them. **The refinement structure around the fins —
+> not the layers — is what a future arm must change.**
+
+## A10.4 §A9.7's INDEPENDENCE, VINDICATED IN THE **OPPOSITE** INSTANCE
+
+§A9.7 was written before these numbers to stop a reader treating `Q1` and the bulk concave count
+as the same quantity. It illustrated the case where `Q1` falls and the total does not. **What
+actually happened is the mirror image, and it makes the point more sharply:**
+
+| | L1 | **L1R** | |
+|---|---|---|---|
+| **bulk** concave cells | 262,976 | **247,347** | **FELL 5.9 %** |
+| **wall** `Q1` on the fins | 3.026–3.057 % | **3.294–3.333 %** | **ROSE 8.8 %** |
+
+**THE TWO METRICS MOVED IN OPPOSITE DIRECTIONS IN THE SAME REBUILD.** A reader given only the
+bulk number would have called this an improvement. **`Q1` is the one that governs whether a
+force is graded, and it got worse.**
+
+## A10.5 §A9.8's TRADE, CONFIRMED AND REPORTED BESIDE THE COVERAGE IT PAID FOR
+
+| | L1 | **L1R** |
+|---|---|---|
+| max aspect ratio | **12.3194** | **12.4869** |
+| fin layer coverage | 87.2 % | 88.7–89.1 % |
+
+**Aspect ratio rose, as §A9.8 said it would and for the reason it gave.** It remains far inside
+the advisory 1000. **No prediction was registered for it and none is claimed.** The honest
+summary of the trade is that **very little aspect ratio was spent because very little coverage
+was bought.**
+
+## A10.6 THE ROOT METRICS — **RM2 FALLS BELOW ITS FLOOR ON THE RAW READING, AND MY REGISTRATION DID NOT DISAMBIGUATE**
+
+| | **RM1** (floor 16) | **RM2** raw (floor 8) | **RM2** full-base-equivalent | **RM3** (floor 24) |
+|---|---|---|---|---|
+| `fin000_upper_rudder` | 72.98 | **7** | **14** | 57 |
+| `fin090_horizontal` | 114.74 | 14 | 14 | 55 |
+| `fin180_lower_rudder` | 86.12 | **7** | **14** | 57 |
+
+**RM1 and RM3 pass on every fin.** RM2 **falls from L1's 16 to 14** on the full-base-equivalent
+— still above the floor — **and the RAW half-model count on the two bisected fins is 7, BELOW
+THE REGISTERED FLOOR OF 8.**
+
+> **THE REGISTRATION DEFECT IS MINE AND IS NAMED RATHER THAN RESOLVED IN MY FAVOUR.** §4.3
+> registered RM2 as *"a direct COUNT … floor ≥ 8, per fin"* and **did not say whether the count
+> is the raw half-model one or the full-base-equivalent.** On L1 the question was invisible
+> because both readings passed (8 and 16). **Here they disagree: 7 `GATE FAIL`, 14 `PASS`.**
+>
+> **The full-base-equivalent reading is taken, and the ground is that §A8.6 established it as
+> the physically meaningful figure BEFORE this mesh was built** — it is not a choice made after
+> seeing which reading was kinder. **Both numbers are printed, every time, so no reader is given
+> only the favourable one.** A registration that leaves a convention unstated is a defect even
+> when a prior addendum happens to cover it.
+
+## A10.7 THE `cellLevel` FIX **DID NOT WORK**, AND THE CAUSE IS UNDETERMINED
+
+§A9.3 removed `writeFlags (noRefinement)` so that §5's third concave prediction would become
+measurable. **Verified in the dict that ran: the flag is gone.** **`constant/polyMesh/cellLevel`
+is nevertheless ABSENT, and §5's third prediction remains `NOT MEASURED`.**
+
+**Three candidate causes, none of which this lane has evidence for, and no cause is invented:**
+1. `snappyHexMesh` did not write it despite the flag's removal;
+2. `reconstructParMesh -constant` does not carry per-processor refinement history across;
+3. `mesh_level.sh`'s `rm -rf processor*` destroyed the evidence before anyone looked.
+
+**Candidate 3 is an instrument defect regardless of whether it is the cause**, and it is the
+cheapest to fix: the next build keeps one processor directory, or runs the check in parallel.
+
+## A10.8 WHAT L1R IS, AND WHAT THE TWO MESHES COST
+
+| | L1 | L1R |
+|---|---|---|
+| cells | 10,618,259 | 10,649,635 |
+| **core-min MEASURED** | **794.67** | **901.33** |
+| max non-ortho | 69.96064 (inside) | **70.00441 `GATE FAIL`** |
+| average non-ortho | 9.8770 | **9.0867** |
+| max skewness | 3.2686753 | 3.2687092 |
+| max aspect ratio | 12.3194 | 12.4869 |
+| concave cells | 262,976 | 247,347 |
+| hull / sail / fin coverage | 91.5 / 98.1 / 87.2 % | 91.1 / 98.0 / **88.7–89.1 %** |
+| fin `Q1` | 3.026–3.057 % | **3.294–3.333 %** |
+| face tets / small determinant / low weight | 17 / 15 / 8 | 19 / 19 / 8 |
+
+**TOTAL MESHING SPEND ON THIS ACT: 1,696 core-min.** The cost-calibration row owed under
+CLAUDE.md rule 12 covers both builds and is still outstanding.
+
+**L1R is `GATE FAIL` on non-orthogonality by 0.004°, and its fin forces are `REPORTED, NOT
+GRADED` by a branch registered before the measurement.** Neither fact was arranged afterwards,
+and both are on the record with the numbers that produced them.
