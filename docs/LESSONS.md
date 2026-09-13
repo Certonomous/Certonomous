@@ -29887,3 +29887,44 @@ from the document's OWN TAIL, in the same invocation as the write — never from
 happen to be reading.** This is `CLAUDE.md` rule 11's *"the MAXIMUM EXISTING NUMBER, never a count"*
 wearing different clothes, and it bit in a second file on the same night. **A number read off a
 neighbour is a number about the neighbour.**
+
+### ADDENDUM to L-604 — 2026-09-13. THE FOUR ARE ONE: AN INSTRUMENT REPORTING ON ITSELF
+
+**The four failure modes above look different and fail identically, and the reason is a single
+sentence: in every one of them, the thing asked to testify was the thing on trial.**
+
+| the instrument | what it was asked | why the answer was worthless |
+|---|---|---|
+| the PPTC freeze check | *is the frozen file the file that ran?* | it hashed **the artifact it was reading**, so a legal amendment made it refuse and a re-pin made it agree with itself |
+| the `cellZones` parser | *does this zone exist and hold cells?* | it was tested against **a fixture it effectively wrote its own assumptions into** — no `meta` header, so the trap was absent from the test |
+| the mutation control | *does the suite catch this change?* | **the copy died before reaching the mutated line**; `rc=1` was an import error wearing a refusal's clothes |
+| the selftest | *are the controls armed?* | **it was the thing skipping the suites**, and reported on that in its own summary |
+
+**That is not four lessons. It is one, and it explains why they look so unalike while failing in
+the same way.** A control built inside the thing it checks inherits every assumption that thing
+makes — including the assumption that it ran.
+
+> 🔴 **THE DESIGN RULE THE TAXONOMY COULD NOT YIELD: AT LEAST ONE CONTROL PER INSTRUMENT MUST BE
+> EXTERNAL TO IT.** Not *more* controls — **externally-sourced** ones. It subsumes the
+> eight-fixture rule and the fixture-traps rule, both of which are special cases of moving the
+> witness outside the defendant.
+
+**Worked, the same night, on the instrument that had just failed three of the four ways.** The
+repair to the PPTC comparator was not another internal check. Each control suite now **registers
+itself and its clause count**, and a **frozen expectation** — external to every suite — asserts the
+register. Driven in its failing direction:
+
+- a suite skipped → `rc=2  CONTROL SUITES DID NOT RUN: C4/readable` (**the exact defect it was
+  built after**);
+- a suite hollowed out by one clause → `rc=2  CONTROL CLAUSE COUNT IS 22, REGISTERED 23`.
+
+**The second row is the one that generalises: a suite need not vanish to stop meaning anything —
+it can be emptied a clause at a time and still print its banner.**
+
+**And note what makes the register work: it does not understand a single thing the controls check.**
+It knows only which suites must speak and how many clauses each owes. **A witness that cannot be
+coached by the defendant is worth more than one that knows the case.**
+
+*(Formulated by the cfd `lab-lane` that hit all four; recorded here on the supervisor's routing.
+The two paired rules it subsumes stay stated separately in L-604 above, because each names a
+different way to move the witness out.)*
