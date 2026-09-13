@@ -970,3 +970,180 @@ edited. No gate, threshold, cap or label altered. Nothing sent, filed, uploaded 
 this box (rules 7, 8). Lifted rows are attributed to the lane and commit they came from and are not
 presented as this lane's measurement; rows this lane could not verify are marked NOT VERIFIED rather
 than filled.*
+
+---
+
+## 7. ADDENDUM, 2026-09-13, cfd lane — THREE SUPERVISOR RULINGS LANDED, AND THREE CLAIMS CORRECTED BEFORE THEY ENTERED THIS FILE
+
+**This is an APPEND. Nothing above it is altered** — prefix byte-identity asserted at commit against
+the pre-append bytes, per this file's own protocol. **It does not move any gate, threshold, cap or
+label**; §5.6's proposals remain proposals.
+
+### 7.1 🔴 THE MESH COMPUTE IS FIRST COMPUTE. R5's GATES ARE CLOSED, AND R5 SAYS OTHERWISE.
+
+**Ruled by `cfd-supervisor` on this lane's correction.** `R5_SIZING_PROBE` ran to **rc = 0,
+`ALL_STEPS_OK`, 191.73 core-min**, with `log.blockMesh`, `log.surfaceFeatureExtract`,
+`log.decomposePar`, `log.snappyHexMesh` (an `End` line present), `log.reconstructParMesh`,
+`log.checkMeshFull` and `log.checkMeshPlain`. **Rule 2 says "before any run", not "before any
+solve."** That build consumed compute and produced the artifact M1 gates on.
+
+🔴 **`DRIVAER_R5_WALLFUNCTION_RANS_PREREGISTRATION_DRAFT.md` still reads "No compute has run against
+this document: verified at the run root /home/ubuntu/certonomous-runs/, which holds no R5 directory."
+THAT SENTENCE IS NOW FALSE**, and anyone reading it is reading a false sentence. Two R5 directories
+exist at `verification/runs/navier_class/DRIVAER/`. **This file does not edit R5** (rule 6); the
+correction is the supervisor's to land as a dated addendum there.
+
+**This lane repeated that stale sentence in §1 earlier tonight on the strength of the registration's
+own words, and the supervisor then ruled on it.** Both of us quoted a document instead of reading
+the disk. **Recorded because it is the same failure as §7.4's, one level up.**
+
+### 7.2 🔴 AND THE R5 MESH BUILD IS RUNNING AS THIS ADDENDUM IS WRITTEN
+
+Measured by this lane at **2026-09-13 18:26:30 UTC** (`date -u` run first — a rate or staleness
+judgement made without a clock audit is worthless):
+
+- `r5_wallfunction/log.snappyHexMesh` mtime **18:26:05**, **25 seconds old**; **202 files** in that
+  run root modified within 10 minutes; `processor0/constant/polyMesh/{owner,points}` still being
+  written.
+- The log ends mid-`Smoothing displacement ...` with **no `End` line**, and `BUILD_RC` carries rc
+  entries for `blockMesh`, `surfaceFeatureExtract` and `decomposePar` only — **`snappyHexMesh` has
+  not recorded an rc.** That is a build **in progress**, not a failed one.
+- Process sweep (run **last**, because fleet agents are invisible to `pgrep`): `build_r5.sh full 16`
+  → `run_build.sh medium … 16` → `mpirun -np 16 snappyHexMesh -overwrite -parallel`, under
+  `PRED_GIB=140`.
+
+**NOTHING IN THAT RUN ROOT IS TOUCHED BY THIS LANE, AND THE SEQUENCING OF §7.3'S FIX DEPENDS ON IT.**
+
+### 7.3 🔴 D7, REWRITTEN: THE DEFECT IS PROSPECTIVE, AND THE WINDOW TO FIX IT IS NARROW AND OPEN
+
+**§1.5's row and §5.1 stand as measurements. What changes is where the repair goes.**
+
+**Answered exhaustively: NOTHING converts `nut` between `0.orig` and `0`.**
+
+| step | finding |
+|---|---|
+| `build_r5.sh`, all 119 lines | creates only `system/` and `constant/triSurface/` (line 71). **Zero occurrences of `0.orig`, `restore0Dir` or `nut`.** A mesh builder; it touches no field |
+| `write_solver_case.py` | the **only** writer of `0.orig` (`launch_stage_a.sh:11` names it in its refusal). Its own line 12: *"It writes `0.orig/`, NEVER `0/`."* `nut` is `nutkWallFunction` at **:137** (floorNoSlip) and **:138** (the `".*"` default) |
+| `launch_stage_a.sh:24`, `launch_r2_solve.sh:32` | the only creators of `0/`, both a plain `cp -r 0.orig 0`. The `touch 0/U 0/p 0/k 0/omega 0/nut` that follows is the **rule-4 age-guard** touch — mtime, not content |
+| **measured, not inferred** | in `r2_medium`, a case that actually staged and ran, **`diff 0.orig/nut 0/nut` is IDENTICAL.** The copy demonstrably converts nothing, on a real case, at real stage time |
+
+🔴 **THERE IS NO STAGED `0/nut` TO CORRECT.** Neither R5 root has `0.orig` or `0` **at all** — checked
+on both. The defect lives in the **writer**, and the file that would carry it **has not been written
+yet**. The build in §7.2 will finish and `write_solver_case.py` will then be run against it to create
+`0.orig`. **That is the window, it is open now, and it closes when that command runs.**
+
+**The supervisor's ruling, recorded:** the **case conforms to the registration**, never the reverse —
+R5 registers `nutUSpaldingWallFunction`, so the writer must emit it. **That is not moving a gate
+after first compute; it is making reality match a registered value, the only direction available
+once gates are closed.** And it must go **further than flipping the default**: the argument is
+**required with no default**, so the writer **refuses to write a case whose wall treatment nobody
+stated**. Three reasons, his: other arms legitimately use `nutk` and `floorNoSlip` should keep it; the
+value was hardcoded **twice**, which is **L-607's shape — one quantity in two places, and the one you
+did not rewrite wins**; and **a default is what let this happen**, because the arm that needed
+Spalding got it as a registered one-change and every arm after inherited `nutk` in silence.
+
+**The proposed diff is drafted, compiles, and is NOT APPLIED.** It is filed as a repository artifact
+at **`cases/navier_class/DRIVAER/PROPOSED_WRITER_WALL_TREATMENT_FIX.md`** — **not in scratch, which is
+never a handoff channel (L-186)**. It is the supervisor's `SUPERVISION_CHARTER` §3 check 1, read as a
+diff, personal and undelegated. **This lane did not apply it and `git diff` on
+`write_solver_case.py` is empty.**
+
+### 7.4 THE MECHANISM, WHICH IS THE REUSABLE PART
+
+`r2c_coarse_blended_R2/THE_ONE_CHANGE.diff`, verbatim:
+
+```
+--- .../r2_coarse/0.orig/nut
++++ .../r2c_coarse_blended/0.orig/nut
+-        type            nutkWallFunction;
++        type            nutUSpaldingWallFunction;
+```
+
+**Spalding was the R2c arm's registered ONE CHANGE, applied on top of the `nutk` baseline. It was
+never the baseline.** R5 §2.1 says *"which this lab already runs on every DrivAer vehicle patch"* —
+**generalising one arm's registered change into a standing property of the lab** — and R5 then stages
+from `r2_medium`, the arm that never had it.
+
+**That sentence travelled upward.** The supervisor reports having relayed *"our wall treatment is
+already the published one"* to the chief on its strength, **without asking which arm R5 stages
+from**. It is true of the blended arm and false of the baseline. **A claim made against a state that
+had moved — the same family as the stale-index and stale-blob findings, and as §7.1 above.**
+
+### 7.5 THE CONTROLS, BECAUSE THE NULL IS ONLY WORTH SOMETHING WITH THEM (rule 3)
+
+- **The reader is not blind to Spalding:** it found `nutUSpaldingWallFunction` at
+  `r2c_medium_blended_R3/0.orig/nut:37`.
+- **The grep that returned 0 on `build_r5.sh` fires when there is something to find:** on a planted
+  file carrying `restore0Dir` and `cp -r 0.orig 0` it counts **2**; on `build_r5.sh`, **0**.
+- **The layer-phase grep is not blind either:** `r2_medium/log.snappyHexMesh` carries **16
+  `Extruding` lines**, the last reading *"Extruding 64470 out of 80974 faces (79.618149%)"*.
+
+**A zero from a reader not shown able to see a non-zero is not evidence.**
+
+### 7.6 🔴 THREE CLAIMS CORRECTED BEFORE THEY ENTERED THIS FILE
+
+**All three were relayed to this lane for inclusion. This lane checked them instead of writing
+them, and all three were wrong in the direction that would have flattered us.**
+
+**(a) "No retrieved case tree ships a `snappyHexMesh` log" — FALSE AS A BLANKET.** **Six do**, all in
+the Alletto tree's `membranBCSend/testCases/…` membrane cases. **The control proves the finder is not
+blind: it sees 18 in our own DrivAer tree.** Written as stated, this file would have carried a false
+sentence.
+
+**The narrower claim is true, defensible, and is the one that matters:** **none of the six cases
+behind §0.4's stack table ships a snappy log** — not Wolf Dynamics coarse or fine, not
+`occDrivAerRotMesh`, not `OneraM6Wing` — and **the six logs that do exist contain zero `Extruding`
+lines** (only 2 files in all three trees mention extrusion at all, and both are `log.extrudeMesh`, a
+different utility). **So no published stack value in §0.4 may be cited as having extruded. They are
+REQUESTS, NOT ACHIEVEMENTS — L-590 at the scale of an entire evidence base.** *(The supervisor has
+landed this as `MESH_STANDARD.md` §17, commit `64d33975d`.)*
+
+**(b) "Our 0.480" — MISATTRIBUTED. 0.480 IS NOT OURS.** It is **DrivAerML's** 12 mm stack expressed
+on **our** 25.0 mm level-4 cell — R5 §2.2, line 90: *"Against the source's 12 mm stack on our 25.0 mm
+level-4 (medium) surface cell — 0.48 c."* **Ours are 1.6808 (built, measured) and 0.474 (registered,
+not yet built).** §0.4's own table has this right; the sentence beneath it reading *"Ours at 0.480
+extrudes"* inherits R5's phrasing and **should read "the source's recipe at 0.480 extrudes."**
+Flagged rather than silently edited, because the line sits above the fold in a Sanaa-facing document
+and the supervisor may prefer to reword it himself.
+
+**(c) "Our 0.480 remains the only stack this lab has measured extruding" — WRONG TWICE, AND IN OUR
+FAVOUR.** Neither 0.480 nor 0.474 has ever been measured extruding by this lab:
+
+| stack | status, measured |
+|---|---|
+| **0.480** | **never built by us** — it is the source's ratio, not a mesh of ours |
+| **0.474** | **never built** — `R5_SIZING_PROBE` ran `addLayers false` by design (castellation-only sizing probe, **0 `Extruding` lines, correctly**); `r5_wallfunction` has `addLayers true` but **has not reached the layer phase** and is still running (§7.2) |
+| 🔴 **1.6808** | **the ONLY stack this lab has measured extruding** — and it extruded **partially**: `r2_medium` **79.62 %** of faces, **2.895 of 5** layers; `r2_coarse` **72.27 %**, **2.503 of 5** |
+
+**So the honest statement is the reverse of the one offered:** the lab's only extrusion evidence sits
+at the stack §0.4 calls collapsing, and **R5's 0.474 is a prediction with no achieved-coverage
+measurement behind it** — which is exactly why gate **L1** is registered on **achievement**, not on
+request, and why **L1 FAIL means no solve is launched.**
+
+### 7.7 D8 — THE SUPERVISOR WITHDREW THE COMPETING RECOMMENDATION, AND SANAA HAD ALREADY RULED
+
+**Recorded per the supervisor's instruction.** He recommended registering **Wolf Dynamics** for
+DrivAer (complete, self-contained, ships its own STL, no geometry deviation) and has **withdrawn
+that recommendation**, in his words reasoning *"about convenience while you were reasoning about the
+experiment"*: `[WD]` is the **original TUM DrivAer, a HALF model at 30 m/s with ν = 1.5881e-05**, so
+reproducing it exactly reproduces **a different experiment from the one gate C2 is anchored on**.
+
+🔴 **And it was not a lane's call to begin with: Sanaa ruled it herself.** Owner directive **#30-31**,
+recorded byte-exact by the chief at commit **`b821405af`**: ***"occDrivAerStaticMesh is the DrivAer
+case."*** **This lane had not seen that directive when it wrote D8**, and reached the same conclusion
+from the velocity, viscosity, body and solver. **The agreement is corroboration, not authority — the
+authority is hers.**
+
+**§5.6's D8 stands as written: `[OCC]` for conditions, numerics and BCs; `[WD]` for snappyHexMesh
+practice. Two trees, two purposes.** The disagreement that produced it is resolved and **both
+positions are left on the record**, because the reasoning is what makes the ruling checkable.
+
+### 7.8 THE SHARED-FILE LESSON, IN THE WORDING THE SUPERVISOR ADOPTED
+
+> **Re-read immediately before any whole-file write on a shared path** — and treat the **mandatory
+> post-commit verify as the backstop that makes an incident repairable rather than a silent loss.**
+
+It earned itself twice tonight. **It was applied to this very append:** the file was re-read from
+`HEAD` and `cmp`-ed against the working copy immediately before writing, and the prefix assert is
+re-run at commit.
+
