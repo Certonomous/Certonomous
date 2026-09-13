@@ -1844,3 +1844,109 @@ concave area share of 3.03 % sits above A1b's 3.0 % materiality threshold before
 claimed to mean, and all three numbers must be printed beside any `Z`, `M`, `Z_w'` or `M_w'`
 taken from it.** The corrected-fin family of §A7.4 exists precisely so the graded sweep does not
 have to inherit the first two.
+
+---
+---
+
+# ADDENDUM 9 — 2026-09-13 — **FIX THE FINS, THEN RUN**: THE HULL'S MISSING LAYERS ARE AT THE FIN ROOTS, AND THE REBUILD'S PREDICTIONS ARE REGISTERED HERE BEFORE IT IS BUILT
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+
+## A9.1 THE RULING, AND WHAT L1 IS FOR
+
+The cfd-supervisor ruled: **do not run 28 ranks into a result already known to be ungradeable.**
+§A8.5 measured the fins' concave area share at **3.03–3.06 %** against A1b's registered
+materiality threshold of **3.0 %**, with A1b's directional prediction `F > Q1` — so the fin
+forces are **REPORTED, NOT GRADED by construction, before a solve starts**. Together with the
+tessellation limit (1.9× the cell) and the layer limit (87.2 %, 4.8 of 6), **all three
+limitations sit on the fins and all three are addressable.**
+
+> **L1's VALUE IS RECORDED FOR WHAT IT IS: THE DIAGNOSTIC THAT ESTABLISHED ALL THREE NUMBERS
+> BEFORE A SINGLE SOLVE.** 794.67 core-min to learn that the graded surfaces were unusable is a
+> bargain against learning it after a seven-point sweep. **It is not waste and it is not
+> discarded.**
+
+## A9.2 🔴 THE MEASUREMENT THAT WAS ASKED FOR: THE HULL'S MISSING LAYERS **ARE** AT THE FIN ROOTS
+
+The question: the hull reached **91.5 %** here against **99.0 %** on the hull+sail body, on the
+**byte-identical** hull STL. Same geometry, same standard, 7.5 points worse. Is that the fins'
+*presence* degrading the hull?
+
+**Method, measured from the built mesh:** for every one of the 130,868 hull boundary faces, the
+distance from the face centre to its **owner cell centre**. A face carrying a prism stack has an
+owner at roughly half the first-layer thickness (0.4265 mm); a face with no stack has one at
+roughly half the local cell. The distribution is bimodal — p25–p75 all at **0.4945 mm**, with a
+tail to **1.4871 mm** at p99 — and the split is taken at the geometric mean of the two modes,
+**1.0242 mm**.
+
+| | unlayered hull faces | share of ALL hull faces | **enrichment** |
+|---|---|---|---|
+| **fin axial window** (3.7756–4.0062 m) | **2,192 = 66.1 %** | **11.9 %** | **5.56 ×** |
+| sail axial window (0.9245–1.2909 m) | 73 = 2.2 % | 10.9 % | **0.20 ×** |
+| everywhere else | 1,051 = 31.7 % | 77.2 % | 0.41 × |
+
+> **TWO THIRDS OF THE HULL'S UNLAYERED FACES SIT IN THE ONE EIGHTH OF THE HULL THAT THE FINS
+> OCCUPY. THE SAIL WINDOW IS DE-ENRICHED FIVEFOLD.** The hull's layer deficit is not a property
+> of the hull; it is **the fin roots**, which is precisely where Sanaa's RM checks live.
+> **THE LAYER FIX FOR THE FINS AND THE LAYER FIX FOR THE HULL ARE THE SAME FIX.**
+
+**TWO HONEST LIMITS ON THIS MEASUREMENT, BOTH IN THE SAFE DIRECTION.**
+1. The proxy finds **2.53 %** of hull faces with *no* stack, while the layer table's 91.5 %
+   coverage implies an 8.5 % shortfall. **The proxy detects faces with NO first layer; the
+   table's coverage is thickness-weighted and includes PARTIAL stacks.** The 2.53 % is a lower
+   bound on affected faces. **It is used for LOCATION, which is what it was built for, not for
+   a count.**
+2. The single threshold is calibrated on the *unrefined* hull cell. Inside the fin window the
+   hull is lifted to the fins' distance refinement, so an unlayered face there has a **smaller**
+   owner distance and is **under-counted**. **The 5.56 × enrichment is therefore conservative.**
+
+## A9.3 THE §3.2 NON-COMPLIANCE, DISCLOSED AS A NON-COMPLIANCE
+
+MESH_STANDARD §3.2: the lab *"deliberately enforces 4 on boundary faces as well … because
+forces are integrated on boundary faces, exactly where the upstream default is loosest."*
+**This family's dict inherited SUBOFF_A1's `maxBoundarySkewness 20` and did not implement it.**
+L1's achieved 3.2687 satisfies the standard — **but the dict does not, and the mesh was lucky
+rather than constrained.** Corrected in the builder: **`maxBoundarySkewness 4`.** The graded
+family sets it explicitly.
+
+**Also corrected:** `writeFlags (noRefinement)` is **removed**, so `cellLevel` exists and §5's
+third concave prediction becomes **measurable** rather than NOT MEASURED.
+
+## A9.4 THE REBUILD'S ONE REGISTERED CHANGE: THE **JUNCTION-LAYER PACKAGE**
+
+A fin root is a **medial axis** — two layer stacks meeting a concave corner — and that is
+exactly where `snappyHexMesh` deletes layers. One coherent change, with its inherited values
+left legible in the dict:
+
+| setting | was | **now** | why |
+|---|---|---|---|
+| `maxThicknessToMedialRatio` | 0.3 | **0.6** | the classic junction fix: allows layers to survive near a medial axis instead of being squeezed out |
+| `minThickness` (relative) | 0.02 | **0.01** | keep a thin layer rather than delete it |
+| `nLayerIter` | 50 | **70** | more relaxation for a harder junction |
+
+## A9.5 🔴 THE PREDICTIONS, REGISTERED **BEFORE THE REBUILD EXISTS**, WITH NUMBERS AND A MECHANISM
+
+The supervisor asked for a number, in advance, and for what it means if it is wrong.
+
+| # | prediction | mechanism |
+|---|---|---|
+| **P1** | **fin layer coverage ≥ 95 %** (from 87.2 %) and achieved layers **≥ 5.5** of 6 (from 4.8) | the deficit is medial-axis collapse at the roots, which is what §A9.4 targets |
+| **P2** | **hull layer coverage ≥ 96 %** (from 91.5 %) | 66.1 % of its deficit is in the fin window, so the same fix recovers most of it |
+| **P3** | **fin `Q1` concave AREA share falls BELOW 3.0 %, to 2.0–2.8 %** (from 3.03–3.06 %) | `Q1` counts wall faces whose **owner cell** is concave. **A prism-layer cell is convex by construction.** Raising fin layer coverage from 87 % to ≥ 95 % converts near-wall owners from snapped polyhedra into prisms, so the share must fall. The 2.0–2.8 % band is the 3.03 % scaled by the recovered coverage fraction, not a round number |
+| **P4** | **hull `Q1` stays inside A1b's 0.35–1.4 % band** (it is 0.537 %) | the hull's own refinement structure is unchanged |
+
+**IF P3 IS WRONG AND `Q1` STAYS ABOVE 3.0 %**, the honest reading is that the fins' concave
+population is **not** near-wall but sits in the refinement transitions around the fin distance
+regions — in which case layers cannot fix it, the refinement structure must change instead, and
+**the forces are REPORTED, NOT GRADED, we run anyway, and we disclose.** That disposition is
+fixed here, before the number exists, so it cannot be chosen afterwards.
+
+**NOT PREDICTED, AND SAID SO:** the rebuild's cell count and its maximum non-orthogonality. The
+latter is meaningless to predict — §A8.1 showed it is the dictionary's own bound.
+
+## A9.6 WHAT EXISTS AND WHAT DOES NOT
+
+**Exists:** the corrected fin geometry (§A7.4, 0.960 × the cell), the corrected builder (§A9.3,
+§A9.4), L1 with its three measured limitations, and the ring-wing/strut generator (Addendum 2).
+**Does not exist:** the rebuilt mesh, any `Config 1` mesh, any queue entry, any solve.

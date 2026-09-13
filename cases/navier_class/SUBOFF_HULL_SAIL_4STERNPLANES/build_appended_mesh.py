@@ -307,18 +307,24 @@ addLayersControls
 {fin_layers}    }}
     expansionRatio 1.2;
     finalLayerThickness 0.5;
-    minThickness 0.02;
+    minThickness 0.01;               // was 0.02 -- keep thin layers rather than delete them
     nGrow 0;
     featureAngle 130; slipFeatureAngle 30;
     nRelaxIter 8; nSmoothSurfaceNormals 3; nSmoothNormals 5; nSmoothThickness 10;
-    maxFaceThicknessRatio 0.5; maxThicknessToMedialRatio 0.3;
+    // THE JUNCTION-LAYER PACKAGE, one registered change, applied because 66.1 %
+    // of the hull's unlayered faces were MEASURED to sit in the fin axial window
+    // which holds only 11.9 % of its faces -- a 5.56x enrichment.  Layers
+    // collapse where two stacks meet a medial axis, and a fin root IS a medial
+    // axis.  Inherited values are in the comments so the change is legible.
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.6;   // was 0.3 -- the classic junction fix
     minMedialAxisAngle 90; nBufferCellsNoExtrude 0;
-    nLayerIter 50; nRelaxedIter 20;
+    nLayerIter 70; nRelaxedIter 20;  // was 50
 }}
 
 meshQualityControls
 {{
-    maxNonOrtho 65; maxBoundarySkewness 20; maxInternalSkewness 3.5;
+    maxNonOrtho 65; maxBoundarySkewness 4; maxInternalSkewness 3.5;
     maxConcave 80; minVol 1e-16; minTetQuality 1e-15; minArea -1;
     minTwist 0.02; minDeterminant 0.001; minFaceWeight 0.03; minVolRatio 0.01;
     minTriangleTwist -1; nSmoothScale 4; errorReduction 0.75;
@@ -326,7 +332,9 @@ meshQualityControls
 }}
 
 mergeTolerance 1e-6;
-writeFlags (noRefinement);
+// writeFlags (noRefinement) REMOVED.  It suppresses cellLevel, which left the
+// concave population's refinement-jump prediction NOT MEASURABLE on L1.  The two
+// extra files are cheap; an unmeasurable prediction is not.
 """
     w(os.path.join(a.case, "system", "snappyHexMeshDict"),
       "dictionary", "snappyHexMeshDict", snappy)
