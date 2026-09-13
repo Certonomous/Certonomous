@@ -93,7 +93,17 @@ case "${MODEL:-NONE}" in
   SpalartAllmaras|kOmegaSST) echo "registered turbulence model: $MODEL" ;;
   *) fail "model is '${MODEL:-NONE}', not in the registered set {SpalartAllmaras, kOmegaSST}" ;;
 esac
-grep -qE 'transonic +yes;'              system/fvSolution || fail "transonic is not yes"
+# R10: WIDENED to the REGISTERED FORMULATION SET, never deleted (CLAUDE.md rule 14).
+# A launcher that asserts nothing runs whatever happens to be on disk, which is how a family
+# silently changes formulation between levels.  Both members are registered:
+#   transonic yes -- M6I_R1_SOLVE_PREREGISTRATION.md, the family default (eight cases)
+#   transonic no  -- M6I_R10_TRANSONIC_PREREGISTRATION.md, the formulation rung
+# Anything else, or a missing entry, still aborts before the solver starts.
+TRANSONIC=$(grep -oE 'transonic +(yes|no);' system/fvSolution | grep -oE '(yes|no)' | head -1)
+case "${TRANSONIC:-NONE}" in
+  yes|no) echo "registered transonic formulation: $TRANSONIC" ;;
+  *) fail "transonic is '${TRANSONIC:-NONE}', not in the registered set {yes, no}" ;;
+esac
 # R8: SST adds k and omega to relaxationFactors.equations, which the old literal match could
 # not express.  EVERY clause the original asserted is still asserted, per model; the
 # LOAD-BEARING one -- equations.p == 1 for pEqn.H:36 diagonal dominance -- is asserted first
