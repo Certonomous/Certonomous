@@ -1236,3 +1236,103 @@ It is a mesh property and no clamp touches it. **Under-resolution remains exclud
 And the cross-act framing stands: the eight-cell requirement **discriminated, in opposite
 directions, on two aircraft in one night** — M6 failing it by two orders, the CRM passing it by
 nearly three. **A test that only ever returns one answer is not a test.**
+
+---
+
+# ADDENDUM 10 — 2026-09-13, FINDING 8 IS RETRACTED. `transonic no`. COST. Version 1.10.
+
+**lines whose number changed above this section: 0**
+
+## A10.1 🔴 FINDING 8 — "THE RUNAWAY ORIGINATES IN THE FARFIELD" — IS **RETRACTED**
+
+Refuted by one read of the subdomains' own boundary files, verified by this lane:
+
+| | `body` faces | `wing` | **`farfield`** | `symmetry` |
+|---|---|---|---|---|
+| processor0 | **11,040** | 0 | **0** | 11,733 |
+| processor1 | **10,342** | 0 | **0** | 6,902 |
+
+**Both subdomains own thousands of AIRCRAFT WALL FACES AND NOT ONE FARFIELD FACE.** The farfield
+boundary is not present in either, so the runaway cannot begin at it. Patch extents from the mesh
+that ran: `body` x[2.352, 65.087] m, `wing` x[25.218, 47.978] m, `farfield` x[−2943.860, 3022.600] m.
+
+🔴 **THE ERROR: I placed the fuselage nose at x ≈ 22 m from memory. It is at x = 2.352 m.** 22 m is
+near the **wing root leading edge** (25.218 m) — I read the wing and called it the fuselage, then
+concluded that subdomains upstream of *that* contained no aircraft.
+
+> **A REMEMBERED GEOMETRY IS NOT A MEASURED ONE.** The mesh's own boundary file answers *"is the
+> aircraft in this subdomain"* directly, exactly, and for free — one grep from a file already open.
+> I answered it from a bounding box plus a recalled coordinate.
+
+## A10.2 🔴 THE LOCATION CHANNEL IS NULL AND MUST STOP BEING MINED
+
+`p max` sits in the **nose region — which is where maximum pressure BELONGS.** This act's own
+initialiser says so: its maximum is stagnation, 6427.135 Pa, to six figures. **The location is
+exactly as expected, so it discriminates NOTHING.**
+
+**THREE LOCATION STORIES IN ONE ACT, ALL THREE WRONG:** the outboard shock (refuted by chord
+fraction and surface side), the blunt trailing edge (invalidated by the wrong clamps), the farfield
+(refuted above). Each was a null or corrupted channel converted into a mechanism.
+
+> **THE ANOMALY IS THE MAGNITUDE AT A CORRECT LOCATION, NOT THE LOCATION.** No further rung is
+> derived from where `p max` sits. **A null result is not a pointer.**
+
+## A10.3 WHAT IS EXCLUDED, AND WHAT HONESTLY IS NOT
+
+**Excluded by measurement:** the mesh (13–22 cells across the TE base vs a requirement of ≫8);
+agglomeration (convicted of the `sumProd` fault only, and removed); the initial field
+(self-consistent, its maximum *is* stagnation); the clamps (corrected, and iteration 1 still
+overshoots them); **the farfield (A10.1)**.
+
+**NOT excluded:** the transonic pressure equation's `div(phid,p)` term; the compressibility
+coupling at a stagnation point; **and things neither reader has named.** The blunt-TE and
+steady-RANS footprints remain invalidated by the wrong clamps — A10.1 neither revives nor further
+kills them.
+
+## A10.4 THE REGISTERED CHANGE — `transonic no`, AS A DIAGNOSTIC
+
+`div(phid,p)` is the **only** term that exists on the transonic branch, and it has never been
+tested. `transonic no` is **not the right physics at M 0.85** and **its answer is never graded**;
+§C.6's registered transonic option stands unchanged.
+
+**THREE BRANCHES, FIELD-BASED CRITERION (A8.2), NO LOCATION CHANNEL:**
+
+| outcome | diagnosis |
+|---|---|
+| `p max` stays **BOUNDED** (< 10 × p∞ for 20 iterations) | the transonic pressure equation on this mesh is **convicted**; the rung is its discretisation |
+| `p max` **DIVERGENT** (> 100 × p∞, or ×10 between checkpoints) | the transonic branch is **exonerated**; the cause is upstream of the pressure equation |
+| neither, at 30 iterations | **UNDECIDED**, reported as such |
+
+*A location channel was drafted and is **deleted**: "informative only if the runaway begins
+upstream" can never fire, because it never began upstream.*
+
+## A10.5 COST — RULE 12, OWED AND PAID
+
+Core-minutes = wall s × ranks ÷ 60, from each run's own `ExecutionTime`, 32 ranks throughout:
+
+| run | wall s | core-min |
+|---|---|---|
+| SMOKE_T (baseline) | 548.5 | 292.5 |
+| PROBE_P3_MAXITER | 323.5 | 172.6 |
+| PROBE_P4_UNBOUNDED | 23.3 | 12.4 |
+| SMOKE_V2_RAMP | 43.8 | 23.4 |
+| V4 / V5 / V7 / V8 / V9 / V10 / V11 | 88.2 total | 47.0 |
+| SMOKE_V12_NOGAMG | 1057.2 | 563.9 |
+| DIAG_EARLY | 592.6 | 316.1 |
+| **TOTAL (solver wall only)** | | **1,427.9 core-minutes** |
+
+**= 23.80 core-hours → $1.22 DERIVED** at $0.0513/core-h.
+**`cost_basis`: REPORTED-BY-OWNER, NOT MEASURED** — the box cannot read its own billing
+(`COMPUTE_BUDGET_CHARTER` §5).
+
+**Named, not folded in:** mesh conversion, `decomposePar`, and the `potentialFoam`/isentropic
+stage-0 work are **excluded** from this figure and remain unmeasured. Against the §9 registered
+ladder estimate of 124,700–245,800 core-minutes, thirteen runs have consumed **1.1 %** of the
+lower bound and produced **zero graded rows** — the spend is in diagnosis, not in solving.
+
+## A10.6 THE `purgeWrite` GUARD, HOLE CLOSED
+
+`purgeWrite 0` means **keep every time directory** — maximum retention, not minimum. The numeric
+and semantic orderings disagree at exactly that one value, and it is the value a diagnostic run is
+most likely to use; `-ge 2` refused it. Now accepted: **0 (keep all) or ≥ 2.** The previous fix's
+own commit message described this hole and left it.

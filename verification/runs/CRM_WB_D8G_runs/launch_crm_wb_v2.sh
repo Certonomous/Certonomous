@@ -73,8 +73,13 @@ grep -qE '^application +rhoSimpleFoam;' system/controlDict || fail "application 
 # checkpoints"; MORE retention strictly dominates it. Hardcoding equality encoded the
 # restart-economy assumption as law and refused a legitimate DIAGNOSTIC run that needed to keep
 # every early field -- the same defect the purgeWrite lesson names, written into the guard itself.
+# AND purgeWrite 0 MEANS KEEP EVERY TIME DIRECTORY in OpenFOAM -- it is MAXIMUM retention, not
+# minimum. The numeric ordering and the semantic ordering disagree at exactly one value, and it is
+# the value a diagnostic run is most likely to use. `-ge 2` refused it, which left the very hole
+# the previous fix's own commit message described.
 PW=$(grep -oE '^purgeWrite +[0-9]+;' system/controlDict | grep -oE '[0-9]+')
-{ [ -n "$PW" ] && [ "$PW" -ge 2 ]; } || fail "purgeWrite is ${PW:-unset}, must be >= 2"
+{ [ -n "$PW" ] && { [ "$PW" -eq 0 ] || [ "$PW" -ge 2 ]; }; } \
+  || fail "purgeWrite is ${PW:-unset}; must be 0 (keep all) or >= 2"
 grep -q  '#include'                     system/controlDict || fail "controlDict lost its #include"
 grep -qE 'RASModel +SpalartAllmaras;'   constant/turbulenceProperties || fail "model is not SpalartAllmaras"
 grep -qE 'transonic +yes;'              system/fvSolution || fail "transonic is not yes"

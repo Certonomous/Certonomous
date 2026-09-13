@@ -26,7 +26,10 @@ SIMPLE
 {
     nNonOrthogonalCorrectors 1;
     consistent      yes;
-    transonic       yes;
+    transonic       no;      // DIAGNOSTIC ONLY (A10.4). div(phid,p) is the one term that exists
+                             // only on the transonic branch and has never been tested. This is NOT the
+                             // right physics at M 0.85 and ITS ANSWER IS NEVER GRADED; Sanaa section C.6
+                             // registers the transonic option and that stands.
     // CLAMPS DERIVED FROM THE REGISTERED CONDITION, NOT CHOSEN BY EYE (ADDENDUM 9).
     // A clamp catches NON-PHYSICAL excursions, so it must sit ABOVE every physically attainable
     // value. At M_inf 0.85 the TRUE stagnation pressure is p0/p_inf = (1+0.2*0.85^2)^3.5 =
