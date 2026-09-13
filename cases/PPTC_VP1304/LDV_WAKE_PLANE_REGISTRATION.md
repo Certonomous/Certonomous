@@ -182,3 +182,57 @@ Our six registered advance ratios do not include 1.253. Nearest is **J = 1.2021*
 At each of the seven planes, on the 225° radial line, over the registered radii: **axial and
 tangential velocity**, normalised by VA. The extraction reads the registered plane list from
 this file; it does not choose planes.
+
+---
+
+## ADDENDUM 1 — 2026-09-13, still before any extraction. THE THREE THREATS ARE NOT THE SAME THREAT, AND §5's "POSITION IS ROBUST" WAS WRONG
+
+*lines whose number changed above this section: 0*
+
+Two corrections, both before any field exists.
+
+### A1.1 §5 treated one threat as though it were all of them
+
+§5 established that the VA normalisation ambiguity is a **common factor**, and concluded that
+**"profile shape, and the tip-vortex position in r/R, are robust to it"**. That sentence is true
+of the VA factor and **false as a general claim**, because two of the three threats in §1 are not
+common factors and one of them moves exactly the quantity called robust.
+
+> **THREAT MAP, REGISTERED BY RADIUS — each figure carries the caveat that binds where it is
+> drawn.**
+
+| radial region | threat that binds | mechanism | what it damages |
+|---|---|---|---|
+| **inboard, r/R ≲ 0.6** | **REVERSED RIG** | dynamometer J25 sits **in front** of the disc, so the propeller **ingests the shaft's wake** — a velocity deficit concentrated at small radius. Our solve has clean inflow there and the shaft **downstream**. | the inflow itself, hence both magnitude and shape inboard. **The comparison is weakest here** and nothing about VA touches it. |
+| **outboard, r/R ≈ 0.95–1.05** | **13.64 % BLOCKAGE** | a confined 0.600 × 0.600 m section restrains the slipstream, so the **contraction differs from free field** and the tip vortex trails at a **different r/R** than it would unconfined. | the **radial position** of the tip vortex — the very quantity §3 records Table 4 resolving at Δr/R = 0.002. |
+| **everywhere** | **VA ambiguity** | corrected-vs-raw inflow is a single multiplier on every normalised velocity. | **absolute levels only**; shape and position untouched by *this* mechanism. |
+
+**Why the blockage threat is material and not academic at this resolution.** Table 4 samples
+the tip-vortex band at **Δr/R = 0.002, i.e. 0.250 mm**. A contraction difference of even half a
+percent in slipstream radius is ≈0.6 mm — **two and a half sampling intervals.** The data
+resolve the vortex position far more finely than the blockage uncertainty in it, so agreement or
+disagreement in position at that resolution **cannot be attributed to the CFD.** The magnitude of
+the contraction shift is **not estimated here** and is not guessed.
+
+### A1.2 Glauert corrects the FORCES, not the velocity field — §1.1's scope corrected
+
+§1.1 reported the cross-check (page 2.11 interpolated to J = 1.253 giving KT 0.2514 / 10KQ
+0.7132 against the tunnel's 0.250 / 0.725, −0.57 % and +1.66 %) and said the Glauert correction
+"is what makes this comparison legitimate". **That is true of the force comparison and must not
+be read past it.**
+
+> **Glauert's method corrects the propeller COEFFICIENTS for test-section influence. It does
+> not correct the measured velocity field.** The agreement therefore establishes that the two
+> experiments are measuring **the same propeller at the same LOADING**. It establishes **nothing
+> about whether the tunnel's wake is free of blockage distortion**, and it is not licence for the
+> wake comparison.
+
+Recorded because a reader meeting a 2 % force agreement immediately before a wake comparison
+will otherwise carry the one into the other.
+
+### A1.3 What this does to the deliverable
+
+Nothing is withdrawn from §§2–4 — the planes, radii, transformation and the registered absence
+of a band all stand. What changes is **how the figures are captioned**: each carries the threat
+that binds at its own radius, from the table above, rather than a single paragraph of caveats at
+the end. §5's robustness claim is **struck** and replaced by the row-wise statement in A1.1.
