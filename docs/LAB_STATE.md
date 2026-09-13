@@ -45900,7 +45900,7 @@ index carries staged DELETIONS including the DrivAer registration — a bare `gi
 |---|---|
 | **MRF R4 fine** (t/D 0.0155) | pid 23103, 6 ranks, ~4,900 of 8,000, ETA ~07:40Z. **Already entitled to `NOT A RESULT`** — see below |
 | **SUBOFF SOLVE_L2** | pid 27208, 4 ranks, ~1,000 of 3,000, 20.12 s/it measured, ETA ~15:22Z |
-| **DrivAer r2c_medium_blended_R3** | pid 570686, 4 ranks, launched 04:30:27Z, endTime 10000, ETA ~11:55Z. Advancing on the FORCE channel (Cd 0.472→0.305 over 36 rows) |
+| **DrivAer r2c_medium_blended_R3** | **pid 570689** (wrapper; 570686 as first published is DEAD and was never the rc-writer), 4 ranks, launched 04:30:27Z, endTime 10000, ETA ~11:55Z. Advancing on the FORCE channel (Cd 0.472→0.305 over 36 rows) |
 | **PPTC** | coarse mesh building, 8 ranks, from 19,032 background cells |
 | **M6I L2_PHIDP** | **DEAD** — SIGFPE rc=136 at Time 6290. Triaged, see below |
 | **CRM-WB** | **IDLE, 32 ranks. Launch permission-denied. Sanaa's.** |

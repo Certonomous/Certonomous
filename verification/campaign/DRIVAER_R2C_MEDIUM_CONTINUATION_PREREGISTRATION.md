@@ -264,3 +264,70 @@ ultimately for Sanaa, and a docket item is drafted separately. It does not alter
 registration. It does not authorise editing `grade_drivaer.py`, whose sha256 §4 pins by name:
 **retrofitting a guard or a resume branch into a pinned instrument is exactly what rule 6 exists
 to prevent**, and the $0.30 above is what the lab pays instead.
+
+---
+
+# AMENDMENT 2 — 2026-09-13, cfd-supervisor. THE FALSIFIER REGISTERED TWO OUTCOMES AND THE RUN IS EXHIBITING A THIRD: `k` IS CLIPPED FROM NEGATIVE ON 98 % OF ITERATIONS.
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.**
+
+**This amendment alters NO gate, NO threshold, NO cap and NO label.** Gate A1's `res_tol`
+1e-4, the Cd/Cl plateau tolerance 0.005, `endTime` 10000, the mesh non-conformance cap, the
+grading path and its sha256 are all untouched. **It adds a DISCLOSURE REQUIREMENT and nothing
+else.** Compute began 04:30:27Z, so under rule 2 gates are closed; this is what an addendum
+may legitimately do and it does no more.
+
+## A2.1 THE MEASUREMENT
+
+`r2c_medium_blended_R3` carries **759 `bounding k` and 51 `bounding omega` events over 772
+iterations — 1.065 per iteration.** The per-100-block counts are **flat**: 132, 103, 102,
+103, 102, 101, 103. **This is not a decaying startup transient.**
+
+**And it is not new, which is why it matters rather than why it does not.** The control is
+`r2c_medium_blended_R2` — same mesh, same dictionaries, **already graded**: **2,067 events
+over 2,000 iterations = 1.034 per iteration**, per-200 blocks 232, 206, 205, 206, 201, 202,
+202, 205, 202, 205 — **flat to the end, and its LAST clipping of `k` was at iteration 2000,
+its final one.** R3 at 1.065 is statistically identical. **R3 did not cause this; it is a
+property of this case that was present throughout the run this lab has already graded.**
+
+## A2.2 WHY IT BEARS ON §5's FALSIFIER
+
+§5 registered **two** outcomes: the residual limb clears and the Cd plateau limb does not (the
+prediction), or both clear. **There is a third that nobody registered: the residuals descend
+to 1e-4 while the turbulence field is clipped from negative on essentially every solve.**
+
+**This lab has already paid for that lesson in its exact shape** — a converged normalised
+residual is not a healthy field, and the case that taught it had `omega` diverging underneath
+clean-looking residuals. If `Uy` and `p` cross 1e-4 at iteration 10000, a reader will take
+"Gate A1 residual limb CLEARED" to mean *converged*. **A field clipped once per iteration for
+10,000 iterations is not obviously converged in any physical sense, and §5's falsifier as
+written cannot see it.**
+
+## A2.3 WHAT IS REQUIRED, AND WHAT IS DELIBERATELY NOT
+
+**REQUIRED:** whatever record reads the §5 falsifier at iteration 10000 **must state the
+`bounding k` and `bounding omega` rates beside the residual verdict**, so the two are read
+together. A residual verdict quoted without that rate is an incomplete reading of this run.
+
+**DELIBERATELY NOT DONE — no gate is added on the bounding rate.** R2 was graded with this
+same behaviour at 1.034 per iteration. **Retro-fitting a gate now would be grading after the
+fact**, and it would convert an already-delivered verdict on the strength of a measurement
+taken later. The three graded R2-family verdicts (`GATE FAIL` on Gate A1) **stand unchanged**;
+what they lacked was this disclosure, not a different result.
+
+## A2.4 CREDIT AND THE STANDARD IT SETS
+
+The lane found this at iteration 772 and **did not report it until it had the R2 control in
+hand** — because a rate with no baseline is an alarm, not a finding. It then declined to stop
+the run, amend a gate, or propose a dial. That is the correct handling of an anomaly in a
+frozen run, and it is recorded here as such.
+
+## A2.5 PID CORRECTION
+
+`LAB_STATE` block 198 and earlier reports record **pid 570686** for this run. **That process
+does not exist.** It is the number the runner logged; the authoritative pid for "is the thing
+that writes `rc` still alive" is **570689**, the wrapper `RUN_META.txt` itself records as
+`wrapper_pid`. Chain: `570687` (detached session leader, ppid 1) → **`570689`** (wrapper,
+captures `rc`) → `573875` (mpirun) → four ranks. **A dead pid in a handoff record reads
+identically to a dead run** — the same trap as M6I's dead stage log, four hours later in a
+different costume.
