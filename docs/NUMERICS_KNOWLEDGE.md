@@ -7251,3 +7251,54 @@ class's own run-to-run nondeterminism floor"*. **It never delivered one:** `rc =
 25.867 core-min, and its `d6r2c_evals.jsonl` holds **one line, the HEADER** — no `F` record,
 no `J`. The floor above was recovered from `KR_REF` vs `O_mp` instead, which is a better
 replicate pair than the one that was registered: different dates, containers, load and memory.
+
+---
+
+## N-C14. THE `genWingMesh.py` (pyHyp) EXTRUSION PLUS THE FAMILY MESH SEQUENCE IS BIT-FOR-BIT DETERMINISTIC — 40,209 OF 40,209 POINTS IDENTICAL AND max |Δ| = 0.0 m EXACTLY ACROSS 47.7 DAYS, AND OpenFOAM ZEROES THE GZIP `MTIME` SO THE md5 IDENTITY IS A STATEMENT ABOUT THE POINTS
+
+**MEASURED**, on the `D6R2` A2 wing, 2026-09-13. The sequence is
+`genWingMesh.py` (pyHyp hyperbolic extrusion) → `plot3dToFoam -noBlank volumeMesh.xyz` →
+`autoPatch 60 -overwrite`, read from the regenerating run's own `mesh_generation.log` (lines 2, 60,
+173). Re-run around the same `surfaceMesh_base.cgns` the base mesh was built from:
+
+| | base (2026-07-28 00:18:12 UTC) | regenerated (2026-09-13 17:33:34 UTC) |
+|---|---|---|
+| `points.gz` md5 | `0fb1935a9b8781b73ac4ccb136e3ec68` | **identical** |
+| bytes | 696,852 | **696,852** |
+| points | 40,209 | **40,209** |
+
+**Parsed point-by-point from both files rather than inferred from the hash: `max |Δ| = 0.0 m`
+exactly on all three components, 40,209 of 40,209 identical.** Elapsed **47 days 17:15:22**,
+different container, different date, different cpuset. The script is md5
+`dab5e959187ab2e2bfb4e2c0ded0feb6`, the value the family's launchers pin as `MD5_GENWINGMESH` and
+`G-FREEZE` asserts before every launch.
+
+**THE CLAUSE THAT MAKES AN md5 COMPARISON LEGITIMATE HERE, AND IT IS MEASURED.** A gzip member
+carries an `MTIME` in header bytes 4–7. If OpenFOAM wrote a real timestamp there, two identical
+point clouds written on different days would differ in md5 and the comparison would be worthless —
+and a *matching* md5 would mean something other than matching points. Both files' first ten header
+bytes are `1f 8b 08 00 | 00 00 00 00 | 00 03`: **`MTIME = 0`.** OpenFOAM zeroes it. **So
+`points.gz` md5 equality is exactly equivalent to point-cloud equality on this build**, which is
+what the independent point parse confirms.
+
+**AN INDEPENDENT SECOND CHANNEL AGREES, through code that never touches an md5:** the first
+`checkMesh` block of `O_mp`'s arm log (base mesh) prints
+`Mesh non-orthogonality Max: 66.96543422 average: 11.48508811`, and the regenerating run's
+`mesh_generation.log:453` prints the same figures to all printed digits.
+
+**WHY IT MATTERS.** Two of the owner's standing shape-optimisation rules presuppose a reproducible
+extrusion and nothing had measured it: rule 8 (*periodic re-meshing with restart*) and rule 9
+(*fresh-mesh checkpoints of the objective*). Without determinism, a fresh-mesh checkpoint's drag
+difference carries an unmeasured mesh-generation component and rule 9's tolerance is
+uninterpretable. **Practical consequence:** for a re-mesh at an *unchanged* surface, `points.gz`
+md5 equality is a **sufficient** test and no point parse is needed — provided the `MTIME = 0`
+clause is re-measured whenever the OpenFOAM build changes.
+
+**HONEST LIMITS, and they are narrow.** One surface, one design point (shape ≡ twist ≡ 0), one
+build, one machine — **a single measurement, not a characterised property**, and silent about a
+different surface. It says **nothing about the solver**, which on this same family is measured
+*non*-reproducible to about `3e-5` relative in `J` by path. And `MTIME = 0` is read from these two
+files, not from a specification.
+
+**Where the detail lives:**
+`cases/dafoam/ladder-a/A2/curriculum_D6R2C/FINDING_NOTE_D6R2C_MESH_DETERMINISM.md`.
