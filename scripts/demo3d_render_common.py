@@ -136,6 +136,46 @@ SAFE_CAPTION_CHARS = set(
 
 CASE_FACTS = {
     # ---------------------------------------------------------------------
+    # THE WOLF DYNAMICS DrivAer REPRODUCTION, added 2026-09-13. The case trees
+    # live OUTSIDE the repository, under /home/ubuntu/certonomous-runs, which is
+    # why these two entries carry an absolute case_dir rather than one built
+    # from REPO.
+    #
+    # THE COARSE ENTRY OWNS "PASS" AND THE FINE ENTRY OWNS "PENDING", and the
+    # difference is the point. The coarse case is COMPLETE at iteration 1000 and
+    # graded PASS on G1, G2 and G3 in
+    # verification/campaign/WOLFDYNAMICS_DRIVAER_COARSE_RESULTS.md. The fine
+    # case was STILL RUNNING when these entries were written, so it owns only
+    # PENDING -- the display/queue state -- and assert_stamp REFUSES a PASS on a
+    # fine-level figure before a pixel is drawn.
+    #
+    # AND A DISCLOSURE THAT TRAVELS WITH EVERY COARSE FIGURE: the coarse result
+    # is a REPRODUCTION, not a validation. Our forceCoeffs output is BYTE-
+    # IDENTICAL to their shipped file, which proves the case ran verbatim and
+    # CANNOT corroborate their number.
+    "WD_DRIVAER_COARSE": {
+        "case_dir": "/home/ubuntu/certonomous-runs/WOLFDYNAMICS_DRIVAER/coarse_R1",
+        "cells": 669416,                 # log.checkmesh: "cells: 669416"
+        "mesh_words": "669416 cells, their coarse mesh",
+        "solver": "simpleFoam",          # system/controlDict: application
+        "end_time": "1000",              # controlDict endTime 1000, reached
+        "fields": ("p", "U", "k", "omega", "nut", "yPlus"),
+        "allowed_verdicts": {"PASS"},
+        "verdict_stamp": "PASS",
+        "source": "verification/campaign/WOLFDYNAMICS_DRIVAER_COARSE_RESULTS.md",
+    },
+    "WD_DRIVAER_FINE": {
+        "case_dir": "/home/ubuntu/certonomous-runs/WOLFDYNAMICS_DRIVAER/fine_R1",
+        "cells": 4048483,                # log.checkmesh: "cells: 4048483"
+        "mesh_words": "4048483 cells, their fine mesh",
+        "solver": "simpleFoam",
+        "end_time": "0",                 # RUNNING; no time directory written yet
+        "fields": ("p", "U", "k", "omega", "nut"),
+        "allowed_verdicts": {"PENDING"},
+        "verdict_stamp": "PENDING",
+        "source": "the run is live; no grading record exists yet",
+    },
+    # ---------------------------------------------------------------------
     # THE ONERA M6 J-FAMILY, added 2026-09-13 for the demo field panels. Two
     # entries because the mesh figure is the COARSE level's own mesh and the
     # field figures are the FINE level's own fields, per the owner's ParaView
@@ -432,16 +472,29 @@ def materialise_case(case: str, time_dirs):
     return root, foam
 
 
-def open_case(case: str, arrays, time_dirs, time_value=None):
+def open_case(case: str, arrays, time_dirs, time_value=None,
+              decompose_polyhedra: bool = True):
     """Open a case and PROVE it is that case's mesh.
 
     Returns ``(reader, scratch_root, n_cells)``.
+
+    ``decompose_polyhedra`` defaults to True, which is ParaView's own default and
+    therefore the behaviour every existing caller already has. It must be set
+    FALSE for a mesh whose cells are not all tetrahedra/hexahedra, or the reader
+    splits them and the cell-count assertion below fires on a mesh that is
+    perfectly correct. MEASURED on the Wolf Dynamics DrivAer coarse case, whose
+    Fluent mesh checkMesh reports as 669,416 cells: the reader returned
+    1,026,903 with decomposition on. The assertion is NOT relaxed to admit that
+    number -- the reader is told not to change the mesh, and 669,416 is then
+    asserted exactly.
     """
     from paraview.simple import OpenFOAMReader, UpdatePipeline
 
     f = facts(case)
     root, foam = materialise_case(case, time_dirs)
     reader = OpenFOAMReader(FileName=foam)
+    if not decompose_polyhedra:
+        reader.Decomposepolyhedra = 0
     reader.MeshRegions = ["internalMesh"]
     reader.CellArrays = list(arrays)
     if time_value is None:

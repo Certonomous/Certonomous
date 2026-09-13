@@ -1,0 +1,3 @@
+level,cells,Cd,basis
+coarse,669416,0.2836314455671928,"mean over their window 200-1000, COMPLETE"
+fine,4048483,0.269051060033371,"mean over the last 100 iterations of 442, RUN IN PROGRESS"
