@@ -329,3 +329,89 @@ nothing** (§3.3); the margin line prints every evaluation with the verdict word
 driving this optimisation are UNVERIFIED* on its face (§5); mesh instruments as observers and stops
 with the measured **71.4464** binding over 75 (§6); wall-resolved y⁺ deferred.
 **SUBMISSIONS PARKED.**
+
+---
+
+# AMENDMENT 2 — 2026-09-13T21:58Z — THE SWEEP FALSIFIED THE PLAN. 20 RANKS, VERBATIM, ZERO DEVIATIONS
+
+**Version 1.2. Lines whose number changed above this section: 0.**
+**PRE-COMPUTE, and the condition is stated and checked:** `MP_R1` did not exist at 21:58Z.
+
+## A2.1 The measurement that changed everything
+
+`DECOMP_N20` completed: **`rc = 0`**, verdict **PASS**, every instrument control ok.
+
+| ranks | position | max residual at `endTime` | × `primalMinResTol` | gate | `CD` |
+|---|---|---|---|---|---|
+| 28 | 1 | `1.194718885139746e-07` | 11.9472 | PASS | `0.02090109066417552` |
+| 28 | 2 | `1.757696578179007e-06` | 175.7697 | **FAIL** | `0.02090262569125358` |
+| **20** | **1** | **`4.265593605364853e-08`** | **4.2656** | **PASS** | **`0.02090201680385412`** |
+| **20** | **2** | **`4.265593605364853e-08`** | **4.2656** | **PASS** | **`0.02090201680385412`** |
+| **20** | **3** | **`4.265593605364853e-08`** | **4.2656** | **PASS** | **`0.02090201680385412`** |
+
+**At 20 ranks all three conditions are BIT-IDENTICAL in every field and every digit, and across all
+21 printed steps.** That is the **correct** behaviour: the three conditions are the same physical
+problem at the same AoA on the same mesh, so they must give the same answer. **At 28 ranks they
+share step 1 and diverge by step 100, differing at 20 of 21 printed steps.** Two identical problems
+giving different answers is the defect, and **it is a 28-rank defect.**
+
+`4.2656` sits inside the **published** `primalMinResTolDiff` of `1.0e2` **by a factor of 23.4.**
+
+## A2.2 THEREFORE: NOTHING IS DEVIATED, ADDED, RAISED OR REPLACED
+
+- `primalMinResTolDiff` — **published `1.0e2`. Not raised. Not present in the producer.**
+- `primalFuncStdTol` — **NOT USED.** It remains the **registered contingency** (`d6r3_mp_stage_runscript.py`,
+  citing `DASolver.C:2730`, `:188`, `:230-262`) for a later design iteration that misbehaves. **It is
+  not in the baseline and the arm REFUSES if it appears** (`G-VERBATIM`).
+- `primalMinResTol` `1.0e-8`, `endTime 2000`, published GAMG `relTol 0.1` — **untouched.**
+- The producer runs **byte-for-byte frozen**, md5 `efc3e62699690edd32e4ee910aad09c8`. **No stager.**
+
+> **THE ARM CARRIES NO DEVIATION FROM VERBATIM EXCEPT MULTIPOINT ITSELF, WHICH IS SANAA'S §M.**
+> `G-VERBATIM` makes that checkable rather than asserted: it refuses unless the staged `runScript.py`
+> md5 **equals** the frozen producer, all five `system/` dicts are **byte-identical** to the published
+> tutorial's, `relTol 0.1` / `endTime 2000` / `primalMinResTol 1.0e-8` read back, **`primalFuncStdTol`
+> is ABSENT** and **`primalMinResTolDiff` is UNSET**.
+
+## A2.3 RANKS: 20. And a risk removed rather than documented
+
+20 is what D6R3 can hold once the propeller family takes its 48, **so there is no forced mid-run rank
+drop — and therefore no `6.39×` objective discontinuity to disclose.** Amendment 1 §A1.3 registered
+how to handle that hazard; at 20 ranks **it does not arise.** A risk removed by design beats a risk
+documented.
+
+## A2.4 MY OWN REGISTERED PREDICTIONS WERE WRONG, AND THE GATE I WROTE LOOKED AT THE WRONG POSITION
+
+Four of five predictions in `D6R3_DECOMP_PREREGISTRATION.md` §3 are **FALSIFIED**:
+
+| prediction | measured | |
+|---|---|---|
+| `N20` `R1 > 1.0e-06`, GATE FAIL | `4.265593605364853e-08`, **PASS** | **WRONG** |
+| `N08` `R1 > 1.0e-06`, GATE FAIL | `1.233169580459589e-07`, **PASS** | **WRONG** |
+| `G-MOVE` GATE REACHED (≥10×) | position-1 floors span **2.89×** | **WRONG** |
+| `G-PROD` GATE FAIL | both `N ≤ 20` cells pass → **PASS** | **WRONG** |
+| step-1 `U0` differs at every `N ≠ 28` | `0.03676…` at 20, `0.08534…` at 8 | **HELD** |
+
+**And a fault in my own registration, disclosed rather than worked around: `G-MOVE` was registered
+against position 1, which turns out to be roughly decomposition-stable.** The quantity that actually
+moves is **position 2 — `1.7577e-06` at 28 ranks against `4.2656e-08` at 20, a factor of 41.**
+`G-MOVE`'s `GATE FAIL` **stands as registered and is not re-read to fit the answer.** The gate can
+only turn a result into `NOT A RESULT`, never the reverse, and **a falsified prediction is not
+re-scored.**
+
+## A2.5 Still named, still NOT adopted
+
+Step 1 is identical at 28 ranks and divergence appears by step 100, so the initial state is shared
+and something changes between solves. `pairGAMGAgglomeration::forward_` is a process-static `bool`
+toggled once per agglomeration level (`pairGAMGAgglomerate.C:333`), so the parity the second solve
+sees depends on how many levels the first built — which depends on per-rank cell count. Consistent
+with everything measured. **Demonstrated by nothing here. NAMED AND NOT ADOPTED; nobody relays it as
+demonstrated.**
+
+## A2.6 Sweep status
+
+`DECOMP_N16` and `DECOMP_N12` are **`PENDING`** — a **queue state**, not a softened verdict. They
+were not run because D6R3's 28-core ceiling is needed for the deliverable, and three usable cells
+(`N28`, `N20`, `N08`) are the registered minimum for the rollup gates. Their absence is **not** read
+as evidence of anything.
+
+**SUBMISSIONS PARKED.**
