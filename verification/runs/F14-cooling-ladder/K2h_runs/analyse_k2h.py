@@ -116,6 +116,46 @@ def refuse(msg):
 
 
 # ---------------------------------------------------------------------------
+# ADDENDUM 9 -- THE TIME SENTINEL.  A DEFAULT THAT CANNOT BE TAKEN SILENTLY.
+# ---------------------------------------------------------------------------
+#: Every read below that must be told WHICH TIME to read defaults to this, and
+#: taking the default REFUSES.  It does NOT default to a correct time.
+#:
+#: WHY A SENTINEL RATHER THAN A CORRECT DEFAULT, which is the whole point of
+#: this repair: the four gating call sites that crashed this comparator did not
+#: pass a wrong time, they passed NOTHING and inherited `ENDTIME` 112 -- a
+#: directory this case can never write.  Every call site on the REFUSAL path
+#: (403, 464, 934, 941) passed its time explicitly.  The instrument was correct
+#: everywhere it did not decide and defaulted to an impossible directory
+#: everywhere it did.  Replacing `ENDTIME` with the LAST WRITTEN TIME would fix
+#: these four and leave the fifth caller to rediscover the whole thing, because
+#: a silently-correct default still lets a caller not think about it.
+#: L-221/L-222: a lesson is not applied until EVERY call site asserts it, so the
+#: assert is moved into the callee where no future call site can omit it.
+class _TimeNotGiven(object):
+    __slots__ = ()
+
+    def __repr__(self):
+        return "<TIME NOT GIVEN>"
+
+
+TIME_REQUIRED = _TimeNotGiven()
+
+
+def _require_time(time, where):
+    """Refuse rather than guess which time a graded read should use."""
+    if isinstance(time, _TimeNotGiven):
+        refuse("%s WAS CALLED WITHOUT A TIME. This comparator has NO default "
+               "read time by design (ADDENDUM 9). It previously defaulted to "
+               "`endTime` %g -- a directory this case can never write, because "
+               "writeInterval 5 does not divide 112 -- and every gated read "
+               "inheriting that default could only ever raise. Pass the time "
+               "explicitly, derived from d_complete's last written time."
+               % (where, ENDTIME))
+    return time
+
+
+# ---------------------------------------------------------------------------
 # 1. THE FREEZE -- section 11.  Hashed from DISK BYTES, never from a manifest.
 # ---------------------------------------------------------------------------
 def sha256(path):
@@ -429,6 +469,12 @@ def d_complete(case, segs):
         why.append("%d log line(s) flagged as fault signatures" % len(bad))
 
     detail["AD7_4_DISCLOSURE"] = window_disclosure(last_written)
+    # ADDENDUM 9(b). The time AD7.4's sentence was computed at, recorded so that
+    # `main()` can ASSERT the graded read used the same one. If those two ever
+    # diverge the record's caption stops describing the number above it, and a
+    # caption that silently describes a different instant is a WORSE failure
+    # than the crash this addendum repairs, because nothing announces it.
+    detail["AD7_4_DISCLOSURE_COMPUTED_AT"] = last_written
     # BOTH ENDS OF THE WINDOW, HONESTLY. AD7.4 discloses the 2 s shortfall at the
     # END. This discloses the 0.0083 s overshoot at the START. It is four orders
     # of magnitude smaller and it changes nothing -- but a window whose true
@@ -552,23 +598,25 @@ def window_disclosure(last_written):
 # ---------------------------------------------------------------------------
 # 3. THE GRADED QUANTITY -- one reader, the frozen one
 # ---------------------------------------------------------------------------
-def dpbar(case, field=MEAN_FIELD, time=ENDTIME):
+def dpbar(case, field=MEAN_FIELD, time=TIME_REQUIRED):
     """DPbar = areaAvg(p_rghMean, tile) - areaAvg(p_rghMean, return) at endTime.
 
     Both terms go through the FROZEN `foam_patch_reader.area_average`, which is
     the same reader that produced K2g's f1 and f2 -- section 11's "one reader,
     every level" discipline surviving the change of solver.
     """
+    time = _require_time(time, "dpbar()")
     hi, src_hi = FR.area_average(case, time, field, PATCH_HI)
     lo, src_lo = FR.area_average(case, time, field, PATCH_LO)
     return hi - lo, {"hi": hi, "lo": lo, "path_hi": src_hi, "path_lo": src_lo}
 
 
-def dpbar_decomposed_crosscheck(case, field=MEAN_FIELD, time=ENDTIME):
+def dpbar_decomposed_crosscheck(case, field=MEAN_FIELD, time=TIME_REQUIRED):
     """C-RECON: if `reconstructPar` ran, read the DECOMPOSED path too and require
     the two to agree.  `area_average` prefers the reconstructed directory when it
     exists, so the only way to exercise the other limb is a shadow that carries
     `processor*` and no reconstructed time directory."""
+    time = _require_time(time, "dpbar_decomposed_crosscheck()")
     tname = FR._tname(case, time)
     if not os.path.isdir(os.path.join(case, tname)):
         return None, "no reconstructed %s; the decomposed path was the only one" % tname
@@ -586,7 +634,7 @@ def dpbar_decomposed_crosscheck(case, field=MEAN_FIELD, time=ENDTIME):
 # ---------------------------------------------------------------------------
 # 4. RULE 3 -- THE PLANTED ZERO, planted into the artifact the real read path uses
 # ---------------------------------------------------------------------------
-def planted_zero(case, patch, field=MEAN_FIELD, time=ENDTIME, plant=PLANT):
+def planted_zero(case, patch, field=MEAN_FIELD, time=TIME_REQUIRED, plant=PLANT):
     """Shadow the case with symlinks, add `plant` to every face of `patch` in a
     COPY of the endTime field, and require the production reader to see exactly
     it.  NOTHING under the real case directory is written to.
@@ -596,6 +644,11 @@ def planted_zero(case, patch, field=MEAN_FIELD, time=ENDTIME, plant=PLANT):
     graded difference rests on that zero.  A zero from a reader not shown able to
     see a non-zero is not evidence (CLAUDE.md rule 3).
     """
+    # RULE 3 CONTROLS THE READ THAT PRODUCES THE ANSWER, NOT A NEIGHBOURING
+    # ONE. If the plant and the graded read ever sit at different times the
+    # control stops being a control, so this takes the SAME time `dpbar` is
+    # called with and has no default of its own.
+    time = _require_time(time, "planted_zero()")
     before, _ = FR.area_average(case, time, field, patch)
     tname = FR._tname(case, time)
     tmp = tempfile.mkdtemp(prefix="k2h_plant_")
@@ -782,7 +835,7 @@ def _block(txt, key):
     return txt[m.end():j - 1]
 
 
-def accumulator_agreement(case, time=ENDTIME):
+def accumulator_agreement(case, time=TIME_REQUIRED):
     """The four ranks must AGREE on the averaging state, not merely carry a file.
 
     Four present-but-DISAGREEING accumulators pass a presence test and still
@@ -791,6 +844,7 @@ def accumulator_agreement(case, time=ENDTIME):
     always reported, so an ABSENT reading never stands without the evidence of
     where it was looked for.
     """
+    time = _require_time(time, "accumulator_agreement()")
     tname = FR._tname(case, time)
     rows, looked = {}, []
     for pdir in sorted(glob.glob(os.path.join(case, "processor*"))):
@@ -989,8 +1043,53 @@ def main():
             out["diagnostics_not_the_graded_value"] = \
                 diagnostics_beside_a_refusal(CASE)
             return _emit(out, EXIT_NAR)
-        pc_lo = planted_zero(CASE, PATCH_LO)
-        pc_hi = planted_zero(CASE, PATCH_HI)
+        # ------------------------------------------------------------------
+        # ADDENDUM 9. THE TIME EVERY GATED READ USES -- DERIVED, NEVER TYPED.
+        # ------------------------------------------------------------------
+        # The registration decided this before the run ended, in two places:
+        # AD5.3 ("the accumulator will be written into the t = 110 directory
+        # carrying the mean over 42 -> 110 = 68 s of the registered 70 s
+        # window") and AD7.4 verbatim ("The graded `DPbar` IS the mean over
+        # simulated 42 -> 110 s, NOT 42 -> 112 s"). Reading at `endTime` 112
+        # CONTRADICTED THE COMPARATOR'S OWN REGISTRATION; reading at the last
+        # written time EXECUTES it. Not a relaxation and not a new reading.
+        #
+        # Taken from the SAME `last_written` d_complete computed and AD7.4's
+        # disclosure is computed from. NOT hardcoded to 110: a typed literal
+        # sitting beside computed neighbours is the exact defect struck from
+        # AD8_4_PARAGRAPH_VERBATIM, and this repair does not install its twin.
+        grade_t = out["D_COMPLETE"]["detail"] \
+            ["INFRASTRUCTURE_last_written_time"]["value"]
+        disc_t = out["D_COMPLETE"]["detail"].get("AD7_4_DISCLOSURE_COMPUTED_AT")
+        if grade_t is None:
+            refuse("no written time on any rank, so there is no artifact to "
+                   "grade (ADDENDUM 9)")
+        if disc_t is None or float(disc_t) != float(grade_t):
+            refuse("ADDENDUM 9(b) ASSERTION FAILED: the graded read time "
+                   "(t = %r) and the time AD7.4's disclosure was computed at "
+                   "(t = %r) DIFFER. The caption would then describe a "
+                   "different instant from the number it sits under -- a "
+                   "SILENT failure, and worse than the crash this addendum "
+                   "repairs. Refusing rather than emitting either."
+                   % (grade_t, disc_t))
+        out["GRADED_AT_TIME"] = {
+            "value": grade_t,
+            "endTime_registered": ENDTIME,
+            "derived_from": ("d_complete's INFRASTRUCTURE_last_written_time -- "
+                             "the same value AD7.4's disclosure is computed "
+                             "from, asserted equal above. Never typed."),
+            "why_not_endTime": ("AD5.3 proved arithmetically, MID-RUN and "
+                                "before any DPbar existed, that no 112 "
+                                "directory would ever be written: at the final "
+                                "step writeTimeIndex_ is 22 and the computed "
+                                "write index is 22, and 22 > 22 is FALSE. Disk "
+                                "agrees -- no 112 on any rank or in the case "
+                                "root. A read at endTime could only ever raise."),
+            "same_time_used_for": ["planted_zero(tile)", "planted_zero(return)",
+                                   "dpbar", "dpbar_decomposed_crosscheck"]}
+
+        pc_lo = planted_zero(CASE, PATCH_LO, MEAN_FIELD, grade_t)
+        pc_hi = planted_zero(CASE, PATCH_HI, MEAN_FIELD, grade_t)
         out["planted_zero"] = {PATCH_LO: pc_lo, PATCH_HI: pc_hi}
         for p, pc in ((PATCH_LO, pc_lo), (PATCH_HI, pc_hi)):
             if not pc["passed"]:
@@ -999,7 +1098,7 @@ def main():
                        "zeros are not evidence (CLAUDE.md rule 3)"
                        % (p, PLANT, pc["read_back_delta"]))
 
-        val, vdet = dpbar(CASE)
+        val, vdet = dpbar(CASE, MEAN_FIELD, grade_t)
         out["DPbar"] = {"value": val, "detail": vdet, "band": BAND,
                         "reader": "FROZEN foam_patch_reader.area_average",
                         "field": MEAN_FIELD,
@@ -1012,7 +1111,7 @@ def main():
                             "read_back_delta equals the plant to 1e-12. A zero "
                             "from a reader not shown able to see a non-zero is "
                             "not evidence (CLAUDE.md rule 3)." % PLANT)}
-        xval, xsrc = dpbar_decomposed_crosscheck(CASE)
+        xval, xsrc = dpbar_decomposed_crosscheck(CASE, MEAN_FIELD, grade_t)
         out["DPbar"]["crosscheck_decomposed"] = xval
         out["DPbar"]["crosscheck_note"] = xsrc
         if xval is not None:
