@@ -1,0 +1,32 @@
+D6R3 FIX arms -- selftest of d6r3_fix_stage_fvsolution.py, run 2026-09-13T20:20:58Z BEFORE the freeze.
+instrument md5: 35a4fcbe733ad823552fce1c28577276
+published fvSolution md5: 36a8ad5cf2edd672b8aa752829647dfd
+
+T1 reltol happy path:
+D6R3_FIX_STAGE line 30: relTol                         0.1; -> relTol                         2.008e-03;
+D6R3_FIX_STAGE OK mode=reltol file=a1 edits=1 p_block_lines=26-32
+  rc=0
+  surviving relTol lines: 30:        relTol                         2.008e-03; 36:        relTol                         0; 43:        relTol                         0.1; 
+  diff vs published: 2 lines
+
+T2 nongamg happy path:
+D6R3_FIX_STAGE line 28: solver                         GAMG; -> solver                         PBiCGStab;
+D6R3_FIX_STAGE line 29: smoother                       GaussSeidel; -> preconditioner                       diagonal;
+D6R3_FIX_STAGE OK mode=nongamg file=b1 edits=2 p_block_lines=26-32
+  rc=0
+  diff vs published: 4 lines
+
+T3 PLANT -- a loosening value is REFUSED:
+D6R3_FIX_STAGE REFUSE: value 0.5 is not the frozen 2.008e-03
+  rc=2 (want 2)
+
+T4 PLANT -- an fvSolution that is not the published one is REFUSED:
+D6R3_FIX_STAGE REFUSE: expected exactly 2 `relTol 0.1;` lines in the published fvSolution, found 1
+  rc=2 (want 2)
+
+T5 PLANT -- re-staging an already-staged file is REFUSED:
+D6R3_FIX_STAGE REFUSE: expected exactly 2 `relTol 0.1;` lines in the published fvSolution, found 1
+  rc=2 (want 2)
+
+READ-BACK CONTROL: the reader was shown able to report a change (T1/T2 print the
+edited lines) before its silence in T3/T4/T5 was believed.

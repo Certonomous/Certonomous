@@ -1,0 +1,37 @@
+D6R3 FIX arms -- selftest of d6r3_fix_grade.py, run 2026-09-13T20:24:41Z BEFORE the freeze.
+grader md5: 3b3a96750e8d9c5fb1a8aec37b5edcf0
+
+S1  PLANTED CONTROL (rule 3) -- one digit of instance 1's step-1 p initRes is mutated in
+    memory and the reader must REPORT it before any silence of this reader is believed:
+{
+  "selftest_log": "/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/P0_20260913T190426Z.log",
+  "control_verdict": "NOT A RESULT",
+  "planted": "p initRes ...78 -> ...79 (one digit, instance 1)",
+  "reader_reported_the_plant": true,
+  "plant_detail": "printed 0.9999999999942179, registered 0.9999999999942178",
+  "mutated_verdict": "NOT A RESULT"
+}
+
+S2  NEGATIVE CONTROL -- the PUBLISHED-relTol P0 log graded under the FIX_RELTOL1 rule.
+    IC-2 must refuse it, because a run at relTol 0.1 prints nIters 24/21 and so is
+    indistinguishable from a run whose staged fvSolution never reached the solver:
+    verdict: NOT A RESULT
+    FAILED  IC-2 inst1 nIters > 24             printed nIters=24, published 24 (equal means the staged fvSolution never reached the solver)
+    FAILED  IC-2 inst1 finalRes < 0.09743304254827717 printed finalRes=0.09743304254827717, published 0.09743304254827717
+    FAILED  IC-2 inst2 nIters > 21             printed nIters=21, published 21 (equal means the staged fvSolution never reached the solver)
+    FAILED  IC-2 inst2 finalRes < 0.09727830036032596 printed finalRes=0.09727830036032596, published 0.09727830036032596
+    FAILED  IC-4 rc == 0                       rc=1
+    passed checks: 11 of 16
+
+S3  POSITIVE CONTROL -- the same P0 log graded under the FIX_NONGAMG1 rule.  The ordinal
+    signature is present in this log by measurement, so the reader must say PERSISTS;
+    a reader that says VANISHED here cannot be trusted to say VANISHED on the fix arm:
+    ordinal_signature: PERSISTS
+    hypothesis       : H-REMOVE-DEAD (agglomeration attribution is WRONG)
+    inst1 step1 p    : {'initRes': '0.9999999999942178', 'finalRes': '0.09743304254827717', 'nIters': 24}
+    inst2 step1 p    : {'initRes': '0.9999999999942178', 'finalRes': '0.09727830036032596', 'nIters': 21}
+    verdict          : NOT A RESULT
+
+S4  FLOOR READER -- the residual table the gate is read from, on the P0 baseline:
+    position 1  last_time=2000  max=nuTilda 1.194718885139746e-07  = 11.9472 x primalMinResTol  gate(<1e-06)=True  CD=0.02090109066417552
+    position 2  last_time=2000  max=p 1.757696578179007e-06  = 175.7697 x primalMinResTol  gate(<1e-06)=False  CD=0.02090262569125358
