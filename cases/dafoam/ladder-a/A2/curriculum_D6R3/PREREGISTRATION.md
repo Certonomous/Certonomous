@@ -588,17 +588,19 @@ core-min of L1 named separately as waste**), and `P0`'s, which **re-anchors `k_a
 
 | file | purpose | md5 |
 |---|---|---|
-| **`d6r3_opt_runScript.py`** | the producer: the published `runScript.py` + **D1 only** | **`d39ca376d44efe652548f7de39468996`** |
+| **`d6r3_opt_runScript.py`** | the producer: the published `runScript.py` + **D1 only**, and the **rule-17 gate before `run_model()`** | **`efc3e62699690edd32e4ee910aad09c8`** |
 | **`d6r3_p0_arm.sh`** | **`P0`**, the blocking precondition | **`4bab810a2e363f0c1e9f6dd4c423b967`** |
-| **`d6r3_run_arm.sh`** | the launcher; pins the producer by md5 (`G-FREEZE`) | **`bd14e3c0f884610eeaaf7ba2b4705106`** |
+| **`d6r3_run_arm.sh`** | the launcher; pins the producer by md5 (`G-FREEZE`) | **`29599c6225fcf9c7e65fdad908eddb5b`** |
 | **`d6r3_grade.py`** | `G1`, `BAND-CL05`, `G-J`, `G3`, and the label rule | **`51bdf8ea7354de8d3346ed8956332453`** |
-| **`d6r3_prefreeze.sh`** | §22.4's three clauses, driven | **`2f6ea88387542545ced975116a688f18`** |
+| **`d6r3_prefreeze.sh`** | §22.4's three clauses, driven, with **asserting** rc checks | **`e398541cdd4d5b657ba90ea16cc968bb`** |
 | **`d6r3_inrun_guards.py`** | the six in-run instruments, rules 6–11 | **`22757db8d9ec646172e416578c426ee6`** |
+| **`d6r3_mesh_read_gate.py`** | **RULE 17 — the mesh the solver READ** | **`8398dcbfc5bd92600f3503fdcc566ed9`** |
+| **`D6R3_R17_SELFTEST.json`** | 10 driven controls, 10 `PASS` | **`0e84988da1dbb2abdd64f3379ce4f19c`** |
 | **`D6R3_INRUN_SELFTEST.json`** | 53 driven controls, 53 `PASS` | **`9072291a0727d187f2aeab0980618423`** |
 | **`D6R3_GRADE_SELFTEST.json`** | 26 driven controls, 26 `PASS` | **`4c5d2c75403d85b99514f808295aaf10`** |
 | **`D6R3_PRODUCER_DIFF.log`** | proof the producer carries the published bytes | **`fb21850304f929e35aa3d5df42eabe5c`** |
-| **`D6R3_PREFREEZE_CLI.log`** | rule 20 evidence, the launcher-emitted argv | **`130b5773a796f43af12d684c1ea431b0`** |
-| **`D6R3_PREFREEZE_RESULT.log`** | §22.4's three clauses, **ALL THREE GREEN** | **`f615994a0db4fade2e1214553582c3dc`** |
+| **`D6R3_PREFREEZE_CLI.log`** | rule 20 evidence, the launcher-emitted argv | **`816f837c5c2b0970cb429309121c2ac4`** |
+| **`D6R3_PREFREEZE_RESULT.log`** | §22.4's three clauses, **ALL THREE GREEN** | **`805c0b788751136f076a0187e28ab22f`** |
 | **`dafoam_crm_tutorial_page.html`** | the published band's source, retrieved | **`cf837d40aabf954e9d11f9a6ae6c8f00`** |
 | **`dafoam_crm_tutorial_page.txt`** | its sidecar, cited by line in §1b | **`a536f12b9b71703c62932e0248fa672b`** |
 
@@ -627,6 +629,61 @@ The producer's own banner lists, in the file, **what was NOT added** — `evalMo
 `meshQualityKS` with `addToAdjoint`, move limits as bounds, a curvature constraint,
 `transonicPCOption 1`, IPOPT — each struck by §6.0's observer test or by §L. **A record of what we
 did not add is worth as much here as the table of what we kept.**
+
+### 8d. **RULE 17 — THE MESH THE SOLVER READ. IMPLEMENTED, NOT MERELY REGISTERED.**
+
+**`d6r3_mesh_read_gate.py`, md5 `8398dcbfc5bd92600f3503fdcc566ed9`, called by the producer BEFORE
+`run_model()` / `run_driver()`, per condition, and aborting the run (`MPI Abort 17`) on any
+refusal.** R4 as first drafted carried rule 17 as *registered but not implemented*; **that was
+surfaced rather than left to a complete-looking table, and it is closed here.** After a freeze sha
+it could only have become an addendum, and **an addendum cannot add a gate.**
+
+**What it does.** For each condition it rebuilds the global point set from every rank's own
+`constant/polyMesh/points` and `constant/polyMesh/pointProcAddressing`, and compares the
+reconstruction for **EXACT EQUALITY** — on the parsed values *and* on their canonical bytes —
+against the mesh this arm generated. It refuses on: no `processor*` directories; a rank without
+`pointProcAddressing`; a point count mismatch; a global index claimed twice with different values;
+an incomplete reconstruction; and an unreadable case directory.
+
+***Measured why:*** FM8 was graded a fresh-mesh confirmation and the retraction found **1,486
+processor meshes scanned, zero matching the freshly extruded mesh — no arm had ever loaded it.**
+**Staging the mesh is the arm; hashing what the ranks read is the gate.**
+
+**EXACT EQUALITY, NO TOLERANCE — AND THE PROHIBITION IS ITSELF UNDER CONTROL.** A tolerance here
+would silently re-admit the very defect the gate exists for: a mesh that is *nearly* the one we
+generated is a mesh we did not generate. `R17.CONTROL_SOURCE_HAS_NO_TOLERANCE` scans `gate()`'s own
+**executable source text** — comments and docstrings stripped with `tokenize` — for
+`tol / atol / rtol / isclose / allclose / abs / round / delta / eps`, so a future edit that adds one
+**fails there**.
+
+**CONTROLS — 10, all PASS, and two of them are about the control itself:**
+
+| control | want | got |
+|---|---|---|
+| clean: two ranks whose union reconstructs the generated mesh exactly | `OK` | **`OK`** |
+| **KNOWN-BAD: one rank holds the BASE mesh, not the staged one — the FM8 class** | `REFUSE` | **`REFUSE`** |
+| **KNOWN-BAD: a SINGLE point differing in its last digits — exact equality must refuse where a tolerance would not** | `REFUSE` | **`REFUSE`** |
+| BLIND: no `processor*` directories | `REFUSE` | **`REFUSE`** |
+| BLIND: a rank with no `pointProcAddressing` | `REFUSE` | **`REFUSE`** |
+| BLIND: addressing that does not cover every global point — a partial reconstruction is not evidence | `REFUSE` | **`REFUSE`** |
+| KNOWN-BAD: the generated mesh has a different point count | `REFUSE` | **`REFUSE`** |
+| **`CONTROL_SOURCE_HAS_NO_TOLERANCE`: `gate()`'s executable source carries no tolerance construct** | `[]` | **`[]`** |
+| **`CONTROL_IS_LIVE` (rule 3): the SAME scan over a MUTATED `gate()` that compares with `math.isclose(rel_tol=…)` must FIND it — or its zero on the real source is not evidence** | `True` | **`True`** |
+| `CONTROL_SOURCE_IS_EXACT`: `gate()` compares with `==` on both the values and the canonical bytes | `True` | **`True`** |
+
+**TWO THINGS THIS GATE'S OWN CONTROLS CAUGHT, RECORDED RATHER THAN SILENTLY FIXED:**
+
+1. **The source-text control FIRED ON ITS FIRST RUN** — on the word *"tolerance"* in `gate()`'s own
+   **docstring**. **The control was made precise (it now scans executable tokens only); the gate was
+   not made loose.** And because a control that was just narrowed needs to be shown still able to
+   see, a **planted live control** was added: the same scan over a mutated `gate()` must find the
+   planted `math.isclose`.
+2. **`--case /nonexistent` returned `rc = 1`, not the registered `2`** — an unhandled
+   `FileNotFoundError`. **An unhandled traceback is not a refusal**: it exits on a code this
+   registration never registered and a reader cannot tell it from a crash. The gate now refuses;
+   **and the pre-freeze check's rc lines, which had *printed* `expect 2` beside an actual `1`
+   without failing, now ASSERT.** A line that prints an expectation and does not enforce it is a
+   formality.
 
 ### 8b. **§22.4's THREE CLAUSES — DRIVEN, AND ALL THREE GREEN**
 
@@ -694,7 +751,7 @@ pinned md5, and on an arm directory that already exists. On success the ledger's
 | **10** (far-field spurious drag) | **NOT SATISFIED** — not available in DAFoam's function set (§6.10) | an external tool, out of scope |
 | **11** (literal trust region) | **`PARTIALLY SATISFIED — LITERAL SIZING INFEASIBLE, SUBSTITUTE REGISTERED`** (§6.11) | **Sanaa's answer to the §6.11 question** |
 | **16** (adjoint-driven adaptation) | **NOT ATTEMPTED** — her own roadmap item | a separate item |
-| **17, 18** | **PARTLY.** Rule 18's discipline is applied to the producer itself: `D1_ASSERT` re-checks the three carried-over published regions **at import** and writes the result to `d6r3_run_record.json` (§8a). **Rule 17's `polyMesh`-read hash rebuilt from `pointProcAddressing` is registered but NOT IMPLEMENTED** — the launcher stages the mesh into every condition directory before the model is built, which is the arm, but nothing yet hashes what each rank loaded. | one reader inside the producer, before `run_model()` |
+| **17, 18** | **BOTH IMPLEMENTED.** Rule 17: `d6r3_mesh_read_gate.py` rebuilds the global point set from every rank's `pointProcAddressing` and compares for **exact equality** against the generated mesh, per condition, **before `run_model()`**, aborting on refusal — 10 driven controls, 10 `PASS` (§8d). Rule 18: `D1_ASSERT` re-checks the three carried-over published regions **at import** against the read-only published file (§8a). | — |
 | **27** (a channel with a writer) | **partly** — driven for two channels; the pre-freeze channel table does not exist; **the `primal_residual.json` referral is Sanaa's and is not closed here** | her ruling |
 | rows 31, 58 | **NOT MEASURED** | `P0` records both |
 | **§22.4 clauses 1–3** | **ALL THREE GREEN**, driven at `D6R3_PREFREEZE_RESULT.log` (§8b). **Clause 2's real-anchor result is reported separately from the synthetic case, and the check REFUSED on its first run before the evidence was fixed.** | the supervisor's own personal check before the sha — it is not delegable and this script does not replace it |

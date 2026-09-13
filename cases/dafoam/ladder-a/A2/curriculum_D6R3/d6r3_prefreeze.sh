@@ -11,7 +11,8 @@ echo "  (L-579: a table that is TRUE AS WRITTEN about files that do not exist is
 echo "   defect survived; and the parent's own d6r2c_grade.py did not exist at its freeze.)"
 echo "==================================================================="
 for f in d6r3_opt_runScript.py d6r3_p0_arm.sh d6r3_run_arm.sh d6r3_grade.py d6r3_prefreeze.sh \
-         d6r3_inrun_guards.py D6R3_INRUN_SELFTEST.json D6R3_GRADE_SELFTEST.json \
+         d6r3_inrun_guards.py d6r3_mesh_read_gate.py \
+         D6R3_INRUN_SELFTEST.json D6R3_GRADE_SELFTEST.json D6R3_R17_SELFTEST.json \
          D6R3_PREFREEZE_CLI.log D6R3_PRODUCER_DIFF.log \
          dafoam_crm_tutorial_page.html dafoam_crm_tutorial_page.txt; do
   if [ -f "$f" ]; then printf "  EXISTS  %-34s %s\n" "$f" "$(md5sum "$f" | cut -d' ' -f1)"
@@ -28,8 +29,10 @@ python3 ./d6r3_inrun_guards.py --selftest --json /dev/null >/tmp/d6r3_ig.out 2>&
 tail -2 /tmp/d6r3_ig.out | sed 's/^/     /'
 python3 ./d6r3_grade.py --selftest --json /dev/null >/tmp/d6r3_gr.out 2>&1; B=$?
 tail -2 /tmp/d6r3_gr.out | sed 's/^/     /'
-echo "     in-run guards rc=$A   grader rc=$B"
-[ $A -eq 0 ] && [ $B -eq 0 ] || FAIL=1
+python3 ./d6r3_mesh_read_gate.py --selftest --json /dev/null >/tmp/d6r3_r17.out 2>&1; C=$?
+tail -2 /tmp/d6r3_r17.out | sed 's/^/     /'
+echo "     in-run guards rc=$A   grader rc=$B   rule-17 mesh-read gate rc=$C"
+[ $A -eq 0 ] && [ $B -eq 0 ] && [ $C -eq 0 ] || FAIL=1
 echo
 echo "-- REAL ANCHORS: the same CLI driven against values MEASURED on this box, reported"
 echo "   SEPARATELY from the synthetic case above --"
@@ -81,12 +84,21 @@ sys.exit(0 if bad == 0 else 1)
 PY
 [ $? -eq 0 ] || FAIL=1
 echo
-echo "-- the LAUNCHER-EMITTED argv, driven to rc, including its failing side --"
-python3 ./d6r3_inrun_guards.py --selftest --json /dev/null >/dev/null 2>&1; echo "     --selftest --json <path>  rc=$?  (expect 0)"
-python3 ./d6r3_inrun_guards.py                              >/dev/null 2>&1; echo "     <no args>                 rc=$?  (expect 64, refuse not succeed)"
-python3 ./d6r3_inrun_guards.py --log x                      >/dev/null 2>&1; echo "     --log x (the FM9 class)   rc=$?  (expect 2)"
-python3 ./d6r3_grade.py --selftest --json /dev/null          >/dev/null 2>&1; echo "     grader --selftest         rc=$?  (expect 0)"
-python3 ./d6r3_grade.py --log x                              >/dev/null 2>&1; echo "     grader --log x            rc=$?  (expect 2)"
+echo "-- the LAUNCHER-EMITTED argv, driven to rc, including its failing side.  EACH LINE IS"
+echo "   ASSERTED, not merely printed: a line that prints an expectation and does not enforce it"
+echo "   is a formality.  (This block printed 'expect 2' against an actual rc=1 on its first run,"
+echo "   and the gate was fixed to refuse rather than traceback -- PREREGISTRATION R4 s8d.)"
+rcck(){ local want="$1"; shift; "$@" >/dev/null 2>&1; local got=$?
+  if [ "$got" -eq "$want" ]; then printf "     rc=%-3s OK      %s\n" "$got" "$*"
+  else printf "     rc=%-3s MISMATCH (want %s)  %s  <-- CLAUSE 2 REFUSES\n" "$got" "$want" "$*"; FAIL=1; fi; }
+rcck 0  python3 ./d6r3_inrun_guards.py --selftest --json /dev/null
+rcck 64 python3 ./d6r3_inrun_guards.py
+rcck 2  python3 ./d6r3_inrun_guards.py --log x
+rcck 0  python3 ./d6r3_grade.py --selftest --json /dev/null
+rcck 2  python3 ./d6r3_grade.py --log x
+rcck 0  python3 ./d6r3_mesh_read_gate.py --selftest --json /dev/null
+rcck 64 python3 ./d6r3_mesh_read_gate.py
+rcck 2  python3 ./d6r3_mesh_read_gate.py --case /nonexistent --generated /nonexistent
 echo
 echo "==================================================================="
 echo "CLAUSE 3 -- EVERY CHANNEL A GATE READS IS SHOWN TO HAVE A WRITER THAT RAN"
@@ -101,6 +113,8 @@ chan "force.dat"            "OpenFOAM forces FO, staged by d6r3_run_arm.sh" "WRI
 chan "checkMesh log"        "d6r3_run_arm.sh / the solver's own check" "WRITER IN THIS COMMIT; guard 7 REFUSES a delegated verdict and requires measured quantities"
 chan "ledger.txt"           "d6r3_run_arm.sh say()"                 "WRITER IN THIS COMMIT"
 chan "the arm log"          "docker run redirect, d6r3_run_arm.sh"  "WRITER IN THIS COMMIT"
+chan "d6r3_rule17.json"     "d6r3_opt_runScript.py, before run_model" "WRITER IN THIS COMMIT; the gate ABORTS the run (17) rather than writing a pass it cannot support"
+chan "pointProcAddressing"  "decomposePar, inside the container"    "WRITER IS OPENFOAM'S; the rule-17 gate REFUSES when any rank lacks it"
 echo
 echo "  NOT CLOSED HERE: no channel of this item is a primal_residual.json-class default-true"
 echo "  channel, but the general referral stays open and is Sanaa's."

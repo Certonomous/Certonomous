@@ -1,10 +1,14 @@
 ### the exact command line the launcher will emit:
 $ python3 d6r3_inrun_guards.py --selftest --json D6R3_INRUN_SELFTEST.json
 rc=0
-### no-args path (must refuse, not silently succeed):
+### no-args (must refuse, not silently succeed):
 rc=64
-### unknown flag --log (the FM9 defect class):
+### --log x (the FM9 defect class):
 rc=2
 ### grader:
 rc=0
 rc=2 (--log)
+### rule-17 mesh-read gate:
+rc=0
+rc=64 (no args)
+rc=2 (absent case: REFUSE, never a traceback)

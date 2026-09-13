@@ -1,0 +1,68 @@
+{
+ "version": "D6R3-MESHREADGATE-DRAFT-1",
+ "n_total": 10,
+ "n_pass": 10,
+ "n_fail": 0,
+ "controls": [
+  {
+   "control": "R17.clean -- two ranks whose union reconstructs the generated mesh exactly",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true
+  },
+  {
+   "control": "R17.KNOWN-BAD -- ONE RANK HOLDS THE BASE MESH, NOT THE STAGED ONE: this is the FM8 class, 1,486 processor meshes that matched nothing",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true
+  },
+  {
+   "control": "R17.KNOWN-BAD -- a SINGLE point differing in its last digits: EXACT equality must refuse where a tolerance would not",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true
+  },
+  {
+   "control": "R17.BLIND -- no processor* directories: nothing can be shown to have been read  [no processor* directories under /tmp/d6r3_r17_3zzm4k5e/nopro]",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true
+  },
+  {
+   "control": "R17.BLIND -- a rank with no pointProcAddressing: the reconstruction that proves what it read is impossible  [processor1 has no pointProcAddressing -- the reconstruction ]",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true
+  },
+  {
+   "control": "R17.BLIND -- addressing that does not cover every global point: a PARTIAL reconstruction is not evidence  [processor1: global point 9 is claimed twice with DIFFERENT v]",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true
+  },
+  {
+   "control": "R17.KNOWN-BAD -- the generated mesh has a different point count",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true
+  },
+  {
+   "control": "R17.CONTROL_SOURCE_HAS_NO_TOLERANCE -- gate()'s own source text contains no tolerance construct (tol, atol, rtol, isclose, allclose, abs, round, delta, eps)",
+   "want": [],
+   "got": [],
+   "PASS": true
+  },
+  {
+   "control": "R17.CONTROL_IS_LIVE -- the same scan over a MUTATED gate() that compares with math.isclose(rel_tol=...) must FIND the tolerance, or its zero on the real source is not evidence (rule 3)",
+   "want": true,
+   "got": true,
+   "PASS": true
+  },
+  {
+   "control": "R17.CONTROL_SOURCE_IS_EXACT -- gate() compares with == on both the values and the canonical bytes",
+   "want": true,
+   "got": true,
+   "PASS": true
+  }
+ ]
+}

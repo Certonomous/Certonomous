@@ -346,6 +346,41 @@ prob.driver.options["print_opt_prob"] = True
 prob.driver.hist_file = "OptView.hst"
 
 
+
+# --- RULE 17: GATE ON THE MESH THE SOLVER READ, BEFORE ANY EVALUATION ---------------------------
+# FM8 was graded a fresh-mesh confirmation and the retraction found 1,486 processor meshes
+# scanned, ZERO matching the freshly extruded mesh -- no arm had ever loaded it.  Staging is the
+# arm; hashing what the ranks READ is the gate.  Per condition, because D1 stages three.
+# It runs BEFORE run_model()/run_driver() and REFUSES (exit 17) rather than degrade.
+import d6r3_mesh_read_gate as _r17
+
+def _d6r3_rule17_gate():
+    if MPI.COMM_WORLD.rank != 0:
+        return None
+    out = {}
+    for pt in POINTS:
+        cdir = os.path.join(os.getcwd(), RUN_DIRS[pt])
+        gen = os.path.join(cdir, "constant", "polyMesh", "points")
+        try:
+            out[pt] = _r17.gate(cdir, gen)
+        except _r17.Refusal as e:
+            out[pt] = {"gate": "R17_MESH_READ", "verdict": "REFUSE", "why": str(e)}
+    with open("d6r3_rule17.json", "w") as f:
+        json.dump(out, f, indent=1, default=str)
+    bad = [p for p, v in out.items() if v.get("verdict") != "OK"]
+    print("D6R3_R17 %s  %s" % ("OK" if not bad else "REFUSE",
+                               json.dumps({p: out[p].get("verdict") for p in out})))
+    if bad:
+        for p in bad:
+            print("D6R3_R17 REFUSE %s: %s" % (p, out[p].get("why", "")))
+        sys.stdout.flush()
+        MPI.COMM_WORLD.Abort(17)
+    return out
+
+import json, sys
+_d6r3_rule17_gate()
+MPI.COMM_WORLD.Barrier()
+
 if args.task == "run_driver":
     # solve CL
     # D1: solve the three CL targets on the three patchV DVs at once

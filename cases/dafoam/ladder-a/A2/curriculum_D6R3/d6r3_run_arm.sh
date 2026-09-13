@@ -12,7 +12,7 @@ CASE="$ROOT/mesh/L2"                       # the PUBLISHED mesh, built and measu
 HERE="$(cd "$(dirname "$0")" && pwd)"
 IMG=dafoam-idwarp-rot:v1
 DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
-PRODUCER_MD5=d39ca376d44efe652548f7de39468996
+PRODUCER_MD5=efc3e62699690edd32e4ee910aad09c8
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
 ARMDIR="$ROOT/$ARM"; LOG="$ROOT/${ARM}_${STAMP}.log"; LEDGER="$ROOT/ledger.txt"
 mkdir -p "$ROOT"
@@ -51,7 +51,7 @@ mkdir -p "$ARMDIR"
 cp -r "$CASE/." "$ARMDIR/"
 rm -rf "$ARMDIR"/processor* "$ARMDIR"/[1-9]* "$ARMDIR"/OptView.hst "$ARMDIR"/opt_SLSQP.txt
 cp "$HERE/d6r3_opt_runScript.py" "$ARMDIR/runScript.py"
-cp "$HERE/d6r3_inrun_guards.py" "$ARMDIR/"
+cp "$HERE/d6r3_inrun_guards.py" "$HERE/d6r3_mesh_read_gate.py" "$ARMDIR/"
 cp -r "$CASE/../../../../dafoam-tutorials/CRM_Wing/FFD" "$ARMDIR/" 2>/dev/null || \
   cp -r /home/ubuntu/dafoam-tutorials/CRM_Wing/FFD "$ARMDIR/"
 for d in mp04 mp05 mp06; do rm -rf "$ARMDIR/$d"; mkdir -p "$ARMDIR/$d"; cp -r "$ARMDIR/0" "$ARMDIR/constant" "$ARMDIR/system" "$ARMDIR/$d/"; done

@@ -3,15 +3,17 @@ CLAUSE 1 -- EVERY INSTRUMENT NAMED IN THE FROZEN TABLE EXISTS AT ITS STATED md5
   (L-579: a table that is TRUE AS WRITTEN about files that do not exist is how the
    defect survived; and the parent's own d6r2c_grade.py did not exist at its freeze.)
 ===================================================================
-  EXISTS  d6r3_opt_runScript.py              d39ca376d44efe652548f7de39468996
+  EXISTS  d6r3_opt_runScript.py              efc3e62699690edd32e4ee910aad09c8
   EXISTS  d6r3_p0_arm.sh                     4bab810a2e363f0c1e9f6dd4c423b967
-  EXISTS  d6r3_run_arm.sh                    bd14e3c0f884610eeaaf7ba2b4705106
+  EXISTS  d6r3_run_arm.sh                    29599c6225fcf9c7e65fdad908eddb5b
   EXISTS  d6r3_grade.py                      51bdf8ea7354de8d3346ed8956332453
-  EXISTS  d6r3_prefreeze.sh                  2f6ea88387542545ced975116a688f18
+  EXISTS  d6r3_prefreeze.sh                  e398541cdd4d5b657ba90ea16cc968bb
   EXISTS  d6r3_inrun_guards.py               22757db8d9ec646172e416578c426ee6
+  EXISTS  d6r3_mesh_read_gate.py             8398dcbfc5bd92600f3503fdcc566ed9
   EXISTS  D6R3_INRUN_SELFTEST.json           9072291a0727d187f2aeab0980618423
   EXISTS  D6R3_GRADE_SELFTEST.json           4c5d2c75403d85b99514f808295aaf10
-  EXISTS  D6R3_PREFREEZE_CLI.log             130b5773a796f43af12d684c1ea431b0
+  EXISTS  D6R3_R17_SELFTEST.json             0e84988da1dbb2abdd64f3379ce4f19c
+  EXISTS  D6R3_PREFREEZE_CLI.log             816f837c5c2b0970cb429309121c2ac4
   EXISTS  D6R3_PRODUCER_DIFF.log             fb21850304f929e35aa3d5df42eabe5c
   EXISTS  dafoam_crm_tutorial_page.html      cf837d40aabf954e9d11f9a6ae6c8f00
   EXISTS  dafoam_crm_tutorial_page.txt       a536f12b9b71703c62932e0248fa672b
@@ -26,7 +28,9 @@ CLAUSE 2 -- THE PRE-FREEZE CHECK DRIVES THE CLI THE LAUNCHER EMITS, NOT THE FUNC
      wrote /dev/null
      D6R3_GRADE SELFTEST PASS
      wrote /dev/null
-     in-run guards rc=0   grader rc=0
+     D6R3_R17 SELFTEST PASS
+     wrote /dev/null
+     in-run guards rc=0   grader rc=0   rule-17 mesh-read gate rc=0
 
 -- REAL ANCHORS: the same CLI driven against values MEASURED on this box, reported
    SEPARATELY from the synthetic case above --
@@ -48,12 +52,18 @@ CLAUSE 2 -- THE PRE-FREEZE CHECK DRIVES THE CLI THE LAUNCHER EMITS, NOT THE FUNC
      2.787e-3               FOUND  D6R2C's own measured final cl06 miss
      grader real anchors: 0 absent
 
--- the LAUNCHER-EMITTED argv, driven to rc, including its failing side --
-     --selftest --json <path>  rc=0  (expect 0)
-     <no args>                 rc=64  (expect 64, refuse not succeed)
-     --log x (the FM9 class)   rc=2  (expect 2)
-     grader --selftest         rc=0  (expect 0)
-     grader --log x            rc=2  (expect 2)
+-- the LAUNCHER-EMITTED argv, driven to rc, including its failing side.  EACH LINE IS
+   ASSERTED, not merely printed: a line that prints an expectation and does not enforce it
+   is a formality.  (This block printed 'expect 2' against an actual rc=1 on its first run,
+   and the gate was fixed to refuse rather than traceback -- PREREGISTRATION R4 s8d.)
+     rc=0   OK      python3 ./d6r3_inrun_guards.py --selftest --json /dev/null
+     rc=64  OK      python3 ./d6r3_inrun_guards.py
+     rc=2   OK      python3 ./d6r3_inrun_guards.py --log x
+     rc=0   OK      python3 ./d6r3_grade.py --selftest --json /dev/null
+     rc=2   OK      python3 ./d6r3_grade.py --log x
+     rc=0   OK      python3 ./d6r3_mesh_read_gate.py --selftest --json /dev/null
+     rc=64  OK      python3 ./d6r3_mesh_read_gate.py
+     rc=2   OK      python3 ./d6r3_mesh_read_gate.py --case /nonexistent --generated /nonexistent
 
 ===================================================================
 CLAUSE 3 -- EVERY CHANNEL A GATE READS IS SHOWN TO HAVE A WRITER THAT RAN
@@ -67,6 +77,8 @@ CLAUSE 3 -- EVERY CHANNEL A GATE READS IS SHOWN TO HAVE A WRITER THAT RAN
   checkMesh log              d6r3_run_arm.sh / the solver's own check WRITER IN THIS COMMIT; guard 7 REFUSES a delegated verdict and requires measured quantities
   ledger.txt                 d6r3_run_arm.sh say()              WRITER IN THIS COMMIT
   the arm log                docker run redirect, d6r3_run_arm.sh WRITER IN THIS COMMIT
+  d6r3_rule17.json           d6r3_opt_runScript.py, before run_model WRITER IN THIS COMMIT; the gate ABORTS the run (17) rather than writing a pass it cannot support
+  pointProcAddressing        decomposePar, inside the container WRITER IS OPENFOAM'S; the rule-17 gate REFUSES when any rank lacks it
 
   NOT CLOSED HERE: no channel of this item is a primal_residual.json-class default-true
   channel, but the general referral stays open and is Sanaa's.
