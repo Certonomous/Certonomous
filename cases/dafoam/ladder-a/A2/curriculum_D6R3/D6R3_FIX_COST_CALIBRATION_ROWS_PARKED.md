@@ -1,0 +1,32 @@
+# D6R3 — TWO COST-CALIBRATION ROWS OWED BY THE FIX ARMS, PARKED BECAUSE THE APPENDER REFUSES
+
+Rule 12 owes `docs/COST_CALIBRATION.md` one row per completed process. Both rows below are
+built and verified; **neither is landed**, because `scripts/append_record.py` **REFUSES with
+exit 7** on a condition that has nothing to do with dafoam:
+
+```
+REFUSED: a line matches this record's id-bearing CANDIDATE SHAPE and the id pattern parses
+NO id from it. ... HEAD:docs/COST_CALIBRATION.md:592
+```
+
+**The blocking row is `HEAD:docs/COST_CALIBRATION.md:592`, landed by the **cfd** team at commit
+`95408812c` (2026-09-13, Wolf Dynamics DrivAer COARSE).** Its id is written
+`C-2026-09-13T202608.816749Z-9830ff70` — **with hyphens in the date** — where every
+tool-minted id on this record takes the form `C-20260913T201105.550257Z-f9a73e60`, with none.
+The id pattern therefore parses no id from it while the candidate shape still matches, which is
+the exact D549 refusal condition.
+
+**This blocks every team's calibration appends, not just dafoam's.** The appender's own guidance
+says the fix is one of two REGISTER EDITS **inside `scripts/append_record.py`** — widen that
+record's `RECORDS` entry, or add the form to `KNOWN_EXCLUDED` — and explicitly **never an edit
+to the record**. That is a shared cross-team instrument and the offending row is cfd's, so this
+lane has changed **neither**: it reports the blocker and parks the rows.
+
+The two rows below are to be landed **verbatim** (each carries `{{ALLOCATE_ID}}`, so
+`scripts/append_record.py --allocate-id` mints their ids) once the refusal clears, under the
+record's §5 append rules and the rule-10 private-index protocol.
+
+```
+| {{ALLOCATE_ID}} | 2026-09-13 | dafoam | **D6R3 fix arm `FIX_RELTOL1`** — the producer arm that tightened the pressure linear solve (`fvSolution` `"(p|p_rgh|G)"` `relTol` `0.1` -> `2.008e-03`, ONE staged line; `primalMinResTol`, `primalMinResTolDiff` and `endTime` untouched). Verdict from the frozen grading path: **`NOT A RESULT`** | **780 core-min** registered in `cases/dafoam/ladder-a/A2/curriculum_D6R3/D6R3_FIX_PREREGISTRATION.md` §6, frozen at commit `ff271fd0205b11aa60119f2f1c6e732b16456689` BEFORE launch (upper bound 1050 core-min stated), for **3** instances = 13.00 core-h -> $0.6669 derived | **336.000 core-min** = 720 wall s x 28 ranks / 60 [`ledger.txt`, `D6R3_FIX_ROW arm=FIX_RELTOL1 rc=1 wall_s=720 ranks=28 core_min=336.000`] = 5.600 core-h -> **$0.2873 DERIVED, NOT MEASURED** (c7a.4xlarge $0.0513/core-h, owner-stated; the box cannot read its own billing, `COMPUTE_BUDGET_CHARTER.md` §5) | **= gross.** 720 s wall, far inside the 3600-s stall rule; no discarded work, no waste | **0.431x — AND THIS RATIO IS NOT A CALIBRATION.** Only **1** of the 3 registered instances ran: the arm aborted at `cl04` when position 1 missed the gate. The comparable figure is per-instance: **299.3 core-min** measured (`641.36 s ExecutionTime` x 28 / 60) against ~**247 core-min** registered = **1.21x over** | **Not a spend miss — a MODEL falsification, and the model was mine.** The registration predicted 65 GAMG V-cycles at step 1; the run printed **320** (4.92x). Its 'four for four to the exact printed integer' validation was **circular**: substituting the fit `f = (finalRes/initRes)^(1/n)` into `ln(0.1)/ln(f)` gives `n * ln(0.1)/ln(finalRes/initRes)`, and at `relTol 0.1` that ratio is ~1, so the 'prediction' returns `n` **by algebra**. True asymptotic contraction over the 320 cycles actually run: **0.980765** per V-cycle against the **0.907534** the first 24 implied. **LESSON FOR THE NEXT ESTIMATE: a model fitted at one operating point and checked only at that same point is not validated for any other point, however many digits agree.** Waste: none — the abort IS the measurement (position 1's floor rose from `1.194718885139746e-07` to `7.600678874731434e-06`, 63.62x, across the threshold) | `cases/dafoam/ladder-a/A2/curriculum_D6R3/D6R3_FIX_PREREGISTRATION.md` ADDENDUM 1 (commit `66bbc9f113e7e6d3f477fc102f9f2fda85c11af7`); log `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/FIX_RELTOL1_20260913T202543Z.log`; grade `FIX_RELTOL1_GRADE.json` |
+| {{ALLOCATE_ID}} | 2026-09-13 | dafoam | **D6R3 fix arm `FIX_NONGAMG1`** — the mechanism control that removed process-static agglomeration state (`p` solver `GAMG`+`GaussSeidel` -> `PBiCGStab`+`diagonal`, `relTol` left at the published `0.1`). Verdict from the frozen grading path: **`NOT A RESULT`**, `ordinal_signature: UNDECIDED` | **600 core-min** registered in the same §6 at the same freeze commit `ff271fd0205b11aa60119f2f1c6e732b16456689` (upper bound 1500 core-min), for **3** instances, with the registration stating plainly that the `PBiCGStab`+`diagonal` iteration count *is not predictable from anything measured here* = 10.00 core-h -> $0.5130 derived | **140.467 core-min** = 301 wall s x 28 ranks / 60 [`ledger.txt`, `D6R3_FIX_ROW arm=FIX_NONGAMG1 rc=1 wall_s=301 ranks=28 core_min=140.467`] = 2.3411 core-h -> **$0.1201 DERIVED, NOT MEASURED** (same rate, same basis, `COMPUTE_BUDGET_CHARTER.md` §5) | **= gross.** 301 s wall; no discarded work, no waste | **0.234x — AND THIS RATIO IS NOT A CALIBRATION**, for the same reason as the row above: **1** of 3 registered instances ran, the arm aborting at `cl04`. Per-instance: **101.9 core-min** measured (`218.36 s ExecutionTime` x 28 / 60) against **200 core-min** registered = **0.510x** | **The honest content of the 0.510x is a SOLVER-COST measurement, not an estimate miss: `PBiCGStab` + `diagonal` is 2.9x CHEAPER per instance than the published `GAMG` at `relTol 0.1`** — 101.9 core-min against `P0`'s 299.3 core-min per instance at the same 28 ranks — because ~30-80 cheap Krylov iterations cost far less than 11-level V-cycles. **CONTENTION IS NOT SEPARATED FROM THAT FIGURE**: two bit-identical runs in this campaign stepped 259.53 s against 227.83 s, **13.9% apart for identical arithmetic**, so the 2.9x carries a ~14% noise floor and is stated as such rather than quoted clean. Waste: none — the abort IS the measurement (position 1 floored at `7.177342318566405e-06` = 717.73x `primalMinResTol`, so the arm never reached the second instance its own question needed) | `cases/dafoam/ladder-a/A2/curriculum_D6R3/D6R3_FIX_PREREGISTRATION.md` ADDENDUM 2 (commit `d4690094e506bd9bf70ba527c1eafd8945fc3d31`); log `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/FIX_NONGAMG1_20260913T203834Z.log`; grade `FIX_NONGAMG1_GRADE.json` |
+```
