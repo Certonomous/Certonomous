@@ -82,10 +82,33 @@ fi
 grep -qE '^application +rhoSimpleFoam;' system/controlDict || fail "application is not rhoSimpleFoam"
 grep -qE '^purgeWrite +2;'              system/controlDict || fail "purgeWrite is not 2"
 grep -qE '^writeInterval +200;'         system/controlDict || fail "writeInterval is not the registered 200"
-grep -qE 'RASModel +SpalartAllmaras;'   constant/turbulenceProperties || fail "model is not SpalartAllmaras"
+# R8: the assert is WIDENED to the REGISTERED MODEL SET, never deleted (CLAUDE.md rule 14).
+# A launcher that asserts nothing runs whatever happens to be on disk, which is how a family
+# silently changes model between levels.  Both members are registered:
+#   SpalartAllmaras  -- M6I_R1_SOLVE_PREREGISTRATION.md, the carry-over the bands were set against
+#   kOmegaSST        -- M6I_R8_SST_PREREGISTRATION.md, the model rung
+# Anything else still aborts before the solver starts.
+MODEL=$(grep -oE 'RASModel +[A-Za-z]+;' constant/turbulenceProperties | grep -oE '[A-Za-z]+;' | tr -d ';')
+case "${MODEL:-NONE}" in
+  SpalartAllmaras|kOmegaSST) echo "registered turbulence model: $MODEL" ;;
+  *) fail "model is '${MODEL:-NONE}', not in the registered set {SpalartAllmaras, kOmegaSST}" ;;
+esac
 grep -qE 'transonic +yes;'              system/fvSolution || fail "transonic is not yes"
-grep -qE '\{ p 1; U 0.7; e 0.7; nuTilda 0.7; \}' system/fvSolution \
-  || fail "relaxationFactors.equations.p is not 1 -- pEqn.H:36 needs it for diagonal dominance"
+# R8: SST adds k and omega to relaxationFactors.equations, which the old literal match could
+# not express.  EVERY clause the original asserted is still asserted, per model; the
+# LOAD-BEARING one -- equations.p == 1 for pEqn.H:36 diagonal dominance -- is asserted first
+# and unconditionally, so widening cannot weaken it.
+grep -qE 'equations' system/fvSolution || fail "fvSolution has no relaxationFactors.equations block"
+grep -qE '[{ ]p 1;'      system/fvSolution || fail "relaxationFactors.equations.p is not 1 -- pEqn.H:36 needs it for diagonal dominance"
+grep -qE '[ ]U 0.7;'     system/fvSolution || fail "relaxationFactors.equations.U is not 0.7"
+grep -qE '[ ]e 0.7;'     system/fvSolution || fail "relaxationFactors.equations.e is not 0.7"
+case "$MODEL" in
+  SpalartAllmaras)
+    grep -qE '[ ]nuTilda 0.7;' system/fvSolution || fail "SA: relaxationFactors.equations.nuTilda is not 0.7" ;;
+  kOmegaSST)
+    grep -qE '[ ]k 0.7;'     system/fvSolution || fail "SST: relaxationFactors.equations.k is not 0.7"
+    grep -qE '[ ]omega 0.7;' system/fvSolution || fail "SST: relaxationFactors.equations.omega is not 0.7" ;;
+esac
 
 N=$(grep -cE '^endTime +[0-9]+;' system/controlDict)
 [ "$N" = "1" ] || fail "expected exactly 1 endTime line, found $N"
