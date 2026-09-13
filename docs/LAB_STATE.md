@@ -46351,6 +46351,121 @@ self-running) · DrivAer R3's falsifier **with bounding rates beside the residua
 amendment 2 requires it; k clipped on **0.999** of R3 and **1.000** of graded R2 · A1h's M-1…M-7,
 **M-7 being the gate the act exists to pass**. Disk **79 %, 212 GB**. **SUBMISSIONS PARKED.**
 
+
+<!-- BOARD-BLOCK-ID: 201-TWO-GATE-FAILS-A-PROBE-THAT-IS-NOT-A-COMPLETED-RUN-AND-A-RETRACTION-I-FOUND-IN-OUR-OWN-FROZEN-FILE -->
+### Block 201 — M6J L2/L3 GATE FAIL with NO asymptotic range; CRM LTS probe is NOT A COMPLETED RUN; PPTC's SPD claim is RETRACTED on record; 2026-09-13T17:05Z
+
+**LAST COMMIT:** `b89fd3ac` — four calibration rows. **Lessons L-596…L-600 at `f4fa73cd`.**
+All private-index with post-commit verify. Numbers below are this lane's own readings unless
+marked **VERIFY**, which means *reported to me and NOT re-derived here*.
+
+### RUNNING — from `/proc/<pid>/cwd`, never a recorded launch pid (L-585, and now L-600)
+| item | pid | ranks | state, read at 16:55Z |
+|---|---|---|---|
+| **M6J_L1** | `1489103` | 4 | `mpirun -np 4 rhoSimpleFoam -parallel`, cwd `verification/runs/M6J_runs/M6J_L1`, **Time 3705 / 8000**. **ETA 01:29Z 14 Sep — VERIFY (a projection, not a reading)** |
+| **SUBOFF A1H_DRIFT `L1M_SWEEP`** | `1486309` `1486327` `1486345` `1486350` `1486354` `1486399` `1486419` | 4 each | **all seven ALIVE**, `mpirun -np 4 simpleFoam -parallel`, cwds `.../L1M_SWEEP/BETA_{p12,p04,p00,m08,m12,m04,p08}`. `BETA_p00` at **Time 1512 / 3000**. **ETA ~01:04Z 14 Sep — VERIFY**, about **1h40m EARLIER** than the previous board said |
+
+**Every one of the eight pids above was confirmed alive by `/proc/<pid>/cwd` in this session.**
+That is the check L-600 exists to enforce: the CRM probe's *recorded* `_launch.pid` was dead
+while its run was healthy.
+
+### VERDICTS THIS SESSION
+
+**🔴 M6J_L2 — `GATE FAIL`. 0 of 12 Cp rows in band.** Closest row `eta0.80-lower` at
+**rms_dev 0.052171** against a registered band of **0.050** — it misses, and it is the only row
+that misses narrowly. B2 shock limb misses at `eta0.65`.
+Source `verification/runs/M6J_runs/M6J_L2/m6j_grade_M6J_L2.json`.
+
+**🔴 M6J_L3 — `GATE FAIL`. 0 of 12 Cp rows in band.** Closest `eta0.65-lower` at **0.145168**,
+nearly 3× the band. B2 misses at `eta0.65` **and** `eta0.90`. The registered four-condition
+table has L3 under `transonic no` **passing 1 of 4** — `S2 @0.65 = 0.8150 < 0.85 ✓`, with
+`S1 @0.65 0.0822 ✗`, `S1 @0.90 0.0515 ✗`, `S2 @0.90 0.9233 ✗`. The measured `x_shock` at
+`eta0.65` is **0.815045** against experiment **0.47517**, `Δx 0.33988` on a band of 0.050.
+
+**🔴 NO ROACHE TRIPLE, NO GCI, AND THE LABEL IS THE FROZEN ONE.** ADDENDUM 3 clause 1 needed
+all three levels to clear all twelve conditions. They did not. **Clause 2 governs and its
+wording is used verbatim: *"TWO LEVELS, NO ASYMPTOTIC RANGE DEMONSTRATED"*.** No three-level
+order and no GCI is computed, quoted or implied. `M6J_TRANSONIC_FAMILY_PREREGISTRATION.md` §2.
+
+**🔴 CRM-WB D8G `SOLVE_T_LTS_PROBE` — THE PROBE ANSWERED, AND THE RUN IS `NOT A COMPLETED RUN`.**
+| gate | reading | verdict |
+|---|---|---|
+| **L1** `h` initial residual < 0.99 by step 20 | 0.1999 at step 1 → **0.0318** at step 20, monotone from step 4 | **PASS** |
+| **L2** clamped fraction < 1 % at step 50 | step 50 never reached; at step 20, **3 cells of 20,657,615 = 1.45e-5 %** against **R1 99.84 % / SST 60.87 %** — **VERIFY on the R1/SST comparators** | **PENDING** (reading point not reached) |
+| **L4a** `rDeltaT` finite, from the field | min 4.29234, max 2.81547e+07 s⁻¹, 0 non-finite, 0 zero, all positive | **PASS** |
+| **L4b** reported Courant ≤ `maxCo 0.2` | **UNREADABLE AS REGISTERED — no reader exists**, 0 occurrences in the log; the print is behind `if (debug)` | **instrument defect** |
+| **L5** `p` < 12,854 Pa **and** max\|U\| < 600.038, read from the field | max\|U\| **2,471.075889750 m/s** at t=12 = **4.118×** | **GATE FAIL** |
+
+**AND L5's `p` CLAUSE IS NOT RECORDED AS A PASS.** The field reads **8,014.789298 Pa** — inside
+12,854 — but the log shows **20,176.5848879 Pa at step 4, 1.57× the threshold**, breaching on
+**7 of 20 steps**. Two defects: `writeInterval 6` with `purgeWrite 2` leaves only **t=12 and
+t=18, so L5 sees 2 of 20 steps**; and the surviving value is **identical to ten significant
+figures in the same cell on processor 0 at both times** — a `pMaxFactor 2.0` clamp, with the
+pinned population **RISING 18,868 (0.09134 %) → 22,766 (0.11021 %)**. Recorded as
+**inside the threshold, on a clamped field, pinned count rising** (L-598).
+**Rule 4:** rc=0 ✓, `End` ✓, last `Time = 20` == `endTime` ✓, `ExecutionTime` count 20 ✓,
+age guard ✓ — **and `processor*/` holds `0 12 18` with NO time directory 20.** `writeInterval 6`
+does not divide `endTime 20`. **Six of seven clauses is not a completed run** (L-597).
+
+**🔴 PPTC — `BLOCKED`, AND THE REASON ON THE BOARD IS NOT THE REASON I WAS HANDED.**
+I was briefed that DIC-PCG amplifying the residual **1.79× then 1.67×** is arithmetic proof the
+pressure Laplacian is not SPD. **That claim is RETRACTED in our own frozen file** —
+`cases/PPTC_VP1304/HUB_ROOT_MESH_RUNG_PREREGISTRATION.md` §3.1: *"That is wrong and it is
+retracted. The conjugate gradient method minimises the error in the A-norm, not the residual
+norm; ‖r‖ is not monotone in CG even on a perfectly SPD system."* The completed probe shows
+**8 solves, 3 amplifying (1 → 1.7856178; 0.33124386 → 0.55437931; 0.99998897 → 3.8260438) and
+5 REDUCING** — the non-monotone pattern the theory predicts. **Residual growth is EVIDENCE, NOT
+PROOF, and "no solver converges on that mesh" does not follow from it.** The blocking gate is
+now the solver-free one in §3.2: `w_f = |S_f|² / (S_f · d_f)` over every internal face,
+**GATE FAIL if any `w_f ≤ 0`** — a proof with a named witness cell. **Not yet measured on
+`F360_coarse`** (P5, registered as *expected to still fail*).
+
+### RUNGS WITHOUT VERDICTS
+- **PPTC hub / blade-root mesh rung** — drafting. `HUB_ROOT_MESH_RUNG_PREREGISTRATION.md` exists
+  with P1–P7 registered and **P2/P5/P7 predicting this rung does NOT fix the mesh**.
+- **DrivAer R4L** — drafting. **VERIFY.**
+- **CRM ADDENDUM 16** — present at `CRM_WINGBODY_DPW6_ACT_PREREGISTRATION.md:2093`, v1.15,
+  amending its trigger. Not graded.
+- **DrivAer layer one-change `finalLayerThickness` 0.5 → 0.24 — UNREGISTERED.** `arm_r2_fine.sh:81`
+  currently substitutes `finalLayerThickness 0.5` → `firstLayerThickness 2.10e-3`, a *different*
+  one-change. **The 0.24 arm has no pre-registration and must not be launched until it does.**
+
+### NEXT ACTIONS
+1. **Assert `endTime % writeInterval == 0` at registration** for every queued case — one line,
+   pre-compute, and it is the clause that decides whether a field gate has anything to read.
+2. **Re-register CRM L4b against a channel that is actually written** (a `CourantNo` function
+   object), or state that the log is the graded channel. A gate naming a silent channel is not a gate.
+3. **Re-register L5 with a write schedule that can observe an excursion** — every-step
+   `fieldMinMax`, or grade the log explicitly. And print the limiter's pinned count beside every
+   field extremum.
+4. **Run the §3.2 solver-free SPD gate on `F360_coarse`** and get the witness cell. That is the
+   only PPTC statement that will survive review.
+5. **Audit every remaining `.registered` restore assert** for the L-596 shape — two sides that
+   trace back to one artifact. The CRM one survived two rungs on a coincidence.
+6. **Calibration rows landed** for CRM LTS, M6J_L2, M6J_L3 and PPTC meshing (`b89fd3ac`).
+
+### ON SANAA'S DESK
+1. **PPTC's 1.25 cell-volume-growth gate** (§6.3, her cap) — **the octree floor is reported at
+   6.4× the threshold**, i.e. the gate may be unsatisfiable by construction on any hex-split
+   mesh. **VERIFY — I did not re-derive the 6.4× factor.** A question about the specification,
+   not the pipeline.
+2. **PPTC §6.5 — the per-level birth certificate: waiver question.** §6.5 is *"mandatory"*; the
+   act has produced **zero admissible meshes**, so no level can carry one. **Hers to rule.**
+3. **Carried from block 200 and still open:** her §5 CRM family at r = 1.084/1.086 (no defensible
+   GCI); rule 4's resume hole (D631); and PPTC's registered COARSE level measuring 3.94 M against
+   a specified ~0.8 M.
+
+### BLOCKED
+**PPTC — NO FURTHER LEVEL STAGES UNTIL `finish_and_queue.sh` IS FIXED.** The stale-points defect:
+`constant/polyMesh/points` left at the **snapped array of 20,518,324** while `faces` reference
+**20,507,704** — a mesh that cannot be opened. **VERIFY on those two counts; I did not re-derive
+them.** What I did verify: the script is at
+**`/home/ubuntu/certonomous-runs/PPTC_VP1304/finish_and_queue.sh`** (NOT under
+`cases/PPTC_VP1304/mesh/`, as the brief had it), and its line 14 is a wholesale
+`cp -r "$MESH/constant/polyMesh" "$CASE/constant/"` with **no points/faces consistency check
+anywhere in the file** — which is exactly the shape the reported defect requires.
+
+**SUBMISSIONS PARKED.**
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
