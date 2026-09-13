@@ -1166,3 +1166,73 @@ a cap and must not become one.
 > checkpoints that support it.
 
 **Registered now so that "enough" is not decided later by fatigue.**
+
+---
+
+# ADDENDUM 9 — 2026-09-13, THE PRESSURE CLAMPS WERE INSIDE THE PHYSICAL RANGE. Version 1.9.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, threshold, cap or label.**
+
+## A9.1 🔴 THE CLAMP SAT BELOW STAGNATION — AND THIS ACT'S OWN INITIALISER PROVED IT
+
+At the registered M∞ = 0.85, the **true** stagnation pressure is
+
+```
+p0/p_inf = (1 + 0.2 M^2)^3.5 = 1.603819      p0 = 6427.135 Pa
+```
+
+| | Pa | × p∞ |
+|---|---|---|
+| `pMaxFactor 1.5` (as registered) | 6011.092 | 1.5000 |
+| **true stagnation p0** | **6427.135** | **1.6038** |
+| `pMinFactor 0.5` (as registered) | 2003.697 | 0.5000 |
+| **lowest attainable at local M = 1.5** | **1750.771** | **0.4369** |
+
+**The clamps sat INSIDE the physically attainable range at BOTH ends.** The upper clamp was
+**6.5 % below stagnation**; the lower clamp was **above** the pressure in the supersonic pocket.
+
+🔴 **THE PROOF IS THIS ACT'S OWN ISENTROPIC INITIALISER.** A7.3's tool reported its range as
+**`p [1750.771, 6427.135] Pa`** — its maximum **is** p0 to six figures, and its minimum is the
+pocket pressure at its own M = 1.5 cap. **The initial field lay outside the clamp at both ends
+before a single iteration ran.** The number was printed in the log of every run from V5 onward and
+neither the lane nor the supervisor read it against the clamp.
+
+## A9.2 WHAT THIS INVALIDATES — STATED, NOT CARRIED FORWARD
+
+A clamp inside the physical range is **a persistent non-physical forcing**, not a safety net: every
+cell at or near stagnation was clamped every iteration, from iteration 1, in a region that was not
+excursing.
+
+> 🔴 **EVERY CLAMPED-CELL FOOTPRINT IN A8/A9 WAS MEASURED AGAINST A PHYSICALLY WRONG THRESHOLD.**
+> The global 7.4768 % → 3.7068 % recession, processor29's 32.820 % → 59.898 %, the chord-fraction
+> medians of 0.884 and 0.924, and the 42 % below-surface figure **cannot be read as absolute
+> statements about divergence.** A cell "at the clamp" may simply be a cell whose **correct**
+> pressure exceeds 1.5 p∞ — the stagnation region, and the pressure side near the trailing edge,
+> **which is exactly where 42 % of them were found.**
+>
+> **Relative trends may survive a common wrong threshold; no absolute reading does.** The
+> blunt-base and steady-RANS readings both sit downstream of this and **neither may be registered
+> until the footprint is re-measured against derived clamps.**
+
+## A9.3 THE REGISTERED CHANGE — CLAMPS DERIVED, NOT CHOSEN
+
+```
+pMaxFactor 2.0    above stagnation 1.6038, margin x1.25
+pMinFactor 0.1    below the pocket minimum: at local M 2.6, p/p_inf = 0.0804
+```
+
+**Both derived from the registered freestream Mach and recorded with their derivation**, so the
+next reader can check them the way this one was checked. **A clamp must sit above every physically
+attainable value; where it does not, it is a boundary condition masquerading as a guard.**
+
+## A9.4 WHAT SURVIVES UNTOUCHED
+
+The A8.4 TE-base measurement: **13–22 cells across the blunt base in η 0.58–0.88** against a
+DPW-6 requirement of "≫ 8", anchored to NASA's stated 0.48 % TE base by the measured 0.45–0.71 %.
+It is a mesh property and no clamp touches it. **Under-resolution remains excluded.**
+
+And the cross-act framing stands: the eight-cell requirement **discriminated, in opposite
+directions, on two aircraft in one night** — M6 failing it by two orders, the CRM passing it by
+nearly three. **A test that only ever returns one answer is not a test.**
