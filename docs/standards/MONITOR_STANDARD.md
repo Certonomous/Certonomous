@@ -2791,3 +2791,61 @@ whatever its message says.** A perfectly worded refusal that fires on 43 of 44 r
 | md5 of this file's HEAD blob before the append | `55a237282bceaa1cff565e4bbc372906` |
 | md5 of this file's first **2692** lines after it | `55a237282bceaa1cff565e4bbc372906` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 2a. THE SIBLING SWEEP — **"ASSIGNED AND NEVER READ" INSIDE A GRADER**, AND THE CONTROL THAT CAUGHT ITSELF
+
+A value **computed and never consumed** is *"a declared flag never read"* in a variable instead
+of a command line. **Harmless today; the hazard is that a future reader mistakes it for the one
+in force** — which is exactly how someone would reason from the CFD's own interval width when
+the rule consumes the experiment's.
+
+**Found by hand** while tracing which quantity an assert consumes:
+`scripts/grade_m6_agard_cp.py:318` — `x_sh_c, dloc_c, _, _, rise_c = d1_shock_from_curve(rpairs)`
+computes **`dloc_c`, the CFD's own shock-interval width, which is never read.** The band and the
+assert both use the **experimental** Δ by design (`:307`, `:322`).
+
+**SWEPT, because one instance is an anecdote.** Python `ast`, per function, names stored and
+never loaded, excluding underscore-prefixed names and loop / comprehension / `except` / `with`
+targets:
+
+| | |
+|---|---|
+| grader and comparator files scanned | **264** |
+| files with at least one | **146** |
+| **occurrences** | **348** |
+
+🔴 **UPPER BOUND, not a defect count.** A value assigned for a side effect, or read through
+`locals()`/`eval`, appears here wrongly, and **none of the 348 has been triaged.** What it
+establishes is that this is **not rare** — it is in **55 % of the lab's graders.**
+
+#### 🔴 AND THE FIRST CONTROL I RAN ON THIS SWEEP WAS BROKEN, IN THIS CLAUSE'S OWN WAY
+
+The positive control asked: *can the sweep find the instance I already found by hand?* It
+answered **NOT FOUND**, and the sweep looked worthless. **The sweep was fine. The CONTROL was
+broken:** it grepped the sweep's **printed output**, which I had truncated to `sorted(rows)[:14]`
+— and `scripts/` sorts after `cases/`, so **every `scripts/` row had been cut off before the
+control ever looked.**
+
+> **The control tested a CORRELATE of the sweep's result — its printed head — instead of the
+> result set.** §2's defect, committed inside a control written to check for §2's defect. That
+> is the **fourth** time tonight, and the **first in a control rather than an instrument.**
+
+**Re-run against the result set**, both limbs hold: **POSITIVE** — `dloc_c` found at
+`grade_m6_agard_cp.py:318` in `grade_pass`; **NEGATIVE** — `dloc`, `x_sh_e`, `rise_c` and `rise`
+are all read and **none is reported.** Only then is the 348 quotable.
+
+> **THE RULE THIS ADDS, and it is cheap: A CONTROL MUST QUERY THE INSTRUMENT'S RESULT, NOT ITS
+> RENDERING.** A head, a tail, a truncated table or a log line is a **view**; a view that drops
+> rows turns a working instrument into a false negative, **and the failure looks exactly like
+> the instrument being broken** — which is the most expensive possible direction, because it
+> discards a sound tool.
+
+| addendum to the v1.15 record | |
+|---|---|
+| sections added | **1** (§2a) — appended at the foot; all prior sections and record tables unchanged |
+| members added to the proxy clause | **0** — it remains **13**, split 4 / 2 / 7 |
+| instances added to the separation clause | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `330e60522339eed67a4f8143e0e9c0b7` |
+| md5 of this file's first **2793** lines after it | `330e60522339eed67a4f8143e0e9c0b7` |
+| the two digests | **EQUAL — assertion MEASURED** |
