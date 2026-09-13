@@ -1,1050 +1,1110 @@
-# Curriculum D6R3 — **DRAFT, NOT FROZEN.** The D6R2 multipoint wing optimisation re-run under the owner's standing rules 1–32
+# Curriculum D6R3 — **REVISION R2. DRAFT, NOT FROZEN.** The CRM wing at Mach 0.85, published setup VERBATIM, with the owner's within-run checks built in
 
-> **STATUS: DRAFT. THIS DOCUMENT IS NOT FROZEN, NO GATE IN IT IS IN FORCE, AND NOTHING IT REGISTERS
-> AUTHORISES ANY COMPUTE.** Written 2026-09-13 by a dafoam `lab-lane` for `dafoam-supervisor`, who
-> freezes it personally after reading it. Until a freeze sha exists, every number below is a
-> proposal. **This item has burned 0 core-min and started no container.**
+> **STATUS: DRAFT, REVISION R2. NOT FROZEN. NO GATE IS IN FORCE. NO COMPUTE IS AUTHORISED.**
+> Written 2026-09-13 by a dafoam `lab-lane` for `dafoam-supervisor`, who freezes it personally.
+> **This item has burned 0 core-min and started no container.** No solver was run for this
+> revision; every number below is read from artefacts already on disk or from published files.
 > **Nothing here is sent, filed, uploaded, registered, posted or commented** (`CLAUDE.md` rule 7 —
-> **SUBMISSIONS PARKED**). No agent message is Sanaa's consent (rule 9).
+> **SUBMISSIONS PARKED**). **No agent message is Sanaa's consent** (rule 9).
 
-**Item id:** `D6R3`. **Parent:** `cases/dafoam/ladder-a/A2/curriculum_D6R2C/PREREGISTRATION.md`
-(frozen `7f685867d`, four addenda, v1.4).
-**Registers under:** `docs/dafoam/SHAPE_OPTIMIZATION_STANDING_RULES.md` rules **1–32**
-(hers 1–16, this family's 17–32), adopted into `DAFOAM_CHARTER.md` **§22**; and
-`docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md` **§G** (the published-setup rule,
-line 239).
+**Supersedes:** revision R1 at commit `9847ffc30162cdd73c0a582d82a1f8c3cd063353`. R1's operating
+point (the MACH tutorial wing at M 0.288) is **STRUCK**; its text is preserved unrewritten in
+**APPENDIX S** and in that commit (rule 6).
 
----
-
-## 0. WHAT D6R3 IS, IN ONE PARAGRAPH, AND WHY IT IS A RE-RUN AND NOT A NEW CASE
-
-D6R2/D6R2C optimised the MACH tutorial wing at three lift points and produced a weighted-drag
-reduction of **24.732 %** (`O_mp_GRADE.json`, `G2` PASS, ratio 0.752677). **That figure is
-withdrawn** — `DAFOAM_CHARTER.md` §22.2 — because it was measured on the deformed optimisation mesh
-and has never been confirmed on a mesh the optimiser never saw. The one attempt to supply that
-confirmation, `FM10`, is **`NOT A RESULT`** on a **PRODUCER** defect (the design variables were
-applied twice; `d6r2c_freshmesh.py:423-425`), and **every mesh cause class was excluded by
-measurement** (§22.3). **D6R3 re-runs that optimisation — same wing, same solver family, same
-parameterisation, same three lift points, same weights — designed from the start so that the number
-it produces is a fresh-mesh number at matched lift on a mesh in the asymptotic range.** The parent's
-§10 reserved `D6R3` for the `DARhoSimpleCFoam` model rung; §3 below takes that reservation up,
-because **rule 5 cannot be satisfied without it** and the parent's own words were that the rung was
-*"deliberately NOT taken here"*, not that it was wrong.
+**Item id:** `D6R3`. **Parent:** `curriculum_D6R2C/PREREGISTRATION.md` (frozen `7f685867d`, v1.4).
+**Registers under:** `docs/dafoam/SHAPE_OPTIMIZATION_STANDING_RULES.md` rules **1–32**;
+`DAFOAM_CHARTER.md` **§22**; `docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md`
+**§G** (the published-setup rule, line 239).
 
 ---
 
-## 1. THE PUBLISHED SETUP THIS REGISTRATION STARTS FROM (Sanaa §G), AND HOW IT WAS VERIFIED
+## 0. THE RULING THIS REVISION CARRIES
 
-Sanaa, 2026-09-13 ~17:05Z, byte-exact (`…96CORE_ALLOCATION…md:239`): *"For any public case, the lab
-starts from a published OpenFOAM setup of that case — mesh recipe, layer settings, schemes, wall
-treatment — ingested into the knowledge base before the first registration. Inventing a setup for a
-case someone has already run in this solver is refused."*
+Sanaa, 2026-09-13, relayed to this lane by `dafoam-supervisor`: *"for mach 0.85 it must follow the
+setup verbatim and we must incorporate the within run checks of the instructions to ensure the
+result we get is not from a mesh artefact."*
 
-### 1a. The primary source — the published DAFoam tutorial, already on this box
+Two requirements, and this revision is organised around them:
+
+1. **VERBATIM** — §2 is a **paper-value | our-value table**, one row per mesh, warp, DV-
+   parameterisation and solver parameter, each citing the published **file and line**. Rows match by
+   default. **Every deviation is a separate, numbered, dated entry in §3 with its reason.** A row
+   with no published line to cite is itself a deviation, because it means we invented it.
+2. **WITHIN-RUN CHECKS** — §9 registers **six instruments that run DURING the optimisation**, one
+   per rules 6–11. **Every one has been written and driven against a known-bad input and shown to
+   FIRE.** 48 controls, 48 `PASS`, 0 `FAIL`, at `D6R3_INRUN_SELFTEST.json`. A guard that has never
+   said no is not a guard.
+
+**AND A BLOCKING PRECONDITION.** §7 registers arm **`P0`** — one primal and one adjoint on the
+published CRM mesh, measured, before anything else runs. Until `P0` reads `PASS` every arm after it
+is **`PENDING`** and the cost model is **explicitly labelled untested**.
+
+---
+
+## 1. THE PUBLISHED SETUP, AND ITS PROVENANCE
 
 | field | value |
 |---|---|
-| repository | `https://github.com/DAFoam/tutorials.git` (`git remote -v`) |
-| local clone | `/home/ubuntu/dafoam-tutorials` |
-| HEAD at this draft | `d3b7e38b058aba2a98a74092e15c41ec455c570d`, 2026-05-16 15:58:25 -0500, *"Updated VSP script for ADODG"* |
-| the case | `MACH_Tutorial_Wing/` |
-| `runScript_AeroOnly.py` | md5 `2906d52a5dbed2bacbaeaf85a37d3fe8` |
-| `genWingMesh.py` | md5 `dab5e959187ab2e2bfb4e2c0ded0feb6` |
-| surface geometry | `mdolab_wing_surface_mesh.cgns`, fetched by `preProcessing.sh:15` from `https://github.com/dafoam/files/releases/download/v1.0.0/`; a copy is on disk at `/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence/L1/mdolab_wing_surface_mesh.cgns` (192,512 B, mtime 2021-02-28) |
+| repository | `https://github.com/DAFoam/tutorials.git` |
+| local clone | `/home/ubuntu/dafoam-tutorials` — **already on disk; nothing was fetched for this draft** |
+| HEAD | `d3b7e38b058aba2a98a74092e15c41ec455c570d`, 2026-05-16 15:58:25 -0500 |
+| the case | **`CRM_Wing/`** |
+| `runScript.py` | md5 **`0de915d21166a91a9a54b37ab11214cf`** |
+| `genWingMesh.py` | md5 **`af9b63c2a22886b40c2309b298288cb8`** |
+| surface geometry | `CRM_surfMesh.cgns`, `preProcessing.sh:17` fetches it from `https://github.com/dafoam/files/releases/download/v1.0.0/`; copies are on disk under `/home/ubuntu/certonomous-runs/act9-crm_wingbody-*/` and `/home/ubuntu/certonomous-runs/P3-a6-n16-ref/s2bpv/` |
+| supplementary published source | He, Mader, Martins & Maki, **AIAA Journal 2020**, §3.1 and **Table 4** — the published DAFoam **multipoint** wing setup |
+| supplementary published source | `UBend_Channel/runScript_meshQualityConstraint_v2.py`, md5 `0d97cb5e619bffe19c8dcc2759c07d09` — the published DAFoam **mesh-quality constraint** |
 
-**Nothing was fetched for this draft.** The clone, the surface geometry and the three papers were
-already on disk; they were read, not retrieved.
+**Title-page verification (`CLAUDE.md` rule 15)** was performed in R1 by independent `pdftotext -f 1
+-l 1` extraction of page 1 of each PDF, read against its printed title, authors and venue — never by
+filename, file type or hash. Carried forward unchanged; the three md5s are in APPENDIX S.
 
-### 1b. Title-page verification of the papers (`CLAUDE.md` rule 15)
+### 1a. **THE LAB HAS ALREADY RUN THIS EXACT PUBLISHED PRODUCER, WITH ADJOINTS, AND R1 DID NOT KNOW IT**
 
-Verified **by independent extraction of page 1 of each PDF** (`pdftotext -f 1 -l 1`), read against
-the title, authors and venue on that page — **not** by filename, file type, hash or sidecar. Each
-PDF's own first page carries the claimed article; each `.txt` sidecar's head reproduces it.
+**This is the most important measured fact in the revision and it changes the cost model by a
+factor of seventeen.**
 
-| PDF | md5 | page-1 title / authors / venue, as printed |
+R1 §15e stated, on the A6 record's authority, that *"the CRM adjoint has never run on this box"*.
+**That statement is true of A6's 579,072-cell mesh and FALSE of the case.** Measured by this lane,
+2026-09-13, by reading the logs:
+
+| artefact | `Main iteration` | `KSP Residual` | what it is |
+|---|---|---|---|
+| `CURRICULUM-D8-a6-twist-opt/opt.log` | **475** | **475** | a CRM twist optimisation with real adjoints |
+| `CURRICULUM-D8R-a6-twist-opt-conv/O-P_20260827T223101Z_1595223.log` | **1,080** | **1,080** | the graded, FD-verified successor |
+| `CURRICULUM-D8R…/O-S_…log` | **1,521** | **1,521** | the SHIPPED row of the same |
+| all four A6 logs | **0** | **0** | the 579,072-cell mesh — never attempted |
+
+`D8R` ran **`DARhoSimpleCFoam` on the CRM wing at M 0.8497, on `runScript.py` md5 `0de915d2…` —
+byte-identical to the published `CRM_Wing/runScript.py` I hashed above** — at **41,760 cells**,
+4 ranks, and its endpoint adjoint passed a finite-difference table: **20 graded components, 20
+`PASS`, 0 `GATE FAIL`, 0 sign flips** (`curriculum_D8R/RESULTS.md:40`).
+
+**Consequence.** R1's gradient figure of 529.1 core-min was an extrapolation from a different wing
+at a different Mach. §11 replaces it with a **measurement on this wing, this solver, this Mach, this
+producer**, and the item's registered total falls from R1's ≈425,000 core-min to **24,900**. That
+correction is recorded here rather than quietly applied.
+
+### 1b. **THE GRID FAMILY IS ALSO ALREADY MEASURED — `D8G` DID THE COARSENING ARITHMETIC ON THE REAL TARBALL**
+
+`cases/dafoam/ladder-a/A6/curriculum_D8G/PREREGISTRATION.md` §2.1 measured, on the archived
+`CRM_surfMesh.cgns.tar.gz`, the surface quad-face count after each successive `cgns_utils coarsen`:
+
+| coarsen count | surface quad faces | ratio to previous |
 |---|---|---|
-| `docs/papers/adjoint_and_optimization/he_mader_martins_maki_aiaaj2020_dafoam_j058853.pdf` | `bd592e7ea1a5a3c2b9361d43f840f43b` | *DAFoam: An Open-Source Adjoint Framework for Multidisciplinary Design Optimization with OpenFOAM* — He, Mader, Martins, Maki — **AIAA Journal**, doi 10.2514/1.J058853 |
-| `…/he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.pdf` | `5c27b30cbe47bbf0b136fde2ed6170d5` | *An Aerodynamic Design Optimization Framework Using a Discrete Adjoint Approach with OpenFOAM* — He, Mader, Martins, Maki — **Computers & Fluids** 168 (2018) 285–303 |
-| `…/kenway_mader_he_martins_pas2019_effective_adjoint_100542.pdf` | `6b17ccec2a27ab5bc57c13e51b346da9` | *Effective Adjoint Approaches for Computational Fluid Dynamics* — Kenway, Mader, He, Martins — **Progress in Aerospace Sciences**, doi 10.1016/j.paerosci.2019.05.002 |
+| **c0** (as shipped) | **44,544** | — |
+| **c1** (what `preProcessing.sh:20` does) | **11,136** | **4.000** |
+| **c2** | **2,784** | **4.000** |
+| **c3** | **696** | **4.000** |
+| c4 | 188 | **3.702 ← BREAKS**, excluded |
 
-### 1c. Claim → source → gate, for every setting this registration adopts
+Two independent confirmations, both on disk: `11,136 × 52 = 579,072`, the archived recipe's own
+measured cell count (`A6-crm-wing/logMeshGeneration.txt:478`, `Mesh region0 size: 579072`, at c1
+with `N = 53`); and `2,784 × 15 = 41,760`, the graded D8/D8R mesh at c2 with `N = 16`.
 
-Every row is read from the published file by this lane. "**=**" means adopted unchanged;
-"**Δ**" means a stated departure, justified in the section named.
+**D6R3 reuses this measured coarsening rather than re-deriving it** (§4). **`c4` is excluded and the
+reason is inherited: it is not a factor-2 coarsening and must never be used as one.**
 
-| setting | published value | source line | D6R3 | where |
+---
+
+## 2. THE VERBATIM TABLE — **58 ROWS, 46 VERBATIM, 12 DEVIATIONS**
+
+Every row is read from the published file by this lane. **`=` means adopted unchanged.
+`Δn` names a numbered deviation in §3.** Line numbers are `grep -n` positions in the files hashed
+in §1.
+
+### 2a. Flow condition and fluid (8 rows, 8 verbatim)
+
+| # | parameter | published value | source file:line | ours |
 |---|---|---|---|---|
-| free stream | `U0 = 100.0`, `p0 = 101325`, `T0 = 300`, `nuTilda0 = 4.5e-5`, `aoa0 = 4.0`, `A0 = 45.5` | `MACH_Tutorial_Wing/runScript_AeroOnly.py:24-31` | **=** | §3 |
-| Mach | `M = U0/√(γRT0) = 100/347.189 = 0.288028` — **SUBSONIC** | derived from `:24`, `:27` | **=** | §3 |
-| viscosity | `mu = 1.8e-5`, `Pr = 0.7`, `molWeight 28.97`, `Cp 1005` | `constant/thermophysicalProperties` | **=** | §5 |
-| turbulence model | `SpalartAllmaras`, `Prt 1.0` | `constant/turbulenceProperties` | **=** | — |
-| solver | `DARhoSimpleFoam`, `primalMinResTol 1.0e-8`, `primalMinResTolDiff 1e3` | `runScript_AeroOnly.py:35-37` | **Δ** → `DARhoSimpleCFoam` | §6 |
-| wall treatment | `useWallFunction: True`; `0.orig/nut` = `nutUSpaldingWallFunction` | `:43`; `0.orig/nut` | **Δ** → wall-resolved | §5 |
-| `fvSchemes` | `steadyState`; `Gauss linear`; `div(phi,U) bounded Gauss linearUpwindV grad(U)`; all other `div` `bounded Gauss upwind`; `laplacian Gauss linear corrected`; `snGrad corrected`; `wallDist meshWave` | `system/fvSchemes` | **=** | — |
-| `fvSolution` | `p\|p_rgh\|G` GAMG/GaussSeidel `relTol 0.1`; `U\|T\|e\|h\|nuTilda\|k\|omega\|epsilon` smoothSolver `relTol 0.1`; relax `p 0.30`, `rho 0.3`, equations `0.70`; `nNonOrthogonalCorrectors 0` | `system/fvSolution` | **Δ** on relaxation + `nNonOrth` only | §6 |
-| `controlDict` | `endTime 1000`, `deltaT 1`, `writeControl timeStep`, `writeInterval 1000`, `writePrecision 10` | `system/controlDict` | **Δ** `endTime` only | §6 |
-| mesh recipe | `cgns_utils coarsen` **once**, `python genWingMesh.py`, `plot3dToFoam -noBlank`, `autoPatch 60 -overwrite`, `createPatch -overwrite`, `renumberMesh -overwrite` | `preProcessing.sh:23-29` | **=** (the pipeline) | §4 |
-| extrusion (layers) | `N 39`, `s0 1.0e-3`, `marchDist 300.0`, `cMax 0.1`, `unattachedEdgesAreSymmetry True`, `outerFaceBC farfield`, `autoConnect True`, `families wall`; `epsE/epsI/theta/volCoef/volBlend/volSmoothIter/kspreltol` **all commented out** | `genWingMesh.py:14-42` | **Δ** `N`, `s0` only | §4, §5 |
-| warping | `meshOptions = {gridFile, fileType "OpenFOAM", symmetryPlanes [[[0,0,0],[0,0,1]]]}` — i.e. **every IDWarp option left at its default** | `runScript_AeroOnly.py:89-94` | **=**, defaults named explicitly | §7 |
-| adjoint | `gmresRelTol 1.0e-6`, `pcFillLevel 1`, `jacMatReOrdering rcm` | `:63` | **=** | §6 |
-| `normalizeStates` | `U: U0`, `p: U0²/2`, `T: T0`, `nuTilda: 1e-3`, `phi: 1.0` | `:64-70` | **=** | — |
-| `checkMeshThreshold` | `maxAspectRatio 1000.0`, `maxNonOrth 70.0`, `maxSkewness 5.0` | `:71-75` | **=** | §8 |
-| shape DVs | `nom_addLocalDV("shape", pointSelect=all FFD pts)`, bounds `[-1, 1]`, scaler `10.0` | `:149-152`, `:174` | **=** | §6b |
-| twist DVs | `nom_addRefAxis(xFraction=0.25, alignIndex="k")`, `rot_z`, **root twist NOT free**, bounds `[-10, 10]`, scaler `0.1` | `:138-146`, `:173` | **=** | §6b |
-| AoA DV | `patchV = [U0, aoa0]`, `U` pinned, AoA `[0, 10]`, scaler `0.1` | `:166`, `:175` | **=** | §6a |
-| lift constraint | `add_constraint("…CL", equals=CL_target, scaler=1.0)` | `:179` | **=** | §6a |
-| thickness / volume | `nom_addThicknessConstraints2D(nSpan=10, nChord=10)` bounds `[0.5, 3.0]`; `nom_addVolumeConstraint` lower `1.0`; `leList [[0.1,0,0.01],[7.5,0,13.9]]`, `teList [[4.9,0,0.01],[8.9,0,13.9]]` | `:155-158`, `:180-181` | **=** | §6b |
-| LE/TE | `nom_add_LETEConstraint("lecon", volID=0, faceID="iLow")` / `("tecon", …, "iHigh")`, linear | `:160-161`, `:182-183` | **=** | §6b |
-| optimiser | IPOPT, `tol 1.0e-5`, `constr_viol_tol 1.0e-5`, `mu_strategy adaptive`, `nlp_scaling_method none`, `limited_memory_max_history 10`, `alpha_for_y full`, `recalc_y yes` | `:212-223` | **=** | §14 |
-| trim before iter 1 | `optFuncs.findFeasibleDesign([…CL], ["patchV"], targets=[CL_target], designVarsComp=[1])` | `:241` | **=** | §6a |
+| 1 | `U0` | `295.0` m/s | `CRM_Wing/runScript.py:24` | **=** |
+| 2 | `p0` | `101325.0` Pa | `:25` | **=** |
+| 3 | `T0` | `300.0` K | `:27` | **=** |
+| 4 | `nuTilda0` | `4.5e-5` | `:26` | **=** |
+| 5 | `aoa0` | `2.11031707` deg | `:29` | **=** |
+| 6 | `A0` | `3.407014` m² | `:31` | **=** |
+| 7 | `mu`, `Pr`, `molWeight`, `Cp` | `1.8e-5`, `0.7`, `28.97`, `1005` | `constant/thermophysicalProperties:42,43,33,37` | **=** |
+| 8 | **derived Mach** | `295/√(1.4·287·300) = 295/347.189 = ` **`0.849678`** | derived from rows 1, 3 | **=** |
 
-### 1d. The multipoint layer — also published, and D6R2 already matched it
+### 2b. Turbulence and wall treatment (5 rows, 3 verbatim, **2 in deviation Δ1**)
 
-The tutorial is single-point. The **multipoint** structure is published in
-**He et al., AIAA Journal 2020, §3.1 and Table 4** (`…j058853.txt:795-905`), and **D6R2 already
-matched it row for row** — which this registration records so no reader thinks the multipoint
-design was invented here:
+| # | parameter | published value | source | ours |
+|---|---|---|---|---|
+| 9 | RAS model | `SpalartAllmaras`, `turbulence on`, `Prt 1.0` | `constant/turbulenceProperties:21-25` | **=** |
+| 10 | `nuTildaMin` | `1e-16` | `:24` | **=** |
+| 11 | `nuTilda` wall BC | `fixedValue uniform 0.0` | `0.orig/nuTilda` | **=** |
+| 12 | `primalBC.useWallFunction` | **`True`** | `runScript.py:42` | **Δ1** → `False` |
+| 13 | `nut` wall BC | **`nutUSpaldingWallFunction`** | `0.orig/nut:24` | **Δ1** → `nutLowReWallFunction` |
 
-| published (Table 4, AIAAJ 2020 §3.1) | D6R2/D6R2C | D6R3 |
-|---|---|---|
-| objective `f = Σ wᵢ CD_i` | `J = 0.25·CD04 + 0.50·CD05 + 0.25·CD06` | **=** |
-| weights **0.25, 0.5, 0.25** | 0.25, 0.50, 0.25 | **=** |
-| three CL constraints, one per condition | `cl04/cl05/cl06` at 0.400/0.500/0.600 | **=** |
-| AoA a design variable **per condition** (3) | `patchV_<pt>` per condition | **=** |
-| twist, **root twist fixed** | 7 twist DVs, root not free | **=** |
-| FFD `Δz`, thickness ≥ 0.5 baseline, volume ≥ baseline, LE/TE fixed | identical in kind | **=** |
-| warping: *"an analytic inverse-distance method [72] through the IDWarp package"* (`:890`) | IDWarp | **=** |
-| **mesh: 548,352 cells, average y⁺ 33.7** (`:880-882`) | **38,304 cells, mean y⁺ 321.95** | see §4, §5 |
+### 2c. Mesh recipe and extrusion (14 rows, 12 verbatim, **2 in Δ1**)
 
-**The last row is the finding of this section and it is the reason rules 1 and 2 exist.** The
-published multipoint wing optimisation of this family ran on a mesh **14.3× finer** than D6R2's
-(548,352 / 38,304) at an average y⁺ **9.6× lower** (33.7 / 321.95). The tutorial mesh is a teaching
-mesh — `preProcessing.sh:22` even carries the comment *"coarsen the surface mesh three times"* over
-a single live `cgns_utils coarsen` call — and **D6R2 optimised on it.** Nothing was invented; a
-teaching mesh was used for a production claim.
+| # | parameter | published value | source | ours |
+|---|---|---|---|---|
+| 14 | pipeline | `tar -xvf` → `cgns_utils coarsen surfMesh.cgns` → `python genWingMesh.py` → `plot3dToFoam -noBlank` → `autoPatch 45 -overwrite` → `createPatch -overwrite` → `renumberMesh -overwrite` | `preProcessing.sh:20-25` | **=** |
+| 15 | `inputFile` | `surfMesh.cgns` | `genWingMesh.py:3,8` | **=** |
+| 16 | `fileType` | `CGNS` | `:9` | **=** |
+| 17 | `unattachedEdgesAreSymmetry` | `True` | `:10` | **=** |
+| 18 | `outerFaceBC` | `farfield` | `:11` | **=** |
+| 19 | `autoConnect` | `True` | `:12` | **=** |
+| 20 | `families` | `wall` | `:14` | **=** |
+| 21 | **`N`** | **`53`** (52 cell layers) | `:18` | **Δ1** → `105` (104 layers) |
+| 22 | **`s0`** | **`1.0e-4`** m | `:19` | **Δ1** → `1.35e-6` m |
+| 23 | `marchDist` | `25 × 3.758151 = 93.953775` | `:20` | **=** |
+| 24 | `ps0`, `pGridRatio`, `cMax` | `-1.0`, `1.1`, `5.0` | `:25-27` | **=** |
+| 25 | `epsE`, `epsI`, `theta` | `1.0`, `2.0`, `3.0` | `:31-33` | **=** |
+| 26 | `volCoef`, `volBlend`, `volSmoothIter` | `0.16`, `0.0005`, `30` | `:34-36` | **=** |
+| 27 | `kspRelTol`, `kspMaxIts`, `kspSubspaceSize` | `1e-4`, `50`, `50` | `:37-39` | **=** |
 
-**What was NOT invented, stated because it was queried:** **M = 0.288 is the published value**
-(`runScript_AeroOnly.py:24`, `:27`), not a lab choice. The parent's ADDENDUM 2 corrected only the
-*word* "transonic", never the number.
+### 2d. Solver, schemes and linear algebra (14 rows, 12 verbatim, **2 deviations**)
 
----
+| # | parameter | published value | source | ours |
+|---|---|---|---|---|
+| 28 | `solverName` | `DARhoSimpleCFoam` | `runScript.py:35` | **=** |
+| 29 | `primalMinResTol` | `1.0e-8` | `:36` | **=** |
+| 30 | **`primalMinResTolDiff`** | **ABSENT from the published CRM file** — the MACH wing sets `1e3` (`MACH_Tutorial_Wing/runScript_AeroOnly.py:37`) | — | **=** (absent; DAFoam's own default stands, and `P0` **RECORDS** it) |
+| 31 | `ddtSchemes` | `steadyState` | `system/fvSchemes:20` | **=** |
+| 32 | `gradSchemes` | `Gauss linear` | `:25` | **=** |
+| 33 | `div(phi,U)` | `Gauss linearUpwindV grad(U)` — **not** `bounded` | `:31` | **=** |
+| 34 | **`div(phid,p)`** | **`Gauss limitedLinear 1.0`** — the transonic pressure-flux scheme | `:35` | **=** |
+| 35 | all other `div` | `Gauss upwind` / `Gauss linear` as listed | `:32-43` | **=** |
+| 36 | `laplacianSchemes`, `snGradSchemes`, `interpolationSchemes` | `Gauss linear corrected`, `corrected`, `linear` | `:53,58,48` | **=** |
+| 37 | `wallDist` | `meshWave` | `:62` | **=** |
+| 38 | `nNonOrthogonalCorrectors` | **`0`** | `system/fvSolution:20` | **=** |
+| 39 | linear solvers | `(p\|p_rgh\|G)` GAMG/GaussSeidel `relTol 0.1 tolerance 0`; `(U\|T\|e\|h\|nuTilda\|k\|omega\|epsilon)` smoothSolver/GaussSeidel `relTol 0.1 nSweeps 1`; `Phi` `$p relTol 0 tolerance 1e-6` | `:25-47` | **=** |
+| 40 | relaxation | fields `(p\|rho) 1.0`; equations `p 1.0`, `(U\|T\|e\|h\|nuTilda\|k\|epsilon\|omega) 0.80` | `:51-59` | **=** |
+| 41 | `potentialFlow.nNonOrthogonalCorrectors` | `20` | `:64` | **=** |
 
-## 2. WHAT THIS DRAFT DOES **NOT** RESOLVE, AND MUST NOT BE FROZEN AS RESOLVED
+### 2e. `daOptions` (8 rows, 6 verbatim, **2 deviations**)
 
-**The operating point is open at the owner's desk.** §3 carries **two** complete, separately-sourced
-operating-point blocks. **Exactly one is live at freeze; the supervisor deletes the other by
-striking it in the freeze commit.** No number outside §3 depends on which is chosen except the cost
-model, which is given for both (§15).
+| # | parameter | published value | source | ours |
+|---|---|---|---|---|
+| 42 | `designSurfaces` | `["wing"]` | `runScript.py:34` | **=** |
+| 43 | `function.CD` / `.CL` | `type force`, `source patchToFace`, `patches ["wing"]`, `directionMode parallelToFlow` / `normalToFlow`, `patchVelocityInputName patchV`, `scale 1/(0.5·U0²·A0·ρ0)` | `:44-62` | **=** |
+| 44 | `adjStateOrdering` | `cell` | `:63` | **=** |
+| 45 | `adjEqnOption` | `gmresRelTol 1.0e-6`, `pcFillLevel 1`, `jacMatReOrdering natural`, `gmresMaxIters 2000`, `gmresRestart 2000` | `:64-71` | **=** |
+| 46 | `normalizeStates` | `U: U0`, `p: p0`, `T: T0`, `nuTilda: 1e-3`, `phi: 1.0` | `:72-78` | **=** |
+| 47 | `checkMeshThreshold` | `maxAspectRatio 2000.0`, `maxNonOrth 75.0`, `maxSkewness 5.0` | `:79-83` | **=** |
+| 48 | **`transonicPCOption`** | **`2`** | `:84` | **Δ2** → `1` |
+| 49 | `inputInfo` | `aero_vol_coords: volCoord`; `patchV: patchVelocity`, `patches ["inout"]`, `flowAxis "x"`, `normalAxis "z"` | `:86-95` | **=** |
 
----
+### 2f. Warping (2 rows, 1 verbatim, **1 deviation**)
 
-## 3. THE OPERATING POINT — ONE SWAPPABLE BLOCK, TWO CANDIDATES
+| # | parameter | published value | source | ours |
+|---|---|---|---|---|
+| 50 | `meshOptions` | `{gridFile: os.getcwd(), fileType: "OpenFOAM", symmetryPlanes: [[[0,0,0],[0,1,0]]]}` — **every IDWarp option left at its default** | `:97-102` | **=** on `gridFile`, `fileType`, `symmetryPlanes`; **every default named EXPLICITLY** (§9.6) |
+| 51 | `evalMode` | not set → IDWarp default **`"fast"`** (`UnstructuredMesh.py:136`) | — | **Δ3** → `"exact"` |
 
-### 3A. **OPTION A — the D6R2 re-run.** MACH tutorial wing, M = 0.288, taken whole from the published tutorial.
+### 2g. Design variables, FFD and constraints (7 rows, 6 verbatim, **1 deviation**)
 
-```
-geometry      mdolab_wing_surface_mesh.cgns  (MACH_Tutorial_Wing)
-U0 = 100.0 m/s   p0 = 101325 Pa   T0 = 300 K   nuTilda0 = 4.5e-5   aoa0 = 4.0 deg   A0 = 45.5 m^2
-a  = sqrt(1.4 x 287 x 300) = 347.189 m/s   ->   M_inf = 0.288028   COMPRESSIBLE SUBSONIC
-CL targets 0.400 / 0.500 / 0.600     weights 0.25 / 0.50 / 0.25
-solver        DARhoSimpleCFoam   (departure, Sec. 6)
-source        MACH_Tutorial_Wing/runScript_AeroOnly.py:24-31 (md5 2906d52a5dbed2bacbaeaf85a37d3fe8)
-```
+| # | parameter | published value | source | ours |
+|---|---|---|---|---|
+| 52 | FFD lattice | `FFD/wingFFD.xyz`, plot3d header **`12 8 2` = 192 control points** | `FFD/wingFFD.xyz:2`, used at `runScript.py:120` | **=** |
+| 53 | reference axis | `nom_addRefAxis(name="wingAxis", xFraction=0.25, alignIndex="j")` → `nRefAxPts = 8`; `rot_y`; **root twist NOT free** → **7 twist DVs** | `:146-154` | **=** |
+| 54 | shape DVs | `pts = DVGeo.getLocalIndex(0)`, `pts[:,:,:].flatten()`, `PointSelect("list", …)`, `nom_addLocalDV(dvName="shape", pointSelect=PS)` → **192 shape DVs**. **The displacement axis is NOT specified in the published file**; the installed pyGeo default stands. | `:157-160` | **=**; **`P0` RECORDS the effective axis — `NOT MEASURED` at this draft** |
+| 55 | DV bounds / scalers | `twist [-10, 10]` scaler `0.1`; `shape [-1, 1]` scaler `10.0`; `patchV [U0, 0]`–`[U0, 10]` scaler `0.1` | `:200-202` | **=** |
+| 56 | thickness / volume | `nom_addThicknessConstraints2D("thickcon", leList, teList, nSpan=25, nChord=30)` bounds `[0.5, 3.0]`; `nom_addVolumeConstraint("volcon", …)` lower `1.0`; `leList`/`teList` built from `LE_pt (0.01,0.01,0)`, `break_pt (0.848,1.119,0)`, `tip_pt (2.855,3.755,0)`, chords `1.689 / 1.036 / 0.390` at 1 % and 99 % | `:171-185`, `:206-207` | **=** |
+| 57 | LE/TE | `nom_add_LETEConstraint("lecon", volID=0, faceID="iLow")`, `("tecon", …, "iHigh")`, both `linear=True` | `:187-188`, `:208-209` | **=** |
+| 58 | objective / lift constraint | `add_objective("scenario1.aero_post.CD", scaler=1.0)`; `add_constraint("scenario1.aero_post.CL", equals=CL_target, scaler=1.0)`; `CL_target = 0.5`; trim by `optFuncs.findFeasibleDesign([...CL], ["patchV"], targets=[CL_target], designVarsComp=[1])` | `:28`, `:204-205`, `:268` | **Δ4** → three conditions |
 
-**This is the option that makes D6R3 a re-run of D6R2.** Same geometry, same FFD, same DV counts,
-same targets, same weights. **The word "transonic" is not used of this case** (parent ADDENDUM 2:
-maximum *local* Mach measured at 0.380; no shock exists and no shock figure can be produced).
+**ROW COUNT: 58. VERBATIM: 46. DEVIATIONS: 13** (rows 12, 13, 21, 22, 48, 51, 58 carry Δ1–Δ4;
+Δ5–Δ13 in §3 are **additions**, i.e. rows with **no published line to cite**, which §0 requires be
+registered as deviations in their own right).
 
-### 3B. **OPTION B — the transonic alternative.** CRM wing, M = 0.850, taken WHOLE from `CRM_Wing`.
+### 2h. Two published facts recorded rather than silently corrected
 
-```
-geometry      CRM_surfMesh.cgns  (CRM_Wing)  -- root chord 1.689, break 1.036, tip 0.390 m
-U0 = 295.0 m/s   p0 = 101325 Pa   T0 = 300 K   nuTilda0 = 4.5e-5   aoa0 = 2.11031707 deg
-A0 = 3.407014 m^2   ->   M_inf = 295/347.189 = 0.849678
-CL_target 0.5 (published, single point)
-solver        DARhoSimpleCFoam   (published)
-extrusion     N 53, s0 1.0e-4, marchDist 25 x 3.758151 = 93.954, ps0 -1.0, pGridRatio 1.1,
-              cMax 5.0, epsE 1.0, epsI 2.0, theta 3.0, volCoef 0.16, volBlend 0.0005,
-              volSmoothIter 30, kspRelTol 1e-4, kspMaxIts 50, kspSubspaceSize 50
-adjoint       gmresRelTol 1e-6, pcFillLevel 1, jacMatReOrdering "natural",
-              gmresMaxIters 2000, gmresRestart 2000, adjStateOrdering "cell"
-checkMesh     maxAspectRatio 2000.0, maxNonOrth 75.0, maxSkewness 5.0
-source        CRM_Wing/runScript.py    (md5 0de915d21166a91a9a54b37ab11214cf) :24-31, :36-84
-              CRM_Wing/genWingMesh.py  (md5 af9b63c2a22886b40c2309b298288cb8) :18-39
-```
-
-**THREE THINGS A READER MUST BE TOLD BEFORE OPTION B IS CHOSEN, and all three are measurements or
-published lines, not opinions:**
-
-1. **Option B is a DIFFERENT GEOMETRY, so it is not a re-run of D6R2.** `CRM_Wing` is the NASA CRM
-   wing (root chord 1.689 m, span 3.755 m), not the MACH tutorial wing (mean chord 3.276 m, span
-   13.9 m). Choosing B changes the wing, the FFD, the reference area and the mesh, not only the
-   Mach number. **Running the MACH tutorial wing's subsonic mesh and subsonic solver at M 0.85 is
-   exactly the invention §G refuses** and is not offered here.
-2. **The published `CRM_Wing` case is SINGLE-POINT.** Making it multipoint at three CLs is a
-   departure from the published setup; it would be justified by AIAAJ 2020 Table 4's multipoint
-   pattern, but the pattern and the case would then come from two different sources.
-3. **`"transonicPCOption": 2` in the published file (`CRM_Wing/runScript.py:84`) is DEAD CODE for
-   this solver.** Measured by this lab and recorded at `docs/dafoam/PRIOR_WORK_INVENTORY.md` D-F /
-   L-40: `DAResidualRhoSimpleCFoam.C:172-176` accepts **only `== 1`**, and *every* archived ONERA M6
-   run ran with the solver's own transonic mitigation silently off. **If Option B is taken, the
-   registered value is `transonicPCOption: 1`, as a stated departure with that measurement as its
-   reason** — adopting a published line the lab has already measured to be inert would be adopting
-   a null.
-
-**Lab prior work on Option B, stated so it is not rediscovered:** `A6` ran `CRM_Wing` at
-**579,072 cells**, np=4, `DARhoSimpleCFoam`, `run_model` only, **28.73 core-min** for 1000 steps; it
-**never converged** (`grep -c "satisfied the prescribed tolerance"` → 0; `nuTilda` plateaued at
-t≈600 and needs **≈ 15,573 further iterations ≈ 419 core-min** to cross 1e-8) and **its adjoint has
-never been attempted** (`Main iteration` / `KSP Residual` appear **zero** times in all four A6 logs;
-`Global Adjoint States: 5,244,840`; memory predicted 95–116 GiB against the then 30 GiB box).
-**The memory blocker is no longer binding: this box now reads 96 cores and 739 GiB total / 640 GiB
-available** (measured at this draft, 2026-09-13 17:10Z). **The cost of a CRM adjoint remains
-UNMEASURED**, and §15B prices it as an estimate, labelled as one.
+- **`0.orig/U:20` carries `internalField uniform (100 0 0)` while `U0 = 295.0`.** DAFoam's
+  `primalBC` overwrites the *boundary* at runtime, not the *internal initial field*. **This is the
+  published file's own value and it is adopted verbatim**; it is named here because a reader who
+  finds `100` in a M 0.85 case is entitled to know it is the published initial condition, not an
+  error introduced here. Its only effect is on the transient to the fixed point.
+- **`system/decomposeParDict:18` sets `numberOfSubdomains 72`.** That is the published rank count
+  and it is adopted (§10). The box now reads **96 cores**, so 72 ranks fit.
 
 ---
 
-## 4. RULE 1 — **THE BASELINE GETS ITS GRID FAMILY FIRST**, and the optimisation mesh is chosen by measurement
+## 3. THE DEVIATION REGISTER — thirteen numbered, dated entries
 
-> *"Optimize on a mesh in the asymptotic range. The baseline gets its grid family first; the
-> optimization mesh is the coarsest level whose drag is within the band of the fine level."*
+> **Every entry is dated 2026-09-13 and is a DRAFT proposal until the freeze.** Her instruction is
+> that verbatim is the baseline and any deviation is registered with its reason; these are those
+> registrations.
 
-### 4a. The three levels, and the refinement ratio
+### **Δ1 — WALL-RESOLVED, y⁺ ≈ 1.** Rows 12, 13, 21, 22. *(her rule 2)*
 
-The family is built by the **published pipeline** (`preProcessing.sh:23-29`), unchanged, with only
-the `cgns_utils` coarsening depth and the two extrusion numbers varying. The existing lab harness
-`/home/ubuntu/certonomous-runs/A2-GC-wing-grid-convergence/L1/mesh.sh` already implements exactly
-this (`coarsen0 / coarsen1 / coarsen2 / refine1`) and is the instrument to reuse, not to rewrite.
+- **What changes:** `useWallFunction True → False`; `nut` wall BC `nutUSpaldingWallFunction →
+  nutLowReWallFunction`; `s0 1.0e-4 → 1.35e-6`; `N 53 → 105`.
+- **Why:** her rule 2 — *"Wall functions make friction a strong function of y⁺, and y⁺ drifts under
+  warping."* **Measured on this exact case:** D6R2's deformed-versus-fresh comparison ran at y⁺
+  medians **247 versus 223**, a 10.8 % drift produced by warping alone (`DAFOAM_CHARTER.md` §22.3).
+- **The sizing, from a MEASUREMENT on the published mesh.** `A6-crm-wing/run_model_run1.log`, the
+  converged tail of the baseline primal at `s0 = 1.0e-4` on the published 579,072-cell mesh:
+  **y⁺ min `7.648`, max `73.826`, mean `34.587`.** *(Corroboration, and it is a good one: He et al.
+  AIAAJ 2020 `:882` reports **average y⁺ 33.7** for the sibling published wing — **2.6 %** from our
+  measured 34.587.)* Since `y⁺ ∝ y_wall`, `s0` for **max** y⁺ = 1 is `1.0e-4 / 73.826 =`
+  **`1.3546e-6 m`**; for **mean** y⁺ = 1 it is `2.891e-6 m`. **The conservative (max) figure is
+  registered: `s0 = 1.35e-6 m`**, predicting max y⁺ `0.998`, mean y⁺ `0.467`.
+- **The cell consequence, exactly:** layers double, `52 → 104`, because the march is geometric over
+  93.954 m — `ln(74)/ln(1.17) ≈ 27` extra layers — and **the growth ratio improves from 1.2704 to
+  1.1695**. **Every level's cell count doubles, exactly ×2.000.**
+- **THE COST OF Δ1 IS STATED SEPARATELY SO SHE CAN SEE IT: the item goes from 24,900 to 58,800
+  core-min, a factor 2.36** (§11). **Δ1 is not applied silently and is not assumed accepted.**
 
-**Measured basis for the surface counts:** the current mesh is `nCells: 38304` (`base/constant/
-polyMesh/owner.gz` FoamFile `note`, corroborated by the 4-way decomposition 9504+9600+9608+9592),
-built from `coarsen1` at `N = 39` nodes = **38 wall-normal cells**, so the surface carries
-**38304 / 38 = 1008 cells** exactly. `cgns_utils coarsen` halves each structured surface direction.
+### **Δ2 — `transonicPCOption 2 → 1`.** Row 48.
 
-| level | surface | surface cells | wall-normal cells | `s0` (m) | **cells** | ratio |
+**Because this lab MEASURED that `2` is dead code for this solver.** `DAResidualRhoSimpleCFoam.C:
+172-176` accepts **only `== 1`**; every archived ONERA M6 adjoint ran with the solver's own
+transonic mitigation **silently off**, and the lesson is `L-40` (`docs/LESSONS.md`, carried at
+`docs/dafoam/PRIOR_WORK_INVENTORY.md` row **D-F**, *"CAUSATION NAILED by a bit-for-bit negative
+control"*). **Adopting a published line the lab has already measured to be inert is adopting a
+null.** Both values are recorded and `P0` reports which one was in force.
+
+### **Δ3 — `evalMode "fast" → "exact"`.** Row 51. *(her rule 6)*
+
+`fast` is a KD-tree approximation whose error is bounded by `errTol = 5e-4` **relative to `Ldef`**,
+and `Ldef0` is computed at `kd_tree.F90:1500-1512` as **the maximum distance from the surface-node
+centroid to any surface node** — of order the wing's own size. Under Δ1 the first cell is
+`1.35e-6 m`; that tolerance is not obviously below it. `exact` removes the question. **Arm `W1`
+measures the difference rather than assuming it** (§9.6).
+
+### **Δ4 — SINGLE POINT → MULTIPOINT, three conditions.** Row 58.
+
+- **What changes:** `CL_target 0.5` → `CL = 0.400 / 0.500 / 0.600`; objective
+  `CD` → `J = 0.25·CD₀₄ + 0.50·CD₀₅ + 0.25·CD₀₆`; one `patchV` → three.
+- **Why, and the source is published:** He et al. **AIAAJ 2020 Table 4** — three flight conditions,
+  **weights 0.25 / 0.50 / 0.25**, AoA a design variable per condition, twist with root fixed, FFD
+  local shape, thickness/volume/LE-TE constraints. **This is the published multipoint pattern and
+  D6R2 already matched it row for row.**
+- **HONEST STATEMENT:** the pattern and the case now come from **two different published sources**.
+  That is a real weakening of "verbatim" and it is named rather than hidden. **The alternative —
+  running the published single-point case — would not be a re-run of D6R2's multipoint problem.**
+  The supervisor may strike Δ4 and register D6R3 as single-point; the cost model is unaffected to
+  within the evaluation counts.
+
+### **Δ5 — optimiser `SLSQP → IPOPT`.** *(no new line; a published BRANCH of the published file)*
+
+`runScript.py:15` makes **`SLSQP` the default**; `:240-252` carries a complete published IPOPT
+block (`tol 1.0e-5`, `constr_viol_tol 1.0e-5`, `mu_strategy adaptive`, `nlp_scaling_method none`,
+`limited_memory_max_history 10`, `alpha_for_y full`, `recalc_y yes`). **Selecting the IPOPT branch
+is choosing a published option, not inventing one** — but it is not the published default, so it is
+registered. Reason: D6R2/D6R2C, D6R and the whole A2 ladder are IPOPT, and `OptView.hst` hot-start,
+the `inf_pr` stop rules and the parent's grading vocabulary are all IPOPT-shaped.
+
+### **Δ6 — `max_iter 100 → 25` (and `S1` at 15).** *(published value changed)*
+
+`:243` sets `max_iter 100`. **`max_iter` is a BUDGET ON MAJOR ITERATIONS, NOT A CONVERGENCE
+TOLERANCE**, and no reader may present a run that reaches it as converged (parent §1a, carried
+forward). 25 is D6R2C's registered budget, kept so the two items are comparable. **A run that
+reaches the cap is `GATE REACHED`, never `PASS`** (`DAFOAM_CHARTER.md` §9).
+
+### **Δ7 — `controlDict endTime 2000 → set by arm `P1`.** *(her rule 5)*
+
+**The arithmetic, and it is the reason D6R3 exists.** Measured from `O_mp/d6r2c_evals.jsonl` over
+the 35 successful objective evaluations of D6R2C: median increment `|ΔJ| = 5.589e-04`, **last
+accepted increment `1.421e-05`**, smallest `5.237e-07`. **So the drag change being chased is
+`1.0e-5`.** One order tighter, as her rule requires, is **`the primal's own CD uncertainty ≤ 1.0e-6`**
+— stated in the quantity of interest, not in a residual.
+
+**What that requirement rules out, measured:** D6RF10 measured `DARhoSimpleFoam` flooring at
+`p_first_uncorrected = 1.681e-05` with `CD 0.01849343377`, against `DARhoSimpleCFoam` reaching
+`6.3234e-06` with `CD 0.01859195417` — **ΔCD = 9.852e-05, ten times the signal being chased.**
+`P1` (§8) measures the residual→drag curve on **one solver and one mesh** and sets `endTime` to the
+smallest step count at which the last 500 steps' `CD` peak-to-peak is ≤ `1.0e-6`. **The registered
+upper bound for costing is 5,000 steps**; `P1` can only bring it down.
+
+### **Δ8 — A THREE-LEVEL GRID FAMILY IS ADDED.** *(her rule 1; no published line — the published setup is a single mesh)*
+
+§4. The construction is **not invented**: it is `D8G`'s measured `cgns_utils` coarsening (§1b)
+extended so that **the published mesh is itself a member of the family**.
+
+### **Δ9 — THE PUBLISHED MESH-QUALITY CONSTRAINT IS ADDED TO THE ADJOINT.** *(her rules 7 and 11)*
+
+`meshQualityKS` on `faceSkewness` and `nonOrthoAngle` with `addToAdjoint: True`, and the bounds
+**`skewness ≤ 4.0`, `nonOrtho ≤ 70.0`**, taken from
+`UBend_Channel/runScript_meshQualityConstraint_v2.py:67-90` and `:212-213`. **It has a published
+line; it is simply not in the CRM file**, so it is a deviation from the CRM setup and an adoption
+from a sibling published DAFoam setup. See §9.7 for the measured reason the CRM file's own
+thresholds are not enough on their own.
+
+### **Δ10 — OPENFOAM'S `forces` FUNCTION OBJECT IS ADDED TO `controlDict`.** *(her rule 10)*
+
+DAFoam's own `"type": "force"` returns a **total**. The pressure/viscous split comes from OpenFOAM's
+`forces` function object, used in exactly this form in the published
+`Airfoil_DynamicStall/…/system/controlDict:59-80`. Without it rule 10 cannot be satisfied at all.
+
+### **Δ11 — THE PARAMETERISATION IS STAGED, `S1` then `S2`.** *(her rule 4)*
+
+Her rule: *"fewer, smoother modes first; local high-frequency modes only after the smooth optimum is
+found."* `S1` = 7 twist + 3 AoA = **10 DVs**. `S2` = 192 shape + 7 twist + 3 AoA = **202 DVs**,
+started from `S1`'s optimum. The published setup runs all DVs at once.
+
+### **Δ12 — PER-MAJOR MOVE LIMITS ARE ADDED.** *(her rule 11)*
+
+`0.10` on the scaled `shape` ∞-norm and `0.5°` on `twist`. §9.11 explains why the literal
+first-cell-height sizing she names is not usable on this case and states the arithmetic.
+
+### **Δ13 — RULE 7's QUALITY BUDGET IS OUR OWN REFUSING INSTRUMENT, AND ITS NON-ORTHOGONALITY THRESHOLD IS 70.0, NOT THE CRM FILE'S 75.0.** *(the delegation refusal has no published line — it is ours)*
+
+**Because the solver's own non-orthogonality clause was MEASURED never to refuse on this family.**
+§9.7a: `O_mp` printed `Non-orthogonality check OK.` in **all 202** mesh-check blocks while **76** of
+them measured above 70.0, worst **`80.90429398`**; `FM10` did the same in **6 of 6**, worst
+**`79.21261137`**. Row 47 stays **verbatim** at `maxNonOrth 75.0` as the *solver's* abort threshold;
+**our budget reads the as-run mesh and refuses in our own code at 70.0**, the published constraint
+bound. The delegation refusal itself has no published line and is therefore registered as a
+deviation in its own right, per §0.
+
+---
+
+## 4. RULE 1 — THE GRID FAMILY, BUILT SO THAT THE PUBLISHED MESH IS A MEMBER OF IT *(Δ8)*
+
+### 4a. The three levels
+
+Built by the **published pipeline unchanged** (`preProcessing.sh:20-25`), varying only the
+`cgns_utils` coarsening depth and the two extrusion numbers, on `D8G`'s **measured** face counts.
+
+**VERBATIM family (rows 21, 22 at their published values):**
+
+| level | surface | layers | `s0` | **cells** | ratio | growth ratio |
 |---|---|---|---|---|---|---|
-| **L3 coarse** | `coarsen2` | 252 | 42 | `1.6e-6` | **10,584** | — |
-| **L2 medium** | `coarsen1` (the published depth) | 1,008 | 84 | `8.0e-7` | **84,672** | ×8.000 |
-| **L1 fine** | `coarsen0` | 4,032 | 168 | `4.0e-7` | **677,376** | ×8.000 |
+| **L3** coarse | c2 (2,784) | 26 | `2.0e-4` | **72,384** | — | 1.6227 |
+| **L2** medium | **c1 (11,136) — THE PUBLISHED MESH** | **52** | **`1.0e-4`** | **579,072** | **×8.000** | **1.2704** |
+| **L1** fine | c0 (44,544) | 104 | `5.0e-5` | **4,632,576** | **×8.000** | 1.1264 |
 
-**REFINEMENT RATIO `r = 2` EXACTLY, IN ALL THREE DIRECTIONS** — two surface directions by
-`cgns_utils`, the wall-normal direction by doubling the cell count **and halving `s0` together**, so
-the near-wall spacing refines with the rest of the mesh. `h` ratio `= 8^(1/3) = 2.000`; the cell
-counts are in the exact ratio 8.000 : 1 : 1/8 by construction, not approximately.
+**Δ1 family (wall-resolved), every level exactly ×2.000 in cells:**
 
-**The extrusion is self-consistent and the model is cross-checked against a measurement.** For a
-geometric layer distribution `s0(r^n − 1)/(r − 1) = marchDist`, the implied near-wall growth ratios
-are **L3 1.5518, L2 1.2439, L1 1.1149**. Applying the same model to the *current* mesh
-(`s0 1e-3`, `n 38`, `marchDist 300`) predicts **1.3563** against the **measured median 1.3303**
-(`FINDING_NOTE_D6R2C_LAYER_GROWTH.md` §2, 1008 chains, 37,296 pairs) — **agreement to 1.9 %**. The
-model is therefore anchored, not assumed.
+| level | surface | layers | `s0` | **cells** | growth ratio |
+|---|---|---|---|---|---|
+| **L3** | c2 (2,784) | 52 | `2.70e-6` | **144,768** | 1.3700 |
+| **L2** | c1 (11,136) | 104 | `1.35e-6` | **1,158,144** | 1.1695 |
+| **L1** | c0 (44,544) | 208 | `6.75e-7` | **9,265,152** | 1.0812 |
 
-### 4b. **PRECONDITION, MEASURED AT MESH BUILD, WITH A REGISTERED FALLBACK**
+**`r = 2.000 EXACTLY IN ALL THREE DIRECTIONS`** — two surface directions by `cgns_utils` (measured
+ratio 4.000 per level, §1b), the third by doubling the layers **and halving `s0` together**. Both
+cell ratios are the exact integer 8.
 
-`coarsen2` requires the `coarsen1` surface block dimensions to be even in both directions. **This is
-NOT MEASURED at this draft** (`cgns_utils` is inside the container; no container was started).
-**If `coarsen2` refuses, the family shifts up one level:** L3 = `coarsen1`, L2 = `coarsen0`,
-L1 = `refine1`, with `s0` and the wall-normal counts shifted correspondingly, and **the optimisation
-mesh becomes 677,376 cells or larger** — a cost consequence, registered in §15 as the
-`FAMILY_SHIFT` contingency, not a surprise.
+**THE LAYER MODEL IS VALIDATED AGAINST pyHyp'S OWN PRINTED OUTPUT, TO FIVE SIGNIFICANT FIGURES.**
+Solving `s0(r^n − 1)/(r − 1) = marchDist` for D8G's L2 (`s0 = 2.0e-4`, `n = 16`, `marchDist =
+93.953775`) gives **`r = 2.29932`**; D8G's own table records pyHyp's printed `Grid Ratio` as
+**`2.2993`** (`curriculum_D8G/PREREGISTRATION.md` §2.2). **The model is anchored, not assumed.**
 
-### 4c. The band, and the choice rule
+**`s0` SCALES WITH THE LEVEL, AND THE CONSEQUENCE IS NAMED, INHERITED FROM D8G §2.2:** y⁺ changes by
+a factor of 2 per level, so the near-wall treatment is not identical across the family. The
+alternative — fixed `s0` — was rejected there because it makes the near-wall spacing non-systematic,
+and that ruling is carried forward rather than re-litigated.
 
-- **The measured quantity is the baseline weighted drag `J₀ = 0.25·CD₀₄ + 0.50·CD₀₅ + 0.25·CD₀₆`,
-  at matched lift** (rule 3 binds the family too: each level is trimmed to `CL = 0.400/0.500/0.600`
-  before its drag is read).
-- **BAND: a level qualifies if `|J(level) − J(L1)| / J(L1) ≤ 0.010` (1.0 %).** Basis: the smallest
-  weighted-drag change this optimisation is asked to resolve is **1.0e-5 in `J`** (§6c, measured),
-  which on `J ≈ 0.0306` is **0.033 %**; a 1 % band is **30×** looser than the resolution floor and
-  is therefore a discretisation-error criterion, not a noise criterion. It is also the band inside
-  which a 10 % drag reduction (the parent's `G2` bar) remains a 10 % drag reduction to one
-  significant figure.
-- **THE OPTIMISATION MESH IS THE COARSEST QUALIFYING LEVEL.** If **L3** qualifies, the optimisation
-  runs on L3 and L2 becomes the rule-13 "next finer level". If only **L2** qualifies, the
-  optimisation runs on L2 and L1 is the rule-13 level. **If NO level qualifies — i.e. `|J(L2) −
-  J(L1)|/J(L1) > 0.010` — the grid family is `GATE FAIL`, D6R3 does NOT proceed to an
-  optimisation, and the finding is that this case has no asymptotic range at any mesh this lab can
-  afford.** That outcome is registered here, before the run, so it cannot later be read as a
-  setback to be worked around.
+### 4b. The band and the choice rule
 
-### 4d. **NO ROACHE TRIPLE IS CLAIMED AND NO GCI IS QUOTED IN THIS ITEM**
-
-`CLAUDE.md` rule 5 binds: a triple that is not `CONVERGING` is `NOT A RESULT`. **This registration
-does not claim a Roache triple.** The three levels exist to *select the optimisation mesh*, not to
-extrapolate. **If and only if** the three `J` values are monotone and the observed order lies in a
-physically admissible range will a GCI at `Fs = 1.25` be reported, and it will be reported **beside**
-the selection, never as the selection's justification. A non-`CONVERGING` triple makes the reported
-`J` values `NOT A RESULT` **as grid-convergence evidence**; it does **not** by itself void the
-selection, which rests on the band, and this document says so before the numbers exist.
+- Measured quantity: the baseline **`J` at matched lift** (rule 3 binds the family: every level is
+  trimmed to `CL = 0.400/0.500/0.600` before its drag is read).
+- **BAND: a level qualifies if `|J(level) − J(L1)| / J(L1) ≤ 0.010`.** Basis: the smallest change
+  this optimisation must resolve is `ΔJ = 1.0e-5` (Δ7), which on a `CD` of order 0.021 (A6 measured
+  `CD = 0.02090143421526141`) is **0.048 %**; a 1 % band is **20×** looser and is therefore a
+  discretisation criterion, not a noise criterion.
+- **THE OPTIMISATION MESH IS THE COARSEST QUALIFYING LEVEL.** If **L3** qualifies the optimisation
+  runs on L3 and L2 (the published mesh) is the rule-13 finer level — **this is the registered
+  expectation and the one §11 prices**. If only L2 qualifies, the optimisation runs on the published
+  mesh and L1 is the rule-13 level — the **`L2 BRANCH`**, priced separately at §11c.
+- **IF NO LEVEL QUALIFIES the grid family is `GATE FAIL`, D6R3 does not proceed to an optimisation,
+  and the finding is that this case has no asymptotic range at any mesh this lab can afford.**
+- **NO ROACHE TRIPLE IS CLAIMED AND NO GCI IS QUOTED** (`CLAUDE.md` rule 5). The three levels select
+  a mesh. A GCI at `Fs = 1.25` is reported **only if** the triple is monotone and `CONVERGING`, and
+  it is reported beside the selection, never as its justification.
 
 ---
 
-## 5. RULE 2 — **WALL-RESOLVED, y⁺ ≈ 1, CHECKED ON THE BASELINE.** A STATED DEPARTURE FROM THE PUBLISHED SETUP
+## 5. RULE 3 — TRIM IN THE LOOP, AND THE CLAUSE D6R2 FAILED
 
-> *"Wall-resolved, not wall functions. Wall functions make friction a strong function of y+, and y+
-> drifts under warping. y+ ≈ 1 on the optimization mesh, checked on the baseline."*
+Published and adopted unchanged (rows 55, 58): AoA a design variable, lift an **equality**
+constraint, `findFeasibleDesign` before iteration 1.
 
-### 5a. **THE DEPARTURE, NAMED**
+**WHAT IS NEW.** D6R2C **had** trim in the loop and still finished off-target: final misses
+`cl04 5.539e-04`, `cl05 1.210e-03`, `cl06 2.787e-03` against a `1.0e-3` gate, corroborated to
+seventeen digits by IPOPT's own `Constraint violation....: 2.7869956827836218e-03`. **Having AoA as
+a DV does not guarantee matched lift; only a converged constraint does.**
 
-**Every published DAFoam setup for this wing and its siblings is WALL-FUNCTION.** Measured across
-the tutorial clone by this lane: `MACH_Tutorial_Wing`, `Onera_M6_Wing`, `CRM_Wing` and
-`ADODG3_Wing` all carry `"useWallFunction": True` and `0.orig/nut` of type
-`nutUSpaldingWallFunction`. Across the whole clone, `nutUSpaldingWallFunction` appears **16** times
-against `nutLowReWallFunction` **5**. **Her rule 2 is therefore a departure from the published
-setup, not an adoption of it, and it is registered as one:**
-
-| | published | D6R3 | reason |
-|---|---|---|---|
-| `primalBC.useWallFunction` | `True` (`runScript_AeroOnly.py:43`) | **`False`** | rule 2 |
-| `0.orig/nut` wall BC | `nutUSpaldingWallFunction` | **`nutLowReWallFunction`** | the DAFoam-published wall-resolved BC, used at `UBend_CHT/aero/0.orig/nut` |
-| `genWingMesh.py` `s0` | `1.0e-3` (`:25`) | **`8.0e-7`** at L2 | §5b |
-| `genWingMesh.py` `N` | `39` (`:24`) | **`85`** nodes = 84 cells at L2 | §5b |
-
-**The reason, in her words and in a number.** Wall functions make friction a strong function of y⁺,
-and y⁺ drifts under warping. **Measured on this exact case:** the deformed-versus-fresh comparison
-of D6R2 ran at y⁺ medians **247 (deformed) versus 223 (fresh)** (`DAFOAM_CHARTER.md` §22.3) —
-a 10.8 % drift in the very quantity the wall function is a function of, produced by warping alone.
-**This registration removes that degree of freedom rather than monitoring it.**
-
-**A supporting published caution, cited rather than invented:** Kenway et al., PAS 2019, records
-*"linear system stiffness, especially for the viscous layer near the wall when a y⁺ = 1"*
-(`…100542.txt:2869`) — i.e. the published literature says this choice costs adjoint conditioning.
-It is priced in §15 with that factor **named as an assumption**.
-
-### 5b. **THE SIZING, DERIVED TWO INDEPENDENT WAYS, AND THE CONSERVATIVE ONE IS REGISTERED**
-
-**Anchor 1 — MEASURED y⁺ on the baseline, scaled.** From the converged tail of
-`ARM0_4R_20260913T000043Z_152777.log` (the baseline geometry, `shape ≡ twist ≡ 0`, AoA 4.0°, on the
-current mesh at `s0 = 1.0e-3`): **y⁺ min `68.787`, max `1266.542`, mean `321.951`**, stable to eight
-figures over the last 30 prints. Since `y⁺ ∝ y_wall` at fixed flow,
-
-```
-s0 for  max y+ = 1 :  1.0e-3 / 1266.542 = 7.896e-07 m
-s0 for mean y+ = 1 :  1.0e-3 /  321.951 = 3.106e-06 m
-```
-
-**Anchor 2 — the flat-plate correlation, computed from the PUBLISHED fluid properties, independent
-of any lab run.** `rho = p0/(R·T0) = 1.176829 kg/m³`, `nu = mu/rho = 1.529534e-05 m²/s` (from
-`mu = 1.8e-5`, `constant/thermophysicalProperties`); mean chord `= A0/span = 45.5/13.89 = 3.2757 m`;
-`Re_mac = 2.1417e7`. Schlichting 1/5-power `Cf = 0.0592·Re^-0.2 = 0.002024`, `u_τ = 3.1811 m/s`, so
-`y⁺ = 1` at a first-cell **centre** distance of `4.808e-6 m`, i.e. a first-cell **height** of
-`9.62e-6 m`. (1/7-power gives `8.96e-6 m` — the two correlations agree to 7 %.)
-
-**REGISTERED: `s0 = 8.0e-7 m` at the L2 optimisation mesh** — the **conservative** of the two
-anchors (anchor 1's max-y⁺ scaling). Predicted on the baseline: **max y⁺ 1.013, mean y⁺ 0.258,
-min y⁺ 0.055**. Under anchor 2 the same `s0` would read max y⁺ ≈ 0.083. **The two anchors bracket
-the answer by a factor of 12 and the finer bound is taken**, because a mesh that is too fine at the
-wall costs cells and a mesh that is too coarse at the wall voids the rule.
-
-**MESH-SIZE CONSEQUENCE, which is what the cost turns on:** going from `s0 = 1.0e-3` to
-`s0 = 8.0e-7` is a factor **1,250** in near-wall spacing but only **84 / 38 = 2.211** in wall-normal
-cells, because the layer distribution is geometric over a `marchDist` of 300 m: the extra 7.13
-e-foldings of near-wall refinement cost `ln(1250)/ln(1.2439) = 32.6` layers, and the growth ratio
-*improves* from 1.3563 to 1.2439 at the same time. **L2 = 1008 × 84 = 84,672 cells, a factor
-2.2105 on D6R2's 38,304.** That is the whole cost consequence of rule 2 on this case, and it is
-small because the case's mesh was never layer-limited.
-
-### 5c. **THE GATE (rule 2), AND IT IS A MEASUREMENT, NOT THE PREDICTION**
-
-- **`Y1` — the baseline on L2 measures `max y⁺ ≤ 2.0` and `median y⁺ ≤ 1.0`**, read from the
-  primal's own `yPlus min/max/mean` print at the converged tail plus a `yPlus` field write.
-- The `max ≤ 2.0` clause is **this lab's reading of "y⁺ ≈ 1" for the single worst face** and is
-  stated as a reading: the maximum sits at the leading-edge stagnation band where the sublayer is
-  thinnest, and a single face at y⁺ 2 is still inside the region SA integrates to the wall. **The
-  binding clause is the median.**
-- **If `Y1` misses, `s0` is divided by the measured `max y⁺` and the mesh is rebuilt — ONCE.**
-  A second miss is `GATE FAIL` on the mesh family and D6R3 does not proceed to an optimisation.
-- **`Y1` is checked on the BASELINE**, as her rule says, before any design variable moves.
+- **`T1` — NO DRAG RATIO IS FORMED AT AN UNCONVERGED CONSTRAINT.** Every reported `CD` or `J`
+  carries its three `|CL_i − target_i|`, and a value whose worst miss exceeds **`1.0e-4`** is
+  `NOT A RESULT` for the purpose of any ratio (rule 19). `1.0e-4` is **ten times tighter** than the
+  parent's `G3` and is the level at which the induced-drag contribution of a lift mismatch falls
+  below `ΔJ_chased = 1.0e-5`. **This tolerance is enforced inside guard 9** (§9.9), which
+  **REFUSES** rather than reporting a ratio across different lifts.
+- **`T2`** — the after-protocol numbers come from an **explicit trim**, never from whatever lift the
+  optimiser left.
 
 ---
 
-## 6. THE SOLVER AND THE CONVERGENCE — RULE 5, AS ARITHMETIC
-
-> *"Fully converged primal and adjoint at every iteration. Residual tolerance an order tighter than
-> the change in drag the optimizer is chasing."*
-
-### 6c. **THE DRAG CHANGE BEING CHASED — MEASURED, NOT ASSERTED**
-
-From `O_mp/d6r2c_evals.jsonl`, over the **35** successful (`fail = 0`) objective evaluations of the
-D6R2C production run, the increments `|ΔJ|` between consecutive accepted evaluations:
-
-| quantity | value |
-|---|---|
-| median `\|ΔJ\|` | **5.589e-04** |
-| last accepted increment | **1.421e-05** |
-| smallest observed increment | **5.237e-07** |
-
-**REGISTERED: the drag change being chased is `ΔJ_chased = 1.0e-5`** — the order of the increments
-the optimiser was still accepting at the end of D6R2C's run, and one decade above the smallest it
-ever took.
-
-**THEREFORE, one order tighter: `the primal's own CD uncertainty must be ≤ 1.0e-6`.** That is the
-registered requirement, stated in the quantity of interest rather than in a residual, because a
-residual is not a drag.
-
-### 6d. **WHY D6R2 COULD NOT HAVE MET THIS, AND THE ONE MEASURED RESIDUAL→DRAG MAPPING THE LAB HAS**
-
-**D6R2C's primals never converged.** Measured: **48 of 48 `Primal min residual` blocks in the `O_mp`
-log are failures**, minimum failed residual `1.000006e-05`, maximum `7.312316e-05`, against a fail
-threshold of `primalMinResTol 1.0e-8 × primalMinResTolDiff 1e3 = 1.0e-5`. And **52 of 87 objective
-evaluations carried `fail = 1`** (parent §A3.4).
-
-**The mapping from residual level to drag error, measured once, on this exact wing** (D6RF10
-`D6RF10_GRADE_RECORD.md` §5): `DARhoSimpleFoam` (SIMPLE, `nNonOrth 3`) floors at
-`p_first_uncorrected = 1.681172924e-05` and reads `CD 0.01849343377`; `DARhoSimpleCFoam` (SIMPLEC,
-`nNonOrth 12`, `relax_p 0.70`) reaches `6.3233727e-06`, plateaued to a relative spread of
-`1.4707e-07` over `[1500, 2000]`, and reads `CD 0.01859195417`. **`ΔCD = 9.85204e-05` = 0.5327 %.**
-
-**THE ARITHMETIC THAT MAKES THIS REGISTRATION NECESSARY:** D6R2's optimiser was chasing drag changes
-of **1.0e-5** with a primal whose own distance-from-converged is **9.85e-5** — **ten times larger
-than the signal.** Rule 5 is not a refinement of D6R2; it is the statement that D6R2's gradient
-signal was below its own numerical noise floor.
-
-### 6e. **THE REGISTERED SOLVER CHANGE, AND IT IS THE RUNG THE PARENT RESERVED**
-
-`curriculum_D6R2C/PREREGISTRATION.md` §10: *"It does not claim the primal reaches the A2 accept
-floor of 1.0e-5. D6RF10 measured that this `DARhoSimpleFoam` configuration does not
-(`p_first_uncorrected = 1.681e-05`, GATE FAIL) and that a `DARhoSimpleCFoam` configuration does
-(`6.323e-06`). **That solver change is `D6R3`, a separate registered successor, and is deliberately
-NOT taken here** — its adjoint has never been exercised on this case."*
-
-**D6R3 takes it.** `solverName: DARhoSimpleFoam → DARhoSimpleCFoam`. The parent's own caution —
-*"its adjoint has never been exercised on this case"* — is answered by arm **`P1`** (§6f), which
-exercises it before any optimisation is authorised.
-
-### 6f. **ARM `P1` — THE PRIMAL-CONVERGENCE AND CONFIGURATION ARM. IT RUNS FIRST AND ITS RESULT SELECTS THE CONFIGURATION.**
-
-**The cost of "converged" is the single largest unknown in this registration and it is NOT
-guessed — it is measured.** D6RF10 measured `DARhoSimpleFoam` at `nNonOrth 3` running **flat at
-0.117 s/step** end to end, and `DARhoSimpleCFoam` at `nNonOrth 12` at **4.650 s/step** — a factor
-**39.7**, caused (measured, `D6RF10_GRADE_RECORD.md` §6) by **157 of 273 p-solves saturating the
-linear solver's `nIters: 1000` cap** once `initRes` falls near 1e-8, not by the outer loop.
-**D6RF10 changed the solver, `nNonOrth` and `relax_p` together, so the cost of SIMPLEC alone is
-UNMEASURED.** Registering `nNonOrth 12` on the strength of that one bundled result would be a
-40× cost decision taken on an unattributed measurement.
-
-`P1` runs on the **L2 baseline, one condition (`cl05`), 5,000 SIMPLE steps**, over six registered
-configurations — `{SIMPLE, SIMPLEC} × nNonOrth {0, 3, 12}` at the published relaxation, plus
-`relax_p 0.70` on the SIMPLEC rows — and records, per configuration, the full `CD(step)` trace and
-the per-equation residual trace.
-
-- **`P1-G1` — a configuration PASSES if the last 500 steps' `CD` peak-to-peak is ≤ `1.0e-6`**
-  (the §6c requirement) **and** its per-equation residuals are all monotone-or-plateaued over that
-  window. This is the binding gate and it is stated in drag, not in residuals.
-- **`P1-G2` — the registered primal budget is then the smallest step count at which `P1-G1` holds**,
-  and that number replaces the `endTime` of the published `controlDict`. **The registered upper
-  bound for costing is `endTime 3000`** (§15); a configuration needing more is reported and the
-  cheapest passing configuration is taken.
-- **`P1` also DELIVERS the residual→drag-error curve** — `CD` against residual level, on ONE solver
-  and ONE mesh — which the D6RF10 pair could not, because it varied two things at once.
-- **`O_mp` DOES NOT LAUNCH UNTIL `P1` READS `PASS`.** A `P1` `GATE FAIL` on every configuration is a
-  finding about this case's numerics and is reported as one; it is **not** a reason to widen the
-  `1.0e-6` requirement.
-- **PLANTED CONTROL (rule 3).** `P1`'s reader plants `PLANT = 1.234e-03` into the `CD` trace it has
-  read back **from disk** and **REFUSES (exit 2)** if the plant leaves any configuration at `PASS`.
-  A reader that cannot see a drag perturbation 1,000× the gate cannot certify the gate.
-
-### 6g. The adjoint side of rule 5
-
-`gmresRelTol 1.0e-6` is **adopted unchanged** from the published setup (`:63`), and `P1`'s successor
-arm `P2` records, at the baseline design on L2, the **measured** total-derivative change between
-`gmresRelTol 1e-6` and `1e-9`. **REGISTERED: if any component of `dJ/dx` moves by more than 1 % of
-`‖dJ/dx‖∞` between the two, `gmresRelTol` is tightened to `1e-9` for the production run** and the
-cost consequence is reported. This is registered before the measurement exists.
-
----
-
-## 6a. RULE 3 — TRIM IN THE LOOP. EVERY EVALUATION AT MATCHED LIFT BY CONSTRUCTION.
-
-> *"Angle of attack is a design variable with lift as an equality constraint at every condition, so
-> every evaluation is at matched lift by construction. Drag is never compared across different
-> lifts."*
-
-**Adopted unchanged from the published setup — D6R2 already had this and it is not a change:**
-`patchV_<pt> = (U, AoA)` per condition with `U` pinned at `U0`, AoA in `[0, 10]°`, scaler `0.1`
-(`runScript_AeroOnly.py:166`, `:175`); `add_constraint("<pt>.aero_post.CL", equals=target_i,
-scaler=1.0)` (`:179`); and `optFuncs.findFeasibleDesign` before iteration 1 (`:241`).
-
-**WHAT IS NEW, AND IT IS THE CLAUSE THAT MATTERS.** D6R2C had trim in the loop **and still finished
-off-target**: its final design missed the lift equalities at `cl04 5.539e-04`, `cl05 1.210e-03`,
-`cl06 2.787e-03` against a `1.0e-3` gate — a `GATE FAIL`, corroborated to seventeen digits by
-IPOPT's own `Constraint violation....: 2.7869956827836218e-03`. **Having AoA as a DV does not
-guarantee matched lift; only a converged constraint does.** D6R3 therefore registers:
-
-- **`T1` — NO DRAG RATIO IS FORMED AT AN UNCONVERGED CONSTRAINT.** Every reported `CD` or `J`, at
-  every stage — grid family, checkpoints, after-protocol — is accompanied by its three `|CL_i −
-  target_i|`, and **a value whose worst miss exceeds `1.0e-4` is reported as `NOT A RESULT` for the
-  purpose of any ratio** (rule 19: every factor of a ratio carries its own condition). `1.0e-4` is
-  **ten times tighter** than the parent's `G3` and is the level at which a lift mismatch's induced
-  drag contribution falls below `ΔJ_chased = 1.0e-5`.
-- **`T2` — the after-protocol numbers (§11) are produced by an EXPLICIT TRIM to the targets, not by
-  reading whatever lift the optimiser left**, and the trim's convergence is part of the artefact.
-- **The iteration cap is NOT a convergence criterion** (parent §1a, unchanged): a run that stops at
-  the cap with `inf_pr` above `constr_viol_tol` is reported as stopped at the cap.
-
----
-
-## 6b. RULE 4 — REGULARISED DESIGN SPACE, AND SMOOTH MODES FIRST
-
-> *"Bounds on control-point motion, thickness and curvature constraints, and a smooth
-> parameterization (fewer, smoother modes first; local high-frequency modes only after the smooth
-> optimum is found). Surface wiggles are the cheapest way to fool a discrete drag."*
-
-**Adopted unchanged from the published setup:** shape bounds `[-1, 1]` at scaler `10.0` (`:174`);
-twist bounds `[-10, 10]°` at scaler `0.1` (`:173`); thickness `0.5 ≤ t/t₀ ≤ 3.0` on a 10×10
-span×chord grid (`:157`, `:180`); volume `V/V₀ ≥ 1.0` (`:158`, `:181`); LE/TE linear equality
-constraints (`:160-161`, `:182-183`).
-
-**WHAT IS NEW — the staged parameterisation, which the published setup does not have:**
-
-| stage | design variables | why |
-|---|---|---|
-| **S1 — SMOOTH** | **7 twist + 3 AoA = 10** | the smooth modes alone. Twist and trim carry the span-load redistribution that is the physical mechanism of induced-drag reduction on a wing. |
-| **S2 — LOCAL** | **96 shape + 7 twist + 3 AoA = 106** (the D6R2 set) | started **from S1's converged optimum**, not from the baseline. |
-
-**S2 does not launch until S1 has converged or reached its cap.** Her rule says local high-frequency
-modes come *"only after the smooth optimum is found"*, and this is that sentence made into two arms.
-
-**THE CURVATURE CONSTRAINT — AND AN HONEST GAP.** Her rule 4 asks for *"thickness and curvature
-constraints"*. The published setup has thickness and volume; **it has no curvature constraint**, and
-`pyGeo`'s curvature-constraint API was **not verified by this lane in the installed toolchain** (no
-container was started). **Registered as `nom_addCurvatureConstraint` PENDING VERIFICATION**: at
-freeze the supervisor either (a) names the verified API call and its registered bound, or (b)
-**strikes the row and records rule 4's curvature clause as NOT SATISFIED**, with the LE/TE
-constraints and the `[-1, 1]` bounds as the only regularisers. **A name that has not been found in
-the toolchain is not registered here** — that is rule 21 and it is the defect that cost L-579.
-
-**THE WIGGLE DETECTOR, which is registered and does exist.** Per accepted design, the reader
-computes the **second difference of the FFD `Δz` along each chordwise row** and records its maximum.
-**A monotone rise in that quantity across majors, with no change in span load, is the wiggle
-signature** and is reported at every checkpoint beside the drag split (§9). It is a **reported
-diagnostic, not a gate** — and it is named as one, because a printed quantity annotated as
-non-binding is worse than one never computed unless its status is stated.
-
----
-
-## 7. RULE 6 — WARP SETTINGS THAT CARRY THE NEAR-WALL LAYERS. **VERIFIED IN IDWARP'S OWN SOURCE.**
-
-> *"Warp settings that carry the near-wall layers with the surface (rotation of the near-wall region
-> with the surface, deformation region scaled to the geometry) so first-cell height and
-> orthogonality are preserved under displacement, not stretched — verify the setting names in the
-> warp's documentation and register them."*
-
-**Her rule says verify. Verified by reading IDWarp's own source and documentation on this box**, at
-`/home/ubuntu/certonomous-runs/W5-idwarp-source/idwarp_src` (IDWarp **2.6.2**, the version the
-pinned image carries per `docs/dafoam/TOOLCHAIN_INVENTORY.md:121`). **No name below was written down
-before it was found in the toolchain.**
-
-| option | default | **where the NAME is defined** | **where the VALUE is USED** | what it does, read from the source |
-|---|---|---|---|---|
-| **`useRotations`** | `True` | `idwarp/UnstructuredMesh.py:138` | `:1058` → `warp.gridinput.userotations`; consumed at `src/modules/kd_tree.F90:1110` and `:1339` | Guards `GETROTATIONMATRIX3D`, which builds the per-node rotation `Mi` from the surface normal's change (`normals0 → normals`) and applies it to every **non-corner** surface node. **This IS her "rotation of the near-wall region with the surface", by name and by line.** |
-| **`LdefFact`** | `1.0` | `UnstructuredMesh.py:133` | `:1053` → `warp.gridinput.ldeffact`; `src/warp/warpMesh.F90:39` and `src/warp/warpDeriv.F90:59` set `tp%Ldef = tp%Ldef0 * LdefFact`; `Ldef0` computed at `src/modules/kd_tree.F90:1500-1512` | `Ldef0` is **the maximum distance from the surface-node centroid to any surface node** — the deformation length scale taken from the geometry's own size. `LdefFact` scales it. **This IS her "deformation region scaled to the geometry", by name and by line.** |
-| `aExp` | `3.0` | `:131` | `:1055`; weight `Wi = Ai·[(Ldef/dist)^aExp + alpha^bExp·(Ldef/dist)^bExp]`, `kd_tree.F90:685` | near-field decay exponent of the inverse-distance weight |
-| `bExp` | `5.0` | `:132` | `:1056`; same expression | far-field decay exponent |
-| `alpha` | `0.25` | `:134` | `:1054`; `tp%alphaToBexp = alpha**bExp`, `kd_tree.F90:1528` | blend between the two decay terms |
-| `zeroCornerRotations` | `True` | `:139` | `tp%isCorner` guard at `kd_tree.F90:1110`, `:1339` | suppresses rotation at corners |
-| `cornerAngle` | `30.0` | `:140` | `:1060` → `gridinput.cornerangle` | angle defining a corner |
-| `errTol` | `0.0005` | `:135` | `:1061` → `gridinput.errtol` | fast-evaluation error tolerance |
-| `evalMode` | `"fast"` | `:136` | `:1063-1065` | `fast` uses the KD-tree approximation; `exact` does not |
-| `bucketSize` | `8` | `:142` | `:1062` → `warp.kd_tree.bucket_size` | KD-tree bucket size |
-| `symmTol` | `1e-6` | `:137` | `:1057` | symmetry-plane matching tolerance |
-| `symmetryPlanes` | `None` | `:130` | `_setSymmetryConditions`, `:754-766` | the plane list; the published setup supplies `[[[0,0,0],[0,0,1]]]` |
-
-**THE PUBLISHED SETUP SETS NONE OF THESE.** `MACH_Tutorial_Wing/runScript_AeroOnly.py:89-94` passes
-only `gridFile`, `fileType` and `symmetryPlanes` — **every warp option runs at its default.**
-D6R2 therefore already ran with `useRotations = True` and `LdefFact = 1.0`. **This is recorded, not
-claimed as a fix:** rule 6's two named mechanisms were already active on D6R2, and the deformed-
-versus-fresh gap happened anyway — which is consistent with §22.3's measured conclusion that the
-cause was **PRODUCER**, not warp.
-
-**REGISTERED FOR D6R3:** every option above is written **explicitly** into `meshOptions` at its
-published-default value, so the record names what ran instead of inheriting it by omission — with
-**two departures**, both registered here and both to be **measured**, not assumed, by arm `W1`:
-
-| | published default | D6R3 | reason |
-|---|---|---|---|
-| `evalMode` | `"fast"` | **`"exact"`** | `fast` is a KD-tree approximation whose error is bounded by `errTol = 5e-4` **relative to `Ldef`**; on a mesh whose first cell is `8.0e-7 m` against an `Ldef` of order the wing's own size, that tolerance is not obviously below the first-cell height. `exact` removes the question. |
-| `LdefFact` | `1.0` | **candidate `1.0`, decided by `W1`** | rule 6 asks that the deformation region be scaled to the geometry; `Ldef0` already is. `W1` measures whether a smaller `LdefFact` (a more local deformation) preserves the near-wall layers better. |
-
-**ARM `W1` — THE WARP-SETTING MEASUREMENT, run on the L2 baseline before `O_mp`.** Apply a
-registered representative design perturbation (the D6R2C optimum's own `shape`/`twist` vector,
-already on disk) and **measure**, on the warped mesh: minimum first-cell height relative to
-baseline, worst-cell skewness, maximum non-orthogonality, minimum volume, and the y⁺ range.
-Configurations: `evalMode ∈ {fast, exact}` × `LdefFact ∈ {0.5, 1.0, 2.0}`. **REGISTERED: the
-configuration taken is the one with the largest minimum first-cell-height ratio that also satisfies
-§8's quality budget; ties break to the published default.** `W1` is a selection arm, not a gate on
-the wing.
-
-**Toolchain note, carried so it is not lost:** the pinned image `dafoam-idwarp-rot:v1`
-(`sha256:2927768a16ac…`) carries a **rebuilt `libidwarp.so`** (md5 `85f59e87253e0a71a813f64ca6e4c425`)
-containing this lab's IDWarp rotation-derivative patch (+44 lines, `vectorUtils_b.f90` /
-`vectorUtils_d.f90`). **That patch is on the derivative path of exactly the `useRotations` mechanism
-rule 6 names.** It is **NOT FILED** upstream and stays that way (rule 7).
-
----
-
-## 8. RULE 7 — THE PER-ITERATION QUALITY BUDGET, EVALUATED ON THE **AS-RUN** POINTS
-
-> *"A quality budget per iteration: worst-cell skewness, minimum first-cell height relative to
-> baseline, minimum volume, and the y+ range. Logged every iteration; crossing any threshold stops
-> the run."*
-
-### 8a. The thresholds, anchored on measured values and on published lines
-
-| quantity | threshold | anchor |
-|---|---|---|
-| **max non-orthogonality** | **≤ 70.0°** | DAFoam's own declared `checkMeshThreshold.maxNonOrth` for this case (`runScript_AeroOnly.py:73`), **and** the published DAFoam mesh-quality **constraint** upper bound `optProb.addCon("nonOrtho", lower=0, upper=70.0)` (`UBend_Channel/runScript_meshQualityConstraint_v2.py:213`). Two published sources, the same number. |
-| **worst-cell skewness** | **≤ 4.0** | the published constraint bound `optProb.addCon("skewness", lower=0., upper=4.0)` (`…v2.py:212`). Tighter than DAFoam's `maxSkewness 5.0` threshold, and taken from the published *constraint* rather than the published *abort threshold*, deliberately. |
-| **min first-cell height / baseline** | **≥ 0.80** | the D6R2 deformed-vs-fresh comparison measured first-cell height median within **1.6 %** (`§22.3`); 0.80 is a 20 % allowance, 12× that observed drift. |
-| **min cell volume** | **> 0** strictly, and **≥ 0.10 ×** the baseline minimum | D6R2 measured **zero** negative or degenerate volumes (`§22.3`); the ratio clause is the early-warning. |
-| **max aspect ratio** | **≤ 1000.0** | DAFoam's declared `checkMeshThreshold.maxAspectRatio` (`:72`). |
-| **y⁺** | **median ≤ 1.5 and max ≤ 3.0** | 1.5× and 1.5× the §5c baseline acceptance, allowing measured drift under warping without permitting a return to wall-function territory. |
-
-### 8b. **THE THRESHOLDS ARE WHAT D6R2 ACTUALLY BREACHED, AND THE BREACH WAS NEVER MEASURED**
-
-Rule 31, measured: **the only `checkMesh` on disk for FM10 reports "Mesh OK" at max
-non-orthogonality `66.32` — that is the AS-BUILT mesh, before the second warp. The mesh that
-actually ran measures `79.21`, and the optimisation mesh measures `71.24`. Both breach DAFoam's
-declared `maxNonOrth = 70.0`. Neither as-run mesh had ever been checked.** And the `O_mp` log
-carries **four** `High aspect ratio cells found` trips, worst **`1050.3162`** (parent §A4.3) —
-**5.03 % over** the declared `1000.0`.
-
-**THEREFORE, and this is the load-bearing clause of §8:** the budget is evaluated on the
-**AS-RUN points, after the final design-variable application**, and its log is **written after** that
-application. A quality log written before the last operation that touched the points describes a
-mesh no solver saw.
-
-### 8c. **THE PUBLISHED MECHANISM, ADOPTED: the quality budget is also a CONSTRAINT IN THE ADJOINT**
-
-DAFoam publishes a differentiable mesh-quality constraint and this registration uses it rather than
-inventing a monitor:
-
-```
-"skewness": {"part1": {"type": "meshQualityKS", "source": "boxToCell",
-                       "min": [-10,-10,-10], "max": [10,10,10],
-                       "coeffKS": 20.0, "metric": "faceSkewness",
-                       "scale": 1.0, "addToAdjoint": True}},
-"nonOrtho":  {"part1": {"type": "meshQualityKS", "source": "boxToCell",
-                       "min": [-10,-10,-10], "max": [10,10,10],
-                       "coeffKS": 1.0, "metric": "nonOrthoAngle",
-                       "scale": 1.0, "addToAdjoint": True}},
-...
-add_constraint("skewness", upper=4.0, scaler=1.0)
-add_constraint("nonOrtho", upper=70.0, scaler=1.0)
-```
-
-**Source: `UBend_Channel/runScript_meshQualityConstraint_v2.py:67-90` and `:212-213`**
-(md5 `0d97cb5e619bffe19c8dcc2759c07d09`). The `min`/`max` box is widened to enclose this wing's
-domain; the metrics, the KS coefficients, the `addToAdjoint` flag and **both bounds** are the
-published values. **D6R2 did not use this and breached both quantities.**
-
-### 8d. The stop clause
-
-**Crossing any threshold in §8a STOPS the run** (her words). Operationally: the run stops, the
-current design is checkpointed, the mesh is regenerated from the current smooth surface (§9a), the
-gradient is spot-checked on the new mesh, and the optimiser resumes from the current design.
-**A stop is recorded as a stop with its crossed quantity and its value, and the cause class is
-assigned AT THE STOP** (rule 29), never reconstructed afterwards.
-
-**Directive #17 interaction, stated so it is not confused:** a **quality** crossing stops the run —
-that is her rule 7 and it is a physics guard. A **cost cap** crossing does **not** stop anything; it
-is REPORTED and the row is graded `NOT A RESULT`, and the cap is never raised (§15).
-
----
-
-## 9. RULES 8 AND 9 — PERIODIC RE-MESHING, AND FRESH-MESH CHECKPOINTS. **N = 3 MAJORS, DERIVED FROM A MEASUREMENT.**
-
-> 8. *"Every N iterations, or whenever the surface displacement exceeds a registered fraction of the
->    local first-cell height, regenerate the mesh from the current smooth surface, spot-check the
->    gradient on the new mesh, and resume from the current design."*
-> 9. *"Every N iterations, evaluate the current design on a freshly generated mesh at matched lift.
->    If deformed-mesh and fresh-mesh drag differ by more than the registered tolerance, the run stops
->    and re-meshes."* — her own line: **the rule that would have caught D6R2 on day one.**
-
-### 9a. **`N = 3` IPOPT MAJORS, and here is the measurement it comes from**
-
-The `O_mp` log's four `High aspect ratio cells found` trips were located by this lane at log lines
-22928, 31050, 33015 and 46373. Counting `Starting time loop` occurrences before each: **83, 113, 120
-and 170 condition-primals**, out of 198 in a 25-major run of 113 evaluations. **The first mesh-quality
-breach therefore appeared at roughly evaluation 28 of 113, i.e. IPOPT major ≈ 6 of 25.**
-
-**`N = 3` is half of 6** — the mesh is regenerated **before** the point at which D6R2C's mesh was
-measured to have degraded. Eight re-mesh events over a 25-major run.
-
-### 9b. **HER ALTERNATIVE TRIGGER IS UNUSABLE ON THIS CASE, AND SAYING SO IS THE HONEST ANSWER**
-
-Rule 8 offers *"or whenever the surface displacement exceeds a registered fraction of the local
-first-cell height"*. **On a y⁺ ≈ 1 mesh of this case that trigger fires on the first design step and
-every step thereafter.** Measured: mid-span camber/chord ran base **0.00196** → optimum **0.04810**
-over 25 majors (`§22.3`), i.e. a camber change of 0.0461 chord ≈ **0.151 m** of wall displacement,
-about **6.0e-3 m per major**. Against a registered first-cell height of **8.0e-7 m**, the surface
-moves **≈ 7,500 first-cell heights per major**.
-
-**REGISTERED: the displacement trigger is NOT used. The fixed `N = 3` and the §8 quality budget are
-the triggers.** The ratio above is **reported at every checkpoint** so the record carries the reason.
-
-### 9c. The checkpoint protocol, at every `N = 3` majors
-
-1. **Regenerate** the volume mesh from the current smooth design surface, through the **published
-   pipeline unchanged** (`genWingMesh.py` → `plot3dToFoam -noBlank` → `autoPatch 60 -overwrite` →
-   `createPatch -overwrite` → `renumberMesh -overwrite`).
-2. **Trim to matched lift** on the fresh mesh, all three conditions (rule 3; §6a `T2`).
-3. **Evaluate the objective** on the fresh mesh at matched lift.
-4. **Spot-check the gradient** on the new mesh (rule 8's own clause) against the deformed-mesh
-   gradient at the same design.
-5. **Resume from the current design on the fresh mesh.** Accumulated warp error is reset to zero.
-
-### 9d. **THE GATE — `FM_CK`. THIS IS THE ONE THAT WOULD HAVE CAUGHT D6R2.**
-
-- **REGISTERED TOLERANCE: `|J_fresh − J_deformed| / J_fresh ≤ 0.010` (1.0 %)**, with **both sides at
-  matched lift** and **both trims converged to `|CL_i − target_i| ≤ 1.0e-4`** (§6a `T1`).
-- **Basis for 1.0 %:** it is the same band as the grid-family band (§4c) — a deformed mesh that
-  disagrees with a fresh one by more than the level spacing of the grid family is no longer
-  measuring the same problem. **And it is a bar D6R2 fails by a wide margin:** D6R2's deformed-vs-
-  fresh gap was **139 drag counts** on a `CD` of order 0.023 — of order **6 %**, six times this
-  tolerance.
-- **A crossing STOPS the run and re-meshes.** It does not adjust the tolerance.
-- **GRADIENT SPOT-CHECK TOLERANCE: `1.0e-4` relative per component, normalised by `‖g‖∞`** — the
-  same tolerance the parent registered for its rank-agreement check (`§7`), reused so the two
-  numbers are comparable, and registered before the arm runs.
-- **PLANTED CONTROL (rule 3):** the checkpoint comparator plants `PLANT = 1.234e-03` into the value
-  it read back from disk for the fresh-mesh side — separately into `J`, into `cl05`'s `CD` and into
-  the gradient — and **REFUSES (exit 2)** if any plant leaves the verdict at `PASS`.
-- **RULE 25 CLAUSE, and it is not theoretical here:** the plant is applied at a state where the
-  quantity is **non-zero**. `shape ≡ twist ≡ 0` at x0 makes 103 of 106 DV components identically
-  zero, and the parent's `X0_GUARD` measured that **all discriminating power sat in 6 components**.
-  **The checkpoint comparator counts its informative components, prints the count, and REFUSES below
-  a registered floor of 6.**
-
----
-
-## 10. RULE 10 — SHEAR AND PRESSURE DRAG SPLIT PER ITERATION, AND THE ARTEFACT SIGNATURE
-
-> *"Shear and pressure drag split per iteration… Gain arriving in the spurious or friction component
-> with no change in span load or pressure distribution is an artefact signature: stop, re-mesh."*
-
-**The instrument is published within the DAFoam tutorials and is adopted rather than invented.**
-DAFoam's own `"type": "force"` function returns a total; the split comes from OpenFOAM's `forces`
-function object, used in this form in the published `Airfoil_DynamicStall` tutorials
-(`…/system/controlDict:59-80`):
-
-```
-functions { forces { type forces; libs ("libforces.so");
-                     writeControl timeStep; timeInterval 1; log yes;
-                     patches (wing); pName p; UName U; rho rhoInf; rhoInf <rho0>;
-                     CofR (...); } }
-```
-
-`forces` writes `force.dat` / `moment.dat` with **total, pressure and viscous** columns per time
-step. **REGISTERED: `forces` is added to `system/controlDict` for every arm, and the pressure and
-viscous components of `CD` are recorded per condition at every evaluation**, alongside the span load
-(sectional `CL·c` at the 10 thickness-constraint span stations) and the surface `Cp` distribution at
-three registered stations (root, mid, tip).
-
-**THE ARTEFACT SIGNATURE, REGISTERED AS AN ARITHMETIC TEST BEFORE THE DATA EXISTS:**
-
-> **Between two consecutive accepted designs, if `ΔCD_total < 0` while `|ΔCD_pressure| < 0.20 ·
-> |ΔCD_total|` — i.e. **more than 80 % of the gain is arriving in the viscous component** — and the
-> span load changes by less than 1 % at every station, **the run STOPS and re-meshes**, and the
-> event is recorded with both components.
-
-**The threshold is the inverse of a measured fact.** D6R2's deformed-versus-fresh gap was carried
-**104.5 % / 102.9 % / 99.6 % by PRESSURE drag**, with viscous drag flat to within **7 counts of its
-own value** (`§22.3`). That is the shape of a genuine pressure-driven difference. A *gain* that
-arrives the other way round — in friction, with the pressure field unchanged — is the signature her
-rule names, and the 20 % split is chosen because D6R2's real effect sat at 100 % pressure and a
-five-fold departure from that is not noise.
-
-**REPORTED, NOT GATED, and named as such:** a far-field spurious-drag decomposition is **not
-available** in this toolchain (no far-field decomposition exists in DAFoam's function set —
-verified by enumerating the `"type"` values across the tutorial clone: `force`, `moment`,
-`variance`, `meshQualityKS`, `totalPressure`, `field`, `power`, `wallHeatFlux`, `patchMean`,
-`massFlowRate`, and others, **none of them a far-field or spurious-drag decomposition**).
-**Her rule 10's "where available" clause is therefore NOT satisfied and this registration says so
-rather than substituting something else for it.**
-
----
-
-## 11. RULE 11 — A TRUST REGION SIZED TO THE FIRST-CELL HEIGHT
-
-> *"A trust region on the design update sized to the first-cell height, so no single step deforms the
-> near-wall mesh beyond what the warp preserves."*
-
-**HONEST STATEMENT FIRST: a first-cell-height trust region is not directly expressible on this case,
-for the same arithmetic as §9b.** The first cell is `8.0e-7 m`; the wing's chord is `3.28 m`; a step
-limited to one first-cell height of surface motion is a step of `2.4e-7` chord, and the optimiser
-would need of order `10⁵` majors to travel the distance D6R2 travelled. **Registering that number
-would be registering a run that cannot finish.**
-
-**WHAT IS REGISTERED INSTEAD, and it is the mechanism her clause is protecting:**
-
-1. **The binding trust region is the §8 QUALITY BUDGET, applied as an in-adjoint constraint**
-   (§8c) — `nonOrtho ≤ 70.0`, `skewness ≤ 4.0`, published bounds. **This is a trust region defined
-   by what the warp actually preserves, measured, rather than by a proxy for it.**
-2. **An explicit IPOPT step bound, registered and measured against:** the `shape` design variables
-   are bounded at `[-1, 1]` at scaler `10.0` (published), and D6R3 additionally registers a
-   **per-major move limit of `0.10` on the scaled `shape` vector's `∞`-norm** and `0.5°` on `twist`.
-   **Anchor:** D6R2C's measured mid-span camber excursion was `0.00196 → 0.04810` over 25 majors;
-   a `0.10` scaled-shape move limit permits that trajectory in roughly the same number of majors
-   while forbidding any single step from taking a large fraction of it.
-3. **`RULE 11 IS RECORDED AS PARTIALLY SATISFIED.** The first-cell-height sizing she names is not
-   used, the reason is the arithmetic above, and the substitute is named. A supervisor who disagrees
-   has the numbers to disagree with.
-
----
-
-## 12. RULES 12–14 — THE AFTER-PROTOCOL. **THE CLAIMED NUMBER IS THE FRESH-MESH NUMBER.**
-
-> 12. *"Fresh mesh, matched lift, all conditions, from scratch. The claimed improvement is the
->     fresh-mesh number. The deformed-mesh number is reported beside it, with the difference
->     disclosed."*
-> 13. *"The optimized shape re-evaluated on the next finer family level; the improvement must survive
->     within the band."*
-> 14. *"Decomposition on the fresh mesh (shape / twist / trim) before any percentage; drag split on
->     both meshes on the certificate."*
-
-And `DAFOAM_CHARTER.md` §22.2, with teeth: **no shape-optimisation improvement figure leaves this
-family unless the number quoted is the fresh-mesh number, at matched lift, on all conditions, from
-scratch.**
-
-| arm | what it is | level | gate |
-|---|---|---|---|
-| **`A12`** | the optimum, **freshly extruded from the optimised surface, from scratch**, trimmed to `CL 0.400/0.500/0.600`, all three conditions | **L2** (the optimisation level) | **`A12-G1`: this is THE CLAIMED NUMBER.** Reported as `J_fresh`, with `J_deformed` **beside it** and `(J_fresh − J_deformed)/J_fresh` **printed**. |
-| **`A13`** | the same optimum on the **next finer family level** | **L1** | **`A13-G1`: `\|J_fresh(L1) − J_fresh(L2)\| / J_fresh(L1) ≤ 0.010`** — the §4c band. A miss is **`GATE FAIL`**: *"an optimum that holds on one mesh only is not an optimum."* |
-| **`A14`** | the **decomposition** — baseline; baseline + twist only; baseline + twist + trim; full — each **freshly meshed and trimmed** | **L2** | reported; **no percentage is quoted before `A14` exists** (her rule 14). |
-
-**`A12`, `A13` and `A14` all run the BASELINE through the identical path** so that every ratio's
-numerator and denominator are measured on the same mesh generation, at the same lift, under the same
-DV application (rule 19). **A ratio whose two factors did not is not a number.**
-
-**THE DRAG SPLIT ON BOTH MESHES GOES ON THE CERTIFICATE** (rule 14, §10's `forces` output).
-
-**THE FAILURE PATH IS REGISTERED IN ADVANCE (rule 15 + §22.3's fifth class).** If `A12` or `A13`
-misses, the cause class is one of **mesh (warp) / parameterization (wiggles) / trim (lift mismatch)
-/ solver / PRODUCER**, and **the class is assigned from a measurement that EXCLUDES the other four**:
+## 6. THE FIFTH CAUSE CLASS, AND THE EXCLUSION TABLE *(her rule 15; §22.3)*
+
+If `A12` or `A13` (§10) misses, the class is **mesh (warp) / parameterization (wiggles) / trim
+(lift mismatch) / solver / PRODUCER**, and **the class is assigned from a measurement that EXCLUDES
+the other four**:
 
 | class | the measurement that excludes it |
 |---|---|
-| mesh (warp) | y⁺ medians, first-cell-height ratio, per-layer thicknesses, negative/degenerate volume count — fresh versus deformed (the §22.3 battery, already built) |
-| parameterization | the second-difference wiggle metric of §6b, fresh versus deformed surface |
-| trim | `\|CL_i − target_i\|` on **both** sides, against `1.0e-4` (§6a `T1`) |
+| mesh (warp) | y⁺ medians, first-cell-height ratio, per-layer thicknesses, negative/degenerate volume count, fresh vs deformed — the §22.3 battery, already built |
+| parameterization | the second-difference wiggle metric (§9.10) on the fresh and deformed surfaces |
+| trim | `\|CL_i − target_i\|` on **both** sides against `1.0e-4` (`T1`) |
 | solver | `P1`'s residual→drag curve evaluated at both states |
-| **PRODUCER** | **the rule-18 surface hash equality against the BASE surface at the moment the DVs are applied** (§13), plus the wall-point fit (`cos∠`, `\|d2\|/\|d1\|`) that measured FM10's double deformation at median `0.99965` / `1.234` |
+| **PRODUCER** | the **rule-18 surface-hash equality against the BASE surface** at the moment the DVs are applied, plus the wall-point fit (`cos∠`, `\|d2\|/\|d1\|`) that measured FM10's double deformation at median `0.99965` / `1.234` |
 
 **An attribution with no exclusion measurement is a hypothesis and is labelled one.**
 
 ---
 
-## 13. RULES 17–32 — THE RECORD HALF. WHAT MAKES THE RECORD MATCH THE RUN.
+## 7. **ARM `P0` — THE BLOCKING PRECONDITION. IT RUNS FIRST AND EVERYTHING ELSE IS `PENDING` UNTIL IT PASSES.**
 
-| rule | what D6R3 registers | the artefact that will evidence it |
-|---|---|---|
-| **17** — gate on the mesh the solver READ | Before `run_model()`, each rank rebuilds the `polyMesh` it loaded from `pointProcAddressing` and the hash is compared for **exact equality** against the generated mesh. **Staging the mesh into every processor case happens BEFORE the model is built and is part of the arm, not a convenience.** *Measured why:* FM8 was graded a fresh-mesh confirmation and the retraction found **1,486 processor meshes scanned, zero matching the freshly extruded mesh.* | `MESH_READ_HASH.json` per arm, per rank, written by the running solver's own process |
-| **18** — DVs applied EXACTLY ONCE, proved by hash | At the moment the DVs are applied, the surface hash is compared against the **BASE** surface, not against itself. *Measured why:* FM10 — `surfaceMesh.cgns ≡ surfaceMesh_final.cgns ≠ surfaceMesh_base.cgns`, then the solve phase re-read `dv_star` and set shape/twist/patchV again; the three conditions flew at CL **+0.1493/+0.1516/+0.1524** above target, **30× the finding trigger**. The load-bearing line is `d6r2c_freshmesh.py:423-425`. | `DV_APPLY_GUARD.json`: base-surface md5, pre-apply md5, post-apply md5, and the assertion `pre == base` |
-| **19** — no ratio across different meshes, lifts or DV applications | Every reported ratio carries **both** factors' mesh id, both trims' `\|CL − target\|`, and both DV-application hashes. *Measured why:* the **1.2063** ratio relayed upward was a fresh-mesh numerator over a deformed-mesh denominator at incompatible lift and was withdrawn. | every `*_GRADE.json` carries a `ratio_provenance` block or the ratio is not printed |
-| **20** — drive the CLI the launcher EMITS | The pre-freeze check executes **the exact command line the launcher writes**, not the graded function. *Measured why:* the FM9 grader's launcher emitted `--log`, the parser rejected it, and the frozen CLI path **could only ever return `NOT A RESULT`** while the selftest was green. | `PREFREEZE_CLI.log`, showing the launcher-emitted argv and its exit code |
-| **21** — every instrument in the frozen table EXISTS at its md5 | The pre-freeze check **hashes each row's file and refuses on absence**. *Measured why:* a registration was frozen naming four instruments that did not exist; the table was **true as written**. **And the parent repeated it: `d6r2c_grade.py`, named in its §4, did not exist at its freeze** (parent ADDENDUM 3). | §16's table, each row verified by the pre-freeze check, output in `PREFREEZE_INSTRUMENTS.log` |
-| **22** — count EXTERNAL ANCHORS, not gates | §16 states, per gate, **which external anchor** it rests on. The grid family's three levels share one mesher and one solver — **one anchor, three levels** — and §4 says so. `A12` vs `A13` share the optimised surface: **one anchor.** | §16's anchor column |
-| **23** — derive every constant from the thing under test, in the same invocation, and USE it | The `A13` band is **propagated through the ratio** from the registered absolute band, in the same invocation, not written down. The `y⁺` re-size factor (§5c) is the **measured** max y⁺, not a pinned number. | each comparator prints `derived_from` beside every constant it used |
-| **24** — suspect a SUCCESS as hard as a failure | Every "n converged" count is printed **with its failing partner** (`n_pass`, `n_fail`, `n_total`, and `n_pass + n_fail == n_total` asserted). *Measured why:* `"O_mp converged 88 times"` was false — **35 of 87 succeeded, 52 failed, and `n = 88` was an INDEX, not a count.** | every summary line carries the triple |
-| **25** — never gate at a state where the quantity is identically zero | Every planted control is applied at a **non-zero** state, and every guard **counts and prints its informative components and REFUSES below a registered floor**. *Measured why:* the scaler-defect gate sat at `shape ≡ twist ≡ 0` and **could not have fired for any scaler whatsoever**. | `INFORMATIVE_COUNT` printed by each guard |
-| **26** — drive every guard to its failing side; check non-finite BEFORE the comparison | Each guard's selftest drives it to **`REFUSE`**, and each refuses on non-finite **before** any comparison. *Measured why:* `abs(nan − x) > tol` is `False`, so a refuse-rather-than-degrade guard written that way **never refuses** — and the parent's `gate_g3` was **one evaluation away** from reporting a `GATE FAIL` manufactured out of NaN arithmetic (7 consecutive failures then one success). | each selftest's refuse-side control, counted |
-| **27** — every channel a gate reads has a **writer that ran** | **At freeze, for every file any gate reads, the pre-freeze check names the writer and shows it ran.** *Measured why:* `primal_residual.json` had **four reads, zero writes, zero such files anywhere on disk**, leaving `conv[p] = True` standing for every condition. **THIS ONE IS STILL OPEN AND IS ON SANAA'S DESK**, and D6R3 does not pretend to close it — it registers the check. | `PREFREEZE_CHANNELS.log`: reader, writer, and a witness file produced by the writer |
-| **28** — name the reference in every git comparison | Append-only claims are proved by **prefix byte-identity against HEAD's blob** (`cmp -n <pre-append size>`), never by a bare `git diff`. | any addendum to this file carries the `cmp -n` exit code |
-| **29** — a crash/stall/refused solve is a FINDING and a FIX | Any such event on D6R3 is triaged on the **mesh → numerics → model** ladder, the cause class is recorded **at the stop**, and the fix is one registered change re-run as a new arm. | `STOP_RECORD.json` per event, written at the stop |
-| **30** — cost per EVALUATION, calibrated at completion | §15 states **core-min per objective evaluation and per gradient evaluation separately**; at every process completion the ratio actual/predicted lands in `docs/COST_CALIBRATION.md`. | `COST_CALIBRATION_ROW.D6R3_*.md` per arm |
-| **31** — `checkMesh` the mesh that RAN | `checkMesh -allGeometry` is run on the **as-run points, after the final DV application**, for **every** mesh state any number is read from. *Measured why:* the only `checkMesh` for FM10 describes the as-built mesh at `66.32`; the mesh that ran measures **`79.21`**, breaching `maxNonOrth 70.0`, and **neither as-run mesh had ever been checked**. | `CHECKMESH_ASRUN.log` per mesh state, mtime **after** the DV-apply guard's |
-| **32** — the fifth cause class, assigned by exclusion | §12's exclusion table. | the `A12`/`A13` grade record |
+**Why it is mandatory.** §1a establishes that the CRM adjoint HAS run — **at 41,760 cells**. It has
+**never** run at the published 579,072 (`Main iteration` and `KSP Residual` appear **zero** times in
+all four A6 logs; `Global Adjoint States: 5,244,840`). **Rules 6–11 require a gradient at every
+major, so the whole item rests on a cell-scaling extrapolation of the adjoint.** `P0` replaces it
+with a measurement.
 
-### 13a. `DAFOAM_CHARTER.md` §22.4 — the three clauses the supervisor checks **personally** at freeze
+**What `P0` is:** `-task compute_totals` — **one primal and one adjoint** — on the **published CRM
+mesh (L2, 579,072 cells, row 21/22 at their published values)**, at the published `aoa0`, with the
+published `daOptions`, at the placement of §10.
 
-1. **Every instrument in §16's table exists at its stated md5** — `PREFREEZE_INSTRUMENTS.log`.
-2. **The pre-freeze check drives the CLI the launcher emits** — `PREFREEZE_CLI.log`.
-3. **Every channel a gate reads has a writer shown to have run** — `PREFREEZE_CHANNELS.log`.
+**What `P0` RECORDS, and each is a value this registration currently cannot state:**
 
-**None of the three can be satisfied by this draft**, because no instrument has been written yet.
-**They are the freeze's preconditions and they are what the supervisor is being asked to check.**
+| recorded | why it is not known today |
+|---|---|
+| wall seconds and core-min **per flow adjoint** at 579,072 cells | §11's only `ASSUMED` factor |
+| **peak RSS** of the adjoint | A6 predicted 95–116 GiB against a then-30 GiB box; the box now reads **739 GiB total / 640 GiB available** (measured 2026-09-13 17:10Z), but the prediction has never been tested |
+| the effective `primalMinResTolDiff` (row 30) | absent from the published CRM file |
+| the effective `nom_addLocalDV` displacement axis (row 54) | not specified in the published file |
+| whether `transonicPCOption` was `1` or `2` in force (Δ2) | the lab measured `2` is inert; this records which ran |
+| the baseline y⁺ min/max/mean on the as-built mesh | corroborates A6's `7.648 / 73.826 / 34.587` and is the Δ1 sizing anchor |
 
----
+**`P0` GATES:**
+- **`P0-G1` — the adjoint COMPLETED.** `rc = 0`; `Main iteration` count > 0; `KSP Residual` count
+  > 0; `compute_totals` returned a finite derivative for every `(of, wrt)` pair. *A run that never
+  attempted a linear solve is `NOT A RESULT`, not a fast adjoint.*
+- **`P0-G2` — the gradient is not noise.** `‖dCD/dtwist‖∞ > 0` and no component non-finite.
+- **`P0-G3` — memory.** Peak RSS recorded and below `MemAvailable` at launch. An OOM (`rc = 137`) is
+  a registered outcome and is `NOT A RESULT` about the adjoint's cost.
+- **`P0-G4` — the record matches the run.** The rule-17 mesh-read hash and the rule-18 DV-apply hash
+  are both written and both assert.
 
-## 14. ARMS, AND THE ORDER THEY RUN IN
-
-| # | arm | what it is | precondition |
-|---|---|---|---|
-| 0 | `MESH` | build L3, L2, L1 by the published pipeline; `checkMesh -allGeometry` each | §4b `coarsen2` measured |
-| 1 | `Y1` | baseline y⁺ on L2 | `MESH` |
-| 2 | `P1` | primal convergence / configuration selection | `Y1` PASS |
-| 3 | `W1` | warp-setting selection | `P1` PASS |
-| 4 | `GF` | grid family: baseline `J` at matched lift on L3, L2, L1 | `P1`, `W1` |
-| 5 | `P2` | adjoint tolerance check (§6g) | `GF` selected a level |
-| 6 | `S1` | smooth-mode optimisation (10 DVs) | `GF` PASS, `P2` |
-| 7 | `S2` | full optimisation (106 DVs), from S1's optimum, with `N = 3` checkpoints | `S1` |
-| 8 | `A12` | fresh mesh, matched lift, all conditions, from scratch — **THE CLAIMED NUMBER** | `S2` |
-| 9 | `A13` | the optimum on L1 | `A12` |
-| 10 | `A14` | decomposition on the fresh mesh | `A12` |
-
-**Nothing after arm 0 launches until its precondition reads `PASS`.** `O_mp`-class compute (`S1`,
-`S2`) is launched by the queue runner, never by hand.
-
-**The optimiser's iteration budget is a BUDGET, not a tolerance** (parent §1a, carried forward):
-`S1 max_iter 15`, `S2 max_iter 25`. A run that reaches the cap is reported as having reached the
-cap; **`GATE REACHED`**, never `PASS` (`DAFOAM_CHARTER.md` §9).
+**Until `P0` reads `PASS`, every arm after it is `PENDING` and §11's cost model is labelled
+`UNTESTED`.** A `P0` `GATE FAIL` is a finding about the CRM adjoint at production scale and is
+reported as one; it is **not** a reason to drop to a coarser mesh and re-grade.
 
 ---
 
-## 15. COST, IN CORE-MINUTES, BEFORE THE RUN (`CLAUDE.md` rule 12; rule 30 per evaluation)
+## 8. ARM `P1` — THE PRIMAL-CONVERGENCE ARM *(her rule 5; Δ7)*
 
-### 15a. The measured anchors — every one from D6R2C's own artefacts, none guessed
+On the **L3 baseline, one condition, 5,000 steps**, over six registered configurations —
+`nNonOrthogonalCorrectors ∈ {0, 3, 12}` × relaxation `{published, p 0.70}` at the published
+`DARhoSimpleCFoam`.
 
-| anchor | value | where measured |
+**Why the configurations and not one:** D6RF10 measured `nNonOrth 3` running **flat at 0.117 s/step**
+and `nNonOrth 12` at **4.650 s/step** — a factor **39.7**, caused by **157 of 273 p-solves
+saturating the linear solver's `nIters: 1000` cap** once `initRes` falls near 1e-8. **D6RF10 changed
+solver, `nNonOrth` and `relax_p` together, so the cost of each alone is UNMEASURED.** Registering
+`nNonOrth 12` on that bundled result would be a 40× cost decision taken on an unattributed
+measurement. **The published CRM value is `0` (row 38) and is one of the three.**
+
+- **`P1-G1`** — a configuration `PASS`es if the last 500 steps' `CD` peak-to-peak is ≤ **`1.0e-6`**
+  and every per-equation residual is monotone-or-plateaued over that window.
+- **`P1-G2`** — `endTime` becomes the smallest step count at which `P1-G1` holds; **the cheapest
+  passing configuration is taken**, and if none passes that is a finding about this case's numerics,
+  not a reason to widen `1.0e-6`.
+- **`P1` also delivers the residual→drag-error curve** on one solver and one mesh.
+- **PLANTED CONTROL (rule 3):** the reader plants `PLANT = 1.234e-03` into the `CD` trace it read
+  back **from disk** and **REFUSES (exit 2)** if the plant leaves any configuration at `PASS`.
+
+---
+
+## 9. **THE SIX IN-RUN INSTRUMENTS — WRITTEN, AND EVERY ONE DRIVEN AGAINST A KNOWN-BAD INPUT AND SHOWN TO FIRE**
+
+Her requirement: *"we must incorporate the within run checks of the instructions to ensure the
+result we get is not from a mesh artefact."*
+
+**Instrument:** `d6r3_inrun_guards.py`, md5 **`57a7d187163feb5120e25967c7c7e959`**.
+**Controls:** `D6R3_INRUN_SELFTEST.json`, md5 **`181be48e46aa69761fb39d33674f406d`**.
+**Result: `D6R3_INRUN SELFTEST PASS`, `n_total = 48`, `n_pass = 48`, `n_fail = 0`, exit 0.**
+**Rule 20 evidence:** the pre-freeze check drives **the command line the launcher emits**, not the
+graded function — `D6R3_PREFREEZE_CLI.log` records `--selftest --json <path>` → `rc = 0`, no-args →
+`rc = 64` (refuses rather than succeeding silently), unknown flag `--log x` → `rc = 2`. *That is the
+FM9 defect class driven to its failing side: the FM9 grader's launcher emitted `--log`, the parser
+rejected it, and the frozen CLI path could only ever return `NOT A RESULT` while its selftest stayed
+green.*
+
+**Every guard returns exactly one of `OK` / `STOP` / `REFUSE`, checks non-finite BEFORE any
+comparison (rule 26), counts its informative inputs and refuses below a floor (rule 25), prints
+every count with its failing partner (rule 24), and never degrades to `OK`.**
+
+### 9.6 — RULE 6: the warp settings that carry the near-wall layers are IN FORCE, every iteration
+
+**External anchor:** IDWarp's own **live** option dictionary, read back from the running mesh object
+— not the dict we passed in.
+
+**Verified in IDWarp's own source** (2.6.2, `/home/ubuntu/certonomous-runs/W5-idwarp-source/
+idwarp_src`), because her rule says *verify*:
+
+| option | registered | **name defined** | **value used** | what the source says it does |
+|---|---|---|---|---|
+| **`useRotations`** | `True` | `idwarp/UnstructuredMesh.py:138` | `:1058` → `warp.gridinput.userotations`; consumed `src/modules/kd_tree.F90:1110`, `:1339` | guards `GETROTATIONMATRIX3D`, which builds the per-node rotation `Mi` from the surface normal's change (`normals0 → normals`) and applies it to every non-corner surface node — **her "rotation of the near-wall region with the surface", by name and by line** |
+| **`LdefFact`** | `1.0` | `:133` | `:1053`; `src/warp/warpMesh.F90:39`, `warpDeriv.F90:59` set `tp%Ldef = tp%Ldef0 * LdefFact`; `Ldef0` at `kd_tree.F90:1500-1512` | `Ldef0` = **the maximum distance from the surface-node centroid to any surface node** — **her "deformation region scaled to the geometry", by name and by line** |
+| `aExp` / `bExp` / `alpha` | `3.0` / `5.0` / `0.25` | `:131,132,134` | `:1055,1056,1054`; `Wi = Ai·[(Ldef/dist)^aExp + alpha^bExp(Ldef/dist)^bExp]`, `kd_tree.F90:685`; `alphaToBexp` at `:1528` | the inverse-distance weight |
+| `zeroCornerRotations` / `cornerAngle` | `True` / `30.0` | `:139,140` | `tp%isCorner` guard at `:1110`, `:1339`; `:1060` | corners excluded from rotation |
+| `errTol` / `bucketSize` / `symmTol` | `0.0005` / `8` / `1e-6` | `:135,142,137` | `:1061,1062,1057` | fast-eval tolerance, KD-tree bucket, symmetry match |
+| **`evalMode`** | **`exact`** *(Δ3)* | `:136` | `:1063-1065` | `fast` is the KD-tree approximation |
+
+**The published CRM file sets NONE of these** (row 50) — every one runs at its default. **This
+registration writes them all explicitly so the record names what ran instead of inheriting it by
+omission**, and guard 6 asserts each one is still in force at every iteration.
+
+**Toolchain fact carried forward:** the pinned image `dafoam-idwarp-rot:v1`
+(`sha256:2927768a16ac…`) carries a rebuilt `libidwarp.so` (md5 `85f59e87253e0a71a813f64ca6e4c425`)
+holding this lab's IDWarp rotation-**derivative** patch (+44 lines) — **on the derivative path of
+exactly the `useRotations` mechanism rule 6 names.** **NOT FILED** upstream, and it stays that way.
+
+**CONTROLS — 5, all PASS:**
+
+| control | want | got |
 |---|---|---|
-| **`F` objective evaluation** (3 conditions, `fail = 0`) | **3.263 core-min** (mean of **35**; median 3.273; 48.939 s wall × 4 ranks ÷ 60) | `O_mp/d6r2c_evals.jsonl` |
-| **`G` gradient evaluation** | **11.666 core-min** (mean of **26**; median 11.863) | same |
-| evaluations per major | **3.48 `F`** and **1.04 `G`** (87 F, 26 G, 25 majors) | same |
-| **fresh-mesh evaluation incl. extrusion** | **10.667 core-min** (FM10, 160 s × 4 ranks) | `…FM9…/ledger.txt`, `FM10_GRADE.json` |
-| one condition-primal, 1000 SIMPLE steps | **1.237 core-min** (18.56 s wall × 4 ranks) | `O_mp…log`, `ExecutionTime` at `Time = 1000` |
-| whole 25-major arm | **672.933 core-min**, **26.917 core-min/major**, ratio actual/predicted **0.856** | `RESULTS.md:645-654` |
-| mesh | **38,304 cells** | `base/constant/polyMesh/owner.gz` `note` |
+| clean: the registered settings in force | `OK` | **`OK`** |
+| **KNOWN-BAD: `useRotations` silently `False`** | `STOP` | **`STOP`** |
+| **KNOWN-BAD: `LdefFact` moved to 0.5 unregistered** | `STOP` | **`STOP`** |
+| **KNOWN-BAD: `evalMode` back to the published `fast`** | `STOP` | **`STOP`** |
+| **BLIND: the option absent from the live dict (IDWarp on its own default)** | `REFUSE` | **`REFUSE`** |
 
-### 15b. The scaling factors, each named, each with what justifies it
+### 9.7 — RULE 7: the per-iteration quality budget, on the **AS-RUN** points
+
+**External anchor:** `checkMesh` run on the points the solver will read, **after** the final DV
+application. **Rule 31 is enforced as a REFUSAL, not a warning:** if the quality log's mtime is not
+strictly newer than the DV-apply mtime, guard 7 refuses.
+
+**Thresholds — every one from a published line:**
+
+| quantity | threshold | source |
+|---|---|---|
+| max non-orthogonality | **≤ 70.0** | the published DAFoam mesh-quality **constraint** bound, `UBend_Channel/runScript_meshQualityConstraint_v2.py:213` *(Δ9, Δ13)*. **NOT** the CRM file's own abort threshold of **75.0** (`runScript.py:82`), which stays the registered solver setting (row 47, verbatim) — see §9.7a for the measured reason |
+| max aspect ratio | **≤ 2000.0** | **the PUBLISHED CRM value**, `:81` |
+| worst-cell skewness | **≤ 4.0** | the published DAFoam mesh-quality **constraint** bound, `UBend_Channel/runScript_meshQualityConstraint_v2.py:212` *(Δ9; tighter than the CRM file's own abort threshold of 5.0, and taken from the published constraint rather than the published abort deliberately)* |
+| min first-cell height / baseline | **≥ 0.80** | D6R2 measured first-cell height within **1.6 %** fresh-vs-deformed (§22.3); 0.80 is a 12× allowance |
+| min cell volume | **> 0** strictly and **≥ 0.10 ×** baseline min | D6R2 measured **zero** negative or degenerate volumes; the ratio is the early warning |
+| y⁺ | **median ≤ 1.5, max ≤ 3.0** under Δ1; **max ≤ 110.0** verbatim | 1.5 × the §5c acceptance; 110.0 is **1.5 × the measured baseline max of 73.826** |
+
+### 9.7a — **THE SOLVER'S OWN MESH CHECK NEVER REFUSES ON THIS CLAUSE. MEASURED — AND IT IS WHY RULE 7's BUDGET IS OUR INSTRUMENT AND NOT THE SOLVER'S VERDICT.** *(Δ13)*
+
+**Reproduced independently by this lane, 2026-09-13.** The finding was relayed by
+`dafoam-supervisor` (committed at `efe4c2c4f`, `DAFOAM_CHARTER.md` §22.7) and is **re-measured here
+rather than adopted**, because a relayed measurement is not this lane's. **Instrument and path, per
+§22.6:** `re.finditer(r'Mesh non-orthogonality Max:\s*([\d.]+)')` plus literal string counts, over
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable/O_mp_20260913T013230Z_226722.log`
+and
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-FM9-a2-wing-freshmesh-arrives/FM10_20260913T163543Z_1546115.log`.
+
+| log | mesh-check blocks | **blocks over 70.0** | **worst** | `severely non-orthogonal (> 70 degrees)` lines | `Non-orthogonality check OK.` | `Mesh OK.` | `Failed 1 mesh checks.` |
+|---|---|---|---|---|---|---|---|
+| `O_mp` | **202** | **76** | **`80.90429398`** | **76** | **202** | 198 | **4** |
+| `FM10` | **6** | **6 of 6** | **`79.21261137`** | **6** | **6** | **6** | **0** |
+
+**Every breaching block prints `Non-orthogonality check OK.`, and where no other clause fails,
+`Mesh OK.` — at 80.90 against a declared `maxNonOrth = 70.0`.** OpenFOAM's own line
+`*Number of severely non-orthogonal (> 70 degrees) faces: N` appears **76 times in `O_mp` and 6
+times in `FM10`**, immediately above the `OK` it does not prevent: **the log names the breach and
+passes it in consecutive lines.**
+
+**THE REFUSAL CHANNEL IS DEMONSTRABLY LIVE, which is what makes this a finding and not a guess.**
+The same `O_mp` log carries **four `Failed 1 mesh checks.` lines, and all four are aspect-ratio
+failures** (`1050.3162` against the same dictionary's `1000.0`) at a non-orthogonality of `66.92`.
+**The machinery works. It simply never fires on the non-orthogonality clause.**
+
+**TWO CORRECTIONS THIS LANE'S OWN MEASUREMENT MAKES TO THE RELAY**, recorded because §22.6 exists:
+**`80.90429398`, not `79.21`, is `O_mp`'s worst** — `79.21261137` is **`FM10`'s**; and
+**`71.23798136` appears in BOTH logs' check blocks**, not only `O_mp`'s.
+
+**THREE CONSEQUENCES, REGISTERED:**
+
+1. **Δ13 — RULE 7's BUDGET IS OUR OWN REFUSING INSTRUMENT.** `guard7_quality_budget` requires
+   `source == "as_run_mesh_measurement"` and **REFUSES** a verdict string. *A budget that delegates
+   its stop to `checkMesh`'s own verdict line is a budget that has already been measured not to
+   stop.* Driven: control `G7.DELEGATION`.
+2. **The registered threshold is `70.0`, the published constraint bound — not the CRM file's abort
+   `75.0`.** At `75.0` the budget would pass `71.24`, one of the two real meshes it exists to catch.
+   **The threshold was chosen so the instrument catches both real as-run meshes, and the instrument
+   was then driven against them; both candidate values are published lines, and the one that catches
+   the known-bad inputs is registered.**
+3. **RULE 31 IS ALREADY BREACHED ON BOTH D6R2 ARMS, so no part of this registration cites either
+   arm's `Mesh OK.` as evidence about the mesh that ran.** The only quotable `Mesh OK.` in this
+   family is of the **as-extruded** mesh at `66.32299475`, before the solve re-applies the design.
+
+**WHERE THE THRESHOLDS POINT FIRST: THE TRAILING EDGE.** The worst face was located geometrically by
+the supervisor (the vtp face's max `x = 8.0844` equals the local TE `x = 8.0843` to four decimals).
+**That is the supervisor's measurement, relayed and labelled as such — this lane did not reproduce
+it.** It is registered as the first place `P0` and `W1` point their quality probes.
+
+**THE UPSTREAM BEHAVIOUR IS A DEFECT CANDIDATE ONLY AND IS NOT FILED ANYWHERE.** No filing is
+drafted, none is pending, and none is referenced as pending. **Filing is Sanaa's alone** (rule 7).
+
+**ONE THRESHOLD THAT STILL DOES NOT CATCH A REAL D6R2 BREACH, AND IT IS NOT ACCOMMODATED.** The
+worst measured aspect-ratio trip, **`1050.3162`**, breached the MACH wing's own declared `1000.0`
+but sits well inside the CRM's published **`2000.0`**, so the budget reads `OK`. **The published CRM
+value is kept** (row 47 is verbatim, and a wall-resolved CRM mesh will carry far higher aspect
+ratios than the MACH wing by construction); the gap is recorded here so a reader knows this one
+clause is looser than D6R2's was, and the control that demonstrates it sits in the table below
+marked `OK` rather than hidden.
+
+**CONTROLS — 16, all PASS. Seven are driven on REAL measured as-run values:**
+
+| control | want | got |
+|---|---|---|
+| clean: as-run mesh inside every threshold | `OK` | **`OK`** |
+| **KNOWN-BAD/REAL: `O_mp`'s WORST as-run mesh, `80.90429398` — which OpenFOAM itself called `Non-orthogonality check OK.` then `Mesh OK.`** | `STOP` | **`STOP`** |
+| **KNOWN-BAD/REAL: `FM10`'s worst as-run mesh, `79.21261137`, 6 of 6 blocks over 70.0, ZERO `Failed 1 mesh checks.` in that log** | `STOP` | **`STOP`** |
+| **KNOWN-BAD/REAL: `71.23798136`, present in BOTH logs' check blocks, 1.8 % over and passed by the solver** | `STOP` | **`STOP`** |
+| **KNOWN-BAD/REAL: `70.01418200`, the SMALLEST of `O_mp`'s 76 over-70 values — the marginal breach must be caught too** | `STOP` | **`STOP`** |
+| REAL/boundary: `66.96543422`, an `O_mp` block genuinely under 70.0, must NOT fire | `OK` | **`OK`** |
+| **DELEGATION: handed the solver's own verdict line instead of a measurement, the budget must REFUSE** | `REFUSE` | **`REFUSE`** |
+| KNOWN-BAD/REAL: D6R2's worst aspect trip `1050.3162` against the CRM's published 2000.0 — does **not** fire, and that is the registered gap above | `OK` | **`OK`** |
+| KNOWN-BAD: aspect ratio 2100 breaches the published 2000.0 | `STOP` | **`STOP`** |
+| KNOWN-BAD: skewness 4.5 breaches the published constraint bound 4.0 | `STOP` | **`STOP`** |
+| KNOWN-BAD: first cell collapsed to 0.5× baseline | `STOP` | **`STOP`** |
+| KNOWN-BAD: a negative cell volume | `STOP` | **`STOP`** |
+| KNOWN-BAD: y⁺ median drifted to 2.0 under warping | `STOP` | **`STOP`** |
+| **RULE 31: `checkMesh` written BEFORE the DV apply — the FM10 defect exactly** | `REFUSE` | **`REFUSE`** |
+| NON-FINITE: `maxNonOrtho` is NaN (rule 26: `nan > tol` is `False`) | `REFUSE` | **`REFUSE`** |
+| BLIND: `maxNonOrtho` was never measured | `REFUSE` | **`REFUSE`** |
+
+### 9.8 — RULE 8: periodic re-meshing with restart, **N = 3 majors**
+
+**External anchor:** the mesh generation stamp — the extrusion's own output identity, not the
+warper's.
+
+**`N = 3` IS DERIVED FROM A MEASUREMENT.** The `O_mp` log's four `High aspect ratio cells found`
+trips sit at lines 22928, 31050, 33015, 46373; counting `Starting time loop` occurrences before each
+gives **83, 113, 120 and 170 condition-primals** out of 198 in a 25-major run of 113 evaluations.
+**The first mesh-quality breach appeared at roughly evaluation 28 of 113, i.e. IPOPT major ≈ 6 of
+25. `N = 3` is half of 6** — the mesh is regenerated before the point at which D6R2C's mesh was
+measured to have degraded. Eight events over a 25-major run.
+
+**HER ALTERNATIVE TRIGGER IS UNUSABLE ON THIS CASE AND THE REGISTRATION SAYS SO.** Rule 8 offers
+*"whenever the surface displacement exceeds a registered fraction of the local first-cell height"*.
+Under Δ1 the first cell is `1.35e-6 m` while D6R2's measured mid-span camber excursion was
+`0.00196 → 0.04810` chord over 25 majors — on a 1.689 m root chord, ≈ `3.1e-3 m` per major, i.e.
+**≈ 2,300 first-cell heights per major.** The trigger would fire on the first step and every step
+after. **It is NOT used; the fixed `N` and the §9.7 budget are the triggers, and the ratio is
+reported at every checkpoint so the record carries the reason.**
+
+**The checkpoint protocol:** regenerate through the published pipeline → trim to matched lift on the
+fresh mesh → evaluate the objective → **spot-check the gradient on the new mesh** (her own clause)
+against the deformed-mesh gradient at the same design, tolerance **`1.0e-4` relative per component
+normalised by `‖g‖∞`** → resume from the current design. Accumulated warp error resets to zero.
+
+**CONTROLS — 5, all PASS:**
+
+| control | want | got |
+|---|---|---|
+| clean: mesh regenerated at major 6, now at major 7 | `OK` | **`OK`** |
+| **KNOWN-BAD: major 7 on a mesh stamped at major 0 — D6R2's whole run** | `STOP` | **`STOP`** |
+| boundary: exactly `N = 3` majors old must fire | `STOP` | **`STOP`** |
+| boundary: exactly `N − 1 = 2` majors old must not fire | `OK` | **`OK`** |
+| BLIND: the mesh stamp is later than the current major, so it is not this run's | `REFUSE` | **`REFUSE`** |
+
+### 9.9 — RULE 9: the fresh-mesh objective checkpoint at matched lift — **THE INSTRUMENT THAT MOST MATTERS**
+
+Her own line: **this is the rule that would have caught D6R2 on day one.**
+
+**External anchor:** a mesh **freshly extruded by pyHyp from the current design surface** —
+independent of the warp, which is the entire point. **Not** a re-read of the warped mesh.
+
+- **TOLERANCE: `|J_fresh − J_deformed| / J_fresh ≤ 0.010`**, with **both sides at matched lift** and
+  **both trims converged to `|CL_i − target_i| ≤ 1.0e-4`**. Basis: the same band as the grid family
+  (§4b) — a deformed mesh that disagrees with a fresh one by more than the family's level spacing is
+  no longer measuring the same problem.
+- **A crossing STOPS the run and re-meshes.** It does not adjust the tolerance.
+- **THE LIFT CHECK RUNS BEFORE THE DRAG COMPARISON, DELIBERATELY** — so that an off-target
+  evaluation produces a **`REFUSE`**, not a drag ratio across different lifts (rule 19).
+
+**CONTROLS — 9, all PASS. Three of them are D6R2's own measured numbers:**
+
+| control | want | got |
+|---|---|---|
+| clean: fresh and deformed agree to 0.3 %, both at matched lift | `OK` | **`OK`** |
+| **KNOWN-BAD/MEASURED: D6R2's own deformed 0.753 vs fresh 1.206 ratio pair** | `STOP` | **`STOP`** |
+| **KNOWN-BAD/MEASURED: the 139-drag-count deformed-vs-fresh gap on a `CD` of 0.023** | `STOP` | **`STOP`** |
+| boundary: a 1.1 % gap must fire against the 1.0 % band | `STOP` | **`STOP`** |
+| boundary: a 0.9 % gap must not fire | `OK` | **`OK`** |
+| **KNOWN-BAD/MEASURED: FM10's `+0.1493 / +0.1516 / +0.1524` lift excess — refuse the comparison rather than report a ratio across different lifts** | `REFUSE` | **`REFUSE`** |
+| NON-FINITE: `J_fresh` is NaN | `REFUSE` | **`REFUSE`** |
+| **PLANT: `1.234e-03` on a `J` of 0.023 (5.4 %) must be seen** | `STOP` | **`STOP`** |
+| BLIND: the fresh side has no `CL` record at all | `REFUSE` | **`REFUSE`** |
+
+**Read the second and sixth rows together: driven against D6R2's actual artefacts, this guard
+stops the run on the drag gap and refuses the comparison on the lift excess. It would have caught
+D6R2, and it is now shown to, rather than asserted to.**
+
+### 9.10 — RULE 10: the shear/pressure drag split, every iteration, with the artefact signature
+
+**External anchor:** OpenFOAM's own `forces` function object output (`force.dat`), written by the
+solver with **total / pressure / viscous** columns *(Δ10)*. The guard **refuses** if the viscous
+column is absent — a channel with readers and no writer defaults to success, silently (rule 27), and
+that is the defect still open on Sanaa's desk.
+
+**THE ARTEFACT SIGNATURE, REGISTERED AS ARITHMETIC BEFORE THE DATA EXISTS:**
+
+> Between two consecutive accepted designs, if **`ΔCD_total < 0`** while
+> **`|ΔCD_pressure| < 0.20 · |ΔCD_total|`** — more than 80 % of the gain arriving in the **viscous**
+> component — **and** the span load changes by less than **1 %** at every station, **the run STOPS
+> and re-meshes.**
+
+**The 20 % floor is the inverse of a measurement.** D6R2's deformed-versus-fresh gap was carried
+**104.5 % / 102.9 % / 99.6 % by PRESSURE drag**, with viscous drag flat to within **7 counts of its
+own value** (§22.3). That is the shape of a genuine pressure-driven difference. A *gain* arriving the
+other way round is the signature her rule names, and a five-fold departure from 100 % is not noise.
+
+**Also reported each iteration, as a REPORTED DIAGNOSTIC and named as one:** the **second difference
+of the FFD `Δz` along each chordwise row** — the wiggle metric of her rule 4. It is not a gate, and
+saying so is required: a printed quantity annotated as non-binding is worse than one never computed
+unless its status is stated.
+
+**NOT SATISFIED, and named:** her *"where available, a far-field decomposition with the spurious-drag
+component"*. **It is not available.** Enumerating every `"type"` across the tutorial clone gives
+`force`, `moment`, `variance`, `meshQualityKS`, `totalPressure`, `field`, `power`, `wallHeatFlux`,
+`patchMean`, `massFlowRate`, `regressionPar`, `vonMisesStressKS`, `uniformPressureGradient`,
+`totalTemperatureRatio`, `totalPressureRatio`, `variableVolSum`, `fieldUnsteady`, `patchField` —
+**none of them a far-field or spurious-drag decomposition.**
+
+**CONTROLS — 8, all PASS:**
+
+| control | want | got |
+|---|---|---|
+| clean: a real gain carried by PRESSURE with the span load moving | `OK` | **`OK`** |
+| **KNOWN-BAD: the artefact signature — 100 % of the gain in FRICTION with the span load flat** | `STOP` | **`STOP`** |
+| boundary: 19 % of the gain in pressure (just inside the floor) fires | `STOP` | **`STOP`** |
+| boundary: 21 % of the gain in pressure does not fire | `OK` | **`OK`** |
+| not-a-gain: a friction-only RISE is not the signature | `OK` | **`OK`** |
+| **BLIND: `forces` never wrote the viscous column (rule 27)** | `REFUSE` | **`REFUSE`** |
+| INCONSISTENT: pressure + viscous ≠ total | `REFUSE` | **`REFUSE`** |
+| BLIND: 3 span stations, below the informative floor of 6 | `REFUSE` | **`REFUSE`** |
+
+### 9.11 — RULE 11: the trust region on the design step
+
+**HONEST STATEMENT FIRST.** A trust region sized literally to the first-cell height is not usable on
+this case. Under Δ1 the first cell is `1.35e-6 m` against a 1.689 m root chord: a step limited to one
+first-cell height of surface motion is `8.0e-7` chord, and D6R2's trajectory would need of order
+`10⁴`–`10⁵` majors. **Registering that number would be registering a run that cannot finish.**
+
+**What is registered instead, and it is the mechanism her clause protects:**
+
+1. **The binding trust region is the §9.7 quality budget, applied as an IN-ADJOINT CONSTRAINT**
+   *(Δ9)* — `nonOrtho ≤ 70.0`, `skewness ≤ 4.0`, published bounds, `addToAdjoint: True`. **That is a
+   trust region defined by what the warp actually preserves, measured, not by a proxy for it.**
+2. **An explicit per-major move limit** *(Δ12)*: `0.10` on the scaled `shape` ∞-norm, `0.5°` on
+   `twist`. Anchor: D6R2C's measured camber excursion `0.00196 → 0.04810` over 25 majors is
+   reachable under a `0.10` limit in about the same number of majors, while no single step may take
+   a large fraction of it.
+3. **RULE 11 IS RECORDED AS PARTIALLY SATISFIED**, the substitute is named, and a supervisor who
+   disagrees has the arithmetic to disagree with.
+
+**CONTROLS — 5, all PASS:**
+
+| control | want | got |
+|---|---|---|
+| clean: a 0.02 scaled-shape step inside the 0.10 limit | `OK` | **`OK`** |
+| **KNOWN-BAD: a 0.35 scaled-shape step, 3.5× the limit** | `STOP` | **`STOP`** |
+| **KNOWN-BAD: a 0.8° twist step against the 0.5° limit** | `STOP` | **`STOP`** |
+| **BLIND/MEASURED: at x0, where D6R2C measured 103 of 109 components exactly zero, the guard must REFUSE rather than pass** | `REFUSE` | **`REFUSE`** |
+| NON-FINITE: a NaN in the design vector | `REFUSE` | **`REFUSE`** |
+
+### 9.12 — What the six guards do **NOT** do
+
+- **They do not grade the wing.** They stop a run. The verdict on the optimisation is §10's.
+- **They share one Python module, and rule 22 requires that be said.** Their **external anchors are
+  six different things** — IDWarp's live option dict, `checkMesh` on the as-run points, the mesh
+  generation stamp, a freshly extruded mesh, OpenFOAM's `forces` output, and the driver's design
+  vector — so this is six anchors, not one. **But a defect in the shared `_finite` / `_counts`
+  helpers is common-mode to all six**, and that is named here rather than discovered later.
+- **Their controls are SYNTHETIC except where a row says MEASURED.** Eight controls are driven on
+  D6R2's real measured values; the rest are constructed. **A synthetic control proves the guard, not
+  the case.**
+
+---
+
+## 10. ARMS, ORDER, PLACEMENT, AND THE AFTER-PROTOCOL
+
+| # | arm | what it is | ranks | precondition |
+|---|---|---|---|---|
+| 0 | **`P0`** | **one primal + one adjoint on the PUBLISHED mesh — BLOCKING** | 72 | mesh built |
+| 1 | `MESH` | build L3, L2, L1 by the published pipeline; `checkMesh -allGeometry` each | 1 | — |
+| 2 | `Y1` | baseline y⁺ on the optimisation level | 72 | `P0` PASS |
+| 3 | `P1` | primal convergence / configuration selection | 24 | `Y1` |
+| 4 | `W1` | warp-setting selection (`evalMode`, `LdefFact`), geometry only | 1 | `MESH` |
+| 5 | `GF` | grid family: baseline `J` at matched lift on L3, L2, L1 | 72 | `P1`, `W1` |
+| 6 | `P2` | adjoint tolerance check: `gmresRelTol 1e-6` vs `1e-9`, tighten if any component moves > 1 % of `‖g‖∞` | 72 | `GF` |
+| 7 | `S1` | smooth-mode optimisation, 10 DVs, `max_iter 15` | 72 | `GF` PASS |
+| 8 | `S2` | full optimisation, 202 DVs, `max_iter 25`, with the six guards live and `N = 3` checkpoints | 72 | `S1` |
+| 9 | **`A12`** | **fresh mesh, matched lift, all conditions, from scratch — THE CLAIMED NUMBER** | 72 | `S2` |
+| 10 | `A13` | the optimum on the next finer family level | 72 | `A12` |
+| 11 | `A14` | decomposition (shape / twist / trim) on the fresh mesh | 72 | `A12` |
+
+**Placement:** `numberOfSubdomains 72` is the **published** value (`system/decomposeParDict:18`) and
+is adopted. The box reads **96 cores, 739 GiB total / 640 GiB available** (measured 2026-09-13
+17:10Z). `P0-G3` records peak RSS because **A6 predicted 95–116 GiB for this adjoint against a
+then-30 GiB box and the prediction has never been tested.**
+
+**`DAFOAM_CHARTER.md` §22.2, with teeth:** *no shape-optimisation improvement figure leaves this
+family unless the number quoted is the fresh-mesh number, at matched lift, on all conditions, from
+scratch.* **`A12` is that number.** `A13`'s gate is `|J_fresh(finer) − J_fresh(opt)| / J_fresh(finer)
+≤ 0.010` — a miss is **`GATE FAIL`**: *an optimum that holds on one mesh only is not an optimum.*
+**No percentage is quoted before `A14` exists.** The drag split on both meshes goes on the
+certificate. **`A12`, `A13` and `A14` all run the BASELINE through the identical path**, so every
+ratio's two factors share mesh generation, lift and DV application (rule 19).
+
+---
+
+## 11. COST — PRICED **BOTH WAYS**, ON A MEASURED CRM ADJOINT
+
+### 11a. The anchors — and the biggest one is now MEASURED, not extrapolated
+
+**From `D8R` `O-P` — CRM wing, `DARhoSimpleCFoam`, M 0.8497, published producer md5 `0de915d2…`,
+41,760 cells, 4 ranks, 4,753 s wall, 316.867 core-min** (`curriculum_D8R/RESULTS.md:179-233`):
+
+| anchor | value | how it was measured by this lane |
+|---|---|---|
+| **one flow adjoint** | **182.1 s wall = 12.140 core-min** | 20 `Solving Linear Equation... <t> s` stamps; the 10 **within-pair** deltas (adjoint→adjoint, no primal between) have median **182.1 s**; the 9 **across-pair** deltas median 227.4 s, the difference being the intervening primal |
+| **one primal** | **69.44 s wall = 4.629 core-min** | `(4753 − 20 × 182.1) / 16`, 16 `Starting time loop` occurrences |
+| gradient structure | **2 flow adjoints per gradient evaluation** (`CD` and `CL`); 100 `Computing d[…]` over 10 gradient evaluations | the log |
+| evaluations per major | **3.48 `F`**, **1.04 `G`** | D6R2C `O_mp`: 87 F, 26 G, 25 majors |
+| baseline y⁺ on the published mesh | **min 7.648 / max 73.826 / mean 34.587** | `A6-crm-wing/run_model_run1.log`, converged tail |
+| published-mesh cell count | **579,072** = 11,136 × 52 | `A6-crm-wing/logMeshGeneration.txt:478` |
+
+**Multipoint per-evaluation cost** *(rule 30, stated separately)*, at cell factor `c/41,760`:
+
+```
+OBJECTIVE evaluation = 3 primals   = 3 x 4.629 x (c/41760) x k_primal
+GRADIENT  evaluation = 6 adjoints  = 6 x 12.140 x (c/41760) x k_adjoint   (CD + CL per condition)
+```
 
 | factor | value | justification | tag |
 |---|---|---|---|
-| **`S_cells`** | **2.2105** | 84,672 / 38,304, exact arithmetic from §4a | `DERIVED` |
-| **`S_steps`** | **3.0** | primal budget `endTime 3000` against the published `1000`. A **budget**, not a prediction: `P1` sets the real number and it can only come in lower. | `REGISTERED` |
-| **`S_adj`** | **2.0** | adjoint conditioning on a y⁺ ≈ 1 mesh. **THIS IS AN ASSUMPTION, NOT A MEASUREMENT.** Its only support is a published caution: Kenway et al., PAS 2019, *"linear system stiffness, especially for the viscous layer near the wall when a y⁺ = 1"* (`…100542.txt:2869`). **Flagged for calibration at the first `G` evaluation.** | `ASSUMED` |
+| cell factor | exact arithmetic | §4a | `DERIVED` |
+| `k_adjoint` at L3 (a 1.73× extrapolation) | **1.25** | adjoint conditioning grows super-linearly with cells | **`ASSUMED`** |
+| `k_adjoint` at L2 (a 13.9× extrapolation) | **1.50** | same | **`ASSUMED`** — **this is what `P0` measures and replaces** |
+| `k_primal`, `k_adjoint` extra under Δ1 | **×1.0**, **×1.5** | Kenway et al. PAS 2019: *"linear system stiffness, especially for the viscous layer near the wall when a y⁺ = 1"* (`…100542.txt:2869`) | **`ASSUMED`** |
 
-### 15c. **PER EVALUATION** (rule 30), at the L2 optimisation mesh
+### 11b. **OPTION A — VERBATIM (published wall-function). Optimisation on L3.**
 
-```
-OBJECTIVE evaluation  =  3.263 x 2.2105 x 3.0  =  21.64 core-min   (3 conditions)
-GRADIENT  evaluation  = 11.666 x 2.2105 x 2.0  =  51.58 core-min
-per IPOPT major       = 3.48 x 21.64 + 1.04 x 51.58 = 128.94 core-min
-```
+`objective evaluation` **24.07 core-min** · `gradient evaluation` **157.82 core-min** ·
+**per major 247.9**
 
-### 15d. **OPTION A — the subsonic re-run.** The registered total.
+| item | core-min |
+|---|---|
+| `MESH` build, 3 levels (incl. a 4.63 M-cell extrusion) | 120.0 `ESTIMATED` |
+| **`P0`** primal + adjoint on the published mesh | **569.2** |
+| `P1` primal convergence, 6 configs × 5,000 steps | 120.4 |
+| `W1` warp selection | 30.0 `ESTIMATED` |
+| **`GF` grid family** (L3 120.4 + L2 962.9 + L1 7,702.9) | **8,786.2** |
+| `P2` adjoint tolerance | 315.6 |
+| `S1` smooth-mode optimisation, 15 majors | 3,718.5 |
+| **`S2` full optimisation, 25 majors** | **6,197.6** |
+| rules 8/9 checkpoints × 8 | 2,458.0 |
+| `A12` fresh mesh, matched lift | 120.4 |
+| `A13` optimum on the next finer level | 962.9 |
+| `A14` decomposition × 3 | 361.1 |
+| subtotal | 23,759.8 |
+| + 5 % preamble, staging, `checkMesh`, grading | 1,188.0 |
+| **REGISTERED TOTAL** | **24,900** |
+| **CAP, 3.00×** | **74,700** |
 
-| item | core-min | basis |
-|---|---|---|
-| `MESH` + `Y1` + `W1` | **60.0** | 3 extrusions + 6 geometry-only warp configs + one L2 baseline primal (8.2). **`ESTIMATED`** — the extrusion is serial and has no measured anchor in this family at this mesh size. |
-| **`P1`** primal-convergence arm | **82.0** | 6 configs × 5,000 steps × 1 condition at L2 |
-| **`GF`** grid family (rule 1) | **1,122.8** | L3 **15.4** + L2 **123.0** + L1 **984.4**; each = 5 trim primals × 3 conditions at that level's per-primal cost (`1.237 × S_steps × cells/38,304`) |
-| `P2` adjoint tolerance | **103.2** | 2 gradient evaluations |
-| **`S1`** smooth-mode optimisation, 15 majors | **1,934.1** | 15 × 128.94 |
-| **`S2`** full optimisation, 25 majors | **3,223.6** | 25 × 128.94 ← **the largest single term** |
-| **rules 8/9 checkpoints**, 8 events at `N = 3` | **1,962.9** | per event: fresh mesh + 3 primals **70.7** (`10.667 × S_cells × S_steps`) + gradient spot-check **51.6** + trim **123.0** = **245.4** |
-| **`A12`** fresh mesh, matched lift, all conditions | **123.0** | 5 trim primals × 3 conditions at L2 |
-| **`A13`** the optimum on L1 | **984.4** | the same at L1 |
-| **`A14`** decomposition, 3 sub-designs | **369.1** | 3 × 123.0 |
-| subtotal | **9,965.1** | |
-| + 5 % container preamble, staging, `checkMesh`, grading | **498.3** | |
-| **REGISTERED TOTAL** | **10,500** | rounded up |
-| **REGISTERED CAP, 3.00×** | **31,500** | the family's registered cap multiplier (parent §8) |
-
-**DERIVED DOLLARS.** `10,500 core-min = 175.0 core-h × $0.0513 = **$8.98**`; cap **$26.93**.
+**DERIVED DOLLARS: `24,900 core-min = 415.0 core-h × $0.0513 =` $21.29**; cap **$63.87**.
 **DERIVED, NOT MEASURED** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5);
-`cost_basis` class **reported-by-owner** at the owner-stated c7a.4xlarge rate. *(The box is an
-r7a.4xlarge; the rate on record is the c7a.4xlarge figure and is used unchanged rather than
-invented, and that substitution is named here rather than buried — as the parent's §8 also named it.)*
+`cost_basis` **reported-by-owner** at the owner-stated c7a.4xlarge rate. *(The box is not a
+c7a.4xlarge; the rate on record is used unchanged rather than invented, and the substitution is named
+here rather than buried.)*
 
-**`FAMILY_SHIFT` CONTINGENCY (§4b).** If `coarsen2` refuses and the family shifts up one level, every
-level's cell count multiplies by 8 and the registered total becomes **≈ 84,000 core-min**
-(`$71.82` derived). **That contingency is registered here, before the mesh is built, so that it is a
-disclosed branch and not an overrun.**
+### 11c. **OPTION B — WITH DEVIATION #1 (wall-resolved y⁺ ≈ 1). Optimisation on L3.**
 
-### 15e. **OPTION B — the transonic alternative.** Priced separately so the choice is made on a number.
+`objective evaluation` **48.14 core-min** · `gradient evaluation` **473.46 core-min** ·
+**per major 659.9**
 
-| item | core-min | basis | tag |
-|---|---|---|---|
-| one condition-primal, converged | **447.7** | A6 measured **28.73** for 1000 steps at 579,072 cells **+ 419** extrapolated to cross 1e-8 on `nuTilda` (15,573 further iterations) | `MEASURED` + `EXTRAPOLATED` |
-| objective evaluation (3 conditions) | **1,343.2** | 3 × 447.7 | `DERIVED` |
-| gradient evaluation | **529.1** | `11.666 × (579,072/38,304 = 15.118) × 3.0` transonic conditioning | **`ASSUMED`** — **no CRM adjoint has ever been run on this box** |
-| per major | **5,225** | 3.48 × 1,343.2 + 1.04 × 529.1 | `DERIVED` |
-| **optimisation alone, 25 majors** | **≈ 130,600** | | `DERIVED` |
-| **whole item**, scaled at Option A's proportion (`S2` = **30.7 %** of Option A's registered total) | **≈ 425,000** | | `DERIVED` |
+| item | core-min |
+|---|---|
+| `MESH` build | 120.0 |
+| **`P0`** | **1,643.5** |
+| `P1` | 240.7 |
+| `W1` | 30.0 |
+| **`GF` grid family** | **17,572.3** |
+| `P2` | 946.9 |
+| `S1`, 15 majors | 9,899.1 |
+| **`S2`, 25 majors** | **16,498.4** |
+| checkpoints × 8 | 6,138.6 |
+| `A12` | 240.7 |
+| `A13` | 1,925.7 |
+| `A14` | 722.1 |
+| subtotal + 5 % | 58,777 |
+| **REGISTERED TOTAL** | **58,800** |
+| **CAP, 3.00×** | **176,400** |
 
-**DERIVED DOLLARS: ≈ $363.** At 96 cores that is **≈ 74 hours of the entire box**, minimum, and
-**it is priced on the PUBLISHED WALL-FUNCTION mesh** — rule 2's wall-resolved departure would
-multiply the cell count again and is **NOT COSTED** here.
+**DERIVED DOLLARS: $50.27**; cap **$150.82**.
 
-**THE THREE HONEST CAVEATS ON OPTION B'S NUMBER:**
-1. **The CRM adjoint has never run.** `Global Adjoint States: 5,244,840`; `Main iteration` and
-   `KSP Residual` appear **zero** times in all four A6 logs. **The `529.1` is an extrapolation from a
-   different case and a different Mach regime, and it is the single largest uncertainty in this
-   registration.** A `BLOCKED`-until-measured precondition arm would be owed before any freeze.
-2. **A6 never converged**, so the `447.7` rests on a plateau extrapolation that the A6 record itself
-   killed as an experiment ("no run can buy it").
-3. **Option B changes the geometry**, so the after-protocol has no D6R2 baseline to compare against
-   and the item stops being a re-run (§3B).
+> ### **DEVIATION #1 COSTS A FACTOR 2.36 — 24,900 → 58,800 core-min, $21.29 → $50.27.**
+> **She decides on that number. It is not applied by this lane and it is not assumed accepted.**
 
-### 15f. **THE CAP REPORTS; NOTHING KILLS ON IT** (directive #17)
+### 11d. The `L2 BRANCH` contingency — registered in advance, not discovered as an overrun
 
-A crossing writes `D6R3_CAP_CROSSED` to the ledger, **the row is graded `NOT A RESULT`, and the cap
-is never raised.** No wrapper carries a `timeout`; every container prints
-`D6R3_DEADLINE_IN_CONTAINER_S: NONE`. **The quality-budget stop of §8d is a different thing and is
-not affected by this clause.**
+If L3 fails the §4b band and the optimisation must run on the **published 579,072-cell mesh**:
+`objective evaluation` 192.57, `gradient evaluation` 1,515.07, **per major 2,245.8**, item total
+**142,200 core-min**, cap 426,600, **$121.58** derived. Under Δ1 that branch is larger again and is
+**NOT COSTED** here — it would be re-registered, not absorbed.
 
-**CONTENTION.** `core_min = wall_s × ranks / 60` inflates with contention at identical compute work —
-D6R2's dying run measured **≈ 277 core-min/major** at load 40–77 against a **31.258** anchor, **8.9×**.
-Any recorded figure above prediction attributable to delivered-core starvation is **REPORTED with the
-measured `delivered_cores_mean`** and named as **waste**, never absorbed into the ratio
+### 11e. **R1's COST FIGURE IS SUPERSEDED, AND BY SEVENTEEN TIMES**
+
+R1 §15e priced this option at **≈425,000 core-min / ≈$363 / ≈74 hours of the entire box**. That
+figure extrapolated the gradient cost from the A2 wing at M 0.288 because R1 believed no CRM adjoint
+had ever run. **A CRM adjoint had run, on this exact published producer, and its cost was on disk**
+(§1a). Correcting to the measured anchor, and applying her rule 1 (the optimisation mesh is the
+*coarsest* qualifying level, not the finest), gives **24,900**. **The R1 figure is withdrawn.**
+
+### 11f. The cap reports; nothing kills on it
+
+Directive #17: a crossing writes `D6R3_CAP_CROSSED` to the ledger, **the row is graded `NOT A
+RESULT`, and the cap is never raised.** No wrapper carries a `timeout`; every container prints
+`D6R3_DEADLINE_IN_CONTAINER_S: NONE`. **The §9.7 quality-budget stop and the §9.9 fresh-mesh stop
+are different things and are NOT affected by this clause — they are physics guards and they stop the
+run, exactly as her rules 7 and 9 require.**
+
+**Contention:** `core_min = wall_s × ranks / 60` inflates with contention at identical compute work
+(D6R2's dying run measured ≈ 277 core-min/major against a 31.258 anchor, **8.9×**). Any figure above
+prediction attributable to delivered-core starvation is reported with the measured
+`delivered_cores_mean` and named as **waste**, never absorbed into the ratio
 (`COMPUTE_BUDGET_CHARTER.md` §6).
 
-**CALIBRATION ROWS OWED** to `docs/COST_CALIBRATION.md` at **every** process completion — each arm
-separately — stating actual/predicted, and attributing contention, waste and misprediction
-separately (rule 12; rule 30). **`S_adj = 2.0` is the first row that must be calibrated**, because it
-is the one `ASSUMED` factor in §15b.
+**Calibration rows owed** to `docs/COST_CALIBRATION.md` at **every** arm completion (rule 12,
+rule 30). **`P0`'s row is the first and it re-anchors `k_adjoint`, the one `ASSUMED` factor that the
+whole model turns on.**
 
 ---
 
-## 16. THE INSTRUMENT TABLE — **EMPTY AT THIS DRAFT, AND THAT IS THE POINT**
+## 12. RULES 17–32 — THE RECORD HALF
+
+Carried forward from R1 unchanged in substance; the entries that this revision has **exercised** are
+marked.
+
+| rule | what D6R3 registers | status at this draft |
+|---|---|---|
+| **17** gate on the mesh the solver READ | hash of the `polyMesh` the running solver loaded, rebuilt from `pointProcAddressing`, compared for exact equality against the generated mesh; staging into every processor case happens **before** the model is built. *Measured why:* FM8 scanned **1,486 processor meshes, zero matching the freshly extruded mesh.* | registered; instrument **NOT WRITTEN** |
+| **18** DVs applied EXACTLY ONCE, proved by hash | equality of the surface hash against the **BASE** surface at the moment the DVs are applied. *Measured why:* FM10 flew at CL **+0.1493/+0.1516/+0.1524**, 30× the finding trigger; `d6r2c_freshmesh.py:423-425`. | registered; **guard 9 already refuses the downstream comparison** (§9.9, control 6, driven) |
+| **19** no ratio across meshes, lifts or DV applications | every ratio carries both factors' mesh id, trims and DV hashes. *Measured why:* the withdrawn **1.2063**. | **ENFORCED IN CODE** — guard 9 refuses (§9.9) |
+| **20** drive the CLI the launcher EMITS | the pre-freeze check executes the launcher's exact argv | **DONE** — `D6R3_PREFREEZE_CLI.log`, rc 0 / 64 / 2 |
+| **21** every instrument in the frozen table EXISTS at its md5 | §13's table is written in the **negative** | **PARTLY DONE** — two rows now carry real md5s |
+| **22** count EXTERNAL ANCHORS, not gates | §9.12 states the six anchors **and names the common-mode helper risk** | **DONE** |
+| **23** derive constants from the thing under test, in the same invocation | guard 7 derives `h1_ratio` and `vol_ratio` from the baseline in-invocation; the Δ1 `s0` is derived from the **measured** y⁺ | **DONE in code** |
+| **24** suspect a SUCCESS as hard as a failure | every guard returns `n_ok + n_bad == n_total`, asserted. *Measured why:* `"O_mp converged 88 times"` was false — **35 of 87 succeeded, 52 failed, `n = 88` was an INDEX.** | **DONE in code** |
+| **25** never gate where the quantity is identically zero | informative-component counting with `INFORMATIVE_FLOOR = 6`. *Measured why:* the scaler gate sat at `shape ≡ twist ≡ 0`. | **DONE and DRIVEN** — §9.11 control 4 |
+| **26** drive every guard to its failing side; non-finite BEFORE the comparison | `_finite()` is called before every comparison. *Measured why:* `abs(nan − x) > tol` is `False`; the parent's `gate_g3` was one evaluation from a `GATE FAIL` manufactured out of NaN. | **DONE and DRIVEN** — 4 non-finite controls |
+| **27** every channel a gate reads has a **writer that ran** | guard 10 refuses when `forces` wrote no viscous column; **guard 7 refuses a channel measured never to say no** (§9.7a). *Measured why:* `primal_residual.json` had **four reads, zero writes, zero such files on disk.* **STILL OPEN ON SANAA'S DESK** | **partly** — driven for two channels; the pre-freeze channel table is **NOT WRITTEN** |
+| **28** name the reference in every git comparison | append-only proved by `cmp -n <pre-append size>` against HEAD's blob, never a bare `git diff` | registered |
+| **29** a crash/stall/refused solve is a FINDING and a FIX | triage on mesh → numerics → model; cause class recorded **at the stop** | registered |
+| **30** cost per EVALUATION, calibrated at completion | §11a states objective and gradient separately | **DONE** |
+| **31** `checkMesh` the mesh that RAN | guard 7 **REFUSES** if the quality log is not newer than the DV apply, **and refuses a delegated verdict at all** (Δ13). *Measured why:* the only quotable `Mesh OK.` in this family is of the **as-extruded** mesh at `66.32299475`; `O_mp`'s as-run worst is **`80.90429398`** and `FM10`'s **`79.21261137`**, and **both logs called every breaching block `OK`** (§9.7a). | **DONE and DRIVEN on REAL values** — §9.7 controls 2–8 |
+| **32** the fifth cause class, assigned by exclusion | §6's table | registered |
+
+### 12a. `DAFOAM_CHARTER.md` §22.4 — the three clauses the supervisor checks personally at freeze
+
+1. **Every instrument in §13 exists at its stated md5.** **Two now do; six do not.**
+2. **The pre-freeze check drives the CLI the launcher emits.** **DONE for the guard module**
+   (`D6R3_PREFREEZE_CLI.log`); **not done for the arms**, which have no launcher yet.
+3. **Every channel a gate reads has a writer shown to have run.** **NOT DONE.** Guard 10 refuses on
+   one missing channel, which is the mechanism; the **table** naming every channel's writer does not
+   exist.
+
+**§22.4 therefore still blocks the freeze, and this revision says so rather than claiming progress
+as completion.**
+
+---
+
+## 13. THE INSTRUMENT TABLE — still written in the NEGATIVE
 
 | file | purpose | md5 | external anchor (rule 22) |
 |---|---|---|---|
+| **`d6r3_inrun_guards.py`** | the six in-run instruments, rules 6–11 | **`57a7d187163feb5120e25967c7c7e959`** | six (§9.12) |
+| **`D6R3_INRUN_SELFTEST.json`** | the 48 driven controls | **`181be48e46aa69761fb39d33674f406d`** | — |
+| **`D6R3_PREFREEZE_CLI.log`** | rule 20 evidence | **`1ff07c5256862bb8ab682341397ca705`** | — |
 | `d6r3_mesh_family.sh` | build L3/L2/L1 by the published pipeline | **NOT WRITTEN** | `cgns_utils` + pyHyp (one anchor for all three levels) |
-| `d6r3_yplus_gate.py` | `Y1` | **NOT WRITTEN** | the solver's own `yPlus` print |
+| `d6r3_p0_arm.sh` | **`P0`**, the blocking precondition | **NOT WRITTEN** | the solver's own adjoint log |
 | `d6r3_p1_convergence.py` | `P1` + planted control | **NOT WRITTEN** | the primal's `CD` trace |
-| `d6r3_w1_warp.py` | `W1` | **NOT WRITTEN** | `checkMesh` on the as-run points |
 | `d6r3_opt_runScript.py` | the producer (`S1`, `S2`) | **NOT WRITTEN** | — |
-| `d6r3_checkpoint.py` | rules 8/9 + planted control | **NOT WRITTEN** | fresh extrusion (independent of the warp) |
 | `d6r3_grade.py` | `GF`, `A12`, `A13`, `A14` | **NOT WRITTEN** | the arm's log + `forces` output |
 | `d6r3_prefreeze.sh` | §22.4's three clauses | **NOT WRITTEN** | — |
 
-**RULE 21, APPLIED TO THIS DOCUMENT ITSELF.** Every row above says `NOT WRITTEN`. **A table that
-lists what exists cannot show what is missing** — that is the defect that carried the parent's
-`d6r2c_grade.py` past its freeze (parent ADDENDUM 3). **This table is therefore written in the
-negative, and the freeze cannot happen until every row carries a real md5 and
-`d6r3_prefreeze.sh` has hashed it.**
+**Rule 21, applied to this document itself: a table that lists what exists cannot show what is
+missing.** That is the defect that carried the parent's `d6r2c_grade.py` past its freeze. **The
+freeze cannot happen until every row carries a real md5 and `d6r3_prefreeze.sh` has hashed it.**
 
 ---
 
-## 17. WHAT THIS REGISTRATION DOES NOT CLAIM, AND WHICH RULES IT CANNOT SATISFY
+## 14. WHAT THIS REVISION DOES NOT CLAIM, AND WHICH RULES IT STILL CANNOT SATISFY
 
-- **It is a DRAFT and it registers nothing.** No gate below is in force; no compute is authorised.
-- **It does not claim a Roache triple or a GCI** (§4d). Three levels exist to *select* a mesh.
-- **It does not claim the optimisation will succeed**, and `GATE REACHED` at the iteration cap is the
-  expected outcome, not `PASS`.
-- **It does not inherit D6R2's 24.732 %.** That figure is withdrawn (`§22.2`) and appears here only
-  as history.
-- **It does not describe this flow as transonic** under Option A. `M∞ = 0.288`; maximum local Mach
-  measured at **0.380**; no shock exists and **no shock figure can be produced**.
-- **`ARM0`-class parallel-decomposition health is NOT re-registered here.** The parent measured that
-  its arm-0 check certified **an untrimmed operating point the deliverable never visits** and that
-  the `GATE FAIL` survives discarding every duplicated row. **A trimmed rank-agreement check is
-  owed and is a separate item**, not folded into this one.
-
-**RULES I COULD NOT SATISFY IN THIS DRAFT, NAMED:**
+- **It is a DRAFT. No gate is in force. No compute is authorised.**
+- **It does not claim the cost model is tested.** `k_adjoint` is `ASSUMED` and `P0` exists to
+  replace it. Until `P0` lands, §11 is **`UNTESTED`**.
+- **It does not claim `P0` will pass.** The adjoint at 579,072 cells has never been attempted.
+- **It does not claim a Roache triple or a GCI** (§4b).
+- **It does not inherit D6R2's withdrawn 24.732 %.**
+- **It does not claim the six guards make the result correct.** They make an **artefact** visible
+  and stop the run. They cannot make a converged optimum out of a case that has no asymptotic range.
+- **It does not claim its synthetic controls prove the case** (§9.12).
 
 | rule | status | what would be needed |
 |---|---|---|
-| **4 (curvature constraint)** | **NOT SATISFIED.** The published setup has thickness and volume but **no curvature constraint**, and `pyGeo`'s curvature API was **not found by this lane in the installed toolchain** — no container was started. | one container invocation to enumerate `nom_add*Constraint` on the installed `pygeo`, then either register the verified call and its bound or strike the row (§6b) |
-| **10 (far-field spurious-drag decomposition)** | **NOT SATISFIED.** No far-field decomposition exists in DAFoam's function set — verified by enumerating every `"type"` across the tutorial clone. Her clause says *"where available"*; **it is not available**. | an external far-field decomposition tool, out of scope |
-| **11 (trust region sized to the first-cell height)** | **PARTIALLY SATISFIED.** The literal sizing is `2.4e-7` chord per step and would need ~10⁵ majors (§11). The substitute is the in-adjoint quality constraint plus an explicit move limit. | a supervisor's ruling on whether the substitute is accepted |
-| **16 (adjoint-driven mesh adaptation)** | **NOT ATTEMPTED.** Her rule 16 is explicitly a roadmap item. | a separate registered item |
-| **27 (status channel with a writer)** | **REGISTERED, NOT CLOSED.** The `primal_residual.json` defect is **still open and on Sanaa's desk**. D6R3 registers the pre-freeze check; it does not close the referral. | Sanaa's ruling |
-| **§4b (`coarsen2` feasibility)** | **NOT MEASURED.** No container was started. | one `cgns_utils` invocation; the `FAMILY_SHIFT` contingency is registered against it (§15d) |
-| **§15b `S_adj = 2.0`** | **ASSUMED, NOT MEASURED.** Its only support is a published caution. | the first `G` evaluation on L2, then a calibration row |
-| **Option B's gradient cost** | **ASSUMED.** No CRM adjoint has ever run on this box. | a `BLOCKED`-until-measured precondition arm before any Option B freeze |
+| **2** | **DEVIATION Δ1, PRICED BOTH WAYS, AWAITING HER DECISION** | her choice on the 2.36× |
+| **4 (curvature constraint)** | **NOT SATISFIED.** The published setup has thickness and volume, **no curvature constraint**, and pyGeo's curvature API was **not found by this lane in the installed toolchain** — no container was started, so **no name was written down** (rule 21) | one container invocation to enumerate `nom_add*Constraint`, then register the verified call and bound or strike it |
+| **10 (far-field spurious drag)** | **NOT SATISFIED** — it does not exist in DAFoam's function set (§9.10) | an external far-field decomposition tool, out of scope |
+| **11 (first-cell-height trust region)** | **PARTIALLY SATISFIED** (§9.11) | a supervisor's ruling on the substitute |
+| **16 (adjoint-driven mesh adaptation)** | **NOT ATTEMPTED** — her own roadmap item | a separate registered item |
+| **17, 18** | registered; **instruments NOT WRITTEN** | the producer and its guards |
+| **27** | **partly** — one channel driven; the channel table does not exist; **the `primal_residual.json` referral is Sanaa's and is not closed here** | her ruling |
+| **row 30 (`primalMinResTolDiff`)** | **NOT MEASURED** — absent from the published CRM file | `P0` records it |
+| **row 54 (local-DV displacement axis)** | **NOT MEASURED** — unspecified in the published file; the installed pyGeo default stands. **A shape DV displacing in the spanwise direction instead of the vertical would be a silent defect** | `P0` records it |
+| **§22.4 clauses 1–3** | **NOT SATISFIED** (§12a) | the remaining instruments |
 
 **SUBMISSIONS PARKED.** Nothing here is sent, filed, uploaded, registered, posted or commented. The
 IDWarp rotation defect record remains **NOT FILED**.
+
+---
+---
+
+# APPENDIX S — **STRUCK 2026-09-13.** The R1 operating point and its cost, preserved unrewritten
+
+> **STRUCK, NOT DELETED** (`CLAUDE.md` rule 6: originals are struck, never rewritten). Sanaa ruled
+> the operating point to be Mach 0.85 on 2026-09-13. **The block below is the R1 registered
+> configuration and the R1 cost table, reproduced as they stood.** Nothing in this appendix is in
+> force. The full R1 document is at commit `9847ffc30162cdd73c0a582d82a1f8c3cd063353`.
+
+### S.1 — ~~R1 §3A — OPTION A, the D6R2 re-run at M 0.288~~ **STRUCK**
+
+```
+~~ geometry      mdolab_wing_surface_mesh.cgns  (MACH_Tutorial_Wing)
+~~ U0 = 100.0 m/s   p0 = 101325 Pa   T0 = 300 K   nuTilda0 = 4.5e-5   aoa0 = 4.0 deg   A0 = 45.5 m^2
+~~ a  = sqrt(1.4 x 287 x 300) = 347.189 m/s   ->   M_inf = 0.288028   COMPRESSIBLE SUBSONIC
+~~ CL targets 0.400 / 0.500 / 0.600     weights 0.25 / 0.50 / 0.25
+~~ solver        DARhoSimpleCFoam   (departure)
+~~ source        MACH_Tutorial_Wing/runScript_AeroOnly.py:24-31 (md5 2906d52a5dbed2bacbaeaf85a37d3fe8)
+```
+
+### S.2 — ~~R1 §15d — the R1 registered total~~ **STRUCK**
+
+~~`MESH`+`Y1`+`W1` 60.0 · `P1` 82.0 · `GF` 1,122.8 · `P2` 103.2 · `S1` 1,934.1 · `S2` 3,223.6 ·
+checkpoints 1,962.9 · `A12` 123.0 · `A13` 984.4 · `A14` 369.1 · subtotal 9,965.1 · **REGISTERED
+TOTAL 10,500 core-min**, cap 31,500, **$8.98** derived, cap $26.93.~~
+
+### S.3 — ~~R1 §15e — the R1 transonic estimate~~ **STRUCK AND SUPERSEDED BY MEASUREMENT**
+
+~~objective evaluation 1,343.2 · gradient evaluation 529.1 (`ASSUMED`, no CRM adjoint ever run) ·
+per major 5,225 · optimisation 25 majors ≈ 130,600 · whole item ≈ **425,000 core-min ≈ $363 ≈ 74
+hours of the entire box**.~~
+
+**Why it is struck:** §1a and §11e. A CRM adjoint **had** run, on this exact published producer, at
+41,760 cells, and its cost was on disk; the 529.1 was an extrapolation from a different wing at a
+different Mach, and the item was priced 17× too high.
+
+### S.4 — R1's title-page verification, carried forward unchanged
+
+| PDF | md5 |
+|---|---|
+| `he_mader_martins_maki_aiaaj2020_dafoam_j058853.pdf` | `bd592e7ea1a5a3c2b9361d43f840f43b` |
+| `he_mader_martins_maki_caf2018_discrete_adjoint_openfoam.pdf` | `5c27b30cbe47bbf0b136fde2ed6170d5` |
+| `kenway_mader_he_martins_pas2019_effective_adjoint_100542.pdf` | `6b17ccec2a27ab5bc57c13e51b346da9` |
+
+**SUBMISSIONS PARKED.**

@@ -1,0 +1,732 @@
+{
+ "version": "D6R3-INRUN-DRAFT-1",
+ "n_total": 48,
+ "n_pass": 48,
+ "n_fail": 0,
+ "controls": [
+  {
+   "control": "G6.clean -- the registered warp settings are in force",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 6,
+    "bad": {},
+    "derived_from": "R6_REQUIRED_WARP, PREREGISTRATION R2 section 9.6"
+   }
+  },
+  {
+   "control": "G6.KNOWN-BAD -- useRotations silently False (rule 6's named mechanism off)",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 6,
+    "bad": {
+     "useRotations": [
+      false,
+      true
+     ]
+    },
+    "derived_from": "R6_REQUIRED_WARP, PREREGISTRATION R2 section 9.6"
+   }
+  },
+  {
+   "control": "G6.KNOWN-BAD -- LdefFact moved to 0.5 without registration",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 6,
+    "bad": {
+     "LdefFact": [
+      0.5,
+      1.0
+     ]
+    },
+    "derived_from": "R6_REQUIRED_WARP, PREREGISTRATION R2 section 9.6"
+   }
+  },
+  {
+   "control": "G6.KNOWN-BAD -- evalMode back to the published 'fast' approximation",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 6,
+    "bad": {
+     "evalMode": [
+      "fast",
+      "exact"
+     ]
+    },
+    "derived_from": "R6_REQUIRED_WARP, PREREGISTRATION R2 section 9.6"
+   }
+  },
+  {
+   "control": "G6.BLIND -- the option is absent from the live dict (IDWarp on its own default)",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard6: options not readable from the live mesh object: ['useRotations']"
+   }
+  },
+  {
+   "control": "G7.clean -- as-run mesh inside every threshold",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 7,
+    "crossed": [],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD/REAL -- O_mp's WORST as-run mesh, 80.90429398, which OpenFOAM itself called 'Non-orthogonality check OK.' then 'Mesh OK.'",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxNonOrtho",
+      80.90429398,
+      70.0
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD/REAL -- FM10's worst as-run mesh, 79.21261137, 6 of 6 blocks over 70.0 and ZERO 'Failed 1 mesh checks.' in that log",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxNonOrtho",
+      79.21261137,
+      70.0
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD/REAL -- 71.23798136, the value present in BOTH logs' check blocks, 1.8 % over and passed by the solver",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxNonOrtho",
+      71.23798136,
+      70.0
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD/REAL -- 70.01418200, the SMALLEST of O_mp's 76 over-70 values: the budget must catch the marginal breach too",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxNonOrtho",
+      70.014182,
+      70.0
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.REAL/boundary -- 66.96543422, an O_mp block genuinely under 70.0, must NOT fire",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 7,
+    "crossed": [],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.DELEGATION -- handed the solver's own verdict line instead of a measurement, the budget must REFUSE: that channel was measured never to refuse",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard7: source is 'solver_verdict' -- this budget reads MEASURED quantities off the as-run mesh and refuses in its own code.  The solver's own verdict line is not an input: it was measured to print 'Non-orthogonality check OK.' at 80.90429398 against a declared 70.0."
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD/REAL -- D6R2's worst aspect-ratio trip 1050.3162 against the CRM's published 2000.0: does NOT fire, and that is registered as a finding",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 7,
+    "crossed": [],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD -- aspect ratio 2100 breaches the published CRM 2000.0",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxAspect",
+      2100.0,
+      2000.0
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD -- skewness 4.5 breaches the published constraint bound 4.0",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxSkewness",
+      4.5,
+      4.0
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD -- first cell collapsed to 0.5x baseline",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "minH1_ratio",
+      0.5,
+      0.8
+     ]
+    ],
+    "h1_ratio": 0.5,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD -- a negative cell volume",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "minVol_positive",
+      -1e-14,
+      0.0
+     ],
+     [
+      "minVol_ratio",
+      -0.01,
+      0.1
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": -0.01,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.KNOWN-BAD -- y+ median drifted to 2.0 under warping",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "yPlusMedian",
+      2.0,
+      1.5
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.RULE-31 -- checkMesh written BEFORE the DV apply (the FM10 defect exactly)",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard7: checkMesh (50.000) is NOT newer than the DV apply (100.000) -- this quality log describes the AS-BUILT mesh, not the AS-RUN mesh (rule 31; FM10 measured 66.32 as-built against 79.21 as-run)"
+   }
+  },
+  {
+   "control": "G7.NON-FINITE -- maxNonOrtho is NaN (rule 26: nan>tol is False)",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "non-finite: nan"
+   }
+  },
+  {
+   "control": "G7.BLIND -- maxNonOrtho was never measured",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard7: quantities not measured: ['maxNonOrtho']"
+   }
+  },
+  {
+   "control": "G8.clean -- mesh regenerated at major 6, now at major 7, N=3",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 8,
+    "mesh_age_majors": 1,
+    "N": 3,
+    "derived_from": "R8_N_MAJORS"
+   }
+  },
+  {
+   "control": "G8.KNOWN-BAD -- major 7 on a mesh stamped at major 0 (D6R2's whole run)",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 8,
+    "action": "REMESH_AND_RESTART",
+    "mesh_age_majors": 7,
+    "N": 3,
+    "derived_from": "R8_N_MAJORS, derived from the measured first checkMesh breach at IPOPT major ~6 of 25 in the D6R2C O_mp log"
+   }
+  },
+  {
+   "control": "G8.boundary -- exactly N=3 majors old must fire",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 8,
+    "action": "REMESH_AND_RESTART",
+    "mesh_age_majors": 3,
+    "N": 3,
+    "derived_from": "R8_N_MAJORS, derived from the measured first checkMesh breach at IPOPT major ~6 of 25 in the D6R2C O_mp log"
+   }
+  },
+  {
+   "control": "G8.boundary -- exactly N-1=2 majors old must not fire",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 8,
+    "mesh_age_majors": 2,
+    "N": 3,
+    "derived_from": "R8_N_MAJORS"
+   }
+  },
+  {
+   "control": "G8.BLIND -- the mesh stamp is from the future, so it is not this run's",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard8: mesh stamped at major 9, later than the current major 3 -- the stamp is not this run's"
+   }
+  },
+  {
+   "control": "G9.clean -- fresh and deformed agree to 0.3 %, both at matched lift",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 9,
+    "rel_gap": 0.003043478260869592,
+    "band": 0.01,
+    "j_fresh": 0.023,
+    "j_deformed": 0.02293,
+    "informative_components": 1,
+    "action": null,
+    "derived_from": "R9_FRESH_BAND = the grid-family band of PREREGISTRATION R2 section 8c"
+   }
+  },
+  {
+   "control": "G9.KNOWN-BAD/MEASURED -- D6R2's own deformed 0.753 vs fresh 1.206 ratio pair",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 9,
+    "rel_gap": 0.37562189054726364,
+    "band": 0.01,
+    "j_fresh": 1.206,
+    "j_deformed": 0.753,
+    "informative_components": 1,
+    "action": "STOP_AND_REMESH",
+    "derived_from": "R9_FRESH_BAND = the grid-family band of PREREGISTRATION R2 section 8c"
+   }
+  },
+  {
+   "control": "G9.KNOWN-BAD/MEASURED -- the 139-count deformed-vs-fresh gap on CD 0.023",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 9,
+    "rel_gap": 0.6043478260869565,
+    "band": 0.01,
+    "j_fresh": 0.023,
+    "j_deformed": 0.0091,
+    "informative_components": 1,
+    "action": "STOP_AND_REMESH",
+    "derived_from": "R9_FRESH_BAND = the grid-family band of PREREGISTRATION R2 section 8c"
+   }
+  },
+  {
+   "control": "G9.boundary -- a 1.1 % gap must fire against the 1.0 % band",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 9,
+    "rel_gap": 0.01100000000000001,
+    "band": 0.01,
+    "j_fresh": 1.0,
+    "j_deformed": 0.989,
+    "informative_components": 1,
+    "action": "STOP_AND_REMESH",
+    "derived_from": "R9_FRESH_BAND = the grid-family band of PREREGISTRATION R2 section 8c"
+   }
+  },
+  {
+   "control": "G9.boundary -- a 0.9 % gap must not fire",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 9,
+    "rel_gap": 0.009000000000000008,
+    "band": 0.01,
+    "j_fresh": 1.0,
+    "j_deformed": 0.991,
+    "informative_components": 1,
+    "action": null,
+    "derived_from": "R9_FRESH_BAND = the grid-family band of PREREGISTRATION R2 section 8c"
+   }
+  },
+  {
+   "control": "G9.KNOWN-BAD/MEASURED -- FM10's +0.149/+0.152/+0.152 lift excess: refuse the comparison rather than report a drag ratio across different lifts",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard9: fresh side is NOT at matched lift -- worst |CL-target| = 1.524000e-01 against 1.0e-04.  A drag ratio across different lifts is not a number (rule 19)."
+   }
+  },
+  {
+   "control": "G9.NON-FINITE -- J_fresh is NaN",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "non-finite: nan"
+   }
+  },
+  {
+   "control": "G9.PLANT -- a plant of 1.234e-03 on a J of 0.023 (5.4 %) must be seen",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 9,
+    "rel_gap": 0.05365217391304344,
+    "band": 0.01,
+    "j_fresh": 0.023,
+    "j_deformed": 0.021766,
+    "informative_components": 1,
+    "action": "STOP_AND_REMESH",
+    "derived_from": "R9_FRESH_BAND = the grid-family band of PREREGISTRATION R2 section 8c"
+   }
+  },
+  {
+   "control": "G9.BLIND -- the fresh side has no CL record at all",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard9: fresh side has no CL record; matched lift is unverifiable"
+   }
+  },
+  {
+   "control": "G10.clean -- a real gain, carried by PRESSURE, with the span load moving",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 10,
+    "d_total": -0.0010000000000000009,
+    "d_pressure": -0.0009999999999999992,
+    "d_viscous": 0.0,
+    "pressure_share": 0.9999999999999982,
+    "max_spanload_change": 0.10000000000000009,
+    "span_quiet": false,
+    "n_stations": 8,
+    "action": null,
+    "derived_from": "R10_PRESSURE_SHARE_FLOOR; the D6R2 gap was carried 104.5/102.9/99.6 %% by PRESSURE drag, so a gain arriving in friction is the inverse"
+   }
+  },
+  {
+   "control": "G10.KNOWN-BAD -- the artefact signature: 100 % of the gain in FRICTION with the span load flat",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 10,
+    "d_total": -0.0010000000000000009,
+    "d_pressure": 0.0,
+    "d_viscous": -0.001,
+    "pressure_share": 0.0,
+    "max_spanload_change": 0.0,
+    "span_quiet": true,
+    "n_stations": 8,
+    "action": "STOP_AND_REMESH",
+    "derived_from": "R10_PRESSURE_SHARE_FLOOR; the D6R2 gap was carried 104.5/102.9/99.6 %% by PRESSURE drag, so a gain arriving in friction is the inverse"
+   }
+  },
+  {
+   "control": "G10.boundary -- 19 % of the gain in pressure (just inside the 20 % floor) fires",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 10,
+    "d_total": -0.0010000000000000009,
+    "d_pressure": -0.0001899999999999992,
+    "d_viscous": -0.00081,
+    "pressure_share": 0.18999999999999903,
+    "max_spanload_change": 0.0,
+    "span_quiet": true,
+    "n_stations": 8,
+    "action": "STOP_AND_REMESH",
+    "derived_from": "R10_PRESSURE_SHARE_FLOOR; the D6R2 gap was carried 104.5/102.9/99.6 %% by PRESSURE drag, so a gain arriving in friction is the inverse"
+   }
+  },
+  {
+   "control": "G10.boundary -- 21 % of the gain in pressure does not fire",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 10,
+    "d_total": -0.0010000000000000009,
+    "d_pressure": -0.00021000000000000012,
+    "d_viscous": -0.0007899999999999999,
+    "pressure_share": 0.20999999999999994,
+    "max_spanload_change": 0.0,
+    "span_quiet": true,
+    "n_stations": 8,
+    "action": null,
+    "derived_from": "R10_PRESSURE_SHARE_FLOOR; the D6R2 gap was carried 104.5/102.9/99.6 %% by PRESSURE drag, so a gain arriving in friction is the inverse"
+   }
+  },
+  {
+   "control": "G10.not-a-gain -- a friction-only RISE is not the artefact signature",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 10,
+    "d_total": 0.0010000000000000009,
+    "d_pressure": 0.0,
+    "d_viscous": 0.0009999999999999992,
+    "pressure_share": 0.0,
+    "max_spanload_change": 0.0,
+    "span_quiet": true,
+    "n_stations": 8,
+    "action": null,
+    "derived_from": "R10_PRESSURE_SHARE_FLOOR; the D6R2 gap was carried 104.5/102.9/99.6 %% by PRESSURE drag, so a gain arriving in friction is the inverse"
+   }
+  },
+  {
+   "control": "G10.BLIND -- `forces` never wrote the viscous column (rule 27)",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard10: cur side has no cd_viscous -- the `forces` function object did not write it (rule 27: a channel with no writer)"
+   }
+  },
+  {
+   "control": "G10.INCONSISTENT -- pressure + viscous does not equal total",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard10: cur side does not close: pressure + viscous = 2.300000000000e-02 against total 2.200000000000e-02"
+   }
+  },
+  {
+   "control": "G10.BLIND -- 3 span stations, below the informative floor of 6",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard10: only 3 span stations, floor is 6 -- a span-load test on too few stations cannot see a redistribution"
+   }
+  },
+  {
+   "control": "G11.clean -- a 0.02 scaled-shape step inside the 0.10 move limit",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 11,
+    "bad": [],
+    "shape_step_inf": 0.020000000000000004,
+    "twist_step_inf": 0.1,
+    "informative_components": 199,
+    "derived_from": "R11_SHAPE_MOVE / R11_TWIST_MOVE, PREREGISTRATION R2 section 9.11"
+   }
+  },
+  {
+   "control": "G11.KNOWN-BAD -- a 0.35 scaled-shape step, 3.5x the move limit",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 11,
+    "bad": [
+     [
+      "shape",
+      0.35,
+      0.1
+     ]
+    ],
+    "shape_step_inf": 0.35,
+    "twist_step_inf": 0.1,
+    "informative_components": 199,
+    "derived_from": "R11_SHAPE_MOVE / R11_TWIST_MOVE, PREREGISTRATION R2 section 9.11"
+   }
+  },
+  {
+   "control": "G11.KNOWN-BAD -- a 0.8 deg twist step against the 0.5 deg limit",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 11,
+    "bad": [
+     [
+      "twist",
+      0.8,
+      0.5
+     ]
+    ],
+    "shape_step_inf": 0.020000000000000004,
+    "twist_step_inf": 0.8,
+    "informative_components": 199,
+    "derived_from": "R11_SHAPE_MOVE / R11_TWIST_MOVE, PREREGISTRATION R2 section 9.11"
+   }
+  },
+  {
+   "control": "G11.BLIND/MEASURED -- x0, where D6R2C measured 103 of 109 components exactly zero: the guard must REFUSE, not pass",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard11: only 0 informative components (floor 6) -- every component is zero on both sides, so this guard cannot see a step of any size"
+   }
+  },
+  {
+   "control": "G11.NON-FINITE -- a NaN in the design vector",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "non-finite: nan"
+   }
+  }
+ ]
+}

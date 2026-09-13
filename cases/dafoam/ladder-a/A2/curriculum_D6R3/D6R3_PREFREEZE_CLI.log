@@ -1,0 +1,9 @@
+### the exact command line the launcher will emit:
+$ python3 d6r3_inrun_guards.py --selftest --json D6R3_INRUN_SELFTEST.json
+rc=0
+### no-args path (must refuse, not silently succeed):
+rc=64
+### unknown flag --log (the FM9 defect class):
+rc=2
+### --version:
+D6R3-INRUN-DRAFT-1
