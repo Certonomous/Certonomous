@@ -28810,7 +28810,7 @@ under `VERIFICATION_CHARTER` §2d.1, committed BEFORE it ran and before any `DPb
 landing `c5b942df05ac663fbb7db1f739bc9e9ae17587e1`; ADDENDUM 9 in
 `docs/campaigns/F14-cooling-ladder/K2h_PREREGISTRATION.md`.*
 
-## L-587 — killing the worker does not stop the work: a launcher parent respawns it, and checking that your target died is not checking that the job stopped
+## L-587 — killing the worker does not stop the work: a multi-stage script carries on to its next stage, and checking that your target died is not checking that the job stopped
 
 **Measured cost: ~128 core-minutes of pure waste, on a mesh that could never produce a number.**
 
@@ -28837,6 +28837,18 @@ catches it.
 **And sweep for work on retired trees as a matter of routine.** The wasted cores here were
 burning on a tessellation the act had already rejected in writing — nothing would ever have
 read the result, and nothing would have complained.
+
+**CORRECTION, same day, from the lane that paid for it — the MECHANISM in the original
+heading was wrong and the true one is more common.** The launcher did not respawn the mesher.
+`build_level.sh` **runs its stages in sequence**, so killing the `snappyHexMesh` ranks did not
+stop the script: it simply **continued to its next stage**, and a later stage started a mesher
+again. Heading corrected from "a launcher parent respawns it".
+
+**This makes the lesson broader, not narrower. ANY multi-stage build or run script has this
+property** — kill the command it is currently executing and it proceeds to the next one, which
+may rebuild, relaunch, or overwrite. That is ordinary shell behaviour rather than an exotic
+supervisor pattern, and it is why the rule below is stated against the OUTCOME. The three rules
+are unchanged and were correct as written.
 
 *Same family as the reader-limit failures of 2026-09-13 (L-577, L-581…L-585), moved from
 reading to acting: the check was aimed at the thing the operator targeted rather than at the
