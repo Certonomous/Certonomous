@@ -29598,3 +29598,57 @@ have spent a triage cycle on a run that was fine.
 3. **When a reader is found wrong, do not trust its repair on its own word.** Re-derive with a
    **different implementation** and require digit agreement. Both halves of this lesson were
    settled that way and not by inspection.
+
+## L-601 — L-590's worse half, found in the source: IN EXACTLY THE CASE WHERE THE ACHIEVEMENT IS ZERO, THE ACHIEVEMENT TABLE IS NOT PRINTED AT ALL, AND THE ONLY TABLE LEFT ON THE PAGE IS THE ONE THAT LIES
+
+L-590 established that the per-patch layer table in a snappyHexMesh log is the
+REQUEST, not the achievement, because it is printed before `Outer iteration : 0`.
+That is true and it is not the whole trap.
+
+snappyHexMesh prints **two** per-patch tables, from two different functions:
+
+- the request, `patch  faces    layers avg thickness[m]  near-wall overall`,
+  from `snappyLayerDriver::calculateLayerThickness()`
+  (openfoam2606 `src/mesh/snappyHexMesh/snappyHexMeshDriver/snappyLayerDriver.C:1696-1700`);
+- the achievement, `Mesh with layers : cells:...` followed by
+  `patch  faces        layers        overall thickness / target   mesh     [m]       [%]`,
+  from `snappyLayerDriver::printLayerData()` (`:3080-3147`), called from
+  `addLayers()` at `:5211`.
+
+**And `addLayers()` contains, at `snappyLayerDriver.C:5102-5110`:**
+
+```
+        const label nTotalAdded = gSum(patchNLayers);
+        ...
+        if (nTotalAdded == 0)
+        {
+            break;
+        }
+```
+
+**That break is upstream of the `printLayerData()` call at `:5211`.** So a run
+that added zero layers never prints an achievement table. The request table —
+`blades 382233 6 1.79e-06 1.07e-05` — is then the only per-patch table in the
+whole log, and it looks authoritative because nothing contradicts it.
+
+**The consequence for any reader.** A parser that hunts for the achievement table
+and finds nothing must report **achieved = 0**, never "unknown" and never a
+fallback to the request table. Absence of the table IS the zero. The lab's
+reader is `cases/PPTC_VP1304/mesh/read_layer_achievement.py`, which encodes
+that as its `absent-table-implies-zero` route, corroborates it against two
+independent channels (net cells from `Snapped mesh :` versus `Layer mesh :`,
+and the last `Added A out of B cells` line after the last `Outer iteration`),
+and asserts the L-590 ordering — that the request table really does precede
+`Outer iteration` — as an executable refusal rather than a comment.
+
+**The planted control caught its own author, which is the point of having one.**
+The reader's first control planted a synthetic achievement table by INSERTING it
+after the `Layer mesh :` line. On the zero-layer log that passed. On a log that
+already carried a real achievement table it failed loudly — because the reader
+uses the FIRST such table and never looked at the planted second one. **A plant
+must be written into the exact object the reader will consult, located by
+scanning for it, not appended somewhere the reader is merely likely to pass.**
+Eight blinding mutations across three logs now refuse with exit 2 wherever the
+blinded channel exists in the log; the one that does not refuse is genuinely
+redundant with another channel, and that is stated rather than counted as
+coverage.
