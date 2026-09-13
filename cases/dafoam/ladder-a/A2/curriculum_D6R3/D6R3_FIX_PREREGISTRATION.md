@@ -405,3 +405,127 @@ any other point, however many digits agree.** That is the lesson of this arm and
 - **Nothing about whether a `relTol` between `0.1` and `2.008e-03` behaves differently.** The
   response is now known to be non-monotone somewhere in that interval; where, is unmeasured.
 - **Nothing about the carrier of the hierarchy difference.** That is `FIX_NONGAMG1`'s question.
+
+---
+
+## ADDENDUM 2 — 2026-09-13 — RESULT, ARM `FIX_NONGAMG1`. **THE ORDINAL QUESTION IS UNDECIDED, BECAUSE THE ARM NEVER REACHED A SECOND INSTANCE — AND THE REASON IT DID NOT IS ITSELF THE BIGGEST FINDING OF THE DAY.**
+## No gate, threshold, cap or label above is altered by this addendum. Originals stand as written.
+
+Log `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/FIX_NONGAMG1_20260913T203834Z.log`.
+Freeze sha `541a04cb1e1aca6c4f35c59860077a30604698e9` as `G-PREREG` recorded it at launch (the
+pre-registration blob is unchanged from `ff271fd02`; `HEAD` had moved on peers' commits).
+Ledger row `D6R3_FIX_ROW arm=FIX_NONGAMG1 rc=1 wall_s=301 ranks=28 core_min=140.467`.
+
+### 1. VERDICT, from the grading path frozen at the pre-registration commit: **`NOT A RESULT`**
+
+`ordinal_signature: UNDECIDED (fewer than two instances reached step 1)`. **Only one instance ran.**
+`PBiCGStab` with a `diagonal` preconditioner was a valid pairing — no `FOAM FATAL`, no
+`cannot be used for asymmetric matrices`, so the disclosed risk in §4.3 did not materialise — but
+instance 1 missed the gate, DAFoam raised `Primal solution failed!` at `cl04`, and the job aborted
+before `cl05` was constructed. **The isolating measurement `DIAG_AGGLOM1` could not make, this arm
+also could not make.** `H-REMOVE` and `H-REMOVE-DEAD` are both **undecided**; `pairGAMGAgglomeration`'s
+`static bool forward_` remains **named and not adopted**, exactly as `DIAG_AGGLOM1` left it, and
+nothing here permits it to be relayed as demonstrated.
+
+- IC-1 held bit-for-bit: `U0 initRes: 0.9999999999999968 finalRes: 0.0944846591692384 nIters: 2`,
+  `U1 initRes: 1 finalRes: 0.01212907860710623 nIters: 2`, `U2 initRes: 1 finalRes:
+  0.09448777862426254 nIters: 2`, `he initRes: 0.999999999993853 finalRes: 0.08587891623171072
+  nIters: 2`, `p initRes: 0.9999999999942178` — every registered digit.
+- The change reached the solver: step-1 `p finalRes 0.09947106154150043` at `nIters 76`, against
+  GAMG's `0.09743304254827717` at `24`.
+
+### 2. THE MEASUREMENT THAT MATTERS MORE THAN THE ARM'S OWN QUESTION
+
+Instance 1 (`cl04`, position 1) at `Time = 2000`: max residual **`p 7.177342318566405e-06` =
+717.73× `primalMinResTol`**. Parked, not decaying — `p initRes` reads `6.949e-06`, `6.888e-06`,
+`6.876e-06`, `6.767e-06`, `6.991e-06`, `6.930e-06`, `6.844e-06`, `6.312e-06`, `7.177e-06` over the
+last nine printed steps.
+
+**Put beside everything else this campaign has measured, at position 1, on the same fine mesh, the
+same 28-rank decomposition, the same `0.orig`, the same `endTime`:**
+
+| `p` solver configuration | position | max residual at `Time = 2000` | × `primalMinResTol` | converged `CD` |
+|---|---|---|---|---|
+| **published** `GAMG` + `GaussSeidel`, `relTol 0.1` | 1 (`cl04`) | `nuTilda 1.194718885139746e-07` | **11.95×** | `0.02090109066417552` |
+| **published** `GAMG` + `GaussSeidel`, `relTol 0.1` | 2 (`cl05`) | `p 1.757696578179007e-06` | 175.77× | `0.02090262569125358` |
+| `GAMG` + `GaussSeidel`, `relTol 2.008e-03` | 1 (`cl04`) | `p 7.600678874731434e-06` | 760.07× | `0.02090512806637335` |
+| `PBiCGStab` + `diagonal`, `relTol 0.1` | 1 (`cl04`) | `p 7.177342318566405e-06` | 717.73× | `0.02090327575616875` |
+
+**Two readings, and the first is not a hypothesis.**
+
+**(a) THE PHYSICS IS THE SAME IN ALL FOUR — AND THAT IS NOW MEASURED, NOT ASSERTED.** The four
+converged `CD` values span `0.02090109066417552` to `0.02090512806637335`, a relative spread of
+**1.93e-04 — 0.019 %** — across four pressure-solve configurations whose residual floors span a
+factor of **134**. Whatever is wrong here, it is **not the answer**. That was the premise this whole
+fix line rested on, and it now has four independent points behind it instead of two.
+
+**(b) A HYPOTHESIS, NAMED AND NOT ADOPTED: THE PUBLISHED POSITION-1 FLOOR IS THE OUTLIER, NOT THE
+NORM.** Three of the four rows floor between `1.76e-06` and `7.60e-06` — a factor of 4.3 apart, all
+of them **above** the `1.0e-06` that `primalMinResTol 1e-8 × primalMinResTolDiff 100` demands. One
+row, and only one, floors two orders of magnitude lower at `1.19e-07`. On this evidence the natural
+residual floor of this case at this mesh and this decomposition is **O(1e-6 … 1e-5)**, the gate sits
+**at or below** it, and the published single-point tutorial passes **by landing on a fortunately low
+floor rather than by a robust margin**. If that is right, then position 2's `175.77×` was never
+"a defect that broke a working case" — it was **the case's ordinary behaviour, and position 1 was
+the lucky one.**
+
+**This is a hypothesis with three supporting points and one outlier, and it is NOT established.**
+The measurement that would decide it is available and cheap: run the *published* configuration at
+position 1 under **several different decompositions** (the rank count changes the decomposition,
+which changes the processor meshes, which changes the hierarchy) and see whether `1.19e-07` is
+reproducible or is a coincidence of this one 28-rank decomposition. **That experiment is not
+registered here and this lane has not run it.**
+
+### 3. WHAT THIS PAIR OF ARMS DOES AND DOES NOT UNBLOCK
+
+**Neither registered fix works.** Tightening the pressure `relTol` raised position 1's floor by
+63.62×; replacing the pressure solver raised it by 60.08×. **Both departures from the published
+configuration made position 1 worse, and neither reached position 2.**
+
+Directions that remain, none of which is a loosening, **offered for registration and NOT acted on
+by this lane**:
+
+1. **Pressure under-relaxation.** `fvSolution` sets `relaxationFactors { fields { "(p|rho)" 1.0 }
+   equations { p 1.0 } }` — no under-relaxation on pressure anywhere. Under-relaxing `p` is the
+   standard SIMPLE stabiliser and lowers the floor without touching `primalMinResTol`,
+   `primalMinResTolDiff` or `endTime`. **Untested; the leading candidate.**
+2. **One scenario per process.** The ordinality is a *process*-level phenomenon; if each scenario's
+   primal ran in its own MPI job it could not exist. That is an architectural change to the
+   multipoint construction, not a tolerance change.
+3. **More steps will not help.** Every floor measured in this campaign is a *parked* state — flat to
+   within 8.43 % over 1200 steps in `FIX_RELTOL1`, and flat over the last nine printed steps here.
+   Raising `endTime` buys nothing, and this lane says so rather than letting anyone spend on it.
+
+### 4. COST — estimate versus actual (rule 12)
+
+- Registered: **600 core-min** predicted, **1500 core-min** upper bound, for 3 instances, with the
+  registration stating plainly that `PBiCGStab`+`diagonal`'s iteration count *"is not predictable
+  from anything measured here"*.
+- Actual: **140.467 core-min** = `301 wall s × 28 ranks / 60` [`ledger.txt`, `D6R3_FIX_ROW
+  arm=FIX_NONGAMG1 rc=1 wall_s=301 ranks=28 core_min=140.467`] = 2.3411 core-h →
+  **$0.1201 DERIVED, NOT MEASURED** ($0.0513/core-h, owner-stated; `COMPUTE_BUDGET_CHARTER.md` §5).
+  **= gross**; 301 s, far inside the 3600-s stall rule.
+- **Ratio 0.234× — and it is NOT a calibration**, for the same reason as Addendum 1: **1** of 3
+  registered instances ran. Per-instance: **101.9 core-min** measured (`218.36 s ExecutionTime ×
+  28 / 60`) against **200 core-min** registered = **0.510×**. The honest content of that number is
+  that **`PBiCGStab` + `diagonal` is 2.9× CHEAPER per instance than the published `GAMG` at
+  `relTol 0.1`** (101.9 against `P0`'s 299.3 core-min per instance at the same rank count), because
+  its ~30–80 cheap Krylov iterations cost far less than GAMG's 11-level V-cycles. **Contention is
+  not separated from that figure** — two bit-identical runs in this campaign stepped 13.9 % apart —
+  so it is a ratio with a 14 % floor of noise under it, and it is offered as such.
+- **No waste**: the abort at `cl04` is the measurement.
+- Cores: 28 ranks on cpuset `0,2,4,5,7,9,10,11,12,15,16,20,21,22,23,27,28,29,30,31,34,35,36,37,38,
+  39,41,42`, from 63 cores measured ≥ 85 % idle at launch; no overlap with the reserved 48-core
+  propeller lane or the 20-core DrivAer lane; no cap stopped anything (directive #17).
+
+### 5. THE UPSTREAM FINDING — **`NOT FILED`**
+
+Process-static agglomeration state (`pairGAMGAgglomeration.H:63`, `static bool forward_`, flipped at
+`pairGAMGAgglomerate.C:333`) making multi-mesh results order-dependent is upstream **OpenFOAM
+v2506** behaviour, not our wrapper — but our multipoint construction is what made the process plural.
+**`DIAG_AGGLOM1` demonstrated the hierarchy difference; NOTHING in this campaign has yet demonstrated
+`forward_` as its carrier**, and `FIX_NONGAMG1` — the arm that would have — never reached a second
+instance. The finding is therefore recorded as **a hierarchy difference whose carrier is
+hypothesised and unproven**, it is **`NOT FILED`**, it is **not drafted for filing**, and
+**SUBMISSIONS ARE PARKED (rule 7): sending is Sanaa's decision alone and is taken by her.** No
+agent's message is her consent. The four upstream classes stay `NOT FILED`.
