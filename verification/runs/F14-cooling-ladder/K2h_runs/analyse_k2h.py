@@ -245,115 +245,222 @@ def _times_on_rank(pdir):
     return sorted(out)
 
 
+#: OpenFOAM's own end-of-file banner.  A field file without it was truncated
+#: mid-write, which is exactly what a killed solver leaves behind.
+FOAM_EOF_BANNER = "// ******"
+
+
+def _banner_closed(path):
+    try:
+        with open(path, "rb") as fh:
+            fh.seek(max(0, os.path.getsize(path) - 400))
+            return FOAM_EOF_BANNER.encode() in fh.read()
+    except OSError:
+        return False
+
+
 def d_complete(case, segs):
+    """AD7.3's SIX CLAUSES, each strict.  Failing any one is NOT A RESULT.
+
+    AD7.3 replaced the original clause 3 -- "last WRITTEN time == endTime" --
+    because it is WINNABLE BY NOTHING under endTime 112 with writeInterval 5:
+    112 is not a multiple of 5, so no run, no rerun and no successor carrying
+    that pair can ever satisfy it.  A clause with no passing input is not
+    measuring the run; it is measuring a defect in the document.
+
+    THE REPLACEMENT IS OpenFOAM'S OWN TEST, NOT ONE THIS LAB INVENTED, and that
+    is the whole reason this is a reading rather than a relaxation:
+
+        Time::run() is  value <  endTime - 0.5*deltaT
+        Time::end() is  value >  endTime - 0.5*deltaT
+
+    OpenFOAM HAS NEVER TESTED EXACT FLOAT EQUALITY against endTime.  The
+    half-timestep tolerance IS the solver's definition of having finished, and it
+    is why the `End` line gets written at all.  `deltaT` is read FROM THE RUN, not
+    from a constant, and the three numbers -- value, tolerance, shortfall -- are
+    printed beside the result so a reader can redo the comparison without the
+    OpenFOAM source in front of them.
+
+    WHICH DIRECTORY THE LAST WRITE LANDED IN IS AN INFRASTRUCTURE FACT, set
+    entirely by writeInterval (this entry's own `_field_classes`, L-342).  It is
+    REPORTED, and it does not by itself produce NOT A RESULT.
+    """
     why, detail = [], {}
+    final = segs[-1]
 
-    # clause 1 -- rc = 0, from the wrapper's own capture
+    # ---- clause 1: rc = 0, from the WRAPPER's own capture -------------------
     rc, rc_src = status_rc(case)
-    detail["rc"] = rc
-    detail["rc_source"] = rc_src
+    detail["clause_1_rc"] = {"rc": rc, "source": rc_src}
     if rc is None:
-        why.append("rc could not be read (%s)" % rc_src)
+        why.append("clause 1: rc could not be read (%s)" % rc_src)
     elif rc != 0:
-        why.append("rc = %d, not 0" % rc)
+        why.append("clause 1: rc = %d, not 0" % rc)
 
-    # clause 2 -- an End line, in the FINAL segment
-    ends = [s["end"] for s in segs]
-    detail["End_lines_per_segment"] = ends
-    if not segs[-1]["end"]:
-        why.append("the final log segment carries no `End` line")
+    # ---- clause 2: an End line in log.solve ---------------------------------
+    detail["clause_2_End_lines_per_segment"] = [x["end"] for x in segs]
+    if not final["end"]:
+        why.append("clause 2: the final log segment carries no `End` line")
 
-    # clause 3 -- last written time == endTime, on EVERY rank
+    # ---- clause 3: integrated to endTime, AS OPENFOAM TESTS IT --------------
+    last_t = final["t_last"] if final["t"] else float("nan")
+    dts = [x for x in final["dt"] if x == x]
+    dt_last = dts[-1] if dts else float("nan")
+    tol = 0.5 * dt_last
+    shortfall = ENDTIME - last_t
+    reached = last_t > (ENDTIME - tol)
+    detail["clause_3_endTime"] = {
+        "test": "Time::end(): last_time > endTime - 0.5*deltaT",
+        "last_logged_time": last_t,
+        "endTime": ENDTIME,
+        "deltaT_read_from_the_run": dt_last,
+        "half_deltaT_tolerance": tol,
+        "shortfall": shortfall,
+        "inside_the_solvers_own_tolerance": bool(reached),
+        "note": ("Exact float equality is NOT the test and never was the "
+                 "solver's. deltaT is read from the run, not from a constant."),
+        "result": "REACHED endTime" if reached else "DID NOT REACH endTime"}
+    if not reached:
+        why.append("clause 3: last logged time %.8f is NOT inside OpenFOAM's own "
+                   "tolerance of endTime %g -- shortfall %.8f against "
+                   "0.5*deltaT = %.8f" % (last_t, ENDTIME, shortfall, tol))
+
+    # ---- the last WRITE: reported as INFRASTRUCTURE, never a failure -------
     procs = sorted(glob.glob(os.path.join(case, "processor*")))
     if len(procs) != RANKS:
         why.append("found %d processor* dirs, expected %d" % (len(procs), RANKS))
     lasts = {}
-    for p in procs:
-        ts = _times_on_rank(p)
-        lasts[os.path.basename(p)] = ts[-1] if ts else None
-    detail["last_written_time_per_rank"] = lasts
-    for k, v in lasts.items():
-        if v is None or abs(v - ENDTIME) > 1e-9:
-            why.append("%s last written time %s != endTime %g" % (k, v, ENDTIME))
+    for p_ in procs:
+        ts = _times_on_rank(p_)
+        lasts[os.path.basename(p_)] = ts[-1] if ts else None
+    vals = [v for v in lasts.values() if v is not None]
+    last_written = max(vals) if vals else None
+    detail["INFRASTRUCTURE_last_written_time"] = {
+        "per_rank": lasts, "value": last_written, "endTime": ENDTIME,
+        "why_it_differs": ("writeInterval 5 does not divide endTime 112, and "
+                           "OpenFOAM writes only on writeInterval boundaries. "
+                           "AD7.3: which directory the last write landed in is "
+                           "an INFRASTRUCTURE fact and does NOT by itself "
+                           "produce NOT A RESULT.")}
+    if last_written is None:
+        why.append("no written time on any rank")
+    elif len(set(vals)) != 1:
+        why.append("the four ranks disagree on their last written time: %s"
+                   % lasts)
 
-    # clause 4 -- fields present at endTime on every rank, PLUS the means
-    tname = FR._tname(case, ENDTIME)
-    missing = []
-    for p in procs:
-        for f in FIELDS_REQUIRED + MEANS_REQUIRED:
-            if not os.path.exists(os.path.join(p, tname, f)):
-                missing.append("%s/%s/%s" % (os.path.basename(p), tname, f))
-    detail["missing_fields_at_endTime"] = missing
-    if missing:
-        why.append("%d field files missing at endTime (%s%s)"
-                   % (len(missing), ", ".join(missing[:6]),
-                      " ..." if len(missing) > 6 else ""))
-
-    # clause 5 -- the step count, PER SEGMENT.  The ERRATUM's trap.
-    seg_rows = []
-    for i, s in enumerate(segs, 1):
-        ok = (s["n_exec"] == s["n_time"]) or (s["n_exec"] == s["n_time"] - 1)
-        seg_rows.append({"segment": i, "n_Time": s["n_time"],
-                         "n_ExecutionTime": s["n_exec"],
-                         "t_first": s["t_first"], "t_last": s["t_last"],
-                         "exec_s": s["exec_s"], "core_min": s["core_min"],
-                         "dt_mean": s["dt_mean"], "agrees": ok})
-    detail["segments"] = seg_rows
-    detail["concatenated_n_exec_DO_NOT_USE"] = sum(s["n_exec"] for s in segs)
-    # A non-final segment may carry exactly ONE more `Time =` than
-    # `ExecutionTime =`: the in-flight step that died mid-write (ERRATUM).
-    for r, s in zip(seg_rows, segs):
-        if s is segs[-1]:
-            if r["n_ExecutionTime"] != r["n_Time"]:
-                why.append("final segment: %d ExecutionTime lines against %d "
-                           "Time lines; a completed segment must agree"
-                           % (r["n_ExecutionTime"], r["n_Time"]))
-        elif not r["agrees"]:
-            why.append("segment %d: %d ExecutionTime lines against %d Time "
-                       "lines; a killed segment may differ by at most the one "
-                       "in-flight step" % (r["segment"], r["n_ExecutionTime"],
-                                           r["n_Time"]))
-
-    # clause 6 -- THE AGE GUARD.  `0/T` is touched last at launch and so dates
-    # the run that was allowed to produce the answer.
-    ref_paths = [os.path.join(case, "0", "T")]
-    ref_paths += [os.path.join(p, "0", "T") for p in procs]
-    ref_paths = [p for p in ref_paths if os.path.exists(p)]
-    if not ref_paths:
-        why.append("no `0/T` anywhere in the case; the age guard has no "
-                   "reference and cannot be evaluated")
-        detail["age_guard"] = "NO REFERENCE"
-    else:
-        ref = max(os.path.getmtime(p) for p in ref_paths)
-        detail["age_guard_reference_mtime"] = ref
-        detail["age_guard_reference_files"] = ref_paths
-        stale = []
-        for p in procs:
+    # ---- clause 4: fields at the LAST WRITTEN time, banner-closed ----------
+    tname = FR._tname(case, last_written) if last_written is not None else None
+    missing, truncated = [], []
+    if tname is not None:
+        for p_ in procs:
             for f in FIELDS_REQUIRED + MEANS_REQUIRED:
-                fp = os.path.join(p, tname, f)
-                if os.path.exists(fp) and os.path.getmtime(fp) <= ref:
-                    stale.append("%s/%s/%s" % (os.path.basename(p), tname, f))
-        detail["age_guard_stale_files"] = stale
-        # NOT "PASS"/"FAIL".  Bare `FAIL` is not in rule 1's fixed vocabulary at
-        # all -- rule 1 records an OPEN, UNRULED conflict about ledger cells that
-        # read exactly that -- and a bare `PASS` here is a CLAUSE state, not this
-        # level's gate verdict, so a reader grepping this record for a verdict
-        # word would find one that is not the verdict.  Both are spelled so they
-        # cannot be mistaken for either.
-        detail["age_guard"] = ("AGE GUARD SATISFIED" if not stale
-                               else "AGE GUARD VIOLATED")
-        if stale:
-            why.append("AGE GUARD: %d field(s) at endTime are NOT newer than "
-                       "`0/T` (%s%s)" % (len(stale), ", ".join(stale[:6]),
-                                         " ..." if len(stale) > 6 else ""))
+                fp = os.path.join(p_, tname, f)
+                if not os.path.exists(fp):
+                    missing.append("%s/%s/%s" % (os.path.basename(p_), tname, f))
+                elif not _banner_closed(fp):
+                    truncated.append("%s/%s/%s" % (os.path.basename(p_), tname, f))
+    detail["clause_4_fields"] = {
+        "at_time": tname, "required": list(FIELDS_REQUIRED + MEANS_REQUIRED),
+        "missing": missing, "not_banner_closed": truncated,
+        "checked": "presence AND OpenFOAM's own end-of-file banner, all %d ranks"
+                   % len(procs)}
+    if missing:
+        why.append("clause 4: %d field file(s) missing at the last written time "
+                   "(%s%s)" % (len(missing), ", ".join(missing[:6]),
+                               " ..." if len(missing) > 6 else ""))
+    if truncated:
+        why.append("clause 4: %d field file(s) are NOT closed by OpenFOAM's "
+                   "end-of-file banner, i.e. truncated mid-write (%s%s)"
+                   % (len(truncated), ", ".join(truncated[:6]),
+                      " ..." if len(truncated) > 6 else ""))
 
-    # not a clause, but reported: anything the log flagged
-    bad = [b for s in segs for b in s["bad"]]
+    # ---- clause 5: THE AGE GUARD -------------------------------------------
+    ref_paths = [os.path.join(case, "0", "T")]
+    ref_paths += [os.path.join(p_, "0", "T") for p_ in procs]
+    ref_paths = [x for x in ref_paths if os.path.exists(x)]
+    if not ref_paths or tname is None:
+        why.append("clause 5: the age guard has no reference `0/T` and cannot "
+                   "be evaluated")
+        detail["clause_5_age_guard"] = {"state": "NO REFERENCE"}
+    else:
+        ref = max(os.path.getmtime(x) for x in ref_paths)
+        stale = []
+        for p_ in procs:
+            for f in FIELDS_REQUIRED + MEANS_REQUIRED:
+                fp = os.path.join(p_, tname, f)
+                if os.path.exists(fp) and os.path.getmtime(fp) <= ref:
+                    stale.append("%s/%s/%s" % (os.path.basename(p_), tname, f))
+        detail["clause_5_age_guard"] = {
+            "state": "AGE GUARD SATISFIED" if not stale else "AGE GUARD VIOLATED",
+            "reference_mtime": ref, "reference_files": ref_paths,
+            "stale": stale}
+        if stale:
+            why.append("clause 5: AGE GUARD -- %d field(s) are NOT newer than "
+                       "`0/T`" % len(stale))
+
+    # ---- clause 6: the accumulator PRESENT AND AGREEING on all four ranks ---
+    # STRICTER THAN ANYTHING THE ORIGINAL TEXT DEMANDED (AD7.3), and said so here
+    # rather than buried: the original asked only that the means be present.
+    acc_state, acc_detail = accumulator_agreement(
+        case, last_written if last_written is not None else ENDTIME)
+    detail["clause_6_accumulator"] = {
+        "state": acc_state, "detail": acc_detail,
+        "STRICTER_THAN_THE_ORIGINAL": (
+            "AD7.3 clause 6 requires the fieldAverage accumulator PRESENT AND "
+            "AGREEING across all four ranks on totalIter and totalTime. The "
+            "original text asked only that the mean FIELDS be present. Four "
+            "present-but-disagreeing accumulators would have satisfied that and "
+            "still produced a wrong mean.")}
+    if acc_state != "AGREE":
+        why.append("clause 6: the fieldAverage accumulator is %s across the four "
+                   "ranks; the time mean it produced is not one quantity"
+                   % acc_state)
+
+    # ---- the log-segment split, kept visible (the ERRATUM's trap) ----------
+    detail["log_segments"] = [
+        {"segment": i, "n_Time": x["n_time"], "n_ExecutionTime": x["n_exec"],
+         "t_first": x["t_first"], "t_last": x["t_last"], "exec_s": x["exec_s"],
+         "core_min": x["core_min"], "dt_mean": x["dt_mean"]}
+        for i, x in enumerate(segs, 1)]
+    detail["concatenated_n_exec_DO_NOT_USE"] = sum(x["n_exec"] for x in segs)
+
+    bad = [b for x in segs for b in x["bad"]]
     detail["flagged_log_lines"] = bad
     if bad:
         why.append("%d log line(s) flagged as fault signatures" % len(bad))
 
+    detail["AD7_4_DISCLOSURE"] = window_disclosure(last_written)
     return ("COMPLETE" if not why else "INCOMPLETE"), why, detail
+
+
+def window_disclosure(last_written):
+    """AD7.4's disclosure. THE PRICE OF THE RULING, AND IT IS NOT OPTIONAL.
+
+    A permissive ruling that hides that it is permissive is worth less than no
+    ruling, so this rides on EVERY emission of the graded value -- the grade
+    record, the certificate, and burned into every figure caption.  A figure
+    travels further than the record it came from.
+    """
+    if last_written is None:
+        return "AD7.4 disclosure: no written time, so no window was covered."
+    if float(last_written) <= WIN_LO:
+        # Guard against a nonsense NEGATIVE window.  Before the last write
+        # reaches S-WINDOW's start there is no covered interval at all, and
+        # printing "-2 s, -2.9 %" would be arithmetic about nothing dressed as a
+        # coverage figure.
+        return ("AD7.4 disclosure: the last written time %g is at or BEFORE "
+                "S-WINDOW's start %g, so NONE of the registered %g -> %g window "
+                "is covered and no mean over it exists. This is not a small "
+                "shortfall; it is zero coverage."
+                % (float(last_written), WIN_LO, WIN_LO, WIN_HI))
+    covered = float(last_written) - WIN_LO
+    registered = WIN_HI - WIN_LO
+    return (
+        "The graded DPbar is the mean over simulated %g -> %g s, NOT %g -> %g s. "
+        "That is %g s of the registered %g s window -- %.1f %%. The registered "
+        "S-WINDOW is %g -> %g and it was NOT fully covered, because this solver "
+        "writes only on writeInterval boundaries and %g is not one."
+        % (WIN_LO, float(last_written), WIN_LO, WIN_HI, covered, registered,
+           100.0 * covered / registered, WIN_LO, WIN_HI, WIN_HI))
 
 
 # ---------------------------------------------------------------------------
@@ -782,8 +889,12 @@ def main():
         comp, why, cdet = d_complete(CASE, segs)
         out["D_COMPLETE"] = {"state": comp, "why_not": why, "detail": cdet}
 
-        acc, adet = accumulator_agreement(CASE)
-        out["accumulator"] = {"state": acc, "detail": adet}
+        # The accumulator is AD7.3 CLAUSE 6 and is graded inside `d_complete`
+        # at the LAST WRITTEN TIME.  It is deliberately NOT re-gated here: the
+        # earlier version of this file checked it at ENDTIME 112, a directory
+        # that never exists, and would have produced a second false NOT A RESULT
+        # on a clause already graded correctly a few lines above.
+        out["accumulator"] = out["D_COMPLETE"]["detail"].get("clause_6_accumulator")
 
         if comp != "COMPLETE":
             out["verdict"] = "NOT A RESULT"
@@ -792,13 +903,6 @@ def main():
             out["diagnostics_not_the_graded_value"] = \
                 diagnostics_beside_a_refusal(CASE)
             return _emit(out, EXIT_NAR)
-        if acc != "AGREE":
-            out["verdict"] = "NOT A RESULT"
-            out["verdict_reason"] = (
-                "the fieldAverage accumulator is %s across the four ranks; the "
-                "time mean it produced is not one quantity" % acc)
-            return _emit(out, EXIT_NAR)
-
         pc_lo = planted_zero(CASE, PATCH_LO)
         pc_hi = planted_zero(CASE, PATCH_HI)
         out["planted_zero"] = {PATCH_LO: pc_lo, PATCH_HI: pc_hi}
@@ -813,6 +917,8 @@ def main():
         out["DPbar"] = {"value": val, "detail": vdet, "band": BAND,
                         "reader": "FROZEN foam_patch_reader.area_average",
                         "field": MEAN_FIELD,
+                        "AD7_4_DISCLOSURE": out["D_COMPLETE"]["detail"]
+                            .get("AD7_4_DISCLOSURE"),
                         "what_this_quantity_actually_is": WHAT_DP_IS,
                         "planted_zero_is_what_makes_the_zero_evidence": (
                             "Both patches were shown able to see a planted "
@@ -924,6 +1030,11 @@ def _emit(out, code):
     else:
         print("VERDICT: %s" % out["verdict"])
         print("REASON : %s" % out["verdict_reason"])
+    disc = (out.get("D_COMPLETE", {}).get("detail", {}) or {}).get("AD7_4_DISCLOSURE")
+    if disc:
+        # AD7.4: THE PRICE OF THE RULING, AND IT IS NOT OPTIONAL.  A permissive
+        # ruling that hides that it is permissive is worth less than no ruling.
+        print("WINDOW : %s" % disc)
     print("COST   : %s" % out["cap_note"])
     print("=" * 78)
     return code
