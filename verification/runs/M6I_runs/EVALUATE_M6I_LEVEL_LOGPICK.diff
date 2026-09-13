@@ -1,0 +1,75 @@
+--- a/verification/runs/M6I_runs/evaluate_m6i_level.sh
++++ b/verification/runs/M6I_runs/evaluate_m6i_level.sh
+@@ -22,9 +22,41 @@
+ echo "================ $L ================"
+ RC=$(cat "$C/RC.txt" 2>/dev/null || echo "ABSENT")
+ ET=$(grep -oE '^endTime +[0-9]+;' "$C/system/controlDict" 2>/dev/null | grep -oE '[0-9]+')
+-LAST=$(grep -E "^Time = " "$C/log.rhoSimpleFoam" 2>/dev/null | tail -1 | grep -oE '[0-9]+' || echo 0)
+-ENDL=$(grep -c "^End" "$C/log.rhoSimpleFoam" 2>/dev/null || echo 0)
+-echo "  rc=$RC  endTime=$ET  last stage-2 Time=$LAST  End lines=$ENDL"
++
++# ---- DEFECT FIX 1 -- pick the TERMINATING stage log instead of hard-coding a name.
++#  A level that finishes on a RESUME stage leaves log.rhoSimpleFoam stopped mid-run with
++#  NO End line.  Reading that fixed name grades a COMPLETED run as NOT A RESULT and, worse,
++#  hands the same dead log to the frozen grader as its P4 argument, so the grader refuses
++#  (exit 2) and NO Cp NUMBER IS PRODUCED AT ALL.
++#  MEASURED ON L1: log.rhoSimpleFoam stops at `Time = 844` with 0 End lines; the run
++#  actually terminated in log.rhoSimpleFoam.resume.2 at `Time = 8000` with an End line and
++#  rc=0.  AS WRITTEN, THIS SCRIPT WOULD HAVE GRADED L1 -- THE FINEST AND BEST LEVEL IN THE
++#  FAMILY, 1,098 core-minutes -- AS `NOT A RESULT: C1 failed`, AND WOULD HAVE PRINTED NO
++#  Cp ROW FOR IT.  The level that actually landed would have been thrown away by its own
++#  measuring instrument.
++#  The rule applied is the strict completion rule, unchanged: the terminating log is the
++#  stage log that carries an `End` line AND whose last `Time =` equals endTime.  If no
++#  stage log satisfies both, NOTHING is guessed -- C1 fails and the grader is not run.
++TLOG=""
++for f in $(ls -1 "$C"/log.rhoSimpleFoam "$C"/log.rhoSimpleFoam.startup \
++                 "$C"/log.rhoSimpleFoam.resume.* 2>/dev/null \
++           | grep -v '\.stderr$' | sort -V); do
++  grep -q "^End" "$f" 2>/dev/null || continue
++  lt=$(grep -E "^Time = " "$f" 2>/dev/null | tail -1 | grep -oE '[0-9]+')
++  [ "${lt:-x}" = "${ET:-y}" ] || continue
++  TLOG="$f"
++done
++if [ -n "$TLOG" ]; then
++  LAST=$(grep -E "^Time = " "$TLOG" | tail -1 | grep -oE '[0-9]+')
++  ENDL=$(grep -c "^End" "$TLOG" || true)
++else
++  LAST=0; ENDL=0
++fi
++# ---- DEFECT FIX 2 -- `grep -c` EXITS 1 when it counts zero, so the old
++#  `$(grep -c ... || echo 0)` captured the string "0\n0", and `[ "0\n0" -ge 1 ]` failed as a
++#  bash syntax error rather than as a count.  C1 came out FAIL for the right reason by
++#  accident.  `|| true` above keeps the count and drops the exit status.
++echo "  rc=$RC  endTime=$ET  terminating log=${TLOG:-NONE FOUND}  last Time=$LAST  End lines=$ENDL"
+ 
+ # ---- C1 -------------------------------------------------------------------
+ bash "$REPO/scripts/monitor_m6i_bounds.sh" "$L" 2>/dev/null | sed 's/^/  /'
+@@ -32,16 +64,24 @@
+ [ "$RC" = "0" ] || C1=FAIL
+ [ "${LAST:-0}" = "${ET:-x}" ] || C1=FAIL
+ [ "${ENDL:-0}" -ge 1 ] 2>/dev/null || C1=FAIL
+-NBMAX=$(cat "$C"/log.rhoSimpleFoam.startup "$C"/log.rhoSimpleFoam 2>/dev/null | grep "bounding nuTilda" \
++# ---- DEFECT FIX 3 -- the LC-2 limb read only the startup and stage-2 logs and was BLIND
++#  to every resume stage.  On L1 the resume stages carry 7,098 of the 7,635 `bounding
++#  nuTilda` lines, so the limb was reading 7 % of its own evidence.  Read every stage log.
++NBMAX=$(cat $(ls -1 "$C"/log.rhoSimpleFoam "$C"/log.rhoSimpleFoam.startup \
++                    "$C"/log.rhoSimpleFoam.resume.* 2>/dev/null | grep -v '\.stderr$') \
++        2>/dev/null | grep "bounding nuTilda" \
+         | awk '{for(j=1;j<=NF;j++) if($j=="max:"){v=$(j+1)+0; if(v>m)m=v}} END{print m+0}')
+ awk -v x="${NBMAX:-0}" 'BEGIN{exit !(x>1e6)}' && C1=FAIL
+ echo "  C1 (it ran) = $C1   [worst bounding nuTilda max = ${NBMAX:-0}, LC-2 threshold 1e6]"
+ 
+ # ---- the frozen grader, unchanged ----------------------------------------
+-if [ -f "$C/cp_extracted.json" ]; then
++if [ -f "$C/cp_extracted.json" ] && [ -n "$TLOG" ]; then
++  # The frozen grader's P4 argument is the TERMINATING log, not a fixed name (DEFECT FIX 1).
++  # The grader itself is UNCHANGED -- blob e9d5c04b at 4c931d97c.  Only which log it is
++  # pointed at changes, and it is pointed at the log that actually carries the End line.
+   python3 "$REPO/scripts/grade_m6_agard_cp.py" \
+      "$REPO/models/onera_m6/agard_ar138_table_b1_14_test2308_cp.dat" \
+-     "$C/cp_extracted.json" "$C/log.rhoSimpleFoam" "$C/m6i_grade_$L.json" > /dev/null 2>&1
++     "$C/cp_extracted.json" "$TLOG" "$C/m6i_grade_$L.json" > /dev/null 2>&1
+   python3 - "$C/m6i_grade_$L.json" <<'PY'
+ import json,sys
+ d=json.load(open(sys.argv[1]))
