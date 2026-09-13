@@ -1039,3 +1039,126 @@ questions and only one has been answered.
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 7 — 2026-09-13 ~00:05Z: OPTION (d), THE FOURTH — COMPLETION IS GRADED ON THE SOLVER'S OWN EVIDENCE, INCLUDING OpenFOAM'S OWN `endTime` EQUALITY TEST
+
+**Version 1.7 → 1.8. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0.**
+
+***REGISTERED WHILE `DPbar` DOES NOT YET EXIST.*** At the moment of writing the
+run is at **t = 41.72 of 112**; averaging begins at **42**; the graded value
+will not exist until ≈ 05:05Z. **This completion rule is therefore fixed BEFORE
+the number it will be applied to — which is the only thing that stops it being a
+rule chosen to fit an answer, and it is the reason it is written now rather than
+at 05:05Z.**
+
+**NONE OF §AD5.5's THREE OPTIONS SATISFIES THE THREE CONDITIONS SET FOR THIS
+RULING** — (a) change no gate, threshold, band or label; (b) grade completion on
+the solver's own evidence with `writeInterval` treated as an INFRASTRUCTURE
+field; (c) cost nothing beyond a dated addendum. **(a) grades `NOT A RESULT` on a
+clause no run can satisfy; (b) spends compute and changes a registered value;
+(c) costs a whole new run.** **This is the fourth.**
+
+### AD7.1 THE GROUND: AN UNSATISFIABLE CLAUSE IS A DEFECT, NOT A GATE
+
+**A gate must be losable AND winnable.** §AD5.4 established that §5's `endTime`
+112 and §9's `writeInterval` 5 **cannot both be met by this solver** — 112 is not
+a multiple of 5 — so `D-COMPLETE`'s clause *"last WRITTEN time == `endTime`"* is
+**winnable by nothing**: not this run, not a rerun, not any successor carrying
+that pair. **A clause with no passing input is not measuring the run; it is
+measuring a defect in the document.** *Precedent on this team's own record: T5f's
+§7 line 233 demanded a field list "in BOTH regions" when a cht SOLID writes `T p`
+only — unsatisfiable by construction, ruled permissive by dated addendum, and
+**the addendum said that it leaned permissive**. This one says so too.*
+
+### AD7.2 THE REPLACEMENT TEST IS OpenFOAM'S OWN, NOT ONE THIS LAB INVENTED
+
+**This is the load-bearing part, and it is the reason this ruling is not a
+tolerance chosen to let a run through.** `Time::run()` is
+`value < endTime - 0.5*deltaT` and **`Time::end()` is
+`value > endTime - 0.5*deltaT`**. **OpenFOAM does not test exact float equality
+against `endTime`; it uses a HALF-TIMESTEP tolerance, and that tolerance is the
+solver's own definition of having finished** — it is why the `End` line is
+written at all.
+
+**MEASURED, ON THIS RUN'S OWN NUMBERS:**
+
+| quantity | value |
+|---|---|
+| `deltaT` (measured, Courant-pinned) | 0.005910165485 |
+| `0.5*deltaT` — OpenFOAM's own tolerance | **0.0029550827** |
+| final value, 338 steps from the t = 110 write | **111.99763593** |
+| shortfall from `endTime` 112 | **0.0023640661** |
+| **inside the solver's own tolerance?** | **YES — 0.0023641 < 0.0029551** |
+| `Time::run()` → | **False** (the loop ends) |
+| `Time::end()` → | **TRUE** |
+
+***BY OpenFOAM'S OWN ARITHMETIC THIS RUN REACHES `endTime`.*** The lab is not
+relaxing a threshold; it is **reading the solver's own completion test instead of
+a stricter one the document assumed**.
+
+### AD7.3 THE RULE, STATED SO IT CAN BE APPLIED BY SOMEONE WHO WAS NOT HERE
+
+**`D-COMPLETE` and standing rule 4 are graded on the SOLVER'S OWN EVIDENCE,
+each clause strict:**
+
+1. `rc = 0`.
+2. An **`End`** line in `log.solve`.
+3. **The solver integrated to `endTime`**, tested as OpenFOAM tests it:
+   `last time > endTime - 0.5*deltaT`, i.e. **`Time::end()` true**. *Exact float
+   equality is NOT the test and never was the solver's test.*
+4. The registered fields **present at the last written time and each closed by
+   OpenFOAM's own end-of-file banner**, on **all four ranks**.
+5. The **age guard** — every field newer than the case's own `0/T`.
+6. The **`fieldAverage` accumulator present and AGREEING across all four ranks**
+   on `totalIter` and `totalTime`.
+
+**FAILING ANY OF THE SIX IS `NOT A RESULT`. None of the six is relaxed, and
+clause 6 is STRICTER than anything the original text demanded.**
+
+***WHICH TIME DIRECTORY THE LAST WRITE LANDED IN IS AN INFRASTRUCTURE FACT***,
+determined entirely by `writeInterval` — the field this ruling treats as
+infrastructure — and it **does not by itself produce `NOT A RESULT`** (this
+entry's own `_field_classes`, L-342).
+
+### AD7.4 WHAT MUST BE REPORTED BESIDE THE VERDICT, EVERY TIME, WITHOUT EXCEPTION
+
+**THE DEVIATION IS DISCLOSED, NEVER ABSORBED. This clause is the price of the
+ruling and it is not optional:**
+
+> **The graded `DPbar` is the mean over simulated 42 → 110 s, NOT 42 → 112 s.
+> That is 68 s of the registered 70 s window — 97.1 %. The registered
+> `S-WINDOW` is 42 → 112 and it was NOT fully covered, because this solver
+> writes only on `writeInterval` boundaries and 112 is not one.**
+
+**It is stated in the grade record, in the certificate, and burned into every
+figure's caption** — the renderer already carries both numbers
+(`5e3fe70fe`). **A figure travels further than the record it came from.**
+
+### AD7.5 WHAT DOES NOT MOVE, AND THE ADMISSION
+
+**NO gate value, NO threshold, NO band, NO label changes.** `G-DPBAR`
+[27.9699, 28.0901] m²/s² stands. `D-STATIONARY` 5.0e-03 stands and is read from
+the **dense per-time-step series**, which runs to 111.998 **independently of what
+was checkpointed**. §7's five predictions stand. §8's POINT and cap stand — and
+the cap is **recorded, never enforced** (ADDENDUM 6). The planted-zero control
+and the frozen reader are untouched.
+
+***AND THE ADMISSION, IN THE PLAINEST WORDS I CAN PUT IT: THIS RULING LEANS
+PERMISSIVE.*** A document that had been written correctly would have registered
+`endTime` 110 or 115, or a `writeInterval` that divides 112, and no ruling would
+be needed. **What defends it is not that the outcome is convenient — it is that
+(i) the clause it replaces could never be satisfied by any run, (ii) the test
+that replaces it is the solver's own rather than one the lab chose, (iii) the
+shortfall is inside that test by measurement, 0.0023641 against 0.0029551, and
+(iv) it is fixed BEFORE the graded value exists.** **If any one of those four
+were absent this would be a gate moved to fit an answer, and it should be read
+as such by anyone who finds one of them false.**
+
+**RECORDED AND NOT RAISED AGAIN.** §AD5.5's escalation is **closed** by this
+addendum.
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
