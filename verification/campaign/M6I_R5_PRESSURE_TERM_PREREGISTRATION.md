@@ -188,3 +188,70 @@ This run will finish on a resume stage and is affected.
 *Drafted by a cfd `lab-lane`, 2026-09-13. NOT FROZEN — NOT COMMITTED — NO RUN AUTHORISED.
 Alters no existing gate, threshold, band, cap or label. No agent's message is Sanaa's
 consent. Submissions parked.*
+
+---
+
+# ADDENDUM 1 — 2026-09-13, cfd-supervisor. §3's ITEM LIST CONTRADICTS §3's OWN FIRST SENTENCE AND §6 TWICE; THE `endTime` TOKEN IS STRUCK.
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label.** D1 (≥ 0.1401),
+D2 (≥ 0.0880), D3, S1 (≥ 0.212 / ≥ 0.320), S2 (< 0.85), B1 (≤ 0.050) and B2 are
+numerically untouched, as is the 131.1 core-minute cap and the grading path.
+
+## A1.1 THE CONTRADICTION
+
+§3 sentence 1: *"restarted from L2's converged 5000 field, **3,000 further iterations**."*
+§3 sentence 2 lists **`endTime`** among the things that *"stay byte-identical to L2's."*
+
+**L2's `endTime` is 5000. Restarting at 5000 with `endTime` 5000 executes ZERO
+iterations.** The two sentences cannot both be carried out. The document was
+**unexecutable as written**, and this was true at the moment I froze it.
+
+## A1.2 THE RULING — THE `endTime` TOKEN IS STRUCK FROM §3's LIST
+
+~~`endTime`~~ is **struck** from §3 sentence 2's list of unchanged items. The original
+text is **not rewritten**; it stands above with this strike recorded here.
+
+`endTime` for `L2_PHIDP` is **8000** = 5000 + 3000.
+
+**Why this reading and not the other.** **Three independent statements in the frozen
+document say 3,000 iterations** — §3 sentence 1, §6's 43.7 core-minute prediction
+(3,000 × 0.01456), and §6's 131.1 core-minute cap (3× that). **One token in one list
+disagrees.** A cap denominated in 3,000 iterations cannot be overrun by running 3,000.
+**`endTime` is a run length; no gate in this document reads it.** The alternative reading
+executes nothing and produces no measurement at all.
+
+## A1.3 THE FAULT IS MINE BEFORE IT IS THE LANE'S
+
+The lane drafted the list. **I read this document end to end and committed it at
+`27a491e77`, and I did not catch that §3 contradicted itself.** My §3 check verified the
+pre-compute condition, the gates and the cost basis; **it did not verify the document's
+internal consistency, and that is a gap in how I read a registration, not a lane error.**
+
+**What the lane did right, and it is the part that makes this recoverable:** it recorded
+the deviation **BEFORE the solver started**, beside the run, at
+`verification/runs/M6I_runs/L2_PHIDP/DEVIATION_NOTE_endTime.txt`, did not edit the frozen
+file, and offered to void the run at a cost of 43.7 core-minutes rather than defend the
+choice. **Picking a reading of a frozen document is the thing rule 2 exists to prevent**,
+and the lane said so itself. The defect that forced a reading was in the document.
+
+## A1.4 THE RUN THIS ADDENDUM COVERS
+
+`verification/runs/M6I_runs/L2_PHIDP/`, launched **2026-09-13T04:23:09Z**, solver pids
+417965 / 417966 / 417968 / 417970, mpirun 417906, 4 ranks, detached, rc captured inside
+the wrapper. Preconditions discharged in the same shell invocation as the launch: frozen
+grader `5a7349c5…e47116` identical to the blob at `4c931d97c`; this pre-registration on
+disk identical to the blob at `27a491e77` **as frozen, i.e. before this addendum**.
+
+**The one change, proven to be the only change** — `diff -r` over `constant/` and every
+file in `system/` returns exactly two files and three lines:
+`div(phid,p)`: `Gauss upwind` → `Gauss limitedLinear 1`;
+`div((phi|interpolate(rho)),p)`: `bounded Gauss upwind` → `bounded Gauss limitedLinear 1`;
+`endTime`: `5000` → `8000` (this addendum). `constant/` byte-identical.
+
+## A1.5 WHAT IS NOT CLAIMED HERE
+
+This addendum records a run length and a reading. **It is not a result and it does not
+anticipate one.** D1, D2 and D3 decide the rung, the cure gate §4.1 is unchanged, and the
+early p-residual excursion from 1e-6 to 6.5e-3 is a *state*, not a finding.
