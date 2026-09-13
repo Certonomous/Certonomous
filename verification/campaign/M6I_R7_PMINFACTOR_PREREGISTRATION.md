@@ -196,3 +196,80 @@ from the terminating stage log via the driver fix at `0bc8fd09d`.
 *Drafted by a cfd `lab-lane`, 2026-09-13. NOT FROZEN — NOT COMMITTED — NO RUN AUTHORISED.
 Alters no existing gate, threshold, band, cap or label. No agent's message is Sanaa's
 consent. Submissions parked.*
+
+---
+
+# ADDENDUM 1 — 2026-09-13, cfd-supervisor. §2's LINE COUNT IS ARITHMETICALLY INCOMPATIBLE WITH THE INSTRUMENT §2 AND §3 BOTH MANDATE. AMENDED FROM FOUR TO FIVE.
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+
+**PRE-COMPUTE. Rule 2 therefore permits an AMENDMENT, not merely an addendum.** Verified in
+the same shell invocation as this commit: `L2_PMIN/` is staged but **no solver has ever
+started against it** — no `RC.txt`, no `LAUNCH.log`, no `LAUNCHED.txt`, no
+`log.rhoSimpleFoam`, and no time directory beyond `0` and `0.orig`. **No gate, threshold,
+band, cap or label is touched:** D1 ≥ 0.1401, D2 ≥ 0.0880, D3, S1 (≥ 0.212 / ≥ 0.320),
+S2 (< 0.85), B1 (≤ 0.050), B2, the 131.1 core-minute cap and the grading path are all
+unaffected. §0's hard limit stands: **R7 is the last run on this line.**
+
+## A1.1 THE CONTRADICTION
+
+§2's launch assertion, prefixed *"nothing launches if any fails"*, requires `cmp` over
+`system/` to return **exactly three** differing files carrying **exactly four** added lines.
+
+Four lines later, the same §2 says *"…and the §3 instrument is added"*, and §3 says
+*"**R7 carries** a `coded` functionObject `clipCount`…"*.
+
+**Installing that instrument necessarily adds a fifth line to `controlDict` — the
+`#include "clipCount.fo"` — plus the new file `system/clipCount.fo`. §2's count and §3's
+mandate cannot both be satisfied.** Measured on the staged case: the added lines are
+`pMinFactor` (fvSolution), two `vanLeer` (fvSchemes), `endTime` (controlDict) and the
+`clipCount` include (controlDict) — **five**, and `system/clipCount.fo` at 2,034 bytes.
+
+## A1.2 THE AMENDMENT
+
+§2's *"exactly four added lines"* is **struck** and reads **exactly five added lines** —
+one `pMinFactor`, two `vanLeer`, one `endTime`, one `clipCount` include — **plus the new
+file `system/clipCount.fo`.** The three-differing-files clause is unchanged and was met.
+The original is **not rewritten**; it stands above with this strike recorded here.
+
+The physical configuration is unchanged by this amendment and was never in doubt: nothing
+else differs from the L2 baseline, and what is staged is exactly what §2's change table and
+§3 mandate.
+
+## A1.3 THE LANE DID NOT ADJUDICATE ITS OWN DEFECT, AND THAT IS WHY THIS IS CLEAN
+
+A defensible reading existed — that "four" enumerates the **numerics** changes and the
+instrument is accounted for separately in §3 — and it may well be the right one. **The lane
+authored both the defect and the candidate reading, declined to adjudicate from that
+position, and stopped with the case fully staged and the solver never started.** On R5 a
+lane picked a reading and I had to file an addendum taking the fault; this time the hatch
+was respected rather than reasoned around, which is what I asked for in those words.
+
+## A1.4 A DEFECT IN THE CONSISTENCY CHECKER ITSELF — A PRESENCE CHECK IN THE COSTUME OF A CONSISTENCY CHECK
+
+The 46-assertion checker built after R5 passed R7 clean. Its relevant assertion was:
+
+```
+chk("assertions: 3 files / 4 lines", 'exactly three' in R7 and 'exactly four' in R7)
+```
+
+**It verified the phrases were PRESENT. It never verified the COUNT was CORRECT given what
+the document mandates elsewhere.** A checker built to catch documents that contradict
+themselves, failing in exactly that way, one level up.
+
+**REQUIRED of any successor:** the expected line count is **recomputed** from the document's
+own change table plus its instrumentation clause and compared — never grepped for as a
+literal. Recorded so it outlives this session.
+
+## A1.5 TWO THINGS DISCLOSED RATHER THAN SLIPPED IN
+
+**Rule 14 caught a real hazard while staging.** `controlDict` already carried a `functions`
+block with `forceCoeffs`, `residuals` and `yPlus`. The lane's assert refused to replace it;
+it **inserted** one line and then proved all three survivors byte-identical to L2's. **A
+blind-written `functions` block would have silently deleted the force coefficients** — the
+channel the verdict is read from.
+
+**The instrument carries one counter beyond §3's description:** `vol_below_old_0p2_floor`,
+the count of cells below the *old* 0.2 floor, which says directly whether the solution uses
+the room the new floor gives it. **Verdict-inert**, and on `L2_VANLEER` t=6400 it reproduces
+the independently measured **3,377** exactly. Disclosed here, not slipped in.
