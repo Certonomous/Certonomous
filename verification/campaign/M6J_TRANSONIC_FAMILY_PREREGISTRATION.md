@@ -271,3 +271,145 @@ reproduces none of them.** The arithmetic means are **0.2759 / 0.1661 / 0.1097**
 identified, or the grade JSONs were regenerated after it was written. **It is not settled and
 must not be treated as settled.** M6J's own table is internally consistent — both families
 recomputed from artifacts under one definition — and that is the table to use.
+
+---
+
+# ADDENDUM 2 — 2026-09-13, lab-lane under cfd-supervisor. **M6J_L1 IS RE-RANKED 4 → 16 AND RESUMED FROM A VERIFIED CHECKPOINT. §3's RANK CHOICE IS DISCLOSED AS WEAKENED FOR L1, AND THE RE-PARTITION IS A PERTURBATION, NOT A NO-OP.**
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.**
+*(Verified, not asserted: `git show HEAD:<this file> > BASE; head -n 273 <this file> | cmp - BASE`
+returns identical — 273 lines and 15,694 bytes, the whole document through ADDENDUM 1 §A1.4.)*
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** The cure gate of §6, the
+four-condition shock-bearing bar of §1, ADDENDUM 3 of `M6I_R1_SOLVE_PREREGISTRATION.md`, the
+bands, `endTime 8000`, `writeInterval 200`, `purgeWrite 2`, the schemes, the solvers, the
+relaxation factors and the `transonic no` formulation are **all untouched and were asserted
+byte-identical on disk before the stop** (md5 of `system/{controlDict,fvSchemes,fvSolution}`
+equals their `.registered` copies). It changes **the rank count on L1 only, and the core-minute
+accounting that follows from it.**
+
+## A2.1 WHAT WAS DONE, AND ON WHOSE INSTRUCTION
+
+Sanaa directed that M6J_L1, running at 4 ranks with ≈8 h remaining, be resumed at 16 ranks on a
+box with **96 cores and ~60 of them idle**, under her standing rule of 2026-08-26 that **idle
+compute is a failure**. The act, in order:
+
+1. **Identified** the solver by `/proc/1489103/cwd`, not by name: `mpirun -np 4 rhoSimpleFoam
+   -parallel`, cwd `verification/runs/M6J_runs/M6J_L1`, started 2026-09-13T09:51:01Z, rank pids
+   1489113–1489116. Liveness taken from the rank pids and the log mtime, never from log content.
+2. **Chose the checkpoint t = 3800**, verified complete on **all four** ranks — the full field
+   set `{T U alphat nuTilda nut p phi rho}` plus `uniform/` and `yPlus`, 10 entries per rank, every
+   file mtime inside the single write burst `17:07:54.779–.865Z`. The solver was at `Time = 3884`
+   and its next write was `t = 4000`, ≈116 iterations away, so **no write was in progress** and no
+   partially-written time directory was a candidate.
+3. **Stopped it by explicit pid** — `kill -TERM 1489103`. **`pkill` was not used and is
+   forbidden here**: its pattern matches its own invoking shell. All five pids were gone in 3 s.
+   **Verified in the same breath that nothing else was touched:** 46 solver pids before, 41
+   after, the difference **exactly** the five M6J pids, **zero** new pids, and all eight
+   surviving runs — the seven `SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_*` and `SUBOFF_A1/SOLVE_L2` —
+   still **advancing**, with log mtimes within 3 s of the check.
+4. **Reconstructed** t = 3800 (`reconstructPar -time 3800`, rc = 0), **moved the four 4-rank
+   processor directories aside into `processors_4rank_PRE_RERANK/` — moved, never deleted** —
+   and **re-decomposed** at 16 (`decomposePar -time 3800`, rc = 0), 16 × 61,440 = 983,040 cells.
+
+**The graceful route was checked first and is unavailable on a running solver here, which is
+stated rather than skipped:** the case carries `runTimeModifiable false`, so `stopAt writeNow`
+in `controlDict` is never re-read; and the installed `etc/controlDict` has
+`writeNowSignal -1` and `stopAtWriteNowSignal -1`, so no signal triggers a clean write. Signal
+handlers are bound at solver start, so neither could be enabled after the fact. **`SIGTERM` was
+therefore the only stop available.** It cost **iterations 3801–3886 — 86 steps — which the
+resume recomputes.** `log.rhoSimpleFoam.stderr` is **0 bytes**: no MPI message, no `FOAM FATAL`,
+no signal report. `FAILURE_CONTEXT.1.txt` and `RC.txt = 1` exist **because the launcher writes
+them on any non-zero stage rc and a SIGTERM is one**; they are the deliberate stop, not a crash,
+and `DELIBERATE_STOP_2026-09-13.txt` in the case directory says so beside them.
+
+## A2.2 🔴 §3's REASON FOR 4 RANKS IS **WEAKENED FOR L1**, AND THAT IS A METHOD COST, NOT A BOOKKEEPING ONE
+
+§3 did not register 4 ranks for throughput. It registered them because *"at 4 ranks every M6J
+level's decomposition is byte-identical to its graded counterpart's, so **the only difference
+from the graded family is `transonic no`**"*. **At 16 ranks that sentence is no longer true of
+L1.** The L1 one-change comparison against its graded `transonic yes` counterpart now differs in
+**two** ways: the formulation, and the partition. **This document will not pretend otherwise.**
+
+**What bounds the damage is measured, not argued.** The new decomposition is `n (2 2 4)` against
+the registered `n (2 2 1)` — hierarchical cuts x, then y, then z, so the registered 2×2 x–y cut
+planes are **unchanged** and only z-cuts are added. **That nesting was verified from the mesh
+itself, not asserted:** `cellProcAddressing` was read for all 4 old and all 16 new subdomains and
+each new subdomain lies wholly inside **exactly one** old subdomain, with the unions exact —
+
+| registered 4-rank subdomain | = union of new 16-rank subdomains | exact |
+|---|---|---|
+| 0 (245,760 cells) | 0, 4, 8, 12 | ✓ |
+| 1 (245,760 cells) | 1, 5, 9, 13 | ✓ |
+| 2 (245,760 cells) | 2, 6, 10, 14 | ✓ |
+| 3 (245,760 cells) | 3, 7, 11, 15 | ✓ |
+
+and the global cell set is identical (983,040). **No registered processor boundary moved; three
+z-planes were added inside each.** That is the smallest partition perturbation available at 16
+ranks, and it is why `(2 2 4)` was chosen over `(4 4 1)` or `(4 2 2)`, which move the x–y planes.
+
+## A2.3 🔴 THE HAZARD, STATED AS A PERTURBATION AND NOT SMOOTHED AWAY
+
+**The resumed run is NOT bit-identical to an uninterrupted one, and nesting does not make it so.**
+Added interior boundaries change GAMG agglomeration, the parallel reduction order and therefore
+the linear-solve path. On a steady solve converging to a fixed point the difference **should** be
+within round-off of the converged answer, **but that is an expectation, not a measurement, and it
+is registered here before the run rather than claimed after it.**
+
+**Registered in advance:** the residual history across the resume seam will be read, and **a
+visible jump at `Time = 3801` is reported as a finding about restart/partition sensitivity — it
+is not noise, and it will not be smoothed, trimmed or averaged out.** The pre-resume series is
+preserved for exactly this comparison: `log.rhoSimpleFoam` is not overwritten, and the 4-rank
+decomposition survives verbatim under `processors_4rank_PRE_RERANK/`.
+
+**Completion-rule note.** The launcher's resume path writes a **new** segment,
+`log.rhoSimpleFoam.resume.1`, rather than appending to `log.rhoSimpleFoam` — and it must, because
+its `run_stage` opens the log with `>` and appending in place would **truncate** the 201–3886
+step record. This is gradeable: `scripts/solver_log_set.py:51–57` defines `log.<solver>.<anything>`
+as a continuation and unions **distinct physics steps** across segments. Measured now:
+segment 1 = `{1..200}`, segment 2 = `{201..3886}`, **union `{1..3886}`, zero gaps, zero overlap**;
+the resume contributes `{3801..8000}`, closing the set to `{1..8000}`. **Iterations 3801–3886
+will appear in two segments; they are one physics step each and are counted once.**
+
+## A2.4 COST — BOTH SEGMENTS AT THEIR OWN RANK COUNT (rule 12)
+
+**Measured from the launcher's own per-stage wall clock, at the ranks each stage actually ran:**
+
+| segment | ranks | iterations | wall s | **core-min** | basis |
+|---|---:|---|---:|---:|---|
+| 1 — first-order ramp | 4 | 1–200 | 3,377 | **225.13** | MEASURED |
+| 2 — registered schemes | 4 | 201–3,886 | 26,809 | **1,787.27** | MEASURED |
+| **spent to date** | | **1–3,886** | | **2,012.40** | **MEASURED** |
+| 3 — resume | **16** | 3,801–8,000 | *pending* | **2,040 – 2,910 (projected)** | **PROJECTED** |
+| **L1 total** | | | | **≈ 4,050 – 4,920** | mixed |
+
+Stage-2 measured **7.2732 s/iteration at 4 ranks = 0.4849 core-min/iteration**
+(`4.93e-07` core-min/cell-iteration, which corroborates ADDENDUM 1 §A1.3's `4.909e-07`
+independently). The segment-3 band spans **100 % down to 70 % parallel efficiency** at 61,440
+cells/rank; the 80 % case is **2,546 core-min, 2.65 h wall**. **Projections are labelled
+projections.** Dollars **DERIVED, NOT MEASURED** at $0.0513/core-h: L1 ≈ **$3.46 – $4.21**.
+
+🔴 **THE RE-RANK BUYS WALL TIME AND SPENDS CORE-MINUTES, AND THE LEDGER SAYS SO.** The 4-rank
+counterfactual for the same 4,200 iterations is **2,036 core-min and 8.49 h wall**; 16 ranks is
+**2,040–2,910 core-min and 2.1–3.0 h wall.** At anything below perfect scaling this is **more
+core-minutes for less wall**, i.e. **a real cost, not a free lunch** — justified only because
+~60 cores are otherwise idle and Sanaa's 2026-08-26 rule makes idleness the worse failure.
+**The idle-capacity argument does not make the core-minutes disappear and they are not netted
+against it.**
+
+**§7's cap clause remains superseded exactly as ADDENDUM 1 §A1.2 recorded** — Sanaa's directive
+#17 and *"bookkeeping never voids physics"*. L1's projected total of ≈4,050–4,920 core-min
+crosses the §7 cap of 2,996. **That crossing is RECORDED IN THE COST ROW AND IS NOT A VERDICT
+INPUT. The run is not stopped on spend or clock.** Rule 12's estimate-versus-actual comparison
+is owed at completion and will be filed in `docs/COST_CALIBRATION.md`, with the re-rank named as
+its own attribution line rather than absorbed into the misprediction term.
+
+## A2.5 WHAT THIS ADDENDUM DOES **NOT** DO
+
+1. **Does not touch L3 or L2**, which stay at 4 ranks with `n (2 2 1)`. The registered file is
+   kept verbatim as `system/decomposeParDict.4rank.registered` beside the 16-rank one.
+2. **Does not alter a gate, threshold, cap, label or band**, and does not reopen ADDENDUM 1.
+3. **Does not resolve §A1.4's unreconciled baselines**, which remain open.
+4. **Does not claim the triple is any nearer.** §1's four-condition bar is untouched. But if all
+   twelve conditions ever did clear, **L1 at 16 ranks against L2 and L3 at 4 is a declared
+   confound in that triple** and must be disclosed there, not rediscovered.
