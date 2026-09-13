@@ -2849,3 +2849,71 @@ are all read and **none is reported.** Only then is the 348 quotable.
 | md5 of this file's HEAD blob before the append | `330e60522339eed67a4f8143e0e9c0b7` |
 | md5 of this file's first **2793** lines after it | `330e60522339eed67a4f8143e0e9c0b7` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 2b. NARROWING THE 348 — **8, NOT 348, AND THE SWEEP FOUND ONE THE HAND-TRACE MISSED**
+
+#### 🔴 FIRST, THE ASYMMETRY §2a's CONTROL FAILURE DEMONSTRATES, WHICH IS NEW IN DIRECTION
+
+Every earlier instance in this amendment produced a **false pass** or a **false alarm**. **§2a's
+broken control produced a FALSE NEGATIVE ON A WORKING TOOL** — it reported the sweep could not
+find a known-true instance, when the sweep had found it and the *rendering* had hidden it.
+
+> ## **IN A VERIFICATION TOOL A FALSE NEGATIVE IS MORE EXPENSIVE THAN A FALSE POSITIVE, BECAUSE THE FIRST DISCARDS THE INSTRUMENT AND THE SECOND ONLY COSTS AN INVESTIGATION.**
+
+A false positive gets investigated. **A false negative gets the tool deleted** — and I would have
+concluded the sweep was worthless and thrown away a sound instrument on the evidence of its own
+truncated head.
+
+#### THE NARROWING — because 348 alarms without informing, and dismissal is the likelier response
+
+| filter | count | share |
+|---|---|---|
+| assigned and never read, in a grader function | **348** | — |
+| **LOOSE** — edit distance ≤ 2 to a name that IS read in the same function | **115** | 33.0 % |
+| 🔴 **STRICT** — **PREFIX relation**, both names ≥ 4 chars, length difference ≤ 2 | **8** | **2.3 %** |
+
+🔴 **THE LOOSE RULE IS MOSTLY NOISE AND THE SAMPLE SHOWS IT.** `cols`→`rows`, `got`→`set`,
+`base`→`case`, `last`→`list` are **coincidences of short names at edit distance 2**, not
+confusion hazards. **Reporting 115 would have been the same failure as reporting 348, one
+decimal place smaller.** The hazard is the **"same quantity, different variant"** shape — a dead
+name that is a **prefix-extension** of a live one — which is what makes a reader tracing a gate
+land on the wrong quantity.
+
+**THE STRICT SET, ENUMERATED IN FULL. It is triageable, and that is the point:**
+
+| file | line | function | dead ↔ live |
+|---|---|---|---|
+| `cases/ansys_verification/VMFL011-R4/grade_vmfl011_r4.py` | 1868 | `selftest` | `msgb` ↔ `msgb1/2/3` |
+| **`scripts/grade_m6_agard_cp.py`** | **318** | `grade_pass` | **`dloc_c` ↔ `dloc`** |
+| **`scripts/grade_m6_agard_cp.py`** | **346** | `grade_pass` | **`dropped` ↔ `dropped_r`** |
+| `verification/runs/F28_runs/analyse_f28g_h3.py` | 604 | `selftest` | `carrier_B` ↔ `carrier` |
+| `verification/runs/T-family/E4_runs/analyse_e4a.py` | 728 | `selftest` | `worst_o` ↔ `worst` |
+| `verification/runs/T-family/T10aR2_runs/analyse_t10aR2.py` | 419 | `selftest` | `band2` ↔ `band` |
+| `verification/runs/T-family/T21_runs/analyse_t21.py` | 597 | `grade` | `cases` ↔ `case` |
+| `verification/runs/T-family/T5e_runs/analyse_t5e.py` | 2390 | `selftest` | `ymet2` ↔ `ymet` |
+
+**Positive control: `dloc_c` ↔ `dloc` is in the strict set.** The filter finds the instance that
+motivated it.
+
+#### 🔴 AND THE ARGUMENT FOR SWEEPING RATHER THAN NOTING: THE SWEEP FOUND ONE I MISSED
+
+Tracing the assert by hand found **one** dead value in the M6 grader. **The sweep found TWO.**
+The second — `grade_m6_agard_cp.py:346`, `interped, dropped = interp_onto(cx, cy, xt_all)` —
+**is never read**; the function counts its own drops instead via `n_drop += 1` when `cpc is
+None`, and reports **`n_drop`** as `n_dropped_outside_cfd_span`. **Identical shape to `dloc_c`:
+a returned value duplicating a live one and discarded.**
+
+**Nothing is changed in that grader. It is frozen, and both values are harmless** — `len(dropped)`
+and `n_drop` count the same targets by construction. **The finding is that a careful hand-trace
+of the same function, by the person who most wanted to find these, got one of two.** That is the
+whole case for the `ast` pass over the argument from one instance.
+
+| addendum to the v1.15 record | |
+|---|---|
+| sections added | **1** (§2b) — appended at the foot; all prior sections and record tables unchanged |
+| members / instances added to either clause | **0** |
+| files changed by this finding | **0** — the strict set is **enumerated, not triaged, and not repaired** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `be28a13cda80ef4cae2762c4cd51227a` |
+| md5 of this file's first **2851** lines after it | `be28a13cda80ef4cae2762c4cd51227a` |
+| the two digests | **EQUAL — assertion MEASURED** |
