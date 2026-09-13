@@ -29808,3 +29808,82 @@ crash and **cannot** explain a silent zero — the gap between *"fatals loudly"*
 zeros"* was the whole question. **The paired control closed it, and the answer was that they are
 different branches of different functionObjects.** The refusal was right, and writing the lesson on
 the mechanism alone would have registered a plausible cause as a confirmed one.
+
+## L-604 — FOUR WAYS A CONTROL PASSES WHILE MEANING NOTHING, AND `rc` DISTINGUISHES NONE OF THEM. This lab has been reading an exit code as though it were a verdict
+
+**All four were measured in one night, each on a different instrument, and each produced a GREEN.**
+Source text: `cases/PPTC_VP1304/PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md` §A9.5, committed at
+**`a2f703af9`** (2026-09-13, pre-compute).
+
+| # | the defeat | what was measured | the repair |
+|---|---|---|---|
+| **1** | **It refuses on the WRONG CLAUSE** | a fixture built to break clause X refuses, but on clause Y; the suite records *"the control fired"* | **every fixture breaks exactly ONE clause and must refuse ON THAT CLAUSE** — plus a **clean fixture required to stay READABLE**, because a gate that refuses everything is not a gate |
+| **2** | **The fixture CANNOT EXHIBIT the fault** | the `cellZones` parser **passed nine clauses of its own suite** and was caught by **one read of a real file**: `cells_in_zone: 1` where the file declares **11,412,958**, because a real `cellZones` names the zone twice and the hand-written fixture had no `meta { names ( … ) }` header | **the fixture must carry the artifact's traps** |
+| **3** | **It DOES NOT RUN, while looking as though it did** | a mutation control's copy died on `ModuleNotFoundError` **before reaching the mutated line**; `rc = 1` was **an import error wearing a refusal's clothes**, and was nearly logged as a success | **a control must assert it REACHED the thing it tests — the refusal's REASON, never its exit code** |
+| **4** | **A clause is UNREACHABLE while its neighbours are healthy** | plant intact + tolerance disabled → **nothing changes, the suite looks fine**. Plant broken **AND** tolerance disabled → **`+0.0000 %` sails through and a fully plausible `KT 0.5052` prints `VERDICT: PASS`** | **PAIRWISE mutation on any gate with stacked clauses** |
+
+**THE SPINE, AND IT IS ONE SENTENCE.** Every one of these exits 0, or exits non-zero for a reason
+nobody read. **`rc` is a statement about whether a process terminated normally. It has never been a
+statement about whether the check inside it happened.** Reading it as a verdict is the common error
+under all four.
+
+**WHY NUMBER 4 IS THE NEW ONE AND THE MOST DANGEROUS.** The other three are failures of *care* —
+a fixture built too simply, a reason left unasserted. **Number 4 is a failure of METHOD, and no
+amount of care inside a single-mutation suite can reach it.** The tolerance clause is only
+**reachable once the value beneath it is already wrong**; with the plant intact there is nothing
+for the tolerance to catch, so disabling it changes nothing and the suite reports health. **A
+single-mutation suite is STRUCTURALLY BLIND to a load-bearing clause that sits on top of another
+clause** — not unlucky, blind, in the way a one-dimensional scan cannot find an interaction.
+**Stacked clauses need pairwise mutation, and a suite that has only ever mutated one thing at a
+time has not tested its stack at all.**
+
+**AND THE DAMAGE PATTERN IS THE WORST AVAILABLE ONE:** it does not crash, it does not print zeros,
+it prints **`+0.0000 %` and a plausible number**. Nothing about the output invites suspicion.
+Compare L-603's 68 fabricated y+ values: those at least were all zero, which is a shape a reader
+can learn to distrust. **A deviation of exactly zero on a physically plausible coefficient is the
+answer a working instrument would give.**
+
+**THE THREE RULES, BINDING.**
+1. **REFUSE ON THE RIGHT CLAUSE.** A fixture breaks one clause and must refuse *on that clause*,
+   with the clean fixture required READABLE. Measured in use: one gate ran **nine clauses against
+   eight single-clause fixtures plus the clean one** (§A6.4); another reached **12 clauses — 11
+   driven to REFUSE, the clean fixture to READABLE** (§A7.5).
+2. **THE FIXTURE MUST CARRY THE ARTIFACT'S TRAPS.** *A fixture simpler than the artifact is not a
+   control; it is a rehearsal.* The nine-clause pass in #2 above is the proof: the suite was not
+   weak, it was **testing a different object** — a file without the feature that breaks the parser.
+3. **PAIRWISE MUTATION ON ANY GATE WITH STACKED CLAUSES.** **OWED AND NOT YET DRIVEN** on every
+   gate built that night, **including the twelve-clause one**. Recorded as an open obligation
+   rather than a completed repair, because the distinction is the whole point of this lesson.
+
+**PROVENANCE, WRITTEN THE WAY IT HAPPENED AND NOT THE WAY IT FLATTERS.** The synthetic-tree hazard
+in #4 **existed because the lane that found it had built it.** The registered synthetic forces tree
+(`plant_calibration/make_synthetic_forces.py`) is constructed **from** the measured `KT 0.5052`, so
+a comparator armed against it necessarily reads back `+0.00 %` — **byte-indistinguishable from a
+genuine verdict.** Arming a comparator on a synthetic tree, before the mesh landed, is **what
+produced a byte-perfect fake `VERDICT: PASS` in the first place.** The lane **created the risk and
+then fixed it; it did not foresee it.** Recorded that way deliberately: **a lesson that reads as
+foresight teaches nobody how the hole got dug**, and the useful content here is that the hazard
+arrived as a side effect of doing the right thing early — arming instruments before compute. **The
+good practice and the trap came through the same door.**
+
+**THE CHECK THAT GENERALISES.** For any control, before recording that it fired, answer four
+questions in writing: **(a)** did it refuse **on the clause it was built to test**; **(b)** does the
+fixture **contain the feature that breaks the real artifact**; **(c)** is there evidence it
+**reached** the code under test, independent of its exit status; **(d)** has any clause been
+exercised **only while its neighbours were healthy**. **An unanswered (d) means the suite's
+coverage claim is about single faults only, and it should say so.**
+
+**COROLLARY, SAME FAMILY, DIFFERENT DOCUMENT — APPEND FROM THE TAIL, NEVER FROM THE SECTION IN
+FRONT OF YOU.** A snappy layer standard was adopted as **§16 at v1.11** (`50ce30f5`). The draft
+handed up was numbered **§11 at v1.7** — because **the drafting lane read a version number off the
+very section its draft would have overwritten.** `docs/standards/MESH_STANDARD.md` carries a live
+§11 (aspect ratio and cell-volume ratio) and the `v1.7` string sits in the heading of **§12**, the
+section whose subject is *correcting* §11. **Measured at adoption: 16 top-level sections, numbered
+1…16 with no gaps — so the draft's §11 collided with a live §11 and four live sections beyond it
+(§12–§15).** *(The brief for this lesson said five beyond; this lane counts four. The discrepancy is
+recorded, not reconciled — it does not change the finding.)*
+**THE RULE: when appending to a long document, derive the next section number AND the next version
+from the document's OWN TAIL, in the same invocation as the write — never from the section you
+happen to be reading.** This is `CLAUDE.md` rule 11's *"the MAXIMUM EXISTING NUMBER, never a count"*
+wearing different clothes, and it bit in a second file on the same night. **A number read off a
+neighbour is a number about the neighbour.**
