@@ -100,8 +100,19 @@ def main() -> int:
     curv_bound = ~(floor_bound | max_bound)
     R_read = a.curvature_n * h / (2.0 * math.pi)
 
+    # PREFLIGHT.  The readout R = N h / (2 pi) inherits BOTH clamps, so the settings define a
+    # RESOLVABLE WINDOW before a single facet is read.  The floor is the obvious one; THE
+    # CEILING IS A CLAMP TOO and it bites at the top in exactly the same way -- a run at
+    # ceiling 1.0 mm with N = 12 cannot report any radius above 1.91 mm, and would have called
+    # the r/R 0.40 station (R = 1.82 mm, needing h = 0.955 mm) MAX-BOUND and refused it, erasing
+    # the very measurement it was launched to confirm.  Stated up front so a table of refusals
+    # is never the first sign of it.
+    r_lo = a.curvature_n * a.floor / (2.0 * math.pi)
+    r_hi = a.curvature_n * a.ceiling / (2.0 * math.pi)
     print(f'tessellation {a.stl}')
     print(f'  curvature N = {a.curvature_n:g}, floor = {a.floor:g} mm, ceiling = {a.ceiling:g} mm')
+    print(f'  RESOLVABLE WINDOW: R in [{r_lo:.4f}, {r_hi:.4f}] mm. Radii outside it are '
+          f'CLAMP-BOUND and are refused, not reported.')
     print(f'  blade facets {len(bl)}:  curvature-bound {100*curv_bound.mean():.1f}%, '
           f'floor-bound {100*floor_bound.mean():.1f}%, max-bound {100*max_bound.mean():.1f}%')
     print(f'  if every LE facet were floor-bound the data would yield only the BOUND '
@@ -142,8 +153,15 @@ def main() -> int:
                   f'not the radius')
             continue
         Rv = R_read[good]
-        print(f'{st:6.2f} {len(le):6d} {clamp:6.1f}% {np.percentile(Rv,50):8.4f} '
-              f'{np.percentile(Rv,10):8.4f} {np.percentile(Rv,90):8.4f}  ok')
+        p50, p90 = np.percentile(Rv, 50), np.percentile(Rv, 90)
+        # even an accepted station is warned about if it is crowding a clamp
+        note = 'ok'
+        if p90 > 0.8 * r_hi:
+            note = f'ok BUT p90 is within 20% of the ceiling ({r_hi:.3f}) -- raise it and re-run'
+        elif np.percentile(Rv, 10) < 1.25 * r_lo:
+            note = f'ok BUT p10 is within 25% of the floor ({r_lo:.3f}) -- lower it and re-run'
+        print(f'{st:6.2f} {len(le):6d} {clamp:6.1f}% {p50:8.4f} '
+              f'{np.percentile(Rv,10):8.4f} {p90:8.4f}  {note}')
 
     print('\nA REFUSED station is not a missing number -- it is the instrument declining to '
           'report a clamp as a radius.')
