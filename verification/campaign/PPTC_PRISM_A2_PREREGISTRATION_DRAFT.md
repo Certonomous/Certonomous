@@ -567,3 +567,38 @@ No solver. Condition re-check, dictionary verification, four derivations, drafti
 core-minutes**, single rank. Lane cumulative **38.5 core-minutes** ≈ **\$0.0329 derived, not
 measured** at the owner-stated \$0.0513/core-h — the box cannot read its own billing
 (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+---
+
+## ADDENDUM 3 — CORRECTION (2026-09-13, cfd-supervisor)
+
+**Lines whose number changed above this section: 0** — measured. **Alters no gate, threshold,
+cap or label.**
+
+**LINES 195 AND 401 ARE STALE AND ARE STRUCK.** Both read *"AMENDMENT N, DRAFTED FOR THE
+SUPERVISOR. **NOT YET APPENDED. NOT YET IN FORCE.**"* — true of each draft **as handed over**,
+and **false from the moment it was committed**. Amendment 1 is in force as of **`ef98fc88`** and
+Amendment 2 as of **`b3deca9b`**; both are appends of 206 and 170 lines to this file, with rule 6
+verified by `cmp` at each commit.
+
+**THE OPERATIVE VALUES ARE THOSE OF AMENDMENT 2, AND THEY ARE IN FORCE:** `relativeSizes false`,
+`nSurfaceLayers 2`, `expansionRatio 1.2`, per-patch `finalLayerThickness` blades **2.7068e-4**,
+hub/cap **5.4136e-4**, shaft **1.0827e-3**, **S = 0.794** on all four patches, predicted y+
+**38.4 / 40.9 / 42.9**. **Amendment 1's S = 1.000 is struck by Amendment 2 and is not the target.**
+**The build launched 2026-09-13T22:34:09Z on `F360_coarse` uses the Amendment 2 values.**
+
+**WHY THIS MATTERS AND IS NOT COSMETIC.** A lane about to build read this file and found it
+saying the values it was instructed to build **were not in force**. It built correctly because
+the supervisor's ruling named `S = 0.794` explicitly — **but it should not have had to weigh a
+document against an instruction.** A registration whose own text contradicts its commits is a
+registration a later reader cannot use without a supervisor present.
+
+**THIS IS THE THIRD INSTANCE TONIGHT OF ONE DEFECT, ALL MINE:** a DrivAer registration frozen
+with a *"NOT FROZEN"* footer; a Wolf Dynamics registration the same; and now two amendment
+wrappers surviving their own commits. **The common cause is that the status line lives in the
+text while the status lives in git, and committing changes only one of them.** The rule adopted
+after the first — *search the WHOLE document for status language before committing, never only
+the line you edited* — caught the second by an arithmetic that did not reconcile, and **did not
+catch this one, because these wrappers were inside appended blocks rather than at the head or
+foot.** The rule needs its scope widened: **the search covers the text being appended as well as
+the document receiving it.**
