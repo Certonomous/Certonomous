@@ -29928,3 +29928,110 @@ coached by the defendant is worth more than one that knows the case.**
 *(Formulated by the cfd `lab-lane` that hit all four; recorded here on the supervisor's routing.
 The two paired rules it subsumes stay stated separately in L-604 above, because each names a
 different way to move the witness out.)*
+
+---
+
+## L-605 — A GUARD IS SCOPED TO THE STATES IT WAS WRITTEN FOR, AND A NEW STATE CAN MAKE ITS CORRECT ANSWER THE WRONG ONE. The instrument's bytes were unchanged, correct, and md5-identical to the day they were frozen; the environment they were reused into was not the one they were written for
+
+**Measured, and it cost a registered arm 1.467 core-min and its whole verdict.**
+
+`REFUSE_FRESH_IS_BASE` lives at `cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_fm9_stage.py`
+— condition at **:95**, refusal raised at **:96** — and fires when a generated mesh's `points.gz`
+md5 equals the base mesh's:
+
+> *"the generated mesh's points.gz md5 equals the BASE mesh's. A 'fresh' mesh identical to the
+> base means the deformation never reached the mesher, and staging it would prove nothing"*
+
+**For `FM9` and `FM10` that reasoning is exactly right.** In those arms "fresh" always meant *the
+optimum's* mesh — the surface is FFD-updated before extrusion — so identity with the base could
+only mean the deformation had silently not reached the mesher and the arm was about to measure the
+wrong wing. The guard is not sloppy; it is a good guard, and its own message states its reasoning.
+
+**`FM11` added a state the guard had never seen.** Its sub-arm `Zb` generates a mesh at **ZERO
+shape**, around `surfaceMesh_base.cgns`, precisely so that the baseline is represented the same way
+the optimum is. For `Zb`, identity with the base mesh is **the expected and correct outcome** — it
+is the arm's whole premise. The guard fired, the arm was graded **`BLOCKED`**, and the `Zo` sub-arm
+never started.
+
+**THE INSTRUMENT WAS NOT CHANGED AND WAS NOT WRONG.** `d6r2c_fm9_stage.py` is md5
+`ea6d180fda38a3980bbb275b86d192c1` — **the same md5 its `FM9` registration pinned**, and
+`G-FREEZE` passed on it at `FM11`'s launch. Every byte of it was correct. What changed was the set
+of states it was asked to judge.
+
+**THE MEASUREMENT THAT MAKES THE POINT INARGUABLE.** The refused mesh was not merely *similar* to
+the base. Regenerating it gave **max point difference 0 m exactly, 40209 of 40209 points identical,
+and the same md5 `0fb1935a9b8781b73ac4ccb136e3ec68`**. The guard read the truth and reported it
+accurately. The *interpretation* attached to that truth — "the deformation never reached the
+mesher" — was the part scoped to `FM9`.
+
+**THIS IS THE SAME FAMILY AS L-593, ONE STEP FURTHER ON.** L-593: *a pin proves what a file **IS**,
+not what it **NEEDS**.* This is the dual of it — **a guard proves what a condition IS, not what that
+condition MEANS in the arm now running.** A pin travels; a guard's *premise* does not. Both failures
+arrive through the same door, which is the good practice of reusing a frozen instrument unchanged.
+
+**THE RULE TO CARRY.** When a registration reuses a frozen guard, it must state, in the
+registration, **the set of states over which that guard's premise holds** — not merely that the
+guard is pinned and passes its selftest. If the new arm introduces a state outside that set, the
+registration owes either a scoped exemption written **before** compute or a re-registered
+instrument; discovering it from a `BLOCKED` row is discovering it from the wrong end. **The
+diagnostic question, asked of every reused guard at freeze time: for which of THIS arm's states is
+the guard's stated reason still the reason?**
+
+**Honest limit.** `FM11`'s §3 `M0` **did register this exact firing in advance** and declared the
+outcome `BLOCKED` if it happened — so the arm was not surprised and nothing here is a
+pre-registration failure. The lesson is that registering a known hazard as a label is not the same
+as resolving it: the arm still burned its launch and returned no objective, and the repair is owed
+to a re-registered arm (`FM12`) because first compute closed `FM11`'s gates.
+
+---
+
+## L-606 — DRIVING THE COMMAND LINE IS NOT DRIVING THE DATA THE COMMAND LINE READS. A pre-freeze check ran the launcher's exact emitted CLI, passed, and covered none of the external anchors that CLI loads
+
+**Measured, self-reported by the author of the check against his own work, in the same addendum
+that graded his arm `BLOCKED`.**
+
+`FM11`'s §7b pre-freeze check did the rigorous thing: it executed **the exact grading command the
+launcher emits**, on the emitted bytes, rather than a command someone typed to resemble it. It
+passed. **It ran with `--evals SYNTHETIC --fm10-record SYNTHETIC`** (`d6r2c_fm11_prefreeze.sh:108`),
+because the synthetic arm has no real anchors beside it.
+
+**Against the REAL record the same command refuses:**
+
+```
+D6R2C_FM11_GRADE REFUSED
+REFUSE_NO_J_IN_RECORD keys=['cl04.aero_post.functionals.CL', ..., 'obj.J']
+```
+
+**Three measured causes, all of which had to be true at once** (`d6r2c_fm11_grade.py:199`, `:202`):
+
+1. the key probe tries `<pt>.aero_post.CD`, `<pt>_CD`, `CD_<pt>`, then `("obj", "J", "fun",
+   "weighted_CD")` — **and the real key is `obj.J`**, which is none of them;
+2. `obj.J`'s value is a **one-element list**, `[0.030641631438997615]`, which `_finite()` rejects
+   even if the key matched;
+3. an `F` record carries **no per-condition `CD` at all**, so the preferred "recompute from the
+   per-condition CD" path can never fire on this file and the fallback is the only path there is.
+
+**THE PHYSICS WAS NEVER IN DOUBT AND SAYING SO IS PART OF THE LESSON.** `obj.J` at `n = 2` and
+`n = 88` gives `J0 = 0.030641631438997615` and `Jf = 0.023063259528677764`, reproducing
+**`R_def = 0.752677270941` to twelve places** — exactly the registered figure. The anchor was
+intact and recoverable the whole time. **Only the reader was broken**, and a check that had touched
+the real file would have found it in one second.
+
+**WHY THE GREEN WAS NARROWER THAN IT READ.** The check drove the **entry point**; the defect lived
+in the **data the entry point loads**. `PASS` was true as written, and its scope — *the emitted
+command line is well-formed and its synthetic path runs* — is not the scope anyone reads it as.
+
+**THIS IS L-595 SURVIVING ITS OWN LESSON BY ONE STEP.** L-595: *a check must exercise the thing, not
+describe it.* The same item had already been bitten by it one layer down — `FM9`'s selftest
+exercised the **function** and not the **entry point**, which is why §22.4 clause 2 exists and why
+§7b was written to drive the entry point in the first place. **The repair moved the blindness one
+layer out rather than removing it.** Each repair exercised one more real object and stopped at the
+next boundary, and the boundary is always where the substitute sits.
+
+**THE RULE TO CARRY.** A check that substitutes ANY of its inputs — a synthetic record, a fixture
+tree, a stub anchor — **covers the code path and not the input**, and its verdict must say which
+inputs were substituted, in the verdict line, not in a footnote. **Where a real input exists on
+disk at freeze time, the check runs against it.** Where it genuinely does not yet exist (`FM11`'s
+synthetic arm had no anchors beside it), the registration must name the loaders left uncovered as
+an **explicit gap**, because an uncovered loader silently inherits the green of everything around
+it. *Substitution is not a detail of the fixture; it is a boundary of the claim.*
