@@ -1015,3 +1015,89 @@ At stage-1 iteration 2: `LimitedCells=18` (lower) and `2` (upper), of 20,657,615
 equivalent limiter reported zero limited cells on 5,968 of 5,997 iterations. **It is still not
 credited with the fix** — the excursion fell three orders before the limiter touched anything — but
 its activity is recorded rather than assumed idle, and the count is reported every iteration.
+
+---
+
+# ADDENDUM 7 — 2026-09-13, SELF-CONSISTENT INITIAL STATE. Version 1.7.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, threshold, cap or label.** A ladder rung with a refutable prediction.
+
+## A7.1 🔴 THE PATTERN, NAMED, BECAUSE IT HAS NOW RECURRED THREE TIMES
+
+> **AN INITIAL CONDITION MUST BE SELF-CONSISTENT ACROSS ALL FIELDS, NOT JUST THE ONE THAT FAILED
+> LAST. Fixing one field's inconsistency reveals the next.**
+
+- `bounded` on `div(phid,p)` made the pressure equation inert → fixing it exposed the startup
+  transient (A2.2 → A3.2).
+- A uniform velocity field inconsistent with the geometry → `potentialFoam` fixed it, 2,926× →
+  2.20× (A6.2), **and the failure moved to the energy equation.**
+- A developed velocity field on a **uniform 310 K** temperature → this addendum.
+
+Not three incidents. **One defect seen three times, one field along each time.**
+
+## A7.2 THE EVIDENCE — THE LIMITER'S OWN REPORT
+
+| stage-1 iteration | `UnlimitedTmin` / `UnlimitedTmax` | reading |
+|---|---|---|
+| 1 | **310 / 310** | temperature field still **uniform** before limiting |
+| 2 | **100 / 1000** | driven clean through **both** limiter bounds |
+
+With the enthalpy initial residual at **0.999999999957**, the energy equation had to invent the
+entire thermal field at once. `potentialFoam` sets **U** and `phi` and **no thermodynamic state**,
+so stagnation regions that should sit near 355 K and accelerated regions that should be cooler
+were all still at freestream.
+
+## A7.3 THE RUNG — ISENTROPIC T, p AND rho FROM THE POTENTIAL-FLOW VELOCITY
+
+`cases/CRM_wingbody/tools/isentropic_init.py`, run as **stage 0b**, immediately after
+`potentialFoam` and before the ramp. **The EXACT isentropic relations, not the linearised form:**
+
+```
+T0 = T_inf (1 + (g-1)/2 M_inf^2)         (total temperature is constant)
+x  = |U|^2 / (g R T0 - (g-1)/2 |U|^2)    (closed form for M^2; M = |U|/sqrt(gRT) is implicit in T)
+T  = T0 / (1 + (g-1)/2 x)
+p  = p_inf (T/T_inf)^(g/(g-1))           rho = p/(R T)
+```
+
+**Why exact and not linearised:** the two agree at M = M∞ and at stagnation and diverge in
+between — at |U| = 1.2 a∞ (local M 1.297) they differ by **5.63 %**, which is *inside a supersonic
+pocket on a transonic wing*, precisely where the initial state most needs not to be wrong.
+**rho is set from the chosen p and T** rather than derived from a state nobody chose.
+
+**Self-check, asserted before anything is written:** at |U| = U∞ the closed form must reproduce
+M = 0.85, T = 310.000000000 K and p = 4007.394649 Pa. Verified: M = 0.850000000, T = 310.000000000,
+p = 4007.394649.
+
+### 🔴 THE APPROXIMATION KNOWINGLY ACCEPTED, STATED SO NO READER MISTAKES IT
+
+`potentialFoam` solves **INCOMPRESSIBLE** potential flow. At M∞ = 0.85 its velocity field is **not**
+the compressible one, particularly near the shock. **THE PURPOSE OF THIS INITIALISATION IS TO BE
+SELF-CONSISTENT, NOT CORRECT** — a thermodynamic state consistent with the velocity field it is
+given, so that no equation has to invent everything at once. **It is not an attempt at the answer,
+and nothing from it is a result.**
+
+## A7.4 🔴 REGISTERED PREDICTION — IT CAN REFUTE THE REASON FOR FIRING
+
+> With a self-consistent initial state, stage 1 completes its **first twenty iterations** with the
+> limiter's **`LimitedCells` at ZERO throughout** and the **unlimited** temperature staying inside
+> **[200, 500] K**.
+>
+> **If the temperature still leaves those bounds, the hypothesis is WRONG — the initial state was
+> not the problem, the ramp's relaxation is — and the ladder climbs to that branch instead.**
+
+The limiter firing *at all* is the signal; a prediction phrased only on the unlimited bounds would
+leave a reader to derive that.
+
+## A7.5 WHAT ITERATION 1 OF V4 ESTABLISHED, AND WHAT IT DID NOT
+
+The first structurally real iteration this act has produced: pressure solve converging in **14**
+iterations, `p max` at **2.20×** freestream, continuity error **1.43×10⁻⁵**, and forces with a
+**live pressure component** — Cd 0.0120408 = 9.68×10⁻⁵ pressure + 0.0119440 viscous, Cl −0.000303.
+
+**It is not converged, it is not a result, and it is not quoted as one.** What it does establish is
+that **A3.6's check passes**: the pressure component is non-zero and of plausible order. The
+instrument built after being fooled by an inert equation now confirms the equation is live.
+
+**Ledger, unchanged: six runs, three findings, zero results.**

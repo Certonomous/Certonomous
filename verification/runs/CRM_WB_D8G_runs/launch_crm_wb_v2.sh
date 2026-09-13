@@ -26,6 +26,12 @@ RUNDIR="${1:?usage: launch_crm_wb_v2.sh <RUNDIR> <RANKS> [ENDTIME]}"
 RANKS="${2:?ranks}"
 ENDTIME_ARG="${3:-}"
 STARTUP_ITERS="${STARTUP_ITERS:-200}"
+# Registered freestream of pre-registration section 4; the initialiser self-checks that these
+# reproduce T_inf and p_inf EXACTLY at |U| = U_inf before it writes anything.
+T_INF="${T_INF:-310.0}"
+P_INF="${P_INF:-4007.394649}"
+M_INF="${M_INF:-0.85}"
+ISEN_TOOL="${ISEN_TOOL:-/home/ubuntu/Certonomous/cases/CRM_wingbody/tools/isentropic_init.py}"
 cd "$RUNDIR" || exit 3
 exec >> LAUNCH.log 2>&1
 echo "=== CRM-WB launch v2  $(date -u +%FT%TZ)  rundir=$RUNDIR ranks=$RANKS"
@@ -126,7 +132,19 @@ if [ "$RESUME" = "no" ] && [ "${POTENTIAL_INIT:-yes}" = "yes" ]; then
   fi
   # a zero exit is not evidence of output: the initialised U must be back in processor*/0
   grep -q 'End' log.potentialFoam || fail "stage 0 exited 0 but log.potentialFoam has no End line"
-  echo "STAGE 0 complete: divergence-free U written into processor*/0"
+  echo "STAGE 0a complete: divergence-free U written into processor*/0"
+
+  # ---- STAGE 0b: ISENTROPIC THERMODYNAMIC STATE (ADDENDUM 7). potentialFoam sets U and phi and
+  # ---- NO thermodynamic state, so stage 1 previously began with a developed velocity field on a
+  # ---- UNIFORM 310 K: the energy equation had to invent the whole thermal field at once
+  # ---- (enthalpy initial residual 0.999999999957) and by iteration 2 the temperature had been
+  # ---- driven through BOTH limiter bounds. AN INITIAL CONDITION MUST BE SELF-CONSISTENT ACROSS
+  # ---- ALL FIELDS, NOT JUST THE ONE THAT FAILED LAST.
+  python3 "$ISEN_TOOL" --case . --Tinf "$T_INF" --pinf "$P_INF" --Minf "$M_INF" \
+      >> log.isentropic_init 2>&1 || fail "isentropic initialisation failed"
+  grep -q 'wrote T, p, rho over' log.isentropic_init || fail "stage 0b wrote no fields"
+  echo "STAGE 0b complete: $(grep -h 'wrote T, p, rho over' log.isentropic_init | tail -1)"
+  grep -h 'range' log.isentropic_init | tail -2
 fi
 
 if [ "$RESUME" = "no" ] && [ "$STARTUP_ITERS" -gt 0 ]; then
