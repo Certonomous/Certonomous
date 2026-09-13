@@ -1,0 +1,177 @@
+        Potsdam Propeller CFD Benchmark
+
+Daniel LaCroix                                                                      Radek Máca
+dlacroix@pointwise.com                                               radek.maca@cfdsupport.com
+
+
+
+This report presents the benchmark validation of CFD simulation results of the ​Potsdam Propeller
+Test Case (PPTC)​, using ​TCFD®​ ​with ​POINTWISE®​ mesh. PPTC is a marine propulsor that was
+extensively measured by ​SVA Potsdam and related data were published [1] [2] [3]. The aim of this
+benchmark was to evaluate the TCFD®​ ​, computational fluid dynamics (CFD) software, on the very
+advanced mesh, created in POINTWISE®​ ​, mesh generation software, and to compare the results
+with the measurement data available. The particular goal of this benchmark is to compare the
+propeller ​Efficiency, Torque Coefficient, and Thrust Coefficient ​vs. ​Advance Coefficient ​with
+the real experimental measurement of ​SVA Potsdam Laboratory​.
+
+KEYWORDS: POTSDAM PROPELLER, CFD, MESH, VALIDATION, BENCHMARK, TCFD,
+SIMULATION,   POINTWISE,    ADVANCED   MESH,    EXTERNAL,    TURBOMACHINERY,
+HYDRODYNAMICS, PROPELLER, SHIP, PROPULSION, INCOMPRESSIBLE, FLUID, FLOW, RANS,
+WATER, STEADY-STATE, WATERFLOW, AUTOMATION
+
+
+
+
+Benchmark Parameters
+    ●   Mean flow speed: ​4 m/s                     ●   Reference density: ​997.71 kg/m3​
+    ●   Rotation speed: ​900 RPM                    ●                                 ​ ​ Pa⋅s
+                                                        Dynamic viscosity: ​9.559 × 10-4
+    ●   Flow model: in​compressible                 ●   CPU Time:​ 30 core.hours/point
+    ●   Mesh size: ​4.1 M cells                     ●   Turbulence: ​RANS
+    ●   Medium: ​water                              ●   Turbulence model:​ kOmegaSST
+    ●   Speedlines: ​1                              ●   Simulation type: ​Propeller
+    ●   Simulation points:​ 11                      ●   Time management: ​steady-state
+    ●   Fluid: ​Water                               ●   Number of components: ​2
+    ●   Reference pressure: ​1 atm                  ●   Wall treatment:​ Wall functions
+Potsdam Propeller CFD Benchmark Description
+
+The high demand for improving the accuracy, quality, and credibility of the CFD simulation
+results, should be assessed by providing a high qualitative and intensive comparison with
+experimental measurement data.
+The purpose of this benchmark is the validation of CFD simulation software ​TCFD​® ​with the
+mesh created in high-end meshing software ​POINTWISE​® and to compare the results with the
+measurement data available. ​Potsdam Propeller Test Case (PPTC) is a marine propulsor that
+was extensively measured by ​SVA Potsdam​ and related data were published in [1], [2], and [3].
+The particular goal of this benchmark is to compare the propeller Efficiency, Torque Coefficient,
+and Thrust Coefficient vs. Advance Coefficient with the real experimental measurement of ​SVA
+Potsdam Laboratory​. The experimental investigation includes open water test and velocity field
+measurements at different operation conditions. A detailed description of the open water tests
+
+
+
+
+conducted at the towing tank of the SVA is presented in the SVA report [1], which can be found
+on the SVA website (​sva-potsdam.de​).
+At the propeller analysis, there are a few important dimensionless numbers. Those are Advance
+Coefficient, Thrust Coefficient, Torque Coefficient, and Efficiency. They are defined as
+(respectively):
+
+       V                      T                         Q                     JK
+J = n · aD    ,    K T = ρ · n2 · D4    ,   K Q = ρ · n2 · D5     ,   η 0 = 2π · KT
+                                                                                      Q
+
+
+
+Where Va is the advance speed [m/s], n is the speed of rotation [1/s], D is propeller diameter
+[m], T is thrust [N], ϱ is water density [kg/m3], Q is torque [Nm]. The measurement results are
+available for Advance coefficients from J = 0.5 to 1.6 and the simulation points are chosen
+accordingly. Altogether, 11 Advance Coefficient modes were simulated according to the
+measurements.
+Mesh
+An unstructured viscous computational mesh was constructed with Pointwise on the Potsdam
+propeller geometry as part of this TCFD validation benchmark. Pointwise, Inc. has previously
+worked with variants of the geometry for other studies. For an in-depth discussion of Pointwise
+technology and how it can be used for this particular geometry, please consult [4].
+
+A combination of anisotropic and isotropic triangles were used in the surface mesh
+discretization. Areas of high curvature - such as the leading edge, trailing edge, and the tip-
+were resolved by utilizing Pointwise’s T-Rex algorithm. This tool grows anisotropically
+stretched, right-angled triangles layered in the normal direction to a boundary [5], as shown
+below. Using this, areas of high curvature are able to be resolved without the need to
+isotropically refine the area. The result is an accurate adherence to the surface and a reduction
+in the point count. The interior of the surface mesh was resolved with isotropic triangles
+created using a modified Delaunay algorithm.
+
+
+
+
+After meshing the geometry, the outer boundary of the moving reference frame (MRF) as well as the
+outer boundary of the computational domain were meshed utilizing isotropic triangles and the Delaunay
+algorithm. The MRF is cylindrical domain approximately 4.8 D long (4.8x the propeller diameter) and 1.5 D
+in diameter. It starts just upstream of the propeller and extends downstream into the wake. A farfield
+block was generated outside of the MRF corresponding to 10 D and 2.6 D; these were the limits taken
+from the file provided.
+The volume mesh is a combination of a prismatic core surrounded by isotropic tetrahedral cells. The
+prismatic portions of the grid were initialized using T-Rex. Starting from the surface mesh, anisotropic
+tetrahedral cells were grown until reaching a desired stop criteria, colliding with another front, or
+violating quality criteria. If an element stops advancing this did not prevent adjacent elements from
+continuing. After the tetrahedral layers are grown, the cells are combined to form prisms (or hexagons if
+the surface mesh is made up of quadrilateral cells). This reduces the total cell count of the mesh without
+sacrificing quality. Once the near-wall viscous mesh was generated, the remainder of the volume was
+populated with isotropic tetrahedral cells. The total cell count was just below 4.1 million cells. The
+average maximum included angle was 101, and the maximum was 170. The average volume ratio was 1.8
+with a maximum of 28.
+
+
+
+
+The data for the mesh is included in the table.
+
+
+ Mesh Elements          points            faces        internal faces   faces per cell     hexahedra
+
+        #              1018546          8753113          8434441          4.203379            2052
+
+ Mesh Elements          prisms          pyramids        tet wedges        polyhedra           cells
+
+        #              788137            39373               0                0             4,088,985
+TCFD​®​ Simulation Setup
+
+The simulation run in TCFD is quite straightforward. The external mesh, created in POINTWISE,
+is simply loaded and the simulation parameters are set. The simulation type is the ​propeller​.
+Time management is ​steady-state​. The fluid flow model is ​incompressible​. The mesh has ​two
+
+
+
+
+components (the water tunnel and the cylinder with
+propeller inside) of total ​4.1M cells. The inlet flow velocity
+defines the advance coefficient and the velocity varies
+from ​1.7 to ​5.9 m/s in ​11 points. The outlet boundary
+condition is static pressure. For turbulence modeling, the
+RANS modeling approach has been used with the ​k-omega
+SST turbulence model with the wall functions. The fluid
+properties of water are selected. The density of 997.71
+kg/m3. Dynamic viscosity of 9.559e-4 Pa.s.
+
+
+TCFD​®​ Simulation Post-processing
+TCFD​® includes a built-in post-processing module that
+automatically evaluates the required total quantities, such
+as propeller efficiency, thrust coefficient, torque
+coefficient, forces, force coefficients, flow rates, and much
+more. All these quantities are evaluated throughout the
+simulation run, and all the important data is summarized in
+tabled .csv files as well as in the HTML report, which can be
+updated anytime during the simulation for every run.
+Furthermore, visual postprocessing of the volume fields
+can be done with ParaView.
+Efficiency, Thrust & Torque Coefficient vs. Advance Coefficient
+A propeller is the most common propulsor on ships, imparting momentum to a fluid which
+causes a force to act on the ship. The most comprehensive propeller performance information
+is provided by displaying all the key characteristics into one graph.
+
+
+
+
+Conclusion
+The CFD analysis of the PPTC was performed successfully. It has been shown that the TCFD​®
+in connection with POINTWISE​® provides very accurate results that are in perfect agreement
+with the measurement data.
+
+All the simulation and measurement data are freely available. Potential questions about
+TCFD​® are to be sent to ​info@cfdsupport.com​. Questions about POINTWISE​® are to be sent to
+pointwise@pointwise.com​.
+
+[1] Barkmann, U., Potsdam Propeller Test Case (PPTC) - Open Water Tests with the Model Propeller
+VP1304, Report 3752, SchiffbauVersuchsanstalt Potsdam, April 2011
+[2] Barkmann, U., Heinke, H.-J., Potsdam Propeller Test Case (PPTC) Test Case Description, Second
+International Symposium on Marine Propulsors smp’11, Hamburg, Germany, June 2011, Workshop:
+Propeller performance
+[3] Heinke, H.-J., Potsdam Propeller Test Case (PPTC), Cavitation Tests with the Model Propeller
+VP1304, Report 3753, SchiffbauVersuchsanstalt Potsdam, April 2011
+[4] Carrigan, T., Bagheri, B., “A Study of the Influence of Meshing Strategies on CFD Simulation
+Efficiency,” NAFEMS World Congress 2017, NWC17-466, 2017.
+[5] Steinbrenner, J. P. and Abelanet, J.P., "Anisotropic Tetrahedral Meshing Based on Surface
+Deformation Techniques," AIAA-20060554, AIAA 45th Aerospace Sciences Meeting, Reno, NV.
+
