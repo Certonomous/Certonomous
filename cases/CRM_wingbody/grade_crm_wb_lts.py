@@ -258,13 +258,61 @@ def required_fields(case):
     return model, (None if extra is None else tuple(base + extra))
 
 
+def write_schedule(case):
+    """🔴 CAN THIS CASE SATISFY RULE 4's FIELD CLAUSE AT ALL?
+
+    OpenFOAM writes fields at multiples of `writeInterval` (writeControl timeStep).  If
+    `endTime` is NOT one of them, NOTHING IS EVER WRITTEN AT endTime, the field clause
+    and the age guard cannot pass, and the run grades NOT A RESULT on bookkeeping
+    however sound its physics.  `purgeWrite N` then keeps only the most recent N of the
+    writes that did happen, which is a SECOND, independent way to lose endTime.
+
+    MEASURED ON THIS ACT'S OWN LTS RATE PROBE, 2026-09-13: endTime 20, writeInterval 6,
+    purgeWrite 2.  It finished with rc=0, an `End` line, all 20 distinct steps and last
+    time == endTime -- four of rule 4's six clauses -- and wrote fields at 6, 12 and 18,
+    keeping 12 and 18.  There is no time-20 directory and there never could have been.
+
+    This is a PRE-FLIGHT check: it reads only the dictionary, so it answers before the
+    solver starts.  Sanaa's universal rule is that bookkeeping never voids physics, and
+    the way to honour it is to not let bookkeeping break the run in the first place."""
+    cd = _controldict(case)
+    try:
+        et = float(cd["endTime"])
+        wi = float(cd["writeInterval"])
+        pw = float(cd["purgeWrite"]) if cd["purgeWrite"] is not None else 0.0
+    except (TypeError, ValueError):
+        return {"readable": False,
+                "note": "endTime/writeInterval not readable from system/controlDict"}
+    if wi <= 0:
+        return {"readable": False, "note": f"writeInterval {wi} is not positive"}
+    n = et / wi
+    lands = abs(n - round(n)) < 1e-9
+    writes = [wi * (i + 1) for i in range(int(math.floor(et / wi + 1e-9)))]
+    kept = writes[-int(pw):] if pw and pw > 0 else writes
+    return {"readable": True, "endTime": et, "writeInterval": wi, "purgeWrite": pw,
+            "endTime_is_a_write": lands,
+            "writes_at": writes[:8] + (["..."] if len(writes) > 8 else []),
+            "kept_after_purge": kept[-4:],
+            "endTime_survives_purge": bool(kept) and abs(kept[-1] - et) < 1e-9,
+            "note": ("endTime lands on a write and survives purgeWrite; rule 4's field "
+                     "clause is reachable"
+                     if lands and kept and abs(kept[-1] - et) < 1e-9 else
+                     f"🔴 RULE 4's FIELD CLAUSE IS UNREACHABLE BY CONSTRUCTION: endTime "
+                     f"{et:g} is {'not a multiple of' if not lands else 'purged by '
+                     'purgeWrite from'} writeInterval {wi:g}"
+                     f" (writes at {writes[-3:]}, kept {kept[-2:]}). No field is ever "
+                     "written at endTime, so the field clause and the age guard cannot "
+                     "pass however sound the physics.")}
+
+
 def check_completion(case, end_time=None, delta_t=None, app=None):
     """Standing rule 4, EVERY clause, on the DECOMPOSED layout.  `ok` is the AND."""
     cd = _controldict(case)
     app = app or cd["application"] or "rhoPimpleFoam"
     end_time = cd["endTime"] if end_time is None else end_time
     delta_t = cd["deltaT"] if delta_t is None else delta_t
-    r = {"case": case, "application": app, "endTime": end_time, "deltaT": delta_t}
+    r = {"case": case, "application": app, "endTime": end_time, "deltaT": delta_t,
+         "write_schedule": write_schedule(case)}
 
     # -- clause 1: rc == 0
     rc, rc_err = _read_rc(case)
@@ -745,6 +793,45 @@ def evaluate_L(case, app, steps, coeffs, comp):
     return out
 
 
+_PCTRL_LIMIT_RE = re.compile(r"^\s+p(Max|Min)\s+([0-9.eE+-]+)\s*$", re.M)
+
+
+def preclamp_pressure(case, app):
+    """🔴 WHAT THE PRESSURE EQUATION ACTUALLY PRODUCED, BEFORE THE CLAMP HID IT.
+
+    `pressureControl::limit` (pressureControl.C:236-243 on this build) prints
+    `pressureControl: p max <X>` with the OBSERVED max **and only when X exceeds the
+    clamp**, then writes `p = min(p, pMax_)`.  So X is a pre-clamp field reading that
+    never survives into any written field, and `field_extrema` on the written `p`
+    CANNOT see it.
+
+    This is not a nicety.  On the LTS rate probe, 2026-09-13, the solver's own
+    construction banner printed `pMax 8014.789298` / `pMin 400.7394649`, and the
+    pre-clamp max exceeded the clamp on ALL TWENTY steps, reaching 20176.5848879 Pa --
+    which is 1.57x A15.7 L5's registered ceiling of 12854 Pa.  L5 read from the written
+    field would have returned PASS on a field whose own pressure equation had gone over
+    the gate on every step.  A gate that cannot fire is bad; a gate that cannot fire
+    BECAUSE A CLAMP IS HIDING THE EXCURSION IT GATES ON is worse, and it is reported
+    here beside L5 rather than left to be discovered after a verdict."""
+    sys.path.insert(0, os.path.join(REPO_ROOT, "scripts"))
+    import solver_log_set as _sls
+    mx, mn, limits = [], [], {}
+    for pth in _sls.segments(case, app):
+        body = pth.read_text(errors="replace")
+        for m in _PCTRL_LIMIT_RE.finditer(body):
+            limits["p" + m.group(1)] = float(m.group(2))
+        for m in _PCTRL_RE.finditer(body):
+            (mx if m.group(1) == "max" else mn).append(float(m.group(2)))
+    return {"solver_printed_clamp": limits or None,
+            "n_steps_over_clamp": len(mx),
+            "preclamp_p_max_Pa": max(mx) if mx else None,
+            "preclamp_p_min_Pa": min(mn) if mn else None,
+            "exceeds_L5_ceiling": (bool(mx) and max(mx) >= L5_P_ABS_MAX),
+            "L5_registered_ceiling_Pa": L5_P_ABS_MAX,
+            "basis": "pressureControl's own pre-clamp print; the WRITTEN field cannot "
+                     "show this, because the clamp is applied before it is written"}
+
+
 def p_clause_reachable(case):
     """CAN L5's p CLAUSE EVER FIRE UNDER THE DICTIONARY THAT WILL RUN?
 
@@ -778,27 +865,28 @@ def p_clause_reachable(case):
                      "the p half of L5 can fire under this dictionary")}
 
 
-def evaluate_L5(case, comp):
+def evaluate_L5(case, comp, app="rhoPimpleFoam"):
     """p absolute max < 2 p0 and max|U| < 2 U_inf, READ FROM THE FIELD FILES.
 
     A15.7 says `read from the field, never from a normalised residual`, and the
     solver's own `pressureControl: p max` line is a field reading -- it is reported
     beside the field value as a cross-check, not as a substitute."""
+    reach = p_clause_reachable(case)          # set FIRST, so EVERY return path carries it
+    reach["preclamp"] = preclamp_pressure(case, app)
     tname = comp.get("endTime_dirname")
     if not tname:
-        return {"verdict": "NOT A RESULT",
+        return {"verdict": "NOT A RESULT", "p_clause_reachability": reach,
                 "reason": "no endTime field directory on disk, so the field cannot be read"}
     pe = field_extrema(case, tname, "p")
     ue = field_extrema(case, tname, "U")
     if pe is None or ue is None:
-        return {"verdict": "NOT A RESULT",
+        return {"verdict": "NOT A RESULT", "p_clause_reachability": reach,
                 "reason": f"p or U absent at time {tname}",
                 "p": pe, "U": ue}
     pmax = max(abs(pe["max"] or 0.0), abs(pe["min"] or 0.0))
     umax = ue["max_magnitude"]
     ok = (math.isfinite(pmax) and math.isfinite(umax)
           and pmax < L5_P_ABS_MAX and umax < L5_U_MAG_MAX)
-    reach = p_clause_reachable(case)
     return {"verdict": "PASS" if ok else "GATE FAIL",
             "p_clause_reachability": reach,
             "p_abs_max_Pa": pmax, "p_ceiling_Pa": L5_P_ABS_MAX,
@@ -894,7 +982,7 @@ def grade(case, mode="grade", ref=None, force_plant_control="NOT RUN", now=None)
     rep["completion"] = comp
     rep["force_plant_control"] = force_plant_control
     comp["force_plant_control"] = force_plant_control
-    comp["L5"] = evaluate_L5(case, comp)
+    comp["L5"] = evaluate_L5(case, comp, app)
 
     steps = read_log_channels(case, app)
     coeffs, cmeta = read_coefficients(case)
@@ -925,8 +1013,13 @@ def grade(case, mode="grade", ref=None, force_plant_control="NOT RUN", now=None)
         failed = [k for k in ("clause_rc_zero", "clause_end_line", "clause_last_eq_endTime",
                               "clause_exec_count", "clause_fields", "clause_age_guard")
                   if not comp[k]]
+        ws = comp.get("write_schedule", {})
+        extra = ""
+        if ws.get("readable") and not ws.get("endTime_survives_purge"):
+            extra = (" -- AND THE FIELD CLAUSES WERE UNREACHABLE BY CONSTRUCTION: "
+                     + ws["note"])
         rep["reason"] = ("standing rule 4 is not satisfied; clauses failing: "
-                         + ", ".join(failed))
+                         + ", ".join(failed) + extra)
         # The L channels are still reported -- the rung's decision rests on them and
         # A15.7 registers them on a run that may legitimately not reach endTime.
         rep["rung_reading"] = _rung_reading(rep["L_channels"])
@@ -1296,6 +1389,69 @@ def selftest():
         check("P-F L5 PASSES on the clean field", l5ok["verdict"] == "PASS",
               json.dumps(l5ok))
 
+        # ---------------------------------------------------------------- P-K ---
+        # THE WRITE-SCHEDULE PRE-FLIGHT, ON THE REAL SHAPE AND ON A GOOD ONE.
+        ck1 = os.path.join(td, "PK1")
+        os.makedirs(os.path.join(ck1, "system"), exist_ok=True)
+        open(os.path.join(ck1, "system", "controlDict"), "w").write(
+            "application rhoPimpleFoam;\nendTime 20;\ndeltaT 1;\n"
+            "writeInterval 6;\npurgeWrite 2;\n")
+        w1 = write_schedule(ck1)
+        check("P-K catches the probe's real shape (endTime 20, writeInterval 6)",
+              w1["endTime_is_a_write"] is False
+              and w1["endTime_survives_purge"] is False
+              and w1["kept_after_purge"][-2:] == [12.0, 18.0],
+              json.dumps(w1))
+        open(os.path.join(ck1, "system", "controlDict"), "w").write(
+            "application rhoPimpleFoam;\nendTime 6000;\ndeltaT 1;\n"
+            "writeInterval 6;\npurgeWrite 2;\n")
+        w2 = write_schedule(ck1)
+        check("P-K stays QUIET on the production shape (endTime 6000, writeInterval 6)",
+              w2["endTime_is_a_write"] is True and w2["endTime_survives_purge"] is True,
+              json.dumps(w2))
+        # and purgeWrite alone must be able to lose endTime even when it IS a write
+        open(os.path.join(ck1, "system", "controlDict"), "w").write(
+            "application rhoPimpleFoam;\nendTime 18;\ndeltaT 1;\n"
+            "writeInterval 6;\npurgeWrite 2;\n")
+        w3 = write_schedule(ck1)
+        check("P-K accepts endTime 18 (a write, and kept)",
+              w3["endTime_survives_purge"] is True, json.dumps(w3))
+
+        # ---------------------------------------------------------------- P-L ---
+        # THE PRE-CLAMP READER.  The excursion it reports never reaches a written field,
+        # so nothing else in this comparator can corroborate it -- which is exactly why
+        # it needs a plant of its own.
+        cl1 = os.path.join(td, "PL")
+        os.makedirs(cl1, exist_ok=True)
+        open(os.path.join(cl1, "log.rhoPimpleFoam"), "w").write(
+            "pressureControl\n    pMax 8014.789298\n    pMin 400.7394649\n\n"
+            "Time = 1\n\npressureControl: p max 20176.5848879\n"
+            "ExecutionTime = 1 s  ClockTime = 1 s\n\n"
+            "Time = 2\n\npressureControl: p max 9000.5\n"
+            "pressureControl: p min 12.25\n"
+            "ExecutionTime = 2 s  ClockTime = 2 s\n\nEnd\n")
+        pc = preclamp_pressure(cl1, "rhoPimpleFoam")
+        check("P-L reads the solver's own printed clamp",
+              pc["solver_printed_clamp"] == {"pMax": 8014.789298, "pMin": 400.7394649},
+              json.dumps(pc["solver_printed_clamp"]))
+        check("P-L sees the planted pre-clamp excursion, and takes the MAX not the first",
+              abs(pc["preclamp_p_max_Pa"] - 20176.5848879) < 1e-9,
+              f"got {pc['preclamp_p_max_Pa']!r}")
+        check("P-L calls it over the L5 ceiling", pc["exceeds_L5_ceiling"] is True,
+              json.dumps(pc))
+        check("P-L counts every step that went over", pc["n_steps_over_clamp"] == 2,
+              str(pc["n_steps_over_clamp"]))
+        check("P-L reads the min channel too",
+              abs(pc["preclamp_p_min_Pa"] - 12.25) < 1e-9, str(pc["preclamp_p_min_Pa"]))
+        # the control on the control: a run that never exceeded the clamp must read clean
+        open(os.path.join(cl1, "log.rhoPimpleFoam"), "w").write(
+            "pressureControl\n    pMax 8014.789298\n    pMin 400.7394649\n\n"
+            "Time = 1\n\nExecutionTime = 1 s  ClockTime = 1 s\n\nEnd\n")
+        pc2 = preclamp_pressure(cl1, "rhoPimpleFoam")
+        check("P-L stays QUIET when the clamp never fired",
+              pc2["n_steps_over_clamp"] == 0 and pc2["preclamp_p_max_Pa"] is None
+              and pc2["exceeds_L5_ceiling"] is False, json.dumps(pc2))
+
         # ---------------------------------------------------------------- P-J ---
         # THE REACHABILITY READER.  A clause that cannot fail is not a clause, so the
         # comparator must be able to SAY SO -- and must not say so when it is wrong.
@@ -1389,7 +1545,9 @@ def selftest():
         "able to FAIL and the clean case shown able to PASS, P-D the gate driven end to "
         "end inside and outside the band WITH THE RETURNED NUMBER CHECKED against the "
         "planted one, P-E liveness refusing a 37-minute-dead log and a live case in "
-        "opposite directions, P-F the binary field reader with a decoy, P-J the L5 "
+        "opposite directions, P-F the binary field reader with a decoy, P-K the "
+        "write-schedule pre-flight (fires on the probe shape, quiet on the production "
+        "one), P-J the L5 "
         "p-clause reachability reader in both directions, P-G L1/L2/L4 "
         "each PASS and FAIL plus the unreached-reading-point case, P-H closure-derived "
         "fields, P-I q_inf against an external literal.\n")
