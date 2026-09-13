@@ -28310,3 +28310,67 @@ maximum existing L number : 572
 filed this lesson as `L-577`, four numbers into empty space, and every later citation of
 `L-573`…`L-576` would have pointed at nothing. The rule explains *why* the two figures can
 diverge; this is what the divergence looks like in the file on the day.
+
+## L-575 — LEXICAL SORT ON OpenFOAM TIME DIRECTORIES GRADES THE WRONG ONE, SILENTLY, AND ONLY AFTER THE RUN IS LONG ENOUGH TO EXPOSE IT
+
+**The hazard, in one line.** *Time directory names are STRINGS; `ls`, a shell
+glob and `tail -1` order them LEXICALLY. On any run whose times cross a digit
+boundary, the lexically last directory is NOT the numerically last one — and an
+instrument that takes it grades the wrong time with no error, no warning and
+every clause passing.*
+
+**MEASURED, on the exact time set `K2h_L3` will carry at completion
+(0, 5, 10, …, 110):**
+
+| ordering | last |
+|---|---|
+| **numeric** | **110** |
+| **lexical** | **95** |
+
+**A lexical reader would pass every completion clause against `t = 95` while
+believing it had graded the last write.** Nothing would look wrong.
+
+***AND THE PART THAT MAKES IT DANGEROUS RATHER THAN MERELY WRONG: IT CANNOT BE
+CAUGHT BY TESTING AGAINST THE LIVE TREE.*** While the writes are
+`0, 5, …, 50`, lexical and numeric **happen to agree**, so a test today passes.
+**The defect only bites once `t = 100` exists** — three hours later, on the
+artifact that actually gets graded. *A test against the current state of a
+growing tree tests the state, not the code.*
+
+**HOW IT SURFACED — through a bug in scaffolding that had been written off.** A
+throwaway shell waiter checked for the averaging accumulator with
+`ls -d …/processor0/*/uniform/.../functionObjectProperties | tail -1`. With
+writes `0 10 15 20 25 30 35 40 45 5 50`, the lexical last was **`5`** — a
+directory that never carries the accumulator — so it watched the wrong time for
+**22 minutes**, then fired **by accident** when `50` landed and happened to sort
+last. **It never once watched the event it was named for**, and it would have
+reported success either way.
+
+**THE RESPONSE THAT SHOULD BE COPIED: DRIVE EVERY INSTRUMENT AGAINST A SYNTHETIC
+TREE CARRYING THE FULL FINAL TIME SET, rather than reading its source and
+reasoning.** Seven were driven against `0, 5, …, 110` —
+`analyse_k2h._times_on_rank`, `d_complete`'s last-written, the **FROZEN**
+`foam_patch_reader._tname`, the renderer's time resolution, the watcher, the
+dense series, and the G-02b guard. **All numeric; none exposed; nothing needed
+fixing.** ***But that sentence could not have been said honestly without driving
+it.***
+
+**AND THE WITHDRAWN CLAIM THAT LED THERE, RECORDED BECAUSE THE ROUTE MATTERS.**
+The waiter was reported to the supervisor as having "died silently", and the
+supervisor put that on `docs/LAB_STATE.md` (update 138) as a process lesson.
+**IT WAS FALSE. The process was alive and exited normally.** The death was
+inferred from a `ps … | grep` whose pattern **could never have matched that
+process**, because it ran inside a harness wrapper. ***A zero from a reader not
+shown able to see a non-zero — rule 3's exact failure mode, applied to a PROCESS
+CHECK instead of a field.*** **A liveness check is a READER and needs the same
+positive control: confirm the pattern finds something you KNOW is running, before
+concluding that something is not.**
+
+**Related.** Rule 3 (the planted zero — this is that rule applied to process
+checks and to directory listings); L-570 (a guard that cannot say no is not a
+guard — the waiter was a watcher that could not watch); the `grep` /
+`tail -1` ordering hazard already on the books for multi-file output.
+
+**Sources.** `verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/`
+for the live time set; the seven instruments named above; `docs/LAB_STATE.md`
+update 138 for the false claim and update 141 for its withdrawal.
