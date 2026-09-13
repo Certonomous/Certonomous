@@ -177,6 +177,16 @@ if [ "$RESUME" = "no" ] && [ "$STARTUP_ITERS" -gt 0 ]; then
   set_endtime "$STARTUP_ITERS"
   RC=$(run_solver "stage 1")
   echo "STAGE 1 rc=$RC"
+  # RESTORE THE REGISTERED DICTIONARIES ON EVERY EXIT PATH, NOT ONLY ON SUCCESS. Stage 1 copies
+  # the ramp dictionaries over fvSchemes/fvSolution; if it FAILS, stage 2 never runs and the case
+  # is left holding the RAMP dictionaries under the registered names. A resume would then continue
+  # silently on first-order schemes -- and the launcher's own "transonic yes" assertion would read
+  # the ramp file and refuse, which is how this was found.
+  cp system/fvSchemes.registered  system/fvSchemes
+  cp system/fvSolution.registered system/fvSolution
+  [ "$(md5sum < system/fvSchemes)"  = "$SCH_MD5" ] || fail "fvSchemes restore after stage 1 is not byte-identical"
+  [ "$(md5sum < system/fvSolution)" = "$SOL_MD5" ] || fail "fvSolution restore after stage 1 is not byte-identical"
+  echo "registered dictionaries restored after stage 1 (md5-identical), whatever its rc"
   case "$RC" in ''|*[!0-9]*) fail "stage 1 returned a non-numeric rc (\"$RC\") -- refusing to guess";; esac
   if [ "$RC" -ne 0 ]; then
     echo "RC=$RC" > RC.txt
