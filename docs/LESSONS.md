@@ -30035,3 +30035,132 @@ disk at freeze time, the check runs against it.** Where it genuinely does not ye
 synthetic arm had no anchors beside it), the registration must name the loaders left uncovered as
 an **explicit gap**, because an uncovered loader silently inherits the green of everything around
 it. *Substitution is not a detail of the fixture; it is a boundary of the claim.*
+
+## L-607 — A CONTROL ON THE EDIT IS NOT A CONTROL ON THE MEANING; when a quantity appears in more than one place, assert the EFFECTIVE VALUE by enumerating every occurrence
+
+**The generator wrote the right text into the wrong half of the dictionary, and its assertion
+checked the text.** `cases/navier_class/DRIVAER/mesh/make_r5_dict.py` emitted the R5
+`snappyHexMeshDict` from `r2_medium`'s, applying the registered layer recipe `nSurfaceLayers 8`.
+It wrote `nSurfaceLayers 8` at the **top level** of `addLayersControls` and left the per-patch
+`layers { }` sub-block untouched, where **all fifty patches still read `nSurfaceLayers 5`**.
+
+**In snappyHexMesh the per-patch entry is authoritative over the top-level value.** So the mesh
+requested **five** layers while `RUN_PIN.txt`, `THE_ONE_CHANGE.diff`, the freeze commit message,
+Addendum A1 and two reports to a peer lane all said **eight**. **The build was killed at Morph
+iteration 3: 132.80 core-min gross, named as waste, stopped as a CORRECTNESS stop with no cap
+armed** — the run was not over budget, it was building the wrong mesh.
+
+**THE GUARD THAT MISSED IT WAS NOT ABSENT. IT PASSED.**
+
+```
+if new_lay == lay:
+    print("REFUSE: layer recipe substitution did not apply"); return 2
+```
+
+**That assertion is TRUE AND USELESS AT THE SAME TIME.** It asks whether the text it wrote is
+present. **It never asks what the dictionary MEANS.** The substitution did apply — and the
+dictionary still built five layers. A control can be simultaneously correct, passing, and about
+nothing anyone cares about.
+
+**WHY THIS IS L-590 AGAIN AND NOT A NEW FAMILY.** L-590's capstone was that nine planted controls
+all passed because *every one fed the parser a table and asked whether the GATE FIRED; none asked
+whether the NUMBER WAS REAL.* **This is that sentence with "gate" replaced by "edit":** a control
+on whether the change happened is not a control on what the changed thing does. **And it is the
+third instance in ONE case** — `LAYERFIX_A1_coarse_relativeSizes` was an arm whose dictionary
+differed from its baseline by **not one byte**, a lever that moved nothing while every record said
+it had; L-590 itself was the layer table read as achievement when it is a request.
+
+**THE FIX, AND IT READS THE MEANING.** Assertion A2b now reads **every** `nSurfaceLayers` value in
+the whole `addLayersControls` block and refuses unless the set is exactly `{8}`:
+
+```
+counts = [int(x) for x in re.findall(r"nSurfaceLayers\s+(\d+)\s*;", final_lay)]
+if set(counts) != {N_LAYERS}: REFUSE, naming the offending values
+```
+
+**Driven in its failing direction, which is the only thing that makes it a control:** with the
+per-patch rewrite disabled it exits 2 naming `[5]`; with it enabled, **51 entries at 8** — the one
+top-level plus the fifty per-patch. **The count is part of the assertion**, so a rewrite that
+silently dropped a patch also refuses.
+
+**THE OPERATIONAL RULE.** When an edit changes a quantity that appears in **more than one place**,
+**assert the EFFECTIVE VALUE, not the edit** — enumerate every occurrence and assert the whole set,
+**because the one you did not rewrite is the one that wins.** Precedence is the trap: a dictionary
+format with a general default and a specific override will take the override, and an edit applied
+to the default is invisible to any check that only looks where it wrote.
+
+**AND THE SECOND HALF, WHICH IS HOW IT WAS ACTUALLY FOUND.** **Read your own emitted artifact
+rather than trusting the generator that wrote it.** This defect was found by **opening the
+dictionary the build was already running on**, not by re-reading the code. The generator's source
+is a statement of intent; the emitted file is the object the solver obeys. **Every argument that the
+code is correct is an argument about the wrong artifact.**
+
+**THE PRE-FLIGHT THAT FOLLOWS.** Before a long build, grep the emitted dictionary for the
+registered quantity and count the occurrences. If the number of hits is greater than one, the edit
+had a precedence question in it and the check must cover all of them. **One hit is a value; several
+hits are a hierarchy.**
+
+## L-608 — A GUARD CAN BE WRONG IN THE STRICT DIRECTION, AND THAT IS THE ONE THAT GETS A GUARD DELETED; a control needs a failing example AND a passing example that must not be refused
+
+**Every other control failure recorded on this date PASSED when it should have REFUSED. This one
+REFUSES when it should PASS, and it is dangerous in a different way.**
+
+`build_r5.sh` pinned the governing pre-registration **live at launch** rather than at freeze time,
+because blobs had moved repeatedly that day. Its check was blob **equality**:
+
+```
+if [ "$BLOB_FREEZE" != "$BLOB_NOW" ]; then REFUSE; fi
+```
+
+**On the relaunch it fired.** The registration blob had moved — **because a peer lane had just
+landed a dated Addendum, which is exactly what rule 6 requires.** Inspection rather than assumption
+showed the first 438 lines **byte-identical**: a lawful append.
+
+**RULE 6 DOES NOT FREEZE THE FILE. IT FREEZES THE BODY.** *"A departure is disclosed in a dated
+amendment appended at the foot, with the assertion `lines whose number changed above this section:
+0`."* **A guard demanding byte equality against the freeze therefore refuses every legal addendum —
+it makes the correct procedure impossible.** The guard was not enforcing rule 6; it was enforcing a
+stricter rule nobody wrote, and the two are easy to confuse because the stricter one sounds more
+rigorous.
+
+**WHY THAT IS A DEFECT AND NOT MERELY AN INCONVENIENCE — AND THIS IS THE WHOLE LESSON.**
+**A guard that blocks lawful work does not produce a wrong answer. It produces PRESSURE TO DISABLE
+THE GUARD.** And a guard that has been switched off is not there on the day the frozen body really
+is rewritten to fit an answer. **Over-strictness converts, by ordinary human pressure, into no
+protection at all** — and it converts *quietly*, because the disabling looks locally reasonable
+every single time it happens. **A false refusal spends the guard's credibility, and credibility is
+the only thing making anyone obey it.**
+
+**THE FIX — COMPARE THE PREFIX, NOT THE SHA.** The frozen body must survive **byte-for-byte as a
+prefix**; anything after it is an append:
+
+```
+FLEN=$(git cat-file -s "$BLOB_FREEZE")
+[ "$NLEN" -lt "$FLEN" ] && REFUSE          # a shrink is not an append
+cmp -s -n "$FLEN" <(git cat-file blob "$BLOB_FREEZE") \
+                  <(git cat-file blob "$BLOB_NOW") || REFUSE
+```
+
+**BOTH DIRECTIONS DRIVEN, which is what distinguishes this from the guard it replaced:**
+
+| case | required | result |
+|---|---|---|
+| the real **8,277-byte** Addendum A1 append | **ACCEPT** | **ACCEPTED** |
+| `L1 ≥ 5.0 of the 8` flipped to `1.0` **inside the frozen body** | REFUSE | **REFUSED** |
+| a registration **shorter** than its freeze | REFUSE | **REFUSED** |
+
+The shrink arm matters on its own: a prefix comparison over the *shorter* of two files would accept
+a truncation, so the length test is not decoration.
+
+**THE OPERATIONAL RULE.** When writing a guard, ask not only **"can it fire?"** but **"WHAT LAWFUL
+WORK DOES IT FORBID?"** — and drive it in **both** directions before trusting it. **A control needs
+a failing example AND a passing example that must not be refused.** A suite of failing examples
+alone measures sensitivity and says nothing about specificity; the passing example is what proves
+the guard has a boundary rather than an appetite.
+
+**WHERE THIS SITS IN THE NIGHT'S FAMILY.** Everything else recorded on this date is an instrument
+reporting on itself — a hash of a file against itself, an identity over a partition of one
+quantity, a reader blind to its own key, an exit code standing in for a verdict. **This one is an
+instrument whose correctness criterion was STRICTER THAN THE PROCEDURE IT WAS POLICING**, and it is
+the first failure of the night in the refusing direction. **Both directions are failures of the
+same thing: a control whose criterion was never checked against the claim it stands for.**
