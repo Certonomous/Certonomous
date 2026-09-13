@@ -32,6 +32,17 @@
 #   C7 -- G-DEPS, NEW: every local module imported by a staged .py must itself be
 #         staged.  A control drives it with one file removed and REQUIRES it to
 #         FAIL -- a check that cannot be seen to fail is not a check.
+# ADDENDUM 3 (2026-09-13): FM7 transferred all six fields correctly into the
+# UNDECOMPOSED 0/ and THE SOLVER NEVER SAW THEM -- DAFoam decomposes once, at the
+# DEFORM phase's setup, one phase before init runs.  The floor was then identical
+# to FM5's to ten digits, which LOOKS like a refutation of the registered change
+# and is not one.  YOU CANNOT REFUTE A CHANGE THAT DID NOT TAKE EFFECT.
+#   C9  -- FM8 is the RE-RUN ID, carrying the IDENTICAL cap of 47.211.
+#   C10 -- G-VERIFY, NEW and POST-RUN: d6r2c_fm6_init.py --phase verify refuses
+#          if the solve reproduced FM5's residuals BIT FOR BIT.  It is a REFUSAL,
+#          NOT A GATE: section 11a registers this condition in words and this
+#          makes it executable (2d.1).  It writes no verdict and moves nothing.
+#
 #   C8 -- FM7 is the RE-RUN ID and carries the IDENTICAL registered cap of
 #         47.211.  NO threshold is invented, raised or reduced.  FM6 keeps its
 #         directory and its NOT A RESULT row, is never re-seeded and never
@@ -118,7 +129,7 @@ CKPT_INTERVAL_S=1800
 # and a cap that is one number in one place stays one number in one place.
 cap_core_min() {
   case "$1" in
-    FM6|FM7) python3 "$SRC/d6r2c_fm6_grade.py" --print-cap FM6 2>/dev/null ;;
+    FM6|FM7|FM8) python3 "$SRC/d6r2c_fm6_grade.py" --print-cap FM6 2>/dev/null ;;
     *) echo "" ;;
   esac
 }
@@ -441,11 +452,27 @@ if [ "$ARM" = "--selftest" ]; then
   [ "$(grep -c 'for f in \$STAGED_PY' "$0")" -ge 1 ] && [ "$(grep -c 'guard_deps \$STAGED_PY' "$0")" -ge 1 ] \
     && echo "SELFTEST ok the staged list has ONE source, read by both the copy and the check" \
     || { echo "SELFTEST FAIL the staged list is re-spelled"; rc=1; }
-  [ "$rc" -eq 0 ] && echo "D6R2C_FM6_LAUNCH SELFTEST PASS n=14" || echo "D6R2C_FM6_LAUNCH SELFTEST FAIL"
+  # ---- ADDENDUM 3: FM8 and G-VERIFY ---------------------------------------
+  [ "$(cap_core_min FM8)" = "$(cap_core_min FM6)" ] && [ "$(cap_core_min FM8)" = "47.211" ] \
+    && echo "SELFTEST ok FM8 carries the IDENTICAL registered cap as FM6 and FM7" \
+    || { echo "SELFTEST FAIL FM8 does not carry FM6's cap"; rc=1; }
+  # G-VERIFY refuses an FM5-identical trajectory and PASSES a different one.
+  VT=$(mktemp -d); printf 'Time = 100\np initRes: 0.001103361217 finalRes: 1 nIters: 3\nPrimal min residual 1.278377566e-05\n' > "$VT/fm5.log"
+  printf 'Time = 100\np initRes: 0.000217409881 finalRes: 1 nIters: 3\nPrimal min residual 3.041122e-09\n' > "$VT/ok.log"
+  if python3 "$SRC/d6r2c_fm6_init.py" --phase verify --log "$VT/fm5.log" >/dev/null 2>&1; then
+    echo "SELFTEST FAIL G-VERIFY accepted an FM5-identical trajectory"; rc=1
+  else
+    echo "SELFTEST ok G-VERIFY REFUSES a trajectory bit-identical to FM5's"
+  fi
+  python3 "$SRC/d6r2c_fm6_init.py" --phase verify --log "$VT/ok.log" >/dev/null 2>&1 \
+    && echo "SELFTEST ok G-VERIFY NEGATIVE -- a different trajectory is accepted" \
+    || { echo "SELFTEST FAIL G-VERIFY refused a different trajectory"; rc=1; }
+  rm -rf "$VT"
+  [ "$rc" -eq 0 ] && echo "D6R2C_FM6_LAUNCH SELFTEST PASS n=17" || echo "D6R2C_FM6_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_fm6_run_arm.sh <FM6|FM7> <image>  |  --selftest"; exit 64; }
-case "$ARM" in FM6|FM7) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
+test -n "$ARM" || { echo "ABORT usage: d6r2c_fm6_run_arm.sh <FM6|FM7|FM8> <image>  |  --selftest"; exit 64; }
+case "$ARM" in FM6|FM7|FM8) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
@@ -519,6 +546,17 @@ ROOT_OWNED=$(find "$WORK" -newermt "@$(cat "$WORK/.d6r2c_age_datum")" \( -uid 0 
 awk -v c="$CORE_MIN" -v cap="$CAP" 'BEGIN{exit !(c>cap)}' && \
   echo "D6R2C_FM6_CAP_CROSSED arm=$ARM core_min=$CORE_MIN cap=$CAP -- the row is graded NOT A RESULT and THE CAP IS NEVER RAISED" | tee -a "$BASE/ledger.txt"
 echo "D6R2C_FM6_DONE arm=$ARM rc=$RC core_min=$CORE_MIN cap=$CAP root_owned=$ROOT_OWNED"
+# ---- G-VERIFY (C10), POST-RUN, SECOND LINE OF DEFENCE ---------------------
+# If the solve reproduced FM5's residuals BIT FOR BIT, the transfer did not reach
+# the solver and the floor is NOT evidence about the registered change.  A
+# REFUSAL, NOT A GATE -- no verdict is written and no threshold is moved.
+python3 "$SRC/d6r2c_fm6_init.py" --phase verify --log "$LOG"
+VRC=$?
+if [ $VRC -ne 0 ]; then
+  echo "D6R2C_FM6_VERIFY_REFUSED arm=$ARM -- the solve reproduced FM5 exactly; the transfer did NOT reach the solver.  PRODUCER DEFECT, NOT A RESULT, and the floor is NOT a refutation of the registered change." | tee -a "$BASE/ledger.txt"
+else
+  echo "D6R2C_FM6_VERIFY_PASS arm=$ARM -- the solve trajectory DIFFERS from FM5's, so the initial field reached the solver"
+fi
 echo "NOW GRADE:  python3 $SRC/d6r2c_fm6_grade.py --item 9R2 \\"
 echo "              --arm-dir $WORK --datum-file $WORK/.d6r2c_age_datum \\"
 echo "              --core-min $CORE_MIN --rc $RC"
@@ -536,7 +574,7 @@ exit 0
 # 2f2ae43a627146cf8e0f065b035ada4b, the bytes O_mp ran.  O_mp's GATE FAIL, its
 # 24.732 % and its Jf/J0 = 0.752677 stand exactly as graded.
 # PIN d6r2c_fm6_grade.py 1a5ca51f8dab59e3c72b9a71ce8f77e6
-# PIN d6r2c_fm6_init.py 0d335d95aa294a96fb8df106e71b8970
+# PIN d6r2c_fm6_init.py 75bf53d8e798980332ef8dfdcc25b0c6
 # PIN d6r2c_freshmesh.py 1d15ce361673ca600d565280441b67e0
 # ADDENDUM 1: d6r2c_decomp.py is STAGED and PINNED.  d6r2c_freshmesh.py imports
 # it as a library (:67) and FM6 died without it.  This md5 is the one the parent

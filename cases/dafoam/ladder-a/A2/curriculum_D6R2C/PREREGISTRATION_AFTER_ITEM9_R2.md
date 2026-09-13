@@ -752,3 +752,228 @@ check.
 staged and pinned and a reader is entitled to its hash, **not** because this document registers item 8.
 Its `--selftest` is driven and reported for the same reason. **It introduces no gate, no threshold, no
 cap and no label**, and `d6r2c_fm6_grade.py` neither imports it nor reads anything it writes.
+
+---
+
+## ADDENDUM 2 — 2026-09-13 — THE `arm` FIELD IS **WRONG** FOR `FM7`, AND TWO IDENTIFIERS THAT ARE NOT
+
+**This addendum carries the document to version 1.2.** Earlier version lines are **deliberately not
+edited**, for the reason `ADDENDUM 1` gives.
+
+**Lines whose number changed above this section: 0.** Proof in §A2.3.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL**, and **does not touch the grading
+path**, whose md5 `1a5ca51f8dab59e3c72b9a71ce8f77e6` is unchanged **across both freezes**
+(`e52e09316844f92ee683ec200a047a59e2a44b75` and `12d27323fc6580b0c7e3f2d6c98c1b853d0fef05`).
+
+### A2.0 THE CORRECTION TO `ADDENDUM 1` §A1.5 — STRONGER WORDING, RULED BY THE SUPERVISOR
+
+§A1.5 said the `arm` field is "not authoritative". **That is too soft and it is corrected here, in the
+words the supervisor ruled:**
+
+> **WHEN `FM7` IS GRADED, THE `arm` FIELD IN `d6r2c_fm6_grade.py`'s OUTPUT WILL READ `"FM6"` AND THAT
+> VALUE IS WRONG.** It is a frozen literal in a grading path that must not move. It is not a synonym,
+> not an alias and not a label whose meaning depends on context. **It is wrong.**
+
+*"Not authoritative"* is phrasing a reader skims past; *"this field is wrong"* is phrasing that stops
+them. **Three separate numbers were misread tonight because they meant something other than what they
+appeared to mean**, and this is that shape exactly.
+
+**The grader is NOT edited, and that ruling stands:** rule 2's protection of the grading path is worth
+more than a correct string; **no gate reads that field**; and editing an instrument carrying 56 driven
+controls to repair a cosmetic literal trades a real risk for a presentational one.
+
+### A2.1 THE MITIGATION IS STRUCTURAL, NOT NARRATIVE — TWO IDENTIFIERS CARRY `FM7`
+
+A disclosure a reader must find is not a mitigation. **Two independent identifiers, produced by two
+different instruments, will carry `FM7`, against the one frozen literal that carries `FM6`:**
+
+| identifier | value for this arm | produced by |
+|---|---|---|
+| the ledger row | `D6R2C_FM6_ROW arm=FM7 …` | `d6r2c_fm6_run_arm.sh:517`, from `$ARM` |
+| **the grade record's filename** | `AFTER_ITEM9R2_FM7_GRADE.json` | the `--out` path, **registered below** |
+| the `arm` field inside that record | `"FM6"` — **WRONG** | a frozen literal |
+
+**THE GRADING INVOCATION IS REGISTERED HERE, BEFORE THE ARM RUNS**, so the filename is not a choice made
+after seeing a verdict. `d6r2c_fm6_grade.py`'s `--out` default is `AFTER_ITEM9R2_GRADE.json`, which
+carries no arm id at all; **the `FM7` grading MUST pass `--out` explicitly:**
+
+```
+--out <run root>/AFTER_ITEM9R2_FM7_GRADE.json
+```
+
+**Two out of three identifiers say `FM7`, and the third is documented as wrong.** A reader who checks
+any two of them cannot be misled by the one that is.
+
+### A2.2 WHY THE DESIGN RULE BEHIND `G-DEPS` IS RECORDED, NOT JUST THE GUARD
+
+`guard_deps` takes the staged list **as arguments** rather than reading `$STAGED_PY` from the
+environment. That is **the only reason its failing control is possible at all**: a guard that reads its
+inputs from globals can be driven only against the one set the globals hold, so **it can be shown to
+pass and can never be shown to fail.**
+
+**Registered as a design rule for this item's instruments:** *a guard that cannot be handed a bad input
+cannot be driven against one.* It sits beside the three instruments that measured themselves and
+reported success tonight — cap controls that read their own constant, a phase check that matched its own
+grep lines, and a dependency control masked by `pipefail`.
+
+### A2.3 THE APPEND-ONLY PROOF
+
+- Pre-append state, read from the **committed blob** at `12d27323fc6580b0c7e3f2d6c98c1b853d0fef05`, in
+  the same shell invocation as the append: md5 **`063bef11051f6fd00bfc688f7dd39e7f`**, **754 lines**.
+- The working-tree file was **byte-identical to that blob** before this section was appended, asserted in
+  that same invocation.
+- `git diff --numstat` on this path must show **insertions only and `0` deletions**.
+- **Lines whose number changed above this section: 0.**
+- This is `ADDENDUM 2`, the number derived from the maximum existing heading, never a count.
+
+### A2.4 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not touch the grading path**, its md5, or any threshold, cap, gate or label.
+- **It does not re-grade `FM6`.** `NOT A RESULT`, closed.
+- **It does not change what `FM7` runs** — only the `--out` path the grading is invoked with.
+- **It does not claim `FM7` will pass.** §3e's discriminator stands exactly as frozen.
+
+---
+
+## ADDENDUM 3 — 2026-09-13 — `FM7` TRANSFERRED THE FIELD CORRECTLY AND THE SOLVER NEVER SAW IT
+
+**This addendum carries the document to version 1.3.** Earlier version lines are **deliberately not
+edited**, for the reason `ADDENDUM 1` gives.
+**Lines whose number changed above this section: 0.** Proof in §A3.6.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL**, and **does not touch the grading
+path**, whose md5 `1a5ca51f8dab59e3c72b9a71ce8f77e6` is unchanged since the first freeze.
+
+### A3.0 THE RESULT THAT LOOKS LIKE A REFUTATION AND IS NOT ONE
+
+**`FM7` reached the solve phase and stalled at `Primal min residual 1.278377566e-05` — identical to
+`FM5` to all ten significant digits.** §3e's discriminator, read alone, says *"SAME FLOOR AS FM5 — the
+initial field was not the obstacle and the registered change is REFUTED"*.
+
+> **THAT READING IS WRONG, AND IT IS THE MOST IMPORTANT SENTENCE IN THIS DOCUMENT:
+> YOU CANNOT REFUTE A CHANGE THAT DID NOT TAKE EFFECT.**
+
+**The transfer never reached the solver, so the rung-2 hypothesis is UNTESTED, not refuted.** Had §3e
+stood alone, a clean refutation would have been recorded and the ladder would have climbed to the model
+rung **on false evidence**. **A discriminator that can return "refuted" must be accompanied by a check
+that the change occurred at all** — §11a was that check, and it is why this was caught.
+
+### A3.1 THE EVIDENCE, IN THREE INDEPENDENT LINES
+
+1. **The transfer itself was correct.** `d6r2c_fm6_init.json`: all six fields, **38,304 cells each**,
+   `readback_worst_abs_diff = 0.0` in every field of every condition, connectivity premise held.
+   `mp04/0/p` carries 38,304 nonuniform values beginning `105669.7255, 104525.1293, 103394.0378` —
+   `O_mp`'s converged pressure. **`I1` would have passed.**
+2. **The fields the solver read were freestream.** `mp04/processor0/0/`: `U` is
+   `internalField uniform (100 0 0)`, `p` is `uniform 101325`, `T` is `uniform 300`, `nuTilda` is
+   `uniform 4.5e-05` — at **455–628 bytes**, where a decomposed 9,504-cell nonuniform field is 50–190 kB.
+3. **The whole residual trajectory is bit-identical to `FM5`'s from the first iterate** —
+   `t=100: 0.001103361217`, `t=200: 1.836762e-04`, `t=300: 2.242450e-05`, floor `1.278377566e-05`.
+   **An identical trajectory from iteration 1 means an identical initial state.**
+
+### A3.2 THE MECHANISM, FROM THE MTIMES
+
+`processor0/constant/polyMesh` written **08:11:48** — the **deform** phase decomposed. `init` wrote the
+undecomposed `0/` at **08:12:50**. The solve phase's processor fields date from **08:12:58–08:13:01** and
+are still uniform. **DAFoam decomposes ONCE; at the solve phase `processorN/` already exists and is what
+the solver reads.**
+
+**§2c said *"the transfer must happen before `prob.setup()`, because DAFoam reads `0/` at
+construction"*. That was right about the constraint and wrong about WHICH `setup()`** — the deform
+phase's, which runs one phase earlier. **A true sentence pointing at the wrong instance of the thing it
+describes.**
+
+### A3.3 THE REPAIR — WRITE WHERE THE SOLVER READS
+
+`distribute_internal()` writes each `mp0X/processorN/0/<field>` by **the exact inverse of the map the
+producer already uses**: cell `g` of the global array becomes local cell `k` of processor `n`, where
+`addr[k] == g`, through the **same** `cellProcAddressing`. **No interpolation.**
+
+**The template is each processor's OWN `0/<field>`**, because it carries the inter-processor boundary
+patches the undecomposed file does not have; splicing into an undecomposed template would produce a file
+OpenFOAM cannot read. Only the `internalField` is replaced, and a control asserts the `boundaryField`
+survives byte for byte.
+
+**The rejected alternative, recorded with its reason:** deleting `processorN/` to force a
+re-decomposition rests on behaviour evidenced only by a clean-tree case, and throws away a mesh
+decomposition to move a field. **Not done.**
+
+### A3.4 TWO REFUSALS — AND NEITHER IS A GATE
+
+**§11a already registers this condition in words** — *"if its first-iteration residuals are
+indistinguishable from a freestream start, the transfer did not reach the solver … a PRODUCER DEFECT,
+stopped, graded `NOT A RESULT`"*. **These make a registered condition executable. No condition is
+added, no threshold is moved, no verdict is written and no label is assigned** (`VERIFICATION_CHARTER`
+§2d.1; the sibling registration's `D5` is likewise *"a refusal, not a gate"*).
+
+- **REFUSAL 1 — THE PRECONDITION, in `--phase init`, BEFORE the solve.** Every
+  `processorN/0/<field>` is **read back from disk** and compared against the slice it was built from;
+  anything but exactly `0.0` refuses. **Seconds, against `FM7`'s 7.533 core-min.** A post-mortem
+  becomes a precondition.
+- **REFUSAL 2 — THE SECOND LINE, `--phase verify`**, run by the launcher as `G-VERIFY` after the arm
+  exits. If the solve-phase `t=100` residual equals **`1.103361217e-03`** or the floor equals
+  **`1.278377566e-05`**, **bit for bit**, it refuses. **Both anchors come from runs the next arm did not
+  produce.** The test is **equality, not proximity** — a control drives one ulp off each and requires it
+  **not** to fire, so a genuinely different run is never blocked by it.
+
+### A3.5 THE ROUND-TRIP IDENTITY, AND `FM8`
+
+**`reconstruct → distribute → reconstruct` must return the IDENTICAL array**, for scalars and vectors,
+against a deliberately non-contiguous, non-sorted two-processor addressing. If that holds the two maps
+are exact inverses and the transfer carries no error at all. Driven at this freeze.
+
+**`FM8` is the re-run id and carries the IDENTICAL registered cap of `47.211`** — the same number under
+another key, asserted by the launcher's selftest. **`FM6` and `FM7` keep their directories and their
+`NOT A RESULT` rows, are never re-seeded and are never re-graded.**
+
+### A3.5a A CORROBORATION NOBODY WENT LOOKING FOR
+
+**`FM5` and `FM7` are two independent cold runs on SEPARATELY EXTRUDED MESHES, and their residual
+trajectories agree to every printed digit.** That is `N-D48`'s bitwise run-to-run floor appearing
+unlooked-for on a third pair. **It was not the point of either run**, which is what makes it good
+evidence rather than a number someone went hunting for.
+
+### A3.6 THE APPEND-ONLY PROOF, AND A DISCLOSURE ABOUT ITS BASELINE
+
+- Pre-append state of the **working-tree file**, read in the same shell invocation as the append:
+  md5 **`c1264f1c66675a0ec191357389a09a4f`**, **835 lines**.
+- `git diff --numstat` on this path must show **insertions only and `0` deletions**. *(No count is
+  asserted: a concurrent commit landing during a `git diff` makes the number read against a stale
+  baseline — measured on `ADDENDUM 2`, which read `248` against a moving `HEAD` and `81` against the
+  explicit commit. **A proof written to be true rather than to be precise survives that.**)*
+- **THE BASELINE IS THE WORKING TREE, NOT `HEAD`, AND HERE IS WHY — DISCLOSED RATHER THAN GLOSSED.**
+  **`ADDENDUM 2` IS ON DISK AND WAS NEVER COMMITTED.** The last freeze of this document is
+  `12d27323fc6580b0c7e3f2d6c98c1b853d0fef05` (blob `063bef11051f6fd00bfc688f7dd39e7f`); `HEAD` has since advanced on other
+  teams' work and still does not carry `ADDENDUM 2`. **`FM7` therefore ran with `ADDENDUM 2`
+  uncommitted.** That addendum altered **no gate, threshold, cap or label** — it corrected wording and
+  registered the `--out` filename for grading — so **nothing that governed `FM7` was unfrozen**, and the
+  registration `FM7` ran under was committed. **But the discipline is freeze-by-commit before compute,
+  and this fell short of it. It is recorded here rather than left for someone to find in a diff.**
+- **Lines whose number changed above this section: 0.**
+- This is `ADDENDUM 3`, the number derived from the maximum existing heading, never a count.
+
+### A3.7 THE INSTRUMENT TABLE
+
+| file | md5 now | selftest |
+|---|---|---|
+| `d6r2c_fm6_grade.py` | `1a5ca51f8dab59e3c72b9a71ce8f77e6` — **UNCHANGED SINCE THE FIRST FREEZE** | `PASS n=56` |
+| `d6r2c_fm6_init.py` | `75bf53d8e798980332ef8dfdcc25b0c6` — the distributor and both refusals | `PASS n=39` (was `n=24`) |
+| `d6r2c_fm6_run_arm.sh` | `cead1008eeb4d151c0ccddae2653d64b` — `G-VERIFY` and `FM8` | `PASS n=17` (was `n=14`) |
+| `d6r2c_freshmesh.py` | `1d15ce361673ca600d565280441b67e0` — **REUSED UNCHANGED** | — |
+| `d6r2c_decomp.py` | `42ec0dd582584812a69129a474b2783e` — staged library dependency | `PASS n=32` |
+
+### A3.8 SPEND
+
+`FM7`: **7.533 core-min**, `NOT A RESULT`, **DEFECT-ATTRIBUTABLE WASTE**. Running total on this item:
+**9.066 core-min** across `FM6` and `FM7`. **Neither is in the class of `DEC3`'s 63.000 or `FM5`'s
+7.600**, which bought measurements. The §8 prediction of `15.737` and the cap of `47.211` are
+**UNCHANGED and are not adjusted to absorb it.**
+
+### A3.9 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not re-grade `FM6` or `FM7`.** Both `NOT A RESULT`, closed.
+- **It does not touch the grading path, any gate, threshold, cap or label.**
+- **It does not claim the rung-2 hypothesis is refuted.** It claims the opposite: **it has not yet been
+  tested.** §3e's discriminator stands exactly as frozen and is still the test.
+- **It does not touch `primalMinResTol`.**
