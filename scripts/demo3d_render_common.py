@@ -135,6 +135,41 @@ SAFE_CAPTION_CHARS = set(
 # ---------------------------------------------------------------------------
 
 CASE_FACTS = {
+    # ---------------------------------------------------------------------
+    # THE ONERA M6 J-FAMILY, added 2026-09-13 for the demo field panels. Two
+    # entries because the mesh figure is the COARSE level's own mesh and the
+    # field figures are the FINE level's own fields, per the owner's ParaView
+    # rule, and NOTHING IS INTERPOLATED BETWEEN THEM.
+    #
+    # BOTH ENTRIES OWN EXACTLY ONE VERDICT WORD: "GATE FAIL". Every level of
+    # this family misses the pre-registered B1 Cp band of 0.050 on the rows its
+    # grade file names -- m6j_grade_M6J_L1.json, _L2.json and _L3.json, each
+    # carrying "verdict": "GATE FAIL". A stamp claiming PASS or GATE REACHED on
+    # these fields is REFUSED by assert_stamp before a pixel is rendered.
+    "M6J_L1": {
+        "case_dir": os.path.join(REPO, "verification", "runs", "M6J_runs",
+                                 "M6J_L1"),
+        "cells": 983040,                 # constant/polyMesh/owner note: nCells:983040
+        "mesh_words": "983040 cells, fine level",
+        "solver": "rhoSimpleFoam",       # system/controlDict: application
+        "end_time": "8000",              # last written time directory
+        "fields": ("p", "U", "T"),
+        "allowed_verdicts": {"GATE FAIL"},
+        "verdict_stamp": "GATE FAIL",
+        "source": "verification/runs/M6J_runs/M6J_L1/m6j_grade_M6J_L1.json",
+    },
+    "M6J_L3": {
+        "case_dir": os.path.join(REPO, "verification", "runs", "M6J_runs",
+                                 "M6J_L3"),
+        "cells": 15360,                  # constant/polyMesh/owner note: nCells:15360
+        "mesh_words": "15360 cells, coarse level",
+        "solver": "rhoSimpleFoam",       # system/controlDict: application
+        "end_time": "3000",              # last written time directory
+        "fields": ("p", "U", "T"),
+        "allowed_verdicts": {"GATE FAIL"},
+        "verdict_stamp": "GATE FAIL",
+        "source": "verification/runs/M6J_runs/M6J_L3/m6j_grade_M6J_L3.json",
+    },
     "T18_CU_f": {
         "case_dir": os.path.join(REPO, "verification", "runs", "T-family",
                                  "T18_runs", "T18_CU_f"),

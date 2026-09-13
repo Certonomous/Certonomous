@@ -1,8 +1,9 @@
 # K2 steady, the four-rack row — demo plot folder
 
 Built 2026-09-13 from the K2f / K2g / K2b run trees with **zero solver compute**.
-Regenerate the matplotlib figures with `python3 build_plots.py`; the three ParaView
-panels are the committed output of `../render_K2f_rackset_paraview/render_k2f_rackset.py`.
+Regenerate the matplotlib figures with `python3 build_plots.py`; three ParaView panels are the committed output of
+`../render_K2f_rackset_paraview/render_k2f_rackset.py` and three more come from
+`xvfb-run -a pvpython ../render_K2_field_panels.py`.
 
 | File | Verdict of its source |
 |---|---|
@@ -13,6 +14,9 @@ panels are the committed output of `../render_K2f_rackset_paraview/render_k2f_ra
 | `k2_plane_hot.png` | `K2f_L3` — **NOT A RESULT** |
 | `k2_streamlines.png` | `K2f_L3` — **NOT A RESULT** |
 | `k2_mesh.png` | `K2f_L1` mesh — the coarse level, per the ParaView rule |
+| `k2_plane_mid.png` | `K2f_L3` — **NOT A RESULT** |
+| `k2_plane_mid_velocity.png` | `K2f_L3` — **NOT A RESULT** |
+| `k2_hot_cloud.png` | `K2f_L3` — **NOT A RESULT** |
 | `k2_map_setpoint.png`, `k2_map_airflow.png`, `k2_envelope.png`, `k2_cost.png` | **PENDING — the eight sweep solves do not exist.** Placeholders, marked "run in progress" on the image. Do not show as results. |
 
 **There is no GCI and no observed order in this folder.** `k2_family.png` draws the

@@ -1,8 +1,9 @@
 # ONERA M6 — demo plot folder
 
-Ten files, built 2026-09-13 from the M6J run tree with **zero solver compute**.
+Thirteen figures, built 2026-09-13 from the M6J run tree with **zero solver compute**.
 Regenerate with `python3 build_plots.py` (matplotlib figures) and
-`scripts/render_openfoam_3d_paraview.py` (the two ParaView panels).
+`scripts/render_openfoam_3d_paraview.py` (mesh and surface pressure) and
+`xvfb-run -a pvpython render_field_panels.py` (the seven field panels).
 
 | File | Verdict of its source |
 |---|---|

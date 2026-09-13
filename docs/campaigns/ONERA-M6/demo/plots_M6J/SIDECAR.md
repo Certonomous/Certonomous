@@ -57,9 +57,49 @@ from each level's grade file: **0.2355 → 0.0948 → 0.0465** on 15,360 → 122
 | `m6_mesh.png` | the **coarse** level's wall patch, per the owner's ParaView rule | `M6J_L3` polyMesh, 480 wall faces, guard PASS |
 | `m6_surface_pressure.png` | static pressure on the **fine** level's wall patch | `M6J_L1` at t = 8000, 7,680 wall faces, guard PASS |
 
-Both ParaView panels were drawn by `scripts/render_openfoam_3d_paraview.py`, whose
-per-patch face-count guard PASSED and which proved the graded tree unchanged. Their
-own `.json` sidecars sit beside them.
+| `m6_p_upper_top.png` | surface pressure from above, the shock visible | `M6J_L1` at t = 8000 |
+| `m6_p_oblique.png` | the same surface obliquely, FINE-level mesh edges drawn | `M6J_L1` at t = 8000 |
+| `m6_geometry.png` | the imported grid's wall patch, captioned **"as meshed"** | `M6J_L1` wall patch |
+| `m6_mach_eta065.png`, `m6_mach_eta090.png` | Mach on the spanwise plane through each graded station | `M6J_L1` `U` and `T` at t = 8000 |
+| `m6_umag_eta065.png`, `m6_umag_eta090.png` | velocity magnitude on the same two planes | `M6J_L1` `U` at t = 8000 |
+
+`m6_mesh.png` and `m6_surface_pressure.png` were drawn by
+`scripts/render_openfoam_3d_paraview.py`, whose per-patch face-count guard PASSED
+and which proved the graded tree unchanged; their own `.json` sidecars sit beside
+them. The seven panels above were drawn by `render_field_panels.py` in this folder.
+
+## The field panels: what is measured and what is chosen
+
+* **The two station planes are not typed in.** They are `y_cut_target` for
+  η = 0.65 and η = 0.90 read from `cp_extracted.json` — **the same y the family's
+  own extractor cut at** to produce the Cp rows the grade file graded, so the slice
+  and the graded row are the same plane.
+* **Mach is computed from the case's own fields**, `mag(U)/sqrt(γ R T)`, with γ and
+  R taken from that file's `freestream` block, which was written **before any
+  solve** and is not re-derived from the solution.
+* **One colour window per quantity, shared across both stations**, measured at the
+  2nd and 98th percentile over both planes: Mach **0.0233 to 1.2302**, velocity
+  **8.23 to 400.0 m/s**, surface pressure **37,677 to 147,233 Pa**. The window is a
+  **display** choice and is printed on every caption with the words *ends clamped*;
+  nothing is removed from the data. It exists because the full range is set by a
+  handful of leading-edge stagnation cells (Mach reaches 1.527) and a bar stretched
+  to those extremes paints the whole picture one colour.
+* **One colour map for both station quantities** (Viridis), because a reader
+  compares Mach and velocity across four panels.
+* **Every coloured panel carries a planted colour control** at the DrivAer 8x
+  margin: the same pipeline rendered once on a CONSTANT array, both PNGs measured
+  through `render_k2h_l3._colour_spread`. Measured ratios: p 9.6x / 7.7x on the
+  full-body mask and **21.5x / 16.8x on the interior**, Mach **20.9x / 18.7x**,
+  velocity **19.9x / 17.9x**.
+
+**Two measurement artefacts were found and removed from BOTH arms rather than
+answered by lowering the margin.** Caption text and mesh edges are dark pixels
+inside the "not the white ground" body mask and sit at a red/blue ratio of 0 while
+a flat control sits near −0.71, which gave the CONSTANT arm a spread of 0.0756 that
+belonged to the lettering; they are therefore added after the measurement. On a
+curved surface seen obliquely the antialiased silhouette does the same, so the
+surface panels are also measured on an interior-only mask at threshold 0.25 and
+**both** statistics are printed. The 8x floor was never moved.
 
 ## Ordered figures this folder does NOT contain, and why
 

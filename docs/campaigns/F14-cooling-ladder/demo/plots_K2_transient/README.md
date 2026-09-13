@@ -1,8 +1,9 @@
 # K2 transient, supply ride-through — demo plot folder
 
 Built 2026-09-13 from the K2h and K2b run trees with **zero solver compute**.
-Regenerate with `python3 build_plots.py` and
-`xvfb-run -a pvpython render_extra_panels.py`.
+Regenerate with `python3 build_plots.py`,
+`xvfb-run -a pvpython render_extra_panels.py` and
+`xvfb-run -a pvpython ../render_K2_field_panels.py`.
 
 | File | Verdict of its source |
 |---|---|
@@ -13,6 +14,8 @@ Regenerate with `python3 build_plots.py` and
 | `k2t_ride_through.png` | `K2bU3R3_D59` — **GATE REACHED** |
 | `k2t_2d_vs_3d.png` | `K2bU3R3_D59` **GATE REACHED** against `K2bU3_L025`, the 2-D slice |
 | `k2t_mesh.png` | `K2f_L1` mesh — the coarse level, per the ParaView rule |
+| `k2t_plane_mid.png`, `k2t_plane_mid_velocity.png` | `K2h_L3` — **PASS** (time-averaged, window on the caption) |
+| `k2t_plane_t110.png` | `K2h_L3` — **PASS** (instantaneous, t = 110 s on the caption) |
 | `k2t_hot_cloud.png`, `k2t_temporal_family.png` | **PENDING — the series and the second time-step run do not exist.** Placeholders, marked "run in progress". Do not show as results. |
 
 **There is no GCI and no observed order in this folder**: `K2h_L1` and `K2h_L2` do

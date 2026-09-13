@@ -47,6 +47,23 @@ record is `k2t_dp_history.png`.
 | `k2t_p_rghMean_field.png` | time-averaged `p_rgh` — **the graded field**: `G-DPBAR` is its area average over `tile` minus over `return` | `K2h_L3` at t = 110, committed render |
 | `k2t_UMean_field.png` | time-averaged velocity on the same plane, same camera | `K2h_L3/110/UMean`, rendered here by `render_extra_panels.py` |
 | `k2t_mesh.png` | the **coarse** level's mesh, per the owner's ParaView rule | `K2f_L1`, 58,368 cells, committed render |
+| `k2t_plane_mid.png` | `TMean` on the **horizontal** plane at rack mid-height, z = 1.0 m, captioned with the **measured averaging window** | `K2h_L3` at t = 110 |
+| `k2t_plane_mid_velocity.png` | `UMean` magnitude on the same plane, same window | `K2h_L3` at t = 110 |
+| `k2t_plane_t110.png` | **INSTANTANEOUS** `T` at the last written time, captioned with that time and with the words "NOT a time average" | `K2h_L3` at t = 110 |
+
+The last three were drawn by `../render_K2_field_panels.py`, which renders BOTH K2
+folders in one run so the colour windows are genuinely shared with the steady
+folder: **T 289.00 to 301.00 K**, **U 0.0378 to 0.9820 m/s**, 2nd/98th percentile
+over both cases' planes, printed on every caption with the words *ends clamped*.
+Planted colour controls measured **87.2x**, **68.7x** and **87.0x** against a
+constant array, on a floor of 8x.
+
+**The averaging window on the two mean panels is read, not typed.** It comes from
+`GRADE.K2h_L3.json`'s own accumulator block: covered start **41.992 s** (measured,
+earlier than the registered 42 because `fieldAverage` adds the whole `deltaT` of
+the step during which it activates), covered end **110.0 s**, `totalTime`
+**68.0082742316576 s** over `totalIter` **11507**. The instantaneous panel says
+**t = 110 s** and says outright that it is not an average.
 
 The 3-D room's inlets end at **19.3 / 21.9 / 21.8 / 19.4 °C** and never approach the
 27 °C line; the ride-through figure shows the rise and its arrest, not a breach.
@@ -75,10 +92,16 @@ which drives that file's own `fig_mean_field` — with its planted colour contro
 (measured spread ratio **134.7x** against a constant-array negative arm, floor 8x)
 and its stamp guard — and proves the run tree unchanged afterwards.
 
+`../render_K2_field_panels.py` builds every caption from the field's own time for
+exactly this reason, which is why the instantaneous panel could be shipped from it
+when it could not be shipped through `fig_mean_field`.
+
 **FINDING, reported and not worked around.** `render_k2h_l3.py:325` writes the
 caption fragment *"mean over simulated 42 to <t> s ; S-WINDOW registered 42 to 112"*
 as a **constant**, not as a property of the field it was handed. It is true of
 `TMean`, `p_rghMean` and `UMean` and **false of any instantaneous field or any
 steady case** driven through the same function. An instantaneous `T` panel for this
-folder was **deleted rather than shipped** for that reason, and so were two panels
-re-rendered from the steady `K2f_L3`.
+folder was **deleted rather than shipped** through that function, and so were two
+panels re-rendered from the steady `K2f_L3`. Both were then produced correctly by
+`../render_K2_field_panels.py`, which derives its caption from the field it is
+handed rather than from a constant.

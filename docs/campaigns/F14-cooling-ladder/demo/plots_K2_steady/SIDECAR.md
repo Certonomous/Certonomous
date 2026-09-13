@@ -58,6 +58,20 @@ L1 and L2 reproduce `K2g_PREREGISTRATION.md` §7's f1 and f2 exactly.
 | `k2_plane_hot.png` | temperature on the vertical y–z plane at x = 1.5 m: cold aisle left, rack row centre, hot aisle plume right | `K2f_L3` at t = 803, committed render |
 | `k2_streamlines.png` | recirculation over the rack row | `K2f_L3` at t = 803, committed render |
 | `k2_mesh.png` | the **coarse** level's mesh, per the owner's ParaView rule | `K2f_L1`, 58,368 cells, committed render |
+| `k2_plane_mid.png` | temperature on the **horizontal** plane at rack mid-height, z = 1.0 m | `K2f_L3` at t = 803 |
+| `k2_plane_mid_velocity.png` | velocity magnitude on the same plane | `K2f_L3` at t = 803 |
+| `k2_hot_cloud.png` | oblique 3-D view, the **300.15 K (27 degC) iso-surface** above the rack row, with the rack block and the room outline | `K2f_L3` at t = 803, 25,228 triangles |
+
+The last three were drawn by `../render_K2_field_panels.py`, which renders BOTH K2
+folders in one run so that the colour windows really are shared: measured at the
+2nd and 98th percentile over both cases' mid-height planes, **T 289.00 to 301.00 K**
+and **U 0.0378 to 0.9820 m/s**, printed on every caption with the words *ends
+clamped*. Planted colour controls measured **87.6x** (T) and **68.7x** (U) against a
+constant array, on a floor of 8x. `k2_hot_cloud.png` carries an **ink guard**
+instead of a colour control, and the reason is structural rather than convenient:
+an iso-surface is single-valued in the field that defines it, so a colour control
+on it could never pass; what matters there is that the surface is not EMPTY, and
+25,228 triangles over 268,672 non-background pixels is what the guard measured.
 
 ### `k2_indices.png` — DERIVED, NOT GRADED
 
@@ -80,6 +94,9 @@ Every inlet is well below the 27 °C limit, so RCI high is 100 % on all four rac
 RTI is 138.3 %, i.e. bypass-free and recirculating — consistent with the
 recirculation bars of 22–34 %.
 
+*(`k2_plane_mid.png` and `k2_hot_cloud.png` were on this list until 2026-09-13 and
+are now rendered — see the table above.)*
+
 ## Ordered figures that could NOT be produced from disk
 
 * **`k2_map_setpoint.png`, `k2_map_airflow.png`, `k2_envelope.png`, `k2_cost.png`** —
@@ -88,11 +105,6 @@ recirculation bars of 22–34 %.
   each file is drawn through the library's own registered `pending=True` path: the
   ordered axes and labels with a **"run in progress"** mark and no data. **These four
   are placeholders and must not be shown as results.**
-* **`k2_plane_mid.png`** (horizontal plane at rack mid height) — the committed
-  renderer for this case draws the vertical y–z aisle plane only; no horizontal-plane
-  panel exists and none was invented.
-* **`k2_hot_cloud.png`** (iso-surface at 27 °C) — not rendered; no iso-surface panel
-  exists for this case.
 * **`k2_geometry.png`** — the rack row is `blockMesh`-generated from
   `build_k2f.py`; there is no admitted surface file to show. `k2_mesh.png` is the
   geometry the solver actually saw.
