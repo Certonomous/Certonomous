@@ -1339,3 +1339,72 @@ a temporary directory and never in a run tree.
 **Pre-compute. C1 PASS, C2 PASS, C4 armed. C3 still requires a case with forces output.**
 Exercised against the real staged `SMOKE360_J0.7985`, which C4 refuses on G-1: it carries
 `0.orig`, `constant` and `system` and has not solved.
+
+---
+
+## AMENDMENT 7 — 2026-09-13, before first compute. 🔴 G-2's CELL COUNT WAS READING THE FoamFile HEADER: 1 WHERE THE TRUTH IS 11,412,958, AND THE "NON-EMPTY" CLAUSE AMENDMENT 6 CLAIMED DID NOT EXIST
+
+**Legality.** Rule 2, before first compute. Condition: no PPTC solve has been graded by
+`analyse_pptc.py`; checked at `/home/ubuntu/certonomous-runs/PPTC_VP1304/`. **Nothing
+registered moves.** Still refusal-only.
+
+**This amendment corrects AMENDMENT 6, which overstated what G-2 checked.** A6.3 says G-2
+requires the MRF zone to be *"on disk, non-empty, and `omega` ≠ 0"*. **The non-emptiness
+clause was not implemented, and the count it reported was wrong.**
+
+### A7.1 How it was found — the ordered read, on the first real file
+
+The supervisor ordered one real read of a decomposed `cellZones` before the design-point
+family launches, because that path had only ever seen a hand-written ASCII fixture. **The
+first real read caught it**, on `SMOKE360_J0.7985`:
+
+| | |
+|---|---|
+| G-2 reported | `cells_in_zone: 1` |
+| the file's own declaration | `cellLabels List<label>` **`11412958`** |
+
+### A7.2 The fault
+
+A real `cellZones` names the zone **twice**: once in the FoamFile header —
+
+```
+    meta
+    {
+        names           ( MRFzone );
+    }
+```
+
+— and once as the zone's own definition. **The parser split on the FIRST textual occurrence,
+landed in the header, and took the first digits-only line after it: `1`, the NUMBER OF
+ZONES.** Real files are also `format binary`; the count is ASCII and precedes the payload.
+
+**The verdict was not wrong** — nothing gated on the count — **but that is the accident, not
+the design.** An empty zone would have reported `1` and **passed the clause written to catch
+exactly that**, which is the dead lever this act has already produced once.
+
+### A7.3 The repair
+
+`zone_cell_count()` locates the zone's **own block** — a line that *is* the zone name
+followed by `{` — and reads the count from its `cellLabels … List<label> <n>` declaration,
+the only place the cell count is stated. Only the file head is decoded; the binary payload is
+never parsed. **G-2 now gates on `ncells > 0`, as A6.3 claimed.**
+
+Verified against the real file: **11,412,958, matching its own declaration exactly.**
+Verified decomposed: **eight trees carrying real binary `cellZones` heads summed to their
+exact total**, and an empty zone now **REFUSES**.
+
+### A7.4 🔴 The fixture is the lesson
+
+The hand-written fixture that preceded this had **no `meta { names ( … ) }` header**, so it
+**could not reproduce the fault** — the parser passed a test that did not contain the trap.
+**Every fixture for this parser now carries the header**, and a regression control asserts
+the count is 11,412,958 and not 1.
+
+**A fixture simpler than the artifact is not a control; it is a rehearsal.** The naive parser
+passed nine clauses of its own suite and was caught by one read of a real file.
+
+### A7.5 Status
+
+**Pre-compute. C4 controls now 12 clauses — 11 driven to REFUSE, the clean fixture to
+READABLE — including the header-trap regression and a decomposed eight-tree sum. The
+supervisor's ordered pre-flight is DISCHARGED and it fired.**

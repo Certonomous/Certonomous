@@ -745,6 +745,49 @@ def check_completion(case: str) -> dict:
     return r
 
 
+_ZONE_HEAD_BYTES = 65536          # the count precedes the payload; never read the payload
+
+
+def zone_cell_count(path: str, zone: str):
+    """Cells in `zone` as declared by an OpenFOAM `cellZones` file.  None if absent.
+
+    🔴 WRITTEN AFTER THE FIRST READ OF A REAL FILE CAUGHT THE NAIVE VERSION.  The version
+    this replaces split on the FIRST textual occurrence of the zone name and took the first
+    digits-only line after it.  On a real `cellZones` the first occurrence is in the
+    FoamFile header --
+
+            meta
+            {
+                names           ( MRFzone );
+            }
+
+    -- so the first digits-only line after it is `1`, THE NUMBER OF ZONES.  Measured on
+    `SMOKE360_J0.7985`: it reported 1 cell where the truth is 11,412,958.  The verdict
+    happened to be unaffected because nothing gated on the count, but AMENDMENT 6 and the
+    docstring both claimed the clause checked that the zone was NON-EMPTY, and it did not.
+    An empty zone would have passed.
+
+    Real files are `format binary`: the cell count is ASCII and PRECEDES the binary payload,
+    so only the head of the file is decoded and the payload is never parsed.
+
+    The count is taken from the zone's OWN BLOCK, located as a line that is exactly the zone
+    name followed by `{`, and read from the `cellLabels ... List<label> <n>` declaration --
+    the only place the cell count is stated."""
+    with open(path, 'rb') as fh:
+        head = fh.read(_ZONE_HEAD_BYTES).decode('utf-8', 'replace')
+    # the zone's own block: a line that IS the name, then `{`. Never the header's
+    # `names ( <name> )`, which is why the match is anchored to line start and end.
+    m = re.search(r'^[ \t]*%s[ \t]*\r?\n[ \t]*\{' % re.escape(zone), head, re.M)
+    if not m:
+        return None
+    seg = head[m.end():]
+    mm = re.search(r'cellLabels\s+List<label>\s*\r?\n?\s*(\d+)', seg)
+    if not mm:
+        # an empty zone may be written as `cellLabels List<label> 0()` or with no list
+        mm = re.search(r'cellLabels\s+List<label>\s*(\d+)', seg)
+    return int(mm.group(1)) if mm else 0
+
+
 def check_live_lever(case: str) -> dict:
     """🔴 DID THE PROPELLER ACTUALLY ROTATE?
 
@@ -773,19 +816,25 @@ def check_live_lever(case: str) -> dict:
     zpaths += [os.path.join(case, d, 'constant', 'polyMesh', 'cellZones')
                for d in sorted(os.listdir(case))
                if re.fullmatch(r'processor\d+', d)] if os.path.isdir(case) else []
-    found, ncells = False, 0
+    found, ncells, read = False, 0, []
     for zp in zpaths:
         if not os.path.isfile(zp):
             continue
-        txt = open(zp, errors='replace').read()
-        if re.search(r'^\s*%s\s*$' % re.escape(zone), txt, re.M):
+        n = zone_cell_count(zp, zone)
+        if n is not None:
             found = True
-            seg = txt.split(zone, 1)[1]
-            mm = re.search(r'nCells|^\s*(\d+)\s*$', seg, re.M)
-            if mm and mm.group(1):
-                ncells += int(mm.group(1))
+            ncells += n
+            read.append(f'{os.path.relpath(zp, case)}:{n}')
     r['zone_found'] = found
     r['cells_in_zone'] = ncells
+    r['cellZones_read'] = read[:8]
+    r['n_cellZones_files_read'] = len(read)
+    if found and ncells <= 0:
+        r['ok'] = False
+        r['reason'] = (f'cellZone {zone!r} exists but holds {ncells} cells across '
+                       f'{len(read)} cellZones file(s). AN EMPTY ZONE IS A DEAD LEVER: '
+                       'MRF has nothing to rotate.')
+        return r
     if not found:
         r['ok'] = False
         r['reason'] = (f'MRFProperties names cellZone {zone!r} but no cellZones file on disk '
@@ -845,9 +894,49 @@ def force_is_readable(case: str, verbose: bool = True) -> dict:
     return r
 
 
+def _cellzones_text(zone: str, ncells: int) -> str:
+    '''A `cellZones` file IN THE REAL SHAPE, header trap included.
+
+    🔴 THE `meta { names ( <zone> ); }` BLOCK IS NOT DECORATION -- IT IS THE FIXTURE.
+    A real OpenFOAM cellZones names the zone TWICE: once in the FoamFile header's `meta`
+    block and once as the zone's own definition. The parser this replaced split on the
+    FIRST occurrence, landed in the header, and read the ZONE COUNT (`1`) as the CELL
+    COUNT. A fixture without this header cannot reproduce that, and the hand-written
+    fixture that preceded it did not -- which is why the bug survived until a real file
+    was read. Any fixture for this parser MUST carry the header.'''
+    return ("""FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       regIOobject;
+    location    "constant/polyMesh";
+    object      cellZones;
+    meta
+    {
+        names           ( %s );
+    }
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+1
+(
+%s
+{
+    type            cellZone;
+    cellLabels      List<label>
+%d
+(
+)
+;
+}
+)
+""" % (zone, zone, ncells))
+
+
 def _c4_fixture(root: str, end: int = 5, rc: int = 0, end_line: bool = True,
                 steps=None, zone: str = 'MRFzone', zone_on_disk: bool = True,
-                omega: float = 94.2, fields: bool = True, age_ok: bool = True) -> str:
+                omega: float = 94.2, fields: bool = True, age_ok: bool = True,
+                ncells: int = 11412958, nproc: int = 0) -> str:
     """A synthetic PPTC run that PASSES C4, unless asked to break exactly one clause."""
     os.makedirs(os.path.join(root, 'system'), exist_ok=True)
     os.makedirs(os.path.join(root, 'constant', 'polyMesh'), exist_ok=True)
@@ -857,28 +946,46 @@ def _c4_fixture(root: str, end: int = 5, rc: int = 0, end_line: bool = True,
     open(os.path.join(root, 'constant', 'MRFProperties'), 'w').write(
         'MRF1\n{\n    cellZone %s;\n    active yes;\n    omega constant %g;\n}\n'
         % (zone, omega))
-    open(os.path.join(root, 'constant', 'polyMesh', 'cellZones'), 'w').write(
-        ('1\n(\n%s\n{\n    type cellZone;\n    cellLabels List<label>\n5000\n(\n)\n;\n}\n)\n'
-         % zone) if zone_on_disk else '0\n(\n)\n')
+    if zone_on_disk and nproc == 0:
+        open(os.path.join(root, 'constant', 'polyMesh', 'cellZones'), 'w').write(
+            _cellzones_text(zone, ncells))
+    elif zone_on_disk:
+        # DECOMPOSED: each processor tree carries its own cellZones and the counts SUM.
+        per = ncells // nproc
+        for i in range(nproc):
+            d = os.path.join(root, 'processor%d' % i, 'constant', 'polyMesh')
+            os.makedirs(d, exist_ok=True)
+            n = per + (ncells - per * nproc if i == nproc - 1 else 0)
+            open(os.path.join(d, 'cellZones'), 'w').write(_cellzones_text(zone, n))
+    else:
+        open(os.path.join(root, 'constant', 'polyMesh', 'cellZones'), 'w').write(
+            '0\n(\n)\n')
     ts = steps if steps is not None else list(range(1, end + 1))
     body = ''.join('Time = %d\n\nExecutionTime = %d s  ClockTime = %d s\n\n' % (t, t, t)
                    for t in ts)
     open(os.path.join(root, 'log.simpleFoam'), 'w').write(
         'Build : v2606\n' + body + ('End\n' if end_line else ''))
+    # Fields live in EVERY processor tree on a decomposed run and at the case root
+    # otherwise -- the same layout `check_completion` walks.  Getting this wrong is how
+    # the decomposed control first went red, which is the control doing its job.
     t0 = time.time() - 10000.0
-    os.makedirs(os.path.join(root, '0'), exist_ok=True)
-    for f in ('U', 'p'):
-        fp = os.path.join(root, '0', f)
-        open(fp, 'w').write('// 0\n')
-        os.utime(fp, (t0, t0))
-    if fields:
-        td = os.path.join(root, str(end))
-        os.makedirs(td, exist_ok=True)
+    tree_roots = ([os.path.join(root, 'processor%d' % i) for i in range(nproc)]
+                  if nproc else [root])
+    for tr in tree_roots:
+        z = os.path.join(tr, '0')
+        os.makedirs(z, exist_ok=True)
         for f in ('U', 'p'):
-            fp = os.path.join(td, f)
-            open(fp, 'w').write('// t\n')
-            m = t0 + (500.0 if age_ok else -500.0)
-            os.utime(fp, (m, m))
+            fp = os.path.join(z, f)
+            open(fp, 'w').write('// 0\n')
+            os.utime(fp, (t0, t0))
+        if fields:
+            td = os.path.join(tr, str(end))
+            os.makedirs(td, exist_ok=True)
+            for f in ('U', 'p'):
+                fp = os.path.join(td, f)
+                open(fp, 'w').write('// t\n')
+                m = t0 + (500.0 if age_ok else -500.0)
+                os.utime(fp, (m, m))
     return root
 
 
@@ -895,6 +1002,7 @@ def readable_controls(verbose: bool = True) -> None:
         ('age guard: endTime fields older than 0/', dict(age_ok=False), 'G-1'),
         ('MRF cellZone absent from disk -- DEAD LEVER', dict(zone_on_disk=False), 'G-2'),
         ('MRF omega == 0 -- DEAD LEVER', dict(omega=0.0), 'G-2'),
+        ('MRF cellZone EMPTY -- DEAD LEVER', dict(ncells=0), 'G-2'),
     ]
     fired = []
     with tempfile.TemporaryDirectory() as td:
@@ -916,6 +1024,30 @@ def readable_controls(verbose: bool = True) -> None:
                               'refuses for the wrong reason is not evidence about the '
                               'right one.')
             fired.append(clause + '/' + name.split(' --')[0].split(':')[0].strip())
+        # THE COUNT MUST BE READ FROM THE ZONE'S OWN BLOCK, NOT FROM THE HEADER.
+        # This is the regression control for the fault a real file caught: the naive
+        # parser returned 1, the number of ZONES, and an empty zone would have passed.
+        probe = _c4_fixture(os.path.join(td, 'count'), ncells=11412958)
+        lev = check_live_lever(probe)
+        if lev.get('cells_in_zone') != 11412958:
+            raise Refusal('CONTROL FAILED: the cellZone cell count read as '
+                          f'{lev.get("cells_in_zone")!r}, not 11412958. The parser is '
+                          'reading the header, not the zone block -- the exact fault a '
+                          'real binary cellZones caught on SMOKE360_J0.7985.')
+        fired.append('G-2/count-from-zone-block')
+
+        # DECOMPOSED: eight trees, counts must SUM. Exercised here because the
+        # design-point family decomposes and a spurious refusal at 48 ranks is expensive.
+        dec = _c4_fixture(os.path.join(td, 'dec'), nproc=8, ncells=11412958)
+        levd = check_live_lever(dec)
+        if levd.get('cells_in_zone') != 11412958 or levd.get('n_cellZones_files_read') != 8:
+            raise Refusal('CONTROL FAILED: decomposed cellZones did not sum across trees '
+                          f'({levd.get("cells_in_zone")!r} from '
+                          f'{levd.get("n_cellZones_files_read")!r} files).')
+        if not force_is_readable(dec, verbose=False)['readable']:
+            raise Refusal('CONTROL FAILED: a clean DECOMPOSED run was refused.')
+        fired.append('G-2/decomposed-sum')
+
         # MRFProperties missing entirely
         root = _c4_fixture(os.path.join(td, 'nomrf'))
         os.remove(os.path.join(root, 'constant', 'MRFProperties'))
