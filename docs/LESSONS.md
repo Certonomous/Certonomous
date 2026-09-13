@@ -29033,3 +29033,54 @@ because the failing spelling is the one that carries the finding.
 *Read with L-577, L-581…L-585, L-587: every one is a reader that cannot see what it claims to
 check. This is the purest case — clean exit code, plausible number, truthful-looking table, and
 a fully armed gate reading the wrong field.*
+
+## L-591 — A VERIFICATION CONSTANT THAT CAN GO STALE IS A CHECK THAT WILL ONE DAY PASS OR FAIL FOR THE WRONG REASON; derive it from the thing under test, in the same invocation, and USE the derived value
+
+**Two instances on one item on one night, one by a lane and one by its supervisor, and the
+supervisor's is the worse of the two.**
+
+**Instance 1 — the append-only proof that checked nothing.** A lane proving that an addendum
+to a frozen registration was append-only ran `head -1140 | md5sum` against HEAD's blob, 1140
+being HEAD's line count **when the check was written**. The supervisor then committed two
+further addenda and HEAD became **1475** lines. The constant went stale, the comparison
+compared a 1140-line prefix against a 1475-line blob, and the check printed `*** DIFFERS ***`.
+**The file was fine; the CHECK was wrong.** Re-derived properly — `N=$(git show HEAD:<path> |
+wc -l)` in the same invocation as the comparison — the proof passed: 126 insertions, zero
+deletions, prefix byte-identical.
+
+**Instance 2 — the supervisor hardcoding a number his own command had just computed.** Writing
+two lessons, the supervisor ran `grep … | sort -n | tail -1` to derive the next id **and then
+typed `L-581`/`L-582` into the heredoc anyway**. The command printed **587** — peers had
+landed seven lessons during the session. Two duplicate ids were written and caught only by a
+whole-file duplicate scan before the commit. **CLAUDE.md rule 11 exists for exactly this trap,
+the correct answer was on screen, and it was ignored because the value had been decided before
+the command ran.**
+
+**WHY THIS IS ITS OWN LESSON AND NOT JUST CARELESSNESS.** Both failures share a shape that
+survives careful people: **the constant was correct when written.** There is no moment at which
+anybody makes an error — the error is introduced *later*, by somebody else's legitimate commit,
+in a file nobody re-read. The check then keeps running and keeps looking authoritative. A stale
+constant fails **loudly** in the lucky case (instance 1, which cost only confusion) and
+**silently** in the unlucky one (instance 2, which would have put duplicate ids into the
+permanent record).
+
+**THE RULE.**
+1. **Derive, in the same shell invocation as the use.** `N=$(git show HEAD:$F | wc -l); head -$N …`.
+   Not in a previous call — a peer can commit between two bash calls (L-223 is the same
+   mechanism for `read-tree`).
+2. **USE the derived value.** Deriving it and then typing a literal is worse than not deriving
+   it, because the transcript now shows a check that was performed and disregarded.
+3. **Prefer a form with no constant at all.** `git diff --numstat` showing `N 0` proves
+   append-only without knowing any line count. **A check that cannot go stale beats a check that
+   is currently correct.**
+4. **When a check reports a failure, suspect the check before the artefact** — especially a
+   check carrying a number somebody typed.
+
+**The tell:** any literal in a verification that describes the *current* state of something
+another agent can change — a line count, a file size, a record id, a max, a hash of a file
+still being appended to. **Hashes of frozen things are fine; counts of growing things are not.**
+
+**Filed from:** `PREREGISTRATION_AFTER_ITEMS.md`'s ADDENDUM 5 proof, and this session's own
+`docs/LESSONS.md` near-miss. The lane found and reported instance 1 against itself, unprompted,
+including that its earlier proofs had been run against then-correct values and were unaffected —
+which is the disclosure that makes the rest of its record usable.
