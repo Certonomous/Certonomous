@@ -86,3 +86,15 @@ Her closing line invites these: *"plus whatever else the dafoam supervisor can t
 **Standing interaction with her directive E.** A near-gate miss **proceeds**, reported as `GATE FAIL by <margin>, proceeding on directive E`; the verdict word itself is never rewritten by an agent. That directive changes what happens next; it does not change what the gate said.
 
 **The one that would have caught the most.** Of these sixteen, **rule 17** is the one that would have ended the deformed-vs-fresh question a week early: every fresh-mesh claim before FM10 rested on a mesh no solver had read, and no amount of physics care upstream of that gate could have detected it.
+
+---
+
+## Correction 1 to the supervisor's section — 2026-09-13, same day. Appended, never edited in place; the owner's block above is untouched.
+
+**Rule 30's worked example is wrong in its third decimal.** It reads "FM10 predicted 11.400 core-min, incurred 10.677, ratio 0.937". The measured figures are **incurred `10.667` core-min, ratio `0.9357`** — the launcher's ledger row (`arm=FM10 rc=0 wall_s=160 core_min=10.667`) and `FM10_GRADE.json`'s `cost.core_min` agree, and 160 × 4 ÷ 60 = 10.6667 closes the arithmetic exactly. **The rule itself is unchanged; only its example was mis-transcribed.** The error entered from `PREREGISTRATION_FM11_MATCHED_LIFT.md:362` — the sentence recording that the calibration row was still owed — and travelled into a report and then into a charter without passing either instrument. `DAFOAM_CHARTER.md` §22.6 is the clause it earned: **a number enters a record from an instrument, never from a sentence.**
+
+**Rule 18's span is 47.72 days, not 46** (2026-07-28 00:18:12Z to 2026-09-13 17:33:34Z = 47 d 17:15:22). The determinism finding is unchanged.
+
+**Rule 31 is refined, not weakened.** FM10's time-0 `nonOrthoFaces` set is of the **right** mesh — DAFoam checks at time 0 of each primal, on the mesh already deformed for that evaluation (5 polys, matching that block's `severely non-orthogonal (> 70 degrees) faces: 5`). What is absent is narrower and still damning: **no check at FM10's final time at all** (O\_mp checks at 0 and 1000; FM10 at 0 only), and **no `checkMesh` report of the as-run mesh in either arm**. The one quotable `Mesh OK.` remains the as-extruded mesh at **66.32299475**, before the solve re-applies the design.
+
+**Rule 31 gains a second, sharper half, measured on both arms and recorded at `DAFOAM_CHARTER.md` §22.7: a declared threshold that never refuses is not a threshold.** `maxNonOrth = 70.0` is declared at `d6r2c_opt_runScript.py:163`; **76 of O\_mp's 202 checks exceed it** (worst **80.90429398**) and **6 of 6 of FM10's** do (**79.21261137**), and **every breaching block prints `Non-orthogonality check OK.` then `Mesh OK.`** The channel is live — four `Failed 1 mesh checks.` lines in the same log are all aspect-ratio failures at 1050.3162 against 1000 — it simply never fires on this clause. **So rule 7's quality budget is never satisfied by the solver's own check: it needs an instrument of ours that actually refuses, driven against a known-bad mesh before the freeze.**

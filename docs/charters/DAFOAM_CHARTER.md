@@ -1209,3 +1209,33 @@ These are §22's operative additions to §7's pre-registration requirements, and
 It moves no bar, grades nothing retroactively, and reclassifies no item frozen before this date. It does not authorise any send: **SUBMISSIONS PARKED** (rule 7) is untouched, the four upstream defect classes remain **NOT FILED**, and §10 is unamended. It does not widen §12's compute authority; every shape-optimisation registration still carries its own cost, now **per objective evaluation and per gradient evaluation separately**, and lands its actual/predicted ratio in `docs/COST_CALIBRATION.md` at completion (rule 30; FM10 predicted 11.400 core-min, incurred 10.677, ratio **0.937**, dollars **derived** at $0.0513/core-h, never measured).
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §22 CORRECTION 1 — 2026-09-13, same day — **A FIGURE I PUT INTO §22.5 THIS MORNING IS WRONG IN ITS THIRD DECIMAL, AND IT IS CORRECTED HERE RATHER THAN EDITED THERE**
+
+**Version: unchanged at v1.0h.** Additive; nothing above this section is edited, inserted into or renumbered (`cmp -n 154798` against a pre-append copy, exit 0). No gate, threshold, cap or label is altered by this correction.
+
+**§22.5 states FM10's incurred cost as `10.677` core-min and its ratio as `0.937`. Both are wrong.** The measured figures are **`10.667` core-min** and a ratio of **`0.9357`** against the 11.400 prediction. Two independent instruments agree and the arithmetic closes exactly: the launcher's ledger row reads `arm=FM10 rc=0 wall_s=160 core_min=10.667`, `FM10_GRADE.json`'s `cost.core_min` reads the same, and **160 wall-s × 4 ranks ÷ 60 = 10.6667**.
+
+**The provenance of the error matters more than its size.** `10.677` first appears at `PREREGISTRATION_FM11_MATCHED_LIFT.md:362` and `:675` — **in the very sentence recording that the calibration row was still owed.** A third-decimal transposition entered a draft, was carried into a supervisor's report, and from there into this charter, without ever passing the two instruments that had the right value on disk the whole time. **It was caught by the lane that landed the calibration row, because that lane read the instruments instead of the sentence.** The landed row at `C-20260913T174801.256415Z-9802a8c1` carries the instruments' figures and names this difference rather than smoothing it.
+
+**Two smaller corrections in the same family, made here for the same reason:**
+- **The mesh-determinism span is 47.72 days, not 46** — base `points.gz` mtime 2026-07-28 00:18:12Z to the regeneration at 2026-09-13 17:33:34Z is 47 d 17:15:22. The finding itself is unchanged and stronger for being stated correctly.
+- **FM10's time-0 `nonOrthoFaces` set is NOT "of the wrong mesh".** DAFoam checks at time 0 of *each primal*, i.e. on the mesh already deformed for that evaluation, so the time-0 set is the **right** mesh — its vtp holds 5 polys, matching the 79.21 block's `severely non-orthogonal (> 70 degrees) faces: 5`. **What is genuinely absent is different and narrower:** any check at FM10's **final** time (O\_mp checks at 0 and 1000 and carries `postProcessing/1000`; FM10 checks at 0 only), and any `checkMesh` **report** of the as-run mesh in either arm. **Rule 31 in the standing-rules file stands unchanged** — the one quotable `Mesh OK.` is still of the as-extruded mesh at 66.32299475, before the solve re-applies the design.
+
+### §22.6 THE CLAUSE THIS CORRECTION EARNS — **A NUMBER ENTERS A CHARTER FROM AN INSTRUMENT, NEVER FROM A SENTENCE**
+
+**Every measured figure quoted in this charter, in a pre-registration, or in a report upward, is read from the artifact that produced it at the moment it is quoted — not copied from a prose record that quotes it.** A prose record is where a number goes to be *read*; it is never where a number goes to be *sourced*. Where a figure is quoted at a remove, the quoting record says which instrument it came from and what path it sits at, so the next reader can close the loop in one step.
+
+**Cost of compliance: one read.** **This would have caught `10.677` in the sentence that invented it**, and it is the same disease as the family's other measured failures — a check that describes rather than exercises (L-595), and a constant carried forward instead of derived in the same invocation (L-591).
+
+### §22.7 A DECLARED THRESHOLD THAT NEVER REFUSES IS NOT A THRESHOLD — **MEASURED ON BOTH D6R2 ARMS**
+
+`d6r2c_opt_runScript.py:163` declares `maxNonOrth = 70.0`, and both runs echo it. **The as-run meshes breach it continuously and the check passes anyway.** Measured: O\_mp's last of 202 blocks reads **71.23798136** and **76 of its 202 checks exceed 70.0**, worst anywhere **80.90429398**; FM10 reads **79.21261137** on all of its last three blocks, **6 of 6 over 70**. Against an as-built fresh mesh at 66.32299475 and a base mesh at 66.96543422. **Every breaching block prints `Non-orthogonality check OK.` and then `Mesh OK.` — at 79.21.**
+
+**The refusal channel is demonstrably live, and that is what makes this a finding rather than a guess:** the same O\_mp log carries four `Failed 1 mesh checks.` lines (at 22938, 31060, 33025, 46383), and **all four are aspect-ratio failures** (1050.3162 against the same dictionary's 1000) at a non-orthogonality of 66.92. **The machinery works. It simply never fires on this clause.** The worst face is at the trailing edge, confirmed geometrically: O\_mp's `mp04/postProcessing/1000/nonOrthoFaces.vtp` decodes to exactly one face at x 7.6841–8.0844, z 9.4092–10.7944, while the `wing` wall patch over that span runs x 5.0395 (LE) to **8.0843** (TE) — the face's maximum x equals the local trailing-edge x to four decimals.
+
+**Consequences, and none of them is a filing.** (1) **Standing rule 31 is already breached on both D6R2 arms** and this charter records that, so no successor may cite either arm's `Mesh OK.` as evidence about the mesh that ran. (2) Rule 7's per-iteration quality budget is therefore **not** satisfied by the solver's own check — it needs an instrument of ours that actually refuses, driven against a known-bad mesh before any freeze. (3) The upstream behaviour is a **defect candidate** for this family's register and, like every other one, it is **`NOT FILED ANYWHERE`**; §10 and rule 7 are untouched, and **filing remains Sanaa's alone**.
+
+**SUBMISSIONS PARKED.**
