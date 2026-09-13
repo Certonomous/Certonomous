@@ -229,3 +229,60 @@ It does not cure the mesh (P2, P5 predict the opposite). It does not address the
 collapse, the zero prism-layer coverage, the stale-`points` staging defect, or the
 blade-root fillet resolution of 2.3 cells across the LE radius. It says nothing about the
 open-water curve.
+
+---
+
+## ADDENDUM 1 — 2026-09-13, before the rung's first build. THE REGISTERED CHANGE MOVES TWO DICTIONARY LINES, AND THEY CARRY ONE QUANTITY
+
+*lines whose number changed above this section: 0*
+
+**Version 1.1.** This addendum **alters no gate, threshold, cap or label.** The §3.2 SPD gate,
+§3.2a same-mesh assert, predictions P1–P7, the 924 core-min cap and every verdict label are
+untouched. It records the **scope** of §2's one registered change, before the build rather
+than after it.
+
+**Condition and how it was checked.** No mesh of this variant exists:
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/F360_coarse_shaft4` is absent from disk, and the
+reader was shown able to see such a directory — the same listing returns the six that do
+exist (`F360_coarse`, `L1_cm1`, `L1_prod7`, `L1_prod7s`, `L2_prod7s`, `SMOKE360_J0.7985`).
+
+### A1.1 What §2 says, and the second line it does not name
+
+§2 registers `refinementSurfaces { shaft { level (3 3); } }` → `level (4 4);`. In the
+generator `cases/PPTC_VP1304/mesh/make_snappy.py` the `LEVELS` dictionary is read at **two**
+sites, so raising it moves **two** lines of `snappyHexMeshDict`:
+
+```
+86c86   <  { file "shaft.eMesh"; level 3; }      >  { file "shaft.eMesh"; level 4; }
+109c109 <          level (3 3);                  >          level (4 4);
+```
+
+Measured by generating the dictionary both ways and diffing: **those two lines are the only
+difference, and with the flag unset the dictionary is `cmp`-identical to the one every
+earlier build used.**
+
+### A1.2 Why the feature-edge level moves WITH it, and is not held back
+
+**Holding `shaft.eMesh` at 3 while the surface goes to 4 would leave the feature edges
+coarser than the surface they bound.** That mismatch is a mesh defect of exactly the kind
+this rung exists to remove — and it would be one **we introduced**, on the single patch the
+rung touches, while claiming to repair it. Holding it back is not restraint; it is a second
+and worse change wearing restraint's clothes.
+
+**One registered quantity — "the shaft's refinement level" — expressed in two dictionary
+lines is ONE change.** Two *quantities* would be two changes; two lines carrying one quantity
+is one.
+
+### A1.3 How it is implemented, and the control that proves the default did not move
+
+`--shaft-level` was **added** to `make_snappy.py` (default **3**) and a `PPTC_SHAFT_LEVEL`
+pass-through **added** to `build_level.sh` (default **3**): `+13/−0` and `+4/−0` lines, no
+deletions, no existing line altered. **The default is the registered pre-rung value, so every
+other level of the family still builds byte-for-byte identically** — verified by `cmp` of the
+generated dictionary against the pre-edit generator's output. The rung's build sets
+`PPTC_SHAFT_LEVEL=4`; nothing else in the pipeline differs from the `F360_coarse` build.
+
+### A1.4 Status
+
+**Pre-build. No gate, threshold, cap or label is altered.** Disclosed before the build so the
+second dictionary line is **scope**, not a change discovered in a log afterwards.
