@@ -1,0 +1,67 @@
+# R5 vs r2_medium -- the registered edits, proven by diff
+--- a/r2_medium/system/snappyHexMeshDict
++++ b/R5/system/snappyHexMeshDict
+@@ -73,26 +73,32 @@
+     box1
+     {
+         type searchableBox;
+-        min (-3.0 -3.0 -0.319);
+-        max (15.0 3.0 3.0);
++        min (-8.0 -6.5 -0.319);
++        max (30.0 6.5 7.4);
+     }
+     box2
+     {
+         type searchableBox;
+-        min (-1.8 -2.0 -0.319);
+-        max (8.0 2.0 2.2);
++        min (-5.5 -4.5 -0.319);
++        max (24.0 4.5 5.7);
+     }
+     box3
+     {
+         type searchableBox;
+-        min (-1.2 -1.4 -0.319);
+-        max (5.5 1.4 1.6);
++        min (-3.5 -3.0 -0.319);
++        max (17.0 3.0 4.2);
++    }
++    box4
++    {
++        type searchableBox;
++        min (-2.0 -2.2 -0.319);
++        max (15.0 2.2 2.3);
+     }
+ };
+ 
+ castellatedMeshControls
+ {
+-    maxLocalCells       6000000;
++    maxLocalCells       40000000;
+     maxGlobalCells      40000000;
+     minRefinementCells  10;
+     maxLoadUnbalance    0.10;
+@@ -171,6 +177,7 @@
+         box1 { mode inside; levels ((1E15 1)); }
+         box2 { mode inside; levels ((1E15 2)); }
+         box3 { mode inside; levels ((1E15 3)); }
++        box4 { mode inside; levels ((1E15 4)); }
+     }
+ 
+     locationInMesh (-10.0 5.0 5.0);
+@@ -191,10 +198,11 @@
+ 
+ addLayersControls
+ {
+-    relativeSizes       true;
+-    finalLayerThickness 0.5;
+-    expansionRatio      1.25;
+-    minThickness        0.02;
++    relativeSizes       false;
++    nSurfaceLayers      8;
++    firstLayerThickness 0.0010;
++    expansionRatio      1.11;
++    minThickness        0.0002;
+ 
+     layers
+     {

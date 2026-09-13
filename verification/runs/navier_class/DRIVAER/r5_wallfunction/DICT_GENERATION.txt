@@ -1,0 +1,10 @@
+wrote /home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r5_wallfunction/system/snappyHexMeshDict
+  sha256 f1c176fc4841bf24e5e68cc3dcba680042ec13e401138f894e07e73a377dd008
+  registered stack   11.8594 mm; minThickness 0.200 mm (1.7 % of stack) -- rule L4 satisfied
+  surface cell 25.0 mm at level 4 (h0 = 0.4 m) -> stack 0.4744 local cells (registration ceiling 0.48)
+  box4 level 4 cell  25.0 mm  box    195.9 m3  shell    195.9 m3  -> 12.538 M cells
+  box3 level 3 cell  50.0 mm  box    555.8 m3  shell    359.9 m3  ->  2.879 M cells
+  box2 level 2 cell 100.0 mm  box   1598.0 m3  shell   1042.2 m3  ->  1.042 M cells
+  box1 level 1 cell 200.0 mm  box   3813.2 m3  shell   2215.1 m3  ->  0.277 M cells
+  ESTIMATED castellated total ~ 16.87 M cells (16.31 M after the probe's measured -3.3 % bias)
+  layer gain is face-driven, NOT volume-driven: 80,974 wall faces x 90% x 8 = 0.58 M cells -> PREDICTED FINAL ~16.90 M against the 15-20 M M1 gate
