@@ -5,5 +5,6 @@ rc=0
 rc=64
 ### unknown flag --log (the FM9 defect class):
 rc=2
-### --version:
-D6R3-INRUN-DRAFT-1
+### grader:
+rc=0
+rc=2 (--log)

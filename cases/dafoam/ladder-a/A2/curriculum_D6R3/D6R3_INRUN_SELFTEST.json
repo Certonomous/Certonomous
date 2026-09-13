@@ -602,7 +602,7 @@
    }
   },
   {
-   "control": "G9.KNOWN-BAD/MEASURED -- FM10's +0.149/+0.152/+0.152 lift excess: refuse the comparison rather than report a drag ratio across different lifts",
+   "control": "G9.KNOWN-BAD/MEASURED -- FM10's measured lift excess +0.1493 / +0.1516 / +0.1524 above target: refuse the comparison rather than report a drag ratio across different lifts",
    "want": "REFUSE",
    "got": "REFUSE",
    "PASS": true,

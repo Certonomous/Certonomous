@@ -557,8 +557,9 @@ def selftest(verbose=True):
                   lambda: guard9_fresh_vs_deformed(1.0, 1.0 - 0.009, matched, matched, tgt), "OK"))
     # FM10's MEASURED lift excess: +0.1493 / +0.1516 / +0.1524 above target.
     fm10 = {"cl04": 0.4 + 0.1493, "cl05": 0.5 + 0.1516, "cl06": 0.6 + 0.1524}
-    res.append(_c("G9.KNOWN-BAD/MEASURED -- FM10's +0.149/+0.152/+0.152 lift excess: refuse the "
-                  "comparison rather than report a drag ratio across different lifts",
+    res.append(_c("G9.KNOWN-BAD/MEASURED -- FM10's measured lift excess +0.1493 / +0.1516 / "
+                  "+0.1524 above target: refuse the comparison rather than report a drag ratio "
+                  "across different lifts",
                   lambda: guard9_fresh_vs_deformed(0.0230, 0.0229, fm10, matched, tgt), "REFUSE"))
     res.append(_c("G9.NON-FINITE -- J_fresh is NaN",
                   lambda: guard9_fresh_vs_deformed(float("nan"), 0.023, matched, matched, tgt),

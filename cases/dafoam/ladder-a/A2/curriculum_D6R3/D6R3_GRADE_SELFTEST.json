@@ -1,0 +1,164 @@
+{
+ "version": "D6R3-GRADE-DRAFT-1",
+ "n_total": 26,
+ "n_pass": 26,
+ "n_fail": 0,
+ "controls": [
+  {
+   "control": "G1.clean -- rc=0, 100 iterations, artefacts newer",
+   "want": true,
+   "got": true,
+   "PASS": true
+  },
+  {
+   "control": "G1.KNOWN-BAD -- rc=137 (OOM)",
+   "want": false,
+   "got": false,
+   "PASS": true
+  },
+  {
+   "control": "G1.KNOWN-BAD -- artefacts not newer than the age datum",
+   "want": false,
+   "got": false,
+   "PASS": true
+  },
+  {
+   "control": "G1.BLIND -- opt_SLSQP.txt unreadable: a gate with no writer must REFUSE",
+   "want": "REFUSE",
+   "got": "REFUSE:G1: opt_SLSQP.txt not readable -- a gate whose channel has no writer d",
+   "PASS": true
+  },
+  {
+   "control": "G1.budget -- reaching MAXIT 100 is GATE REACHED, never PASS",
+   "want": "GATE REACHED",
+   "got": "GATE REACHED",
+   "PASS": true
+  },
+  {
+   "control": "BAND.PUBLISHED -- the page's own 0.02090 -> 0.01932 must PASS its own band",
+   "want": true,
+   "got": true,
+   "PASS": true
+  },
+  {
+   "control": "BAND.A6 -- A6's independently measured baseline 0.02090143421526141 must PASS",
+   "want": true,
+   "got": true,
+   "PASS": true
+  },
+  {
+   "control": "BAND.KNOWN-BAD -- a baseline 5 % off the published value fails",
+   "want": false,
+   "got": false,
+   "PASS": true
+  },
+  {
+   "control": "BAND.KNOWN-BAD -- a 2.0 % reduction against the published 7.6 % fails",
+   "want": false,
+   "got": false,
+   "PASS": true
+  },
+  {
+   "control": "BAND.boundary -- 9.6 % (exactly 2 points high) still passes",
+   "want": true,
+   "got": true,
+   "PASS": true
+  },
+  {
+   "control": "BAND.boundary -- 9.7 % (2.1 points high) fails",
+   "want": false,
+   "got": false,
+   "PASS": true
+  },
+  {
+   "control": "BAND.RULE-19 -- an off-target cl05 must REFUSE, not report a ratio",
+   "want": "REFUSE",
+   "got": "REFUSE:BAND-CL05: cl05 is NOT at matched lift -- |CL-target| = 1.000000e-03 a",
+   "PASS": true
+  },
+  {
+   "control": "BAND.PLANT -- a plant of 1.234e-03 on a CD of 0.0209 (5.9 %) must be seen",
+   "want": false,
+   "got": false,
+   "PASS": true
+  },
+  {
+   "control": "BAND.NON-FINITE -- NaN baseline must REFUSE",
+   "want": "REFUSE",
+   "got": "REFUSE:non-finite: nan",
+   "PASS": true
+  },
+  {
+   "control": "GJ.clean -- the weighted objective is reported with BAND: NOT AVAILABLE",
+   "want": "NOT AVAILABLE",
+   "got": "NOT AVAILABLE",
+   "PASS": true
+  },
+  {
+   "control": "GJ.RULE-19 -- an off-target condition must REFUSE",
+   "want": "REFUSE",
+   "got": "REFUSE:G-J: a weighted objective formed at unconverged lift is not a number (",
+   "PASS": true
+  },
+  {
+   "control": "GJ.BLIND -- a missing condition must REFUSE",
+   "want": "REFUSE",
+   "got": "REFUSE:G-J: condition 'cl06' missing",
+   "PASS": true
+  },
+  {
+   "control": "G3.clean -- all three lifts on target",
+   "want": true,
+   "got": true,
+   "PASS": true
+  },
+  {
+   "control": "G3.KNOWN-BAD/MEASURED -- D6R2C's own final misses 5.539e-4 / 1.210e-3 / 2.787e-3",
+   "want": false,
+   "got": false,
+   "PASS": true
+  },
+  {
+   "control": "G3.NON-FINITE -- a NaN CL must REFUSE (the parent's gate_g3 defect exactly)",
+   "want": "REFUSE",
+   "got": "REFUSE:non-finite: nan",
+   "PASS": true
+  },
+  {
+   "control": "G3.BLIND -- a missing condition must REFUSE",
+   "want": "REFUSE",
+   "got": "REFUSE:G3: condition 'cl06' missing from the final design record",
+   "PASS": true
+  },
+  {
+   "control": "LABEL -- G3 misses -> GATE FAIL",
+   "want": "GATE FAIL",
+   "got": "GATE FAIL",
+   "PASS": true
+  },
+  {
+   "control": "LABEL -- band misses -> GATE FAIL",
+   "want": "GATE FAIL",
+   "got": "GATE FAIL",
+   "PASS": true
+  },
+  {
+   "control": "LABEL -- G1 fails -> NOT A RESULT",
+   "want": "NOT A RESULT",
+   "got": "NOT A RESULT",
+   "PASS": true
+  },
+  {
+   "control": "LABEL -- cap crossed -> NOT A RESULT, and the cap is never raised",
+   "want": "NOT A RESULT",
+   "got": "NOT A RESULT",
+   "PASS": true
+  },
+  {
+   "control": "LABEL -- everything holds below the budget -> PASS",
+   "want": "PASS",
+   "got": "PASS",
+   "PASS": true
+  }
+ ]
+}

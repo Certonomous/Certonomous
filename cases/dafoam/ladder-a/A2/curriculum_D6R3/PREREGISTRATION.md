@@ -584,29 +584,98 @@ core-min of L1 named separately as waste**), and `P0`'s, which **re-anchors `k_a
 
 ---
 
-## 8. THE INSTRUMENT TABLE — still written in the NEGATIVE
+## 8. THE INSTRUMENT TABLE — **EVERY ROW POPULATED. `NOT WRITTEN` IS ZERO.**
 
 | file | purpose | md5 |
 |---|---|---|
-| **`d6r3_inrun_guards.py`** | the six in-run instruments, rules 6–11 | **`a553e2dd9c29394303e9e91f3e40366b`** |
-| **`D6R3_INRUN_SELFTEST.json`** | the 53 driven controls | **`fb68bc1a802afd433ea60337d01bfc79`** |
-| **`D6R3_PREFREEZE_CLI.log`** | rule 20 evidence | **`1ff07c5256862bb8ab682341397ca705`** |
+| **`d6r3_opt_runScript.py`** | the producer: the published `runScript.py` + **D1 only** | **`d39ca376d44efe652548f7de39468996`** |
+| **`d6r3_p0_arm.sh`** | **`P0`**, the blocking precondition | **`4bab810a2e363f0c1e9f6dd4c423b967`** |
+| **`d6r3_run_arm.sh`** | the launcher; pins the producer by md5 (`G-FREEZE`) | **`bd14e3c0f884610eeaaf7ba2b4705106`** |
+| **`d6r3_grade.py`** | `G1`, `BAND-CL05`, `G-J`, `G3`, and the label rule | **`51bdf8ea7354de8d3346ed8956332453`** |
+| **`d6r3_prefreeze.sh`** | §22.4's three clauses, driven | **`2f6ea88387542545ced975116a688f18`** |
+| **`d6r3_inrun_guards.py`** | the six in-run instruments, rules 6–11 | **`22757db8d9ec646172e416578c426ee6`** |
+| **`D6R3_INRUN_SELFTEST.json`** | 53 driven controls, 53 `PASS` | **`9072291a0727d187f2aeab0980618423`** |
+| **`D6R3_GRADE_SELFTEST.json`** | 26 driven controls, 26 `PASS` | **`4c5d2c75403d85b99514f808295aaf10`** |
+| **`D6R3_PRODUCER_DIFF.log`** | proof the producer carries the published bytes | **`fb21850304f929e35aa3d5df42eabe5c`** |
+| **`D6R3_PREFREEZE_CLI.log`** | rule 20 evidence, the launcher-emitted argv | **`130b5773a796f43af12d684c1ea431b0`** |
+| **`D6R3_PREFREEZE_RESULT.log`** | §22.4's three clauses, **ALL THREE GREEN** | **`f615994a0db4fade2e1214553582c3dc`** |
 | **`dafoam_crm_tutorial_page.html`** | the published band's source, retrieved | **`cf837d40aabf954e9d11f9a6ae6c8f00`** |
-| **`dafoam_crm_tutorial_page.txt`** | its text sidecar, cited by line in §1b | **`a536f12b9b71703c62932e0248fa672b`** |
-| `d6r3_opt_runScript.py` | the producer: the published `runScript.py` + D1 only | **NOT WRITTEN** |
-| `d6r3_p0_arm.sh` | **`P0`**, the blocking precondition | **NOT WRITTEN** |
-| `d6r3_run_arm.sh` | the launcher | **NOT WRITTEN** |
-| `d6r3_grade.py` | `G1`, `BAND-CL05`, `G-J`, `G3`, `A12` | **NOT WRITTEN** |
-| `d6r3_prefreeze.sh` | §22.4's three clauses | **NOT WRITTEN** |
+| **`dafoam_crm_tutorial_page.txt`** | its sidecar, cited by line in §1b | **`a536f12b9b71703c62932e0248fa672b`** |
 
-**Rule 21, applied to this document: a table that lists what exists cannot show what is missing** —
-the defect that carried the parent's `d6r2c_grade.py` past its freeze. **Five rows carry real md5s
-and five read `NOT WRITTEN`. Five is not zero, and five `NOT WRITTEN` rows is not progress towards a
-freeze; it is the reason there is not one yet.**
+### 8a. **THE PRODUCER IS THE PUBLISHED FILE PLUS D1, AND THAT IS PROVED, NOT ASSERTED**
+
+`D6R3_PRODUCER_DIFF.log` compares `d6r3_opt_runScript.py` against
+`CRM_Wing/runScript.py` (md5 `0de915d21166a91a9a54b37ab11214cf`, 287 lines) and reports:
+
+| published region | status |
+|---|---|
+| **lines 1–32** — imports, argparse, Input Parameters | **BYTE-IDENTICAL, carried over** |
+| **lines 33–102** — `daOptions` + `meshOptions` | **BYTE-IDENTICAL, carried over** |
+| **lines 212–end** — OpenMDAO setup, driver, tasks | **BYTE-IDENTICAL except the TWO registered D1 edits** |
+
+**73 published lines were removed and every one of them is printed verbatim in that log** so a
+reader can see exactly what was replaced — all of them single-point wiring (`scenario1`, one
+`geometry`, one `patchV`, the single objective and the single CL equality). The geometric
+constraints reappear with **identical numbers** (`nSpan=25`, `nChord=30`, `[0.5, 3.0]`, `1.0`,
+`lecon`/`tecon`, and the published `LE_pt`/`break_pt`/`tip_pt` planform) on `geometry_cl05`.
+
+The producer also carries **`D1_ASSERT`**, which re-checks those three regions **at import** against
+the published file staged read-only at `/pub`, and writes the result into `d6r3_run_record.json`.
+**The registration's claim is therefore asserted by the run itself, not only by this document.**
+
+The producer's own banner lists, in the file, **what was NOT added** — `evalMode "exact"`,
+`meshQualityKS` with `addToAdjoint`, move limits as bounds, a curvature constraint,
+`transonicPCOption 1`, IPOPT — each struck by §6.0's observer test or by §L. **A record of what we
+did not add is worth as much here as the table of what we kept.**
+
+### 8b. **§22.4's THREE CLAUSES — DRIVEN, AND ALL THREE GREEN**
+
+`./d6r3_prefreeze.sh` → **`D6R3_PREFREEZE ALL THREE CLAUSES GREEN`**, rc 0.
+
+- **Clause 1 — every instrument exists at its stated md5.** 12 of 12 rows `EXISTS`, each with the
+  md5 the check computed. **The script refuses on absence**; it does not report a missing file as a
+  pass.
+- **Clause 2 — the CLI the launcher emits, driven, and the REAL anchors reported SEPARATELY from
+  the synthetic case.**
+  *Synthetic:* the two selftests, rc 0 and rc 0.
+  *Real anchors, 10 of 10 `FOUND` in the artefacts:* `80.90429398`, `79.21261137`, `71.23798136`,
+  `70.01418200`, **`70.44640458682032`** (the published mesh as freshly built by this lane),
+  `66.32299475`, `0.753`, `1.206`, `0.1493`, `103 of 109`. Grader anchors, 5 of 5: `0.02090`,
+  `0.01932`, `0.02090143421526141`, `5.539e-4`, `2.787e-3`.
+  *The launcher-emitted argv, driven to its failing side:* `--selftest --json <path>` rc **0**;
+  no-args rc **64** (refuses rather than succeeding silently); **`--log x` rc 2 — the FM9 defect
+  class**; grader rc 0 and rc 2.
+  **THE CHECK REFUSED ON ITS FIRST RUN** — `0.1493` was claimed as an exercised anchor but was not
+  visible in the artefact, because the control's name carried `+0.149` and the value itself was
+  computed rather than recorded. **The evidence was fixed, not the check**, and the first refusal is
+  recorded here rather than overwritten.
+- **Clause 3 — every channel a gate reads has a writer that ran.** Six channels enumerated with
+  their writers: `opt_SLSQP.txt` (pyOptSparse, `runScript.py:255` — **the grader REFUSES when it is
+  unreadable**), `d6r3_run_record.json`, `force.dat` (the `forces` FO staged by the launcher —
+  **guard 10 REFUSES when the viscous column is absent**), the `checkMesh` log (**guard 7 REFUSES a
+  delegated verdict**), `ledger.txt`, and the arm log. **No channel of this item is a
+  `primal_residual.json`-class default-true channel — and the general referral stays open and is
+  Sanaa's.**
+
+### 8c. THE EXACT LAUNCH LINE
+
+```
+cd /home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R3
+./d6r3_p0_arm.sh 72 0-71 256
+```
+
+`P0` runs first and alone. The launcher refuses to **start** on a loaded box (`G-CORES`: it requires
+`RANKS` measurably free cores) — **it refuses to start and never stops anything running**
+(directive #17). It refuses as root, on any image but the pinned digest, on any producer but the
+pinned md5, and on an arm directory that already exists. On success the ledger's first lines read
+`D6R3_G-IMG OK …`, `D6R3_G-FREEZE producer md5 d39ca376d44efe652548f7de39468996`, `D6R3_G-CORES …`,
+`D6R3_ARM P0 task=compute_totals …`, and `D6R3_DEADLINE_IN_CONTAINER_S: NONE`.
 
 ## 9. WHAT THIS REGISTRATION DOES NOT CLAIM, AND WHAT IT STILL CANNOT SATISFY
 
-- **It is a DRAFT. No gate is in force. It authorises no solver.**
+- **It is a DRAFT. No gate is in force. It authorises no solver.** **Every instrument now exists
+  at a stated md5 and §22.4's three clauses are green, so the remaining distance to a freeze is the
+  `dafoam-supervisor`'s personal check and the freeze sha — not a missing file.**
 - **It does not claim the cost model is tested.** `k_adjoint = 1.5` is `ASSUMED`; until `P0` lands,
   §7c is **`UNTESTED`**.
 - **It does not claim `P0` will pass.** The adjoint has never been attempted at 579,072 cells.
@@ -625,10 +694,10 @@ freeze; it is the reason there is not one yet.**
 | **10** (far-field spurious drag) | **NOT SATISFIED** — not available in DAFoam's function set (§6.10) | an external tool, out of scope |
 | **11** (literal trust region) | **`PARTIALLY SATISFIED — LITERAL SIZING INFEASIBLE, SUBSTITUTE REGISTERED`** (§6.11) | **Sanaa's answer to the §6.11 question** |
 | **16** (adjoint-driven adaptation) | **NOT ATTEMPTED** — her own roadmap item | a separate item |
-| **17, 18** | registered; **instruments NOT WRITTEN** | the producer and its guards |
+| **17, 18** | **PARTLY.** Rule 18's discipline is applied to the producer itself: `D1_ASSERT` re-checks the three carried-over published regions **at import** and writes the result to `d6r3_run_record.json` (§8a). **Rule 17's `polyMesh`-read hash rebuilt from `pointProcAddressing` is registered but NOT IMPLEMENTED** — the launcher stages the mesh into every condition directory before the model is built, which is the arm, but nothing yet hashes what each rank loaded. | one reader inside the producer, before `run_model()` |
 | **27** (a channel with a writer) | **partly** — driven for two channels; the pre-freeze channel table does not exist; **the `primal_residual.json` referral is Sanaa's and is not closed here** | her ruling |
 | rows 31, 58 | **NOT MEASURED** | `P0` records both |
-| **§22.4 clauses 1–3** | **NOT SATISFIED — and they still block the freeze.** Clause 1: five instruments do not exist. Clause 2: done for the guard module, **not for the arms**, which have no launcher. Clause 3: the channel table does not exist | the remaining five instruments |
+| **§22.4 clauses 1–3** | **ALL THREE GREEN**, driven at `D6R3_PREFREEZE_RESULT.log` (§8b). **Clause 2's real-anchor result is reported separately from the synthetic case, and the check REFUSED on its first run before the evidence was fixed.** | the supervisor's own personal check before the sha — it is not delegable and this script does not replace it |
 
 **A REGISTERED GAP, NOT ACCOMMODATED.** D6R2's worst measured aspect-ratio trip, **`1050.3162`**,
 breached the MACH wing's own declared `1000.0` but sits well inside the CRM's published **`2000.0`**,
