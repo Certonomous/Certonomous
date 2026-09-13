@@ -29367,3 +29367,234 @@ wrong object is *shaped like* the right one.
 reassurance** — it understated an exposure, on the one record where it was realised. **The
 comfortable answer is the one to re-derive**, because nobody goes looking for a reason that the
 good news might be wrong.
+
+## L-596 — AN ASSERT THAT HASHES A FILE AGAINST ITSELF CANNOT FAIL, AND THAT IS WORSE THAN NO ASSERT; compare a value against an INDEPENDENT source of that value
+
+**The check, as it stood.** `verification/runs/CRM_WB_D8G_runs/launch_crm_wb_v2.sh` stage 2 restored
+the registered dictionaries and asserted each restore byte-identical. For two of the three the
+assert was sound. For the third it was a tautology:
+
+```
+:124  [ -f system/controlDict.registered ] || cp system/controlDict system/controlDict.registered
+:125  CD_MD5=$(md5sum < system/controlDict.registered)      # <-- the hash comes FROM the copy
+...
+:232  cp system/controlDict.registered system/controlDict
+:233  [ "$(md5sum < system/controlDict)" = "$CD_MD5" ] || fail "controlDict restore is not byte-identical"
+```
+
+`CD_MD5` is taken from `controlDict.registered`; the restore copies `controlDict.registered` over
+`controlDict`; the assert then compares the copy against a hash of its own source. **Both sides
+derive from one artifact. The comparison could never fail, on any input, ever.** Line numbers are
+from the pre-repair blob (`git show 5f7d9b227^:verification/runs/CRM_WB_D8G_runs/launch_crm_wb_v2.sh`).
+
+**Contrast the two asserts that worked, four lines away.** `SCH_MD5` and `SOL_MD5` are taken from
+the LIVE `system/fvSchemes` and `system/fvSolution` **before** the `.registered` copies are made,
+and those copies are **rewritten on every launch** (`cp system/fvSchemes system/fvSchemes.registered`).
+Their two sides are genuinely independent. `controlDict.registered` alone was created **once**,
+behind the `[ -f ] ||` guard at `:124`, and never refreshed.
+
+**WHAT THE DEAD ASSERT WAS COVERING.** Because `.registered` was stale, a case staged from an
+earlier run carried that run's `endTime`, stage 2 restored it, **and the `endTime` passed on argv
+was silently discarded.** The CRM LTS rate probe inherited `endTime 6000` from the `SOLVE_T_SST`
+tree. A registered **20-step** probe would have run **6,000 steps**: at the cap's 280.7 s/iteration
+on 32 ranks that is **898,240 core-min against a registered cap of 2,994 — a factor of 300.**
+
+**WHY IT SURVIVED TWO RUNGS: A COINCIDENCE, NOT AN ABSENCE OF TESTING.** R1 and SST both passed
+`6000` into cases that already held `6000`. Argv and the inherited value **agreed**, so the
+discard was invisible. The LTS probe was the first entry where they differed — which is to say the
+defect was latent until the first moment it mattered, and nothing in the two prior launches could
+have exposed it. Repaired at `5f7d9b227`; the repair rewrites `controlDict.registered`'s `endTime`
+in place (`:146-147`) and adds an independent assert that `.registered` carries the same
+`application` as `APP` (`:154-155`).
+
+**THE RULE.** An assert must compare a value against an **INDEPENDENT source of that value** —
+argv against the file, the frozen blob against the file that ran, the log against the field. **An
+assert whose two sides both derive from the same artifact is not a weak check; it is a decoration
+that consumes the attention a real check would have earned**, because a reader who sees three
+byte-identity asserts in a row credits the file with three guarantees and it has two.
+
+**THE TELL, and it generalises past hashing.** Trace each side of the comparison back to where its
+bytes came from. If the two traces meet at one file, one variable or one computation, the assert
+is reflexive. Write it so the sides meet only at the **claim**: here, `endTime` from argv versus
+`endTime` read back out of the dictionary the solver will open.
+
+**And the second tell: an asymmetry inside one block.** Three asserts sat side by side, two
+refreshing their reference every launch and one not. **A single member of a family that is built
+differently from its siblings is where to look first** — the sibling is the control that was
+already written, for free, and was never read as one.
+
+## L-597 — A WRITE INSIDE THE WINDOW IS NOT A WRITE AT `endTime`, AND THE COMPLETION RULE BINDS ON THE SECOND; check that `writeInterval` DIVIDES `endTime` at registration
+
+**Six of seven clauses is not a completed run.** The CRM-WB D8G LTS rate probe
+(`/home/ubuntu/certonomous-runs/CRM_WB_D8G/SOLVE_T_LTS_PROBE`) finished:
+
+| CLAUDE.md rule 4 clause | measured | verdict |
+|---|---|---|
+| `rc = 0` | `RC.txt` reads `RC=0` | ✓ |
+| an `End` line | present in `log.rhoPimpleFoam` | ✓ |
+| last time == `endTime` | `Time = 20` == `endTime 20` | ✓ |
+| `ExecutionTime` count == `round(endTime/deltaT)` | 20 == 20/1 | ✓ |
+| age guard | satisfied | ✓ |
+| fields present at `endTime` | **`processor*/` holds `0 12 18` — there is no time directory `20`** | ✗ |
+
+`system/controlDict`: `endTime 20; deltaT 1; writeControl timeStep; writeInterval 6; purgeWrite 2`.
+**6 does not divide 20.** Fields were written at t = 6, 12, 18 and the run ended two steps later
+having written nothing. `purgeWrite 2` then deleted t = 6. **The probe is `NOT A COMPLETED RUN`.**
+
+**THE REGISTRATION SAID SOMETHING ADJACENT AND TRUE.** The queue entry required that
+`writeInterval` put **at least one write INSIDE the 20 steps** — and it does, three of them. That
+is a real condition, it was checked, and it passed. **It is simply not the condition rule 4
+states.** "There exists a write in the window" and "there is a write at `endTime`" are different
+predicates, and only the second is in the rule. The registration checked the one that was easy to
+phrase.
+
+**THE RULE.** Rule 4 is **all-or-nothing**: a run failing any single clause is not completed,
+however impressive the other six look, and the clause that fails here is the one that decides
+whether any field-based gate has an artifact to read at all. **At registration time, assert
+`endTime % writeInterval == 0`** — it is one line, it is checkable before compute, and it is not
+implied by any statement about writes occurring during the run.
+
+**THE COROLLARY, MEASURED THE SAME NIGHT.** With `purgeWrite 2` the surviving write times were
+**t = 12 and t = 18 only**. Any field gate registered on this run can therefore observe **2 of 20
+steps — 10 % of the run it was registered to grade.** What that did to the gate is the next
+lesson; the point here is that **the write schedule is part of the gate's instrument**, and a
+schedule chosen for disk economy silently sets the gate's sampling rate.
+
+## L-598 — A FIELD GATE CAN BE BLIND TO THE EXCURSION IT EXISTS TO CATCH, AND A CLAMP CAN MAKE THE BLINDNESS LOOK LIKE A PASS
+
+**The gate, as registered.** CRM-WB D8G gate **L5**: *`p` absolute max < 2 p0 = 12,854 Pa and
+max|U| < 2 U_inf*, **read from the field, never from a normalised residual** — the clause was
+written precisely to stop a residual from standing in for the physics.
+
+**What the log says.** `pressureControl` printed a `p` excursion to **20,176.5848879 Pa** at step 4
+— **1.57x the gate.**
+
+**What the field says, at the only two times the gate can see** (`postProcessing/fieldMinMax(fields=(pU))/18/fieldMinMax.dat`):
+
+| time | max `p` (Pa) | location | proc |
+|---|---:|---|---|
+| 12 | **8.014789298e+03** | (3.898893522095, 1.155691342809, 4.579317744610) | 0 |
+| 18 | **8.014789298e+03** | (3.898893522095, 1.155691342809, 4.579317744610) | 0 |
+
+**8,014.79 Pa is comfortably inside 12,854.** A reader grading L5's `p` clause off the field alone
+would have written PASS, on a run whose pressure had been 57 % over the threshold.
+
+**TWO INDEPENDENT DEFECTS PRODUCED THAT, and they compound.**
+
+**(a) The gate sees 10 % of the run.** `writeInterval 6` with `endTime 20` and `purgeWrite 2` left
+t = 12 and t = 18 (L-597). The step-4 excursion is simply not in any surviving field.
+
+**(b) The value that IS there is a clamp reading, not a converged one.** Max `p` is identical **to
+ten significant figures, in the same cell, on processor 0, six steps apart.** A converged field
+does not do that; a **ceiling** does. `pressureControl`'s `pMaxFactor 2.0` is holding it — and the
+population pinned at exactly that value is **GROWING**: **18,868 cells (0.09134 %) at t = 12
+rising to 22,766 (0.11021 %) at t = 18** (`PROBE_RECORD_LTS.md:53-54`). **The number sitting inside
+the threshold is the number the clamp chose**, and it is inside the threshold *because* it is
+clamped.
+
+**The gate failed anyway — on the other clause, and by an unmissable margin.** max|U| =
+**2,471.075889750 m/s** at t = 12 against 2 U_inf = **600.038**, a factor of **4.118**. `GATE FAIL`.
+**That is luck, not design:** the clause the clamp could censor read clean, and the verdict was
+carried entirely by the clause it could not.
+
+**THE RULE — HOW TO RECORD A THRESHOLD SATISFIED ON A CLAMPED FIELD.** A threshold met by the
+mechanism that is hiding the excursion is **not a threshold met**. Never record it as a bare pass.
+The honest cell is:
+
+> **inside the threshold, on a CLAMPED field, pinned count RISING (18,868 → 22,766)**
+
+— three facts, one of which is the value and two of which are the reasons the value cannot be read
+as evidence about the physics. **A clamp turns an unbounded diagnostic into a bounded one, and a
+bounded diagnostic passes a bound by construction.** Read the limiter's own count beside every
+field extremum, and read its **direction**: a pinned population that is growing says the solution
+is moving further into the ceiling, which a stationary extremum will never say.
+
+**AND THE REGISTRATION RULE THAT FOLLOWS.** **A field gate must be registered together with a
+write schedule that can actually observe it.** Registering "read it from the field" and then
+choosing `writeInterval`/`purgeWrite` separately, on disk-economy grounds, sets the gate's
+sampling rate without anybody deciding to. Where the quantity gated is an **excursion** — a
+maximum over the run, not an end state — a two-sample field record cannot see it at all, and the
+gate needs either a write at every step, a `fieldMinMax` function object writing every step, or an
+explicit statement that the log is the graded channel.
+
+## L-599 — IN A TWO-READER COMPARISON, CONTROLLING ONE READER IS NOT CONTROLLING THE COMPARISON
+
+**The zero.** A PPTC lane compared per-rank cell ownership against a `cellSet` and got **0 of 316
+matches on EVERY rank** — a zero so uniform it read as a clean negative finding.
+
+**The cause was in the half that had no control.** The `cellSet` header declares `format binary`
+and **the body is ASCII**. The parser trusted the declaration, decoded digit characters as
+`int32`, and produced indices with **min 808466224** — every one out of range. Out-of-range
+indices match nothing, so the failure **surfaced as "no matches" rather than as an error**, which
+is the worst available failure mode: a decoder fault wearing the costume of a result.
+
+**THE LANE HAD A PLANTED CONTROL. IT WAS IN THE WRONG READER.** The rank-side reader was planted
+and proven able to see a non-zero, exactly as rule 3 requires. The set-side reader was not. **The
+comparison has two readers, and a plant in one of them licenses a claim about one of them.** The
+false zero came, precisely, from the uncontrolled half — which is where it always will, because
+the controlled half is the one that cannot produce it.
+
+**WHAT ACTUALLY CAUGHT IT WAS A CLOSURE IDENTITY, NOT THE PLANT.** The union of the four ranks'
+ownership is a **proven permutation of 0..19700034**. Every cell is owned by exactly one rank.
+**Zero matches against any non-empty subset of that range is arithmetically impossible**, and the
+impossibility is visible without knowing anything about either reader's internals.
+
+**THE RULE, and the two corollaries carry the same weight.**
+1. **In a two-reader comparison, controlling one reader is not controlling the comparison.** Plant
+   into **both** sides, or plant into the comparison's own output — inject a known member of one
+   side into the other and require the match count to move by exactly one.
+2. **A container header can lie about its own container. Validate the BODY, not the declaration.**
+   `format binary` is metadata; the bytes are the artifact. Sniff the first record and refuse on
+   disagreement rather than decoding on the strength of a string.
+3. **A closure identity catches what a plant does not, and vice versa — keep both.** A plant proves
+   the reader *can* see something; an identity (a permutation, a sum, a conservation law, a
+   partition covering its universe) proves the answer *is consistent with what must be true*. The
+   plant here was live and green while the answer was nonsense.
+
+**PROVENANCE NOTE.** The incident is recorded as reported by the PPTC lane through the
+cfd-supervisor. **This lane did not locate the `cellSet` artifact or the parser on disk and has
+NOT independently re-derived the 0-of-316, the `min 808466224` or the 19700034 permutation** — the
+reasoning and the rule are recorded here on the lane's report, and the figures are marked
+unverified rather than presented as measured.
+
+## L-600 — A LEXICOGRAPHIC SAMPLE OF RANKS IS NOT A SAMPLE OF THE FIELD, AND THE RECORDED LAUNCH PID IS NOT THE SOLVER
+
+**Two traps in one night, in one run, both of the same shape: an instrument that sees a
+systematically chosen subset and reports as though it saw the whole.**
+
+**(a) THE LEXICOGRAPHIC PREFIX.** A control reading max|U| sampled **8 of 32 processor
+directories, lexicographically sorted**, and returned an unphysical median. Sorted as strings, the
+first eight of `processor0…processor31` are **0, 1, 10, 11, 12, 13, 14, 15** — seven of the eight
+are single- and low-numbered by accident of ASCII, and **`processor17`, where the breach actually
+was, cannot appear in any leading subset of size < 20.** OpenFOAM's own arbiter
+(`postProcess -func fieldMinMax`, `.../fieldMinMax(fields=(pU))/18/fieldMinMax.dat`) puts max
+mag(U) on **processor 17** at both surviving times: **2.471075889750e+03** at t = 12 and
+**2.122824011805e+03** at t = 18, with max `p` **8.014789298e+03** on processor 0.
+
+**The lane's response is the part worth copying.** Having found its own parser's number suspect, it
+**did not report the number and it did not hand-fix the parser and trust it.** It ran OpenFOAM's
+own `fieldMinMax` as an **independent arbiter of a different implementation**, and the fixed parser
+then matched it **to every digit** on all three quantities. A second implementation agreeing
+digit-for-digit is evidence; the same implementation agreeing with itself after a patch is not.
+
+**(b) THE RECORDED LAUNCH PID IS NOT THE SOLVER.** The queue recorded `_launch.pid` **1548750**
+for the LTS probe (`verification/queue/LAUNCH_LOG.tsv:497`). That pid was the launcher's
+**session leader**, and it **was already dead while the run was perfectly healthy** — the solver
+was `mpirun` at **1549539** with 32 ranks beneath it. **Anyone polling the recorded pid calls a
+healthy run dead at about step 3.** The cfd-supervisor did exactly that and was one step from
+triaging a live run as a crash — which under the standing rule that a crash is a finding would
+have spent a triage cycle on a run that was fine.
+
+**THE RULE.**
+1. **Liveness is taken from the RANK pids and the log mtime, never from a recorded launch pid.**
+   The canonical form is `/proc/<pid>/cwd` over the actual solver processes (L-585), cross-read
+   against the log's modification time. A recorded pid dates from launch and answers a question
+   about the launcher, not about the solve.
+2. **Any subset of ranks used for a field extremum must be the WHOLE SET, or a RANDOMISED sample —
+   never a lexicographic prefix.** A prefix of a name-sorted list is a **systematic** sample, and
+   in a domain decomposition rank index correlates with spatial position, so a prefix is a sample
+   of one region of the mesh wearing the label "a sample of the field". An extremum is exactly the
+   statistic a partial sample cannot bound.
+3. **When a reader is found wrong, do not trust its repair on its own word.** Re-derive with a
+   **different implementation** and require digit agreement. Both halves of this lesson were
+   settled that way and not by inspection.
