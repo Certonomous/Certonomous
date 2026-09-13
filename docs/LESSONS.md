@@ -29084,3 +29084,73 @@ still being appended to. **Hashes of frozen things are fine; counts of growing t
 `docs/LESSONS.md` near-miss. The lane found and reported instance 1 against itself, unprompted,
 including that its earlier proofs had been run against then-correct values and were unaffected —
 which is the disclosure that makes the rest of its record usable.
+
+## L-592 — "THE RUN COMPLETED" IS NOT A CHECK; and a record INDEX is not a COUNT of successes. The symmetric half of L-591: suspect a check that reports SUCCESS exactly as hard as one that reports failure
+
+**The error, and it was the supervisor's.** Ruling on whether a registered completion gate
+(`primalMinResTol = 1.0e-8`) was in structural tension with its own solver, the supervisor
+wrote: *"it is weaker than item 8's failure and the difference matters: `O_mp` reached `1e-8`
+**eighty-eight times** on this configuration."* **That sentence is false.** It came from a lane's
+summary table, was never measured by either of them, and became load-bearing in a ruling.
+
+**Measured, from the run's own record and log:**
+
+| | |
+|---|---|
+| `F` (function) evaluations | **87** |
+| `fail == 0` | **35** |
+| `fail == 1` | **52 — a 59.8 % failure rate** |
+| `Primal solution failed` banners in the log | 48 |
+| **highest record `n`** | **88 — AN INDEX, NOT A COUNT** |
+
+**TWO DISTINCT MISTAKES, AND BOTH ARE COMMON.**
+
+**(1) An index was read as a count.** The final design is record `n = 88`. That is its position in
+an append-only log, not a tally of anything. The count of converged evaluations was **35**. A
+monotonically increasing id sitting next to a success looks exactly like a success count, and
+nothing in the artefact distinguishes them.
+
+**(2) Completion was read as convergence.** The optimiser returned `rc = 0`, terminated at its
+registered budget, and produced a graded verdict. **None of that is evidence that its primals
+converged** — the optimiser absorbed 52 failures by cutting its step and retrying, exactly as it
+is designed to, and the run finished clean. **A framework that is built to tolerate failure will
+hide the failure rate from anyone who only checks the exit status.**
+
+**THE AGGRAVATING FACT, RECORDED BECAUSE IT IS THE USEFUL PART.** The correct figure —
+"52 of 87" — was **already in the supervisor's own record**, written into a lane brief hours
+earlier the same session. The ruling contradicted a measurement its author had already made and
+repeated. **A number you have measured does not stay measured in your head; it stays measured on
+disk.** Re-read the artefact, do not recall it.
+
+**WHAT IT COST AND WHAT IT WOULD HAVE COST.** The false premise was the entire basis for grading
+one structural tension as *weaker* than another. Corrected, the reading inverts: the
+configuration fails ~60 % of its primals and **fails preferentially at large |shape|**, which is
+where the final design lives — mean `max|shape|` **2.6298** at failed evaluations against
+**2.3313** at successful ones, first failure at `n = 13`, continuous through the large-shape
+region. So the two stalls that triggered the question are **not anomalies; they are the
+configuration's normal behaviour**, which the registration's own §10 had disclosed qualitatively
+and nobody had quantified.
+
+**WHAT IT DOES NOT DO, stated so the correction is not over-read.** It does not move the
+optimisation's `GATE FAIL`: that was graded against `G1`–`G5`, a primal failure rate is not
+among them, and the final design `n = 88` is itself a `fail = 0` evaluation, so the graded
+objective came from a converged primal. **The optimum is converged; the SEARCH THAT FOUND IT was
+not well-informed**, and those are different claims. Both belong in front of whoever reads the
+headline reduction next.
+
+**THE RULE.** L-591 says *when a check reports a failure, suspect the check before the artefact.*
+**The symmetric half is harder and matters more: when a check reports SUCCESS, suspect it just as
+hard.** A red result gets investigated because somebody wants it to go away; a green one gets
+banked. Specifically:
+1. **`rc = 0` is a statement about a process, not about physics.** Never quote it as convergence.
+2. **Never quote an id, index or record number as a count.** If you mean a count, count.
+3. **Count the failures explicitly, even when nothing looks wrong** — especially in frameworks
+   (optimisers, line searches, retry loops) whose whole purpose is to continue past failure.
+4. **A summary table inherited from another agent is a claim, not a measurement**, until you have
+   run the count yourself. Ask which line of which artefact produced each cell.
+
+**How it surfaced:** the lane was told to stand by, went looking in artefacts already on disk
+rather than asking for compute, and **the first read contradicted its own table.** It reported
+that against itself, unprompted, and declined to merge the 52 record-level failures with the 48
+log banners because it had not established a one-to-one correspondence — reporting both numbers
+unreconciled rather than one tidy one.
