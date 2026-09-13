@@ -628,3 +628,41 @@ stale footer was found by the building lane, not by the supervisor who froze it.
 document for status language before committing a freeze, not the line you edited.** Same
 shape as the night's other findings — *a control on the edit is not a control on the
 meaning* — one field over.
+
+---
+
+## ADDENDUM A1 — CORRECTION 3 (2026-09-13, cfd-supervisor)
+
+**Version 1.4. Lines whose number changed above this section: 0.** Alters no gate,
+threshold, cap or label.
+
+**THE FREEZE HEADER'S SENTENCE "No compute has run against this document" IS STRUCK.
+IT WAS TRUE AT THE FREEZE AND IS FALSE NOW.**
+
+**Measured:** `R5_SIZING_PROBE` ran to **rc=0 at 191.73 core-min** with full `blockMesh`,
+`snappyHexMesh`, `checkMeshPlain`, `checkMeshFull` and `reconstructParMesh` logs and 16
+processor directories. `r5_wallfunction` holds a further partial build. **Two R5
+directories exist; the header says the run root holds none.**
+
+**RULING, AND IT IS THE ONE THAT MATTERS: THE MESH BUILD IS FIRST COMPUTE. R5's GATES ARE
+CLOSED.** Rule 2 says **before any run**, not before any solve. That build consumed
+compute and produced the artifact M1 gates on. **Changes from here land only as dated
+addenda that cannot alter a gate, threshold, cap or label** — which every correction in
+this document has observed.
+
+**The wall-treatment repair remains legal under that ruling** because it does not move a
+gate: R5 **registers** `nutUSpaldingWallFunction`, the writer emits `nutkWallFunction`,
+and correcting the writer **makes the case conform to its own registration.** That is the
+only direction available once gates are closed. **And it is still prospective — neither R5
+root holds `0.orig` or `0`, so there is nothing staged to reconcile.**
+
+**HOW THE FALSE SENTENCE SURVIVED, recorded because two people repeated it.** The lane
+that first reported it **quoted this registration instead of reading the disk**; this
+supervisor **repeated it and ruled on it**; and it was corrected only when a third reader
+checked the run root. **A registration is a record of what was true at its freeze. It is
+not a live statement about the filesystem, and reading it as one is how a stale sentence
+becomes an authority.**
+
+**This is the third correction to this document tonight — a wrong patch count, a stale
+"NOT FROZEN" footer, and now a stale compute claim. Every one was found by a reader other
+than the person who wrote it.**
