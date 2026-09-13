@@ -1,0 +1,20 @@
+# PROPOSED single registered change for the DrivAer R2 layer arm -- NOT APPLIED.
+# Proposed by the mesh lane 2026-09-13; the relaunch is cfd-supervisor's call and
+# goes through the runner only after a committed pre-registration.
+# Baseline dict: verification/runs/navier_class/DRIVAER/r2_coarse/system/snappyHexMeshDict
+# Effect: requested layer stack = finalLayerThickness * sum_{k=0}^{4} 1.25^-k
+#         = 0.50 * 3.3616 = 1.6808 local cells  ->  0.24 * 3.3616 = 0.8068 local cells.
+# relativeSizes, expansionRatio, nSurfaceLayers, minThickness, the medial-axis knobs
+# and every castellation/snap control are UNCHANGED.  Exactly one line moves.
+
+--- a/verification/runs/navier_class/DRIVAER/r2_coarse/system/snappyHexMeshDict
++++ b/<new arm>/system/snappyHexMeshDict
+@@ -192,7 +192,7 @@
+ addLayersControls
+ {
+     relativeSizes       true;
+-    finalLayerThickness 0.5;
++    finalLayerThickness 0.24;
+     expansionRatio      1.25;
+     minThickness        0.02;
+ 

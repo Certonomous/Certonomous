@@ -1,0 +1,161 @@
+{
+ "cases": {},
+ "octree": {
+  "r2_coarse": {
+   "cells": 186709,
+   "cells_per_level": {
+    "0": 29031,
+    "1": 5384,
+    "2": 9830,
+    "3": 30870,
+    "4": 73058,
+    "5": 38536
+   },
+   "h0_level0_edge": 0.8,
+   "internal_faces": 564186,
+   "n_level_jump_gt1": 0,
+   "n_level_transition_faces": 47983,
+   "pristine_tolerance_sweep": {
+    "0.0001": {
+     "n_pristine_transition_faces": 86,
+     "pristine_cells": 6027,
+     "pristine_frac": 0.03228017931647644,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 1.0,
+      "frac_within_1e6_of_8": 0.011627906976744186,
+      "max": 8.000918607218798,
+      "median": 8.000318763237114,
+      "min": 7.998845730361866,
+      "n": 86
+     }
+    },
+    "0.001": {
+     "n_pristine_transition_faces": 706,
+     "pristine_cells": 8949,
+     "pristine_frac": 0.04793020154357851,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 0.990084985835694,
+      "frac_within_1e6_of_8": 0.0028328611898017,
+      "max": 8.012989218037344,
+      "median": 7.997872992771401,
+      "min": 7.985862778827346,
+      "n": 706
+     }
+    },
+    "0.01": {
+     "n_pristine_transition_faces": 2795,
+     "pristine_cells": 18737,
+     "pristine_frac": 0.10035402685462404,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 0.3788908765652952,
+      "frac_within_1e6_of_8": 0.0007155635062611807,
+      "max": 8.153188331477333,
+      "median": 8.000027727615363,
+      "min": 7.84767103387278,
+      "n": 2795
+     }
+    },
+    "0.1": {
+     "n_pristine_transition_faces": 23017,
+     "pristine_cells": 68985,
+     "pristine_frac": 0.3694787075074046,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 0.06690706868836077,
+      "frac_within_1e6_of_8": 8.689229699787114e-05,
+      "max": 9.717104143046365,
+      "median": 7.99782957852953,
+      "min": 6.618061512807682,
+      "n": 23017
+     }
+    }
+   },
+   "ratio_all_transitions": {
+    "frac_within_1e3_of_8": 0.034699789508784364,
+    "frac_within_1e6_of_8": 4.1681428839380615e-05,
+    "max": 59.9747084199479,
+    "median": 7.90103076667591,
+    "min": 0.12707412307152124,
+    "n": 47983
+   },
+   "total_volume": 12473.314973176179
+  },
+  "r2_medium": {
+   "cells": 983106,
+   "cells_per_level": {
+    "0": 210476,
+    "1": 41772,
+    "2": 76456,
+    "3": 244369,
+    "4": 302530,
+    "5": 107503
+   },
+   "h0_level0_edge": 0.4,
+   "internal_faces": 2959169,
+   "n_level_jump_gt1": 0,
+   "n_level_transition_faces": 150400,
+   "pristine_tolerance_sweep": {
+    "0.0001": {
+     "n_pristine_transition_faces": 2226,
+     "pristine_cells": 56290,
+     "pristine_frac": 0.05725730490913492,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 1.0,
+      "frac_within_1e6_of_8": 0.15992812219227315,
+      "max": 8.000619029962733,
+      "median": 7.999933016461043,
+      "min": 7.999318677518765,
+      "n": 2226
+     }
+    },
+    "0.001": {
+     "n_pristine_transition_faces": 3909,
+     "pristine_cells": 80121,
+     "pristine_frac": 0.08149782424275714,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 0.9820926068048094,
+      "frac_within_1e6_of_8": 0.09235098490662573,
+      "max": 8.015428761434844,
+      "median": 7.999843941611424,
+      "min": 7.986878731898755,
+      "n": 3909
+     }
+    },
+    "0.01": {
+     "n_pristine_transition_faces": 15769,
+     "pristine_cells": 172998,
+     "pristine_frac": 0.17597085156636214,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 0.3768152704673727,
+      "frac_within_1e6_of_8": 0.023083264633140973,
+      "max": 8.156560213945898,
+      "median": 7.999986616855165,
+      "min": 7.85227281847247,
+      "n": 15769
+     }
+    },
+    "0.1": {
+     "n_pristine_transition_faces": 94084,
+     "pristine_cells": 581353,
+     "pristine_frac": 0.5913431511963104,
+     "ratio_pristine_transitions": {
+      "frac_within_1e3_of_8": 0.08560435355639641,
+      "frac_within_1e6_of_8": 0.003868883125717444,
+      "max": 9.714211870903565,
+      "median": 7.999940402679593,
+      "min": 6.565483999997058,
+      "n": 94084
+     }
+    }
+   },
+   "ratio_all_transitions": {
+    "frac_within_1e3_of_8": 0.05571808510638298,
+    "frac_within_1e6_of_8": 0.002420212765957447,
+    "max": 92.00654108600195,
+    "median": 7.966498804918919,
+    "min": 0.20413029915458678,
+    "n": 150400
+   },
+   "total_volume": 12473.368734369928
+  }
+ }
+}

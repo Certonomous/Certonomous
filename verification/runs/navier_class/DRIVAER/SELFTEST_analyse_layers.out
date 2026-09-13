@@ -1,0 +1,12 @@
+P1 PASS  planted coverage PLANTED_COVERAGE_CTRL layers_mesh=3.777 pct=42.42 faces=4242 -- read back exactly, from line 4240
+P1b PASS  a row planted only in the REQUEST table is NOT reported; the reader is on the post-extrusion block (request table at line 3007, achieved at line 4241)
+P2 PASS  real zero-layer log read as ZERO (cell_delta=0, extruding=0), and the request table at line 3600 (50 rows) was NOT used
+P3 PASS  reader REFUSED (exit-2 path) when the three achievement readings disagreed
+P4 PASS  planted checkMesh FAILING form read back exactly: max_skewness=305.39 on 94 faces, form=FAILING
+P5 PASS  REAL failing checkMesh read: failed_checks=3, forms={'max_skewness': 'FAILING', 'max_aspect_ratio': 'OK', 'min_face_area': 'OK', 'min_cell_volume': 'OK'}, concave=14723, lowdet=40, skewfaces=1
+P6 PASS  with the failing-form regexes disabled the reader no longer sees the failure (form=ABSENT); the P4/P5 readings are produced by that code and not by luck
+
+ALL PLANTED CONTROLS PASSED
+REFUSE r1_coarse: verification/runs/navier_class/DRIVAER/r1_coarse/log.snappyHexMesh: carries none of the three achievement readings (Extruding / Added / cell delta).  REFUSING to report a coverage; the per-patch table is the REQUEST (L-590).
+REFUSE r1_medium: verification/runs/navier_class/DRIVAER/r1_medium/log.snappyHexMesh: carries none of the three achievement readings (Extruding / Added / cell delta).  REFUSING to report a coverage; the per-patch table is the REQUEST (L-590).
+REFUSE r1_fine: verification/runs/navier_class/DRIVAER/r1_fine/log.snappyHexMesh: carries none of the three achievement readings (Extruding / Added / cell delta).  REFUSING to report a coverage; the per-patch table is the REQUEST (L-590).
