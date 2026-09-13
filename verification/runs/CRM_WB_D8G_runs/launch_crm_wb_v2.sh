@@ -64,11 +64,27 @@ fi
 # ---- environment. `set +u` is REQUIRED: the OpenFOAM bashrc reads unset variables and under
 # ---- `set -u` aborts the shell with status 1, silently if its stderr is discarded.
 set +u; source /usr/lib/openfoam/openfoam2606/etc/bashrc > log.env 2>&1; ENV_RC=$?; set -u
-{ [ "$ENV_RC" -ne 0 ] || ! command -v rhoSimpleFoam >/dev/null 2>&1; } && { cat log.env; fail "OpenFOAM env did not load (rc=$ENV_RC)"; }
+# ---- THE APPLICATION IS REGISTERED, NOT HARD-CODED. Same defect and same repair as the closure
+# ---- guard of ADDENDUM 14.3, one field over: a launcher that names one application by literal
+# ---- REFUSES every other one its own act registers. ADDENDUM 15 registers rhoPimpleFoam with
+# ---- local time stepping as rung 2b. The application is read from the environment, DEFAULTED TO
+# ---- THE INCUMBENT so every existing entry is byte-unchanged, checked against a closed set,
+# ---- ASSERTED AGAINST system/controlDict rather than trusted from argv, and LOGGED.
+APP="${APP:-rhoSimpleFoam}"
+case "$APP" in
+  rhoSimpleFoam|rhoPimpleFoam) ;;
+  *) fail "APP=$APP is not an application this act registers (rhoSimpleFoam, rhoPimpleFoam)";;
+esac
+{ [ "$ENV_RC" -ne 0 ] || ! command -v "$APP" >/dev/null 2>&1; } && { cat log.env; fail "OpenFOAM env did not load, or $APP is not on PATH (rc=$ENV_RC)"; }
 
 # ---- assert the registered dictionaries; NEVER rewrite them with foamDictionary, which
 # ---- inlines every #include and froze a stale forces dict into this case once already.
-grep -qE '^application +rhoSimpleFoam;' system/controlDict || fail "application is not rhoSimpleFoam"
+# ASSERT THAT argv AND THE DICTIONARY AGREE. Neither is trusted over the other: a mismatch means
+# the operator and the case disagree about what is being run, and that is exactly the condition
+# that would let the steady solver run on an LTS case and be recorded as the LTS rung.
+grep -qE "^application +${APP};" system/controlDict \
+  || fail "APP=$APP but system/controlDict does not carry 'application ${APP};' -- argv and the registered dictionary disagree"
+echo "application: $APP  (ASSERTED against system/controlDict, not assumed)"
 # purgeWrite must be AT LEAST 2, not exactly 2. The gate's intent is "never keep fewer than two
 # checkpoints"; MORE retention strictly dominates it. Hardcoding equality encoded the
 # restart-economy assumption as law and refused a legitimate DIAGNOSTIC run that needed to keep
@@ -118,10 +134,25 @@ done
 
 if [ -n "$ENDTIME_ARG" ] && [ "$RESUME" = "no" ]; then
   sed -i -E "s/^([[:space:]]*endTime[[:space:]]+)[0-9.eE+-]+;/\1${ENDTIME_ARG};/" system/controlDict
+  # AND THE RESTORE SOURCE, OR THE ARGUMENT IS SILENTLY DISCARDED. STAGE 2 RESTORES controlDict
+  # FROM controlDict.registered, and that file is created ONCE (the `[ -f ] ||` below) and then
+  # never refreshed -- unlike fvSchemes.registered/fvSolution.registered, which are rewritten from
+  # the live files on every launch. So a case STAGED from an earlier run inherits that run's
+  # endTime, stage 2 overwrites the argument with it, and the md5 assert PASSES because it compares
+  # the restored file against itself. This never fired on this act only because every previous
+  # ENDTIME_ARG happened to equal the inherited value; the first entry where they differ is the
+  # ADDENDUM 15 20-step rate probe, staged from a case carrying endTime 6000 -- a 20-step probe
+  # would have run 6000 steps, 898,240 core-min against a 2,994 core-min registered cap.
+  [ -f system/controlDict.registered ] && \
+    sed -i -E "s/^([[:space:]]*endTime[[:space:]]+)[0-9.eE+-]+;/\1${ENDTIME_ARG};/" system/controlDict.registered
 fi
 ET=$(grep -oE '^[[:space:]]*endTime[[:space:]]+[0-9]+;' system/controlDict | grep -oE '[0-9]+')
 [ -n "$ET" ] || fail "could not read endTime"
 [ -f system/controlDict.registered ] || cp system/controlDict system/controlDict.registered
+# THE RESTORE SOURCE IS WHAT ACTUALLY RUNS IN STAGE 2, SO IT GETS THE SAME ASSERT controlDict GOT.
+# Asserting only the live file checks a dictionary that stage 2 is about to overwrite.
+grep -qE "^application +${APP};" system/controlDict.registered \
+  || fail "system/controlDict.registered carries a different application from APP=$APP -- stage 2 restores FROM that file, so the assert above checked a dictionary that is about to be overwritten"
 CD_MD5=$(md5sum < system/controlDict.registered)
 SCH_MD5=$(md5sum < system/fvSchemes)
 SOL_MD5=$(md5sum < system/fvSolution)
@@ -137,9 +168,15 @@ set_endtime () {
 # The progress line goes to STDERR, never stdout: `RC=$(run_solver ...)` captures stdout, so an
 # echo here becomes part of RC. That defect let a FAILED stage 1 fall through into stage 2 --
 # `[ "$RC" -ne 0 ]` cannot compare a multi-line string and the guard silently did not fire.
+# THE APPLICATION IS HARD-CODED NOWHERE IN HERE. It was hard-coded in BOTH the run line and the
+# log name, which is worse than the `:71` refusal above: that one fails loudly, whereas a launcher
+# patched only at `:71` would have run rhoSimpleFoam ON THE LTS CASE and written the output into a
+# log named for it -- rhoSimpleFoam has no ddt term in UEqn, so `ddtSchemes localEuler` would have
+# been SILENTLY IGNORED and ADDENDUM 14.6's prohibition on a further steady-rhoSimpleFoam variant
+# would have been violated under the name of the rung registered to replace it.
 run_solver () {
-  echo "--- mpirun -np $RANKS rhoSimpleFoam -parallel  ($1)" >&2
-  mpirun -np "$RANKS" rhoSimpleFoam -parallel >> log.rhoSimpleFoam 2>&1
+  echo "--- mpirun -np $RANKS $APP -parallel  ($1)" >&2
+  mpirun -np "$RANKS" "$APP" -parallel >> "log.$APP" 2>&1
   echo "$?"
 }
 
