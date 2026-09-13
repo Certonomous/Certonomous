@@ -28374,3 +28374,21 @@ guard — the waiter was a watcher that could not watch); the `grep` /
 **Sources.** `verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/`
 for the live time set; the seven instruments named above; `docs/LAB_STATE.md`
 update 138 for the false claim and update 141 for its withdrawal.
+
+**ADDENDUM to the block above, same night, and it is about this block's own
+commit.** The commit that filed this lesson (`2c85464e8`) carries a DAMAGED
+message. Its text was written through an **unquoted** heredoc — `<<EOF` rather
+than `<<'EOF'` — because the lesson number had to be interpolated, and the shell
+therefore **command-substituted the backticked phrase inside it**. The sentence
+landed as *"shell waiter took  and spent 22 minutes…"*, with
+**`` `ls ... | tail -1` `` silently deleted**. The lesson FILE is intact; only
+the commit message lost eight words, and history is not rewritten to hide it.
+
+**THE RULE: the QUOTED delimiter is the protection — `<<'EOF'`, always.** The
+one case where people drop the quotes is exactly when a variable must be
+interpolated, which is exactly when a backticked phrase in the same body gets
+eaten. **Interpolate with a placeholder and `sed` it afterwards, or write the
+variable part on its own line; never unquote the delimiter to get one
+substitution.** *Sibling to the existing "backticks kill the commit" lesson,
+which covers `git commit -m`; this is the same trap one layer earlier, in the
+heredoc that WRITES the `-F` file — and `-F` does not protect you from it.*
