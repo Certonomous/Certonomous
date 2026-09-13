@@ -111,6 +111,12 @@ variable (relative → absolute) rather than two.* **If the supervisor prefers t
 exactly, the equivalent `firstLayerThickness` values are the "first layer" column of §2.1** and
 nothing else moves.
 
+**EQUIVALENCE RECORDED so no reader has to convert.** For `nSurfaceLayers 2` and
+`expansionRatio 1.2`, `firstLayerThickness = finalLayerThickness / 1.2`. At the **S = 0.794** values
+now ruled (Amendment 2): `blades` **2.2557e-4 m**, `hub`/`cap` **4.5114e-4 m**, `shaft`
+**9.0227e-4 m**. Specifying either key reproduces the same stack; **specifying both is an error
+snappy does not diagnose**, so exactly one is written.
+
 ### 2.3 The "untested territory" hedge is **superseded**, with the limit of that stated
 
 My amendment §A1.4 registered S = 1.000 as untested, on the two measured points 0.480 and 1.6808.
@@ -196,10 +202,87 @@ brackets both.** To be stated on the certificate.
   consistency with the registered instrument, **not because it is accurate**. **Only
   `simpleFoam -postProcess -func yPlus` through `scripts/yplus_reader_guard.py` measures y+.**
 
-## 6. COST
+## 6. COST — REGISTERED BEFORE ANY RUN (CLAUDE.md rule 12)
 
-No solver. Verification of the ESI tree, four derivations, drafting. **Measured: 3.6 core-minutes**,
-single rank. Lane cumulative **36.4 core-minutes** ≈ **\$0.0311 derived, not measured** at the
-owner-stated \$0.0513/core-h — the box cannot read its own billing
-(`COMPUTE_BUDGET_CHARTER.md` §5). **A cost estimate for CONFIG-2's own compute is NOT registered
-here** — it belongs in the run registration, and CLAUDE.md rule 12 requires one before any run.
+**A proposal with no cost is disqualified.** This section prices CONFIG-2's own compute. **The rate
+\$0.0513/core-h (c7a.4xlarge) is OWNER-STATED, NOT MEASURED — the box cannot read its own billing**
+(`COMPUTE_BUDGET_CHARTER.md` §5), so **every dollar figure below is DERIVED, not measured.**
+
+### 6.1 A CORRECTION TO THE ANCHORS I WAS HANDED
+
+I was asked to use "the gate ran 4.6 core-min at 28.4 GB". **Neither number checks out as a mesh
+gate, and I am not building an estimate on them.**
+
+- The **4.6 core-min** is at `docs/PUBLISHED_SETUP_COMPARISON_2026-09-13.md:781`, and its own
+  sentence reads *"from this lane's own elapsed tool time"* for writing a comparison document.
+  **It is a documentation lane's tool time, not a mesh gate run**, and it prices nothing here.
+- **"28.4 GB"** occurs in this repository only in `verification/queue/runner.out`, as
+  `MemAvailable=28.4 GB` in **box-load lines dated 2026-08-30** — unrelated to PPTC meshing.
+
+**The anchors used below are the ones I could verify.** Flagged rather than quietly substituted,
+because an estimate built on a misattributed anchor is exactly the defect `C-89` recorded: *"a cost
+basis that names a term without a number has not priced it."*
+
+### 6.2 VERIFIED ANCHORS
+
+| anchor | value | provenance | status |
+|---|---|---|---|
+| act §9 meshing line | **308 core-min** | `PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md:655` | **verified by this lane** |
+| act §9 design-point family (coarse+medium+fine) | **160 + 540 + 1800 = 2,500 core-min** | same table, lines 650–652 | **verified** |
+| act §9 post-processing line | **150 core-min** | same table | **verified** |
+| snappy **layer phase**, 1 rank, serial | **2114.26 s = 35.2 core-min** | `F360_coarse/log.snappyHexMesh:3326`, cited in PRISM-A2 §6 | **measured**, and it is the phase that *discarded*; one that extrudes does more work |
+| meshing phase **actual** | **1,138.3 all-in / 726.1 waste / 412.1 productive core-min**, ratio **3.70× all-in, 1.34× cleaned**, **zero admissible meshes** | `docs/COST_CALIBRATION.md` row `C-20260913T170047.541222Z-fb7e9f54` | **relayed with a provenance caveat carried in that row itself** — the actuals are a session tally not carried by any committed record; I did not re-derive them |
+
+### 6.3 THE ESTIMATE
+
+**Domain growth.** CONFIG-2 extends downstream 6 D → ≥ 10 D with upstream unchanged at 3 D, so the
+wedge length goes 9 D → 13 D, a **volume ratio of 1.444**. The added region is **far-field and
+coarsely refined**, so **cell growth is bounded above by 1.444 and will be less**; 1.444 is used as
+the conservative multiplier and **labelled as a bound, not a prediction**.
+
+| item | ranks | basis | **estimate** |
+|---|---|---|---|
+| mesh rebuild, 3 levels, CONFIG-2 domain | 4–8 | act §9 meshing 308 × 1.444 domain bound | **445 core-min** |
+| layer extrusion at the amended dictionary | 1 | measured 35.2 core-min for the discarding phase; an extruding run does more, and PRISM-A2 registered ×4 on the same anchor | **140 core-min** |
+| mesh gate — `checkMesh` + birth certificates, 3 levels | 1–4 | act §9 post-processing line 150, meshing share | **60 core-min** |
+| design-point family, SST, 3 levels | 48 | act §9 2,500 × 1.444 | **3,610 core-min** |
+| design-point family, **realizable k-ε** (§3) | 48 | same work, second closure | **3,610 core-min** |
+| tightened convergence surcharge | — | residual 1e-5 → **1e-6** and stationarity 0.1 %/500 → **0.01 %/1000** both demand more iterations; **no measured basis exists for the extra count**, so it is carried as an explicit **+40 %** on the two families and **named as an assumption, not a measurement** | **+2,888 core-min** |
+| **48-rank parallel-efficiency allowance** | 48 | the act sized the family at **4–8 ranks**; at 48 ranks per-core efficiency falls and **core-minutes rise for the same work**. **No measurement of this case at 48 ranks exists**, so **+25 %** on the solve lines is carried as a **stated assumption** | **+2,527 core-min** |
+| post-processing, renders, reconstruct | — | act §9 150 | **150 core-min** |
+| **TOTAL ESTIMATE** | | | **≈ 13,430 core-min ≈ 223.8 core-hours** |
+| **CAP** | | ×1.5 on the total, stated as margin | **20,145 core-min** |
+
+**Dollars: 223.8 core-h × \$0.0513/core-h = \$11.48 DERIVED, NOT MEASURED.** At the cap,
+**\$17.22 derived.**
+
+**Sanaa's directive #17 (2026-09-12) means no run is stopped by a cap. It does not mean a cap goes
+unwritten — a cost nobody wrote down is what disqualifies a proposal.**
+
+### 6.4 THE HONEST WEAKNESSES OF THIS ESTIMATE, NAMED
+
+1. **The meshing anchor has a 3.70× all-in miss behind it and produced ZERO admissible meshes.**
+   Scaling 308 core-min by a domain ratio prices *the estimate that already missed*, not the work.
+   **The registered expectation is therefore that this line is low**, and the calibration row must
+   say so when CONFIG-2 completes.
+2. **Two lines are assumptions, not measurements** — the +40 % convergence surcharge and the +25 %
+   48-rank allowance. **Neither has a measured basis in this lab.** They are named separately so
+   that, per `C-89`'s rule, no term is left unpriced *and* no assumption is dressed as a measurement.
+3. The act's coarse level was sized at 0.8 M cells and **measured 3.94 M** (`C-…fb7e9f54`). **If
+   that discrepancy persists in CONFIG-2, every solve line is under-priced by roughly the same
+   factor** — this is flagged, not absorbed.
+4. **Waste will be named separately and never folded into the ratio**
+   (`COMPUTE_BUDGET_CHARTER.md` §6).
+
+### 6.5 CALIBRATION OBLIGATION
+
+**At CONFIG-2's completion — rung graded or case closed — a row lands in `docs/COST_CALIBRATION.md`**
+stating the ratio actual/predicted, attributing the gap (contention, waste, misprediction) with
+**waste named separately**, actuals in core-minutes from logs and dollars derived at the recorded
+rate and labelled derived. **CLAUDE.md rule 12: a completion report without this comparison is
+incomplete.**
+
+### 6.6 THE COST OF DRAFTING THIS DOCUMENT
+
+No solver. **Measured: 3.6 + 2.4 = 6.0 core-minutes**, single rank. Lane cumulative **40.9
+core-minutes** ≈ **\$0.0350 derived, not measured**.
