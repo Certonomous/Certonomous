@@ -19880,6 +19880,29 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-13 (update 140): **CLAUSE 6 PASSED ITS FIRST REAL EVALUATION — AND AD7's PERMISSIVE RULING GAINED A THIRD CORROBORATING CALL SITE FROM A DIRECTION NOBODY WAS LOOKING.**
+
+**ADDENDUM 8 `e8e887f78`, v1.8 → v1.9. No gate, threshold, band, label or registered sentence altered.**
+
+**t = 45 ACCUMULATOR: AGREE ON ALL FOUR RANKS, VALUES NOT PRESENCE** — files **byte-identical** (md5 `1cdf5204410e`), `totalIter` **509**, `totalTime` **3.008274231677844** on `p_rgh`, `T` and `U` alike; `TMean`/`UMean`/`p_rghMean` written. **I verified it independently of the lane's checker.** ***AND THE CHECK WORTH KEEPING IS THE ARITHMETIC ONE, BECAUSE FOUR RANKS CAN AGREE ON AN IDENTICALLY WRONG NUMBER:*** **509 × `deltaT` = 3.008274232 against the recorded 3.008274231677844 — agreeing to 1.87e-10**, so `totalTime` is **exactly the sum of 509 consecutive steps, none skipped and none double-counted.** *The lane said that itself before I could.*
+
+***THE CORROBORATION, AND ITS VALUE IS IN HOW IT ARRIVED.*** Chasing why averaging began fractionally before t = 42, the lane hit **`timeControlFunctionObject.C:93-95`**: `value >= timeStart - 0.5*deltaT && value <= timeEnd + 0.5*deltaT`. **I read it at the installed source myself. So OpenFOAM applies the half-timestep tolerance in `Time::run()`, in `Time::end()`, AND in the functionObject start/end gate.** ***AD7 is reading a convention the solver applies THROUGHOUT its time comparisons — not a tolerance this lab picked for one clause.*** **AD7 is a PERMISSIVE ruling, so its defence is the whole of its worth, and this is a stronger defence than the two sites AD7.2 cited — arriving from a direction nobody was looking. Evidence found while looking for something else cannot have been selected to support the conclusion it lands on.** **QUALIFIED so it is not overclaimed: the three sites share the half-timestep WINDOW but not the boundary STRICTNESS (`>=` vs `>`); AD7.3 implements the STRICT form because that is the one governing the clause it replaces, and the exact boundary was already driven to `NOT REACHED`.**
+
+**THE SYMMETRY IS EXACT AND MEASURED:** averaging's first step **41.99763593**, the run's final step **111.99763593** — **both short of their round number by 0.00236407, identical to 3e-10**, same constant `deltaT`, same rule.
+
+***A CORRECTION AGAINST MYSELF, CAUGHT BEFORE IT PROPAGATED.*** I told the lane averaging began at **41.9917**; that is the **ACCUMULATED INTERVAL's** start. The lane's **41.99763593** is the **FIRST INCLUDED STEP**. **Both right, of different objects, differing by exactly one `deltaT` (checked to 1e-9).** The lane's answers *"when did the `timeStart` gate first admit a step"* — the question the corroboration turns on; mine answers *"what interval does `totalTime` integrate over"* — the question a WINDOW DISCLOSURE needs. **AD8.3 records BOTH with which is which, because stating only one would be a small false precision of exactly the kind we are trying not to commit.** Verified directly: the step at 41.99172577 **FAILS** the gate (needs ≥ 41.99704492); 41.99763593 **PASSES**. **Disclosure figure: covered start 41.991725768, 0.008274232 s early, 1.400 timesteps, 0.0118 % of the 70 s window, in the direction of MORE coverage — four orders of magnitude below the ≈2 s shortfall AD7.4 discloses at the other end. Derived from the accumulator's own `totalTime`, not typed.**
+
+**THE LANE DECLINED TO EDIT AD7.4's REGISTERED SENTENCE TO BE MORE PRECISE, AND THAT JUDGEMENT IS UPHELD IN AD8.4.** ***A registered sentence is not improved by a lane, and a ruling is not quietly tightened by the instrument that implements it — not even toward more precision.*** The precision goes **BESIDE** it, as measurement.
+
+**ONE NUMBER THAT IS NOT A RESULT AND IS NOT REPORTED AS ONE (AD8.5):** the partial mean over the covered ≈42 → 45 s reads **`DPbar` = 27.980519 m²/s²**, inside `G-DPBAR`. ***It is 3 s of a ≈68 s window on a run 40 % complete and it can still move anywhere.*** **Recorded for ONE reason: first evidence the averaging machinery yields a PHYSICAL number rather than a zero or a NaN.** **Rule 3 also fired on the MEAN FIELD for the first time — impossible before t = 45: planted 1.234e-03 into `p_rghMean` on the `return` patch, read back to 1e-15, so THAT ARTIFACT's structural zero is evidence.**
+
+**LIVE at 00:30Z:** t = 45.5 of 112, residuals flat, **806 core-min = 1.92x POINT, 0.64x cap**, rate 1.4708 s/step. **Clause 3 correctly still reads `DID NOT REACH`, clause 5 `SATISFIED`, clause 6 `AGREE`.** Cap crossing **~02:11Z**, completion **~05:05Z**. Exit waiter **pid 176176, verified alive**.
+
+**ON SANAA'S DESK: NOTHING.**
+
+**Section last written:** 2026-09-13T00:30:00Z by heat-transfer-supervisor personally, clock read. Newest block is **update 140**.
+
+
 ##### heat-transfer 2026-09-13 (update 139): ***OPTION (d) — THE FOURTH — RULED, REGISTERED WHILE `DPbar` DID NOT YET EXIST, AND IMPLEMENTED WITH CLAUSE 3 SHOWN ABLE TO FAIL EIGHT WAYS.*** **Completion is graded on the SOLVER'S OWN evidence, and rule 4's `last time == endTime` is tested AS OpenFOAM TESTS IT.** `AD5.5` CLOSED. Both remaining desk items retired.
 
 **ADDENDUM 7 `0bf695e7e`, v1.7 → v1.8, written at t = 41.72 of 112 — averaging begins at 42 and the graded value will not exist until ≈05:05Z.** ***THAT ORDERING IS THE WHOLE DEFENCE: the completion rule is fixed BEFORE the number it will be applied to.***
