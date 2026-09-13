@@ -29728,3 +29728,83 @@ nor the `Cl` triple, at any of the ten runs present, yields it as a max, mean or
 (the nearest is `PROBE_P3_MAXITER_T`'s `Cd` mean, 7.844e-14).** The discrepancy is recorded rather
 than reconciled; **it does not weaken the lesson, it strengthens it — the measured minimum is
 `0.000e+00`, an exact pass.**
+
+## L-603 — A functionObject THAT NEEDS A CONSTRUCTED MODEL AND DEGRADES **QUIETLY** IS THE HAZARD; ONE THAT DIES **LOUDLY** IS SAFE. Bare `postProcess` constructs neither a turbulence model nor a thermo
+
+**THE PAIRED CONTROL, re-derived by this lane from the artifacts on disk.** One case
+(`/home/ubuntu/certonomous-runs/validation-scratch/motorBike`, `kOmegaSST`, time 300), two
+invocations fourteen seconds apart on 2026-07-27:
+
+| arm | invocation | patches | all-zero | `End` | warning |
+|---|---|---:|---:|---|---|
+| **A** | `postProcess -func yPlus -time 300` (`log.yPlus`) | 68 | **68** | present | **present** |
+| **B** | `simpleFoam -postProcess -func yPlus -time 300` (`log.yPlus2`) | 68 | **0** | present | absent |
+
+`lowerWall`: **0 / 0 / 0** under A, **3.59061 / 3637.1 / 201.61** under B. **68 of 68 zero in A,
+zero patches zero in B.** Same case, same time, same fields, same binary version.
+
+**THE MECHANISM — AND IT IS NOT THE SAME CODE PATH AS THE LOUD FAILURE.**
+`/usr/lib/openfoam/openfoam2606/src/functionObjects/field/yPlus/yPlus.C:172-184` is an **explicit
+`else` branch**: when no turbulence model is in the database it issues
+`WarningInFunction << "Unable to find turbulence model in the database: yPlus will not be
+calculated"` (`:174`), then — **only under `postProcess`** — prints the remedy itself
+(`:180`), and **`return false`** (`:184`). The field is never computed, so `write()` writes the
+**construction zeros** of a field that was allocated and never filled. **rc = 0. `End` printed.
+Sixty-eight tidy numbers, all of them fabricated.**
+
+Contrast `forces`, on the *same* missing model:
+`.../functionObjects/forces/forces/forces.C:262-265` is
+`FatalErrorInFunction << "No valid model for viscous stress calculation" << exit(FatalError)`.
+**`forces` fatals. `yPlus` announces and degrades. Same absent object, two branches, opposite
+danger** — and the dangerous one is the polite one.
+
+**THE RULE, AS A DISCRIMINATOR RATHER THAN AN INCANTATION.** "Use `<solver> -postProcess`" is the
+fix, not the lesson; it protects one functionObject and teaches nothing about the next.
+
+> **A functionObject that needs a constructed model and degrades QUIETLY is the hazard; one that
+> dies LOUDLY is safe. Anything touching `nut`, `nuEff`, `mu` or `alphat` is in the first class
+> until shown otherwise** — because those are exactly the quantities the generic binary cannot
+> build, and a degrade path is cheaper for a library author to write than a fatal.
+
+Classify the instrument before trusting its output: **find the branch taken when its dependency is
+absent.** If that branch returns a value, the instrument can lie; if it exits, it cannot.
+
+**THREE THINGS SHARPER THAN THE MECHANISM.**
+
+**1. THE WARNING WAS IN THE VERY LOG THE ZEROS WERE READ FROM.**
+`/home/ubuntu/certonomous-runs/validation-scratch/motorBike/log.yPlus` carries the diagnosis at
+**`:39`** and the **remedy, verbatim**, at **`:43`** — and its first zero is at **`:46`**. **Three
+lines.** The file has been on disk since **2026-07-27**. **We read the numbers and did not read the
+log**, and the log was not merely adequate: it named the defect *and* printed the cure, unprompted,
+above the data it was warning about. **A reader that scrapes a log for values has switched off the
+channel the log uses to say the values are wrong.**
+
+**2. THIS LAB HAD ALREADY SOLVED IT — TWICE — AND THE EXPLANATION NEVER REACHED THE GUARD.**
+`verification/campaign/DRIVAER_SOLVED_YPLUS_2026-09-12.md:24` states the mechanism verbatim, and
+its table at **`:21-22`** had **already rejected the bare form as a failed control** (`0 / 0 / 0 —
+THE CONTROL FAILED. THE METHOD IS BROKEN.`). **So this is a KNOWLEDGE-PROPAGATION failure, not an
+instrument failure.** The explanation existed, in a committed record, before the night on which it
+was treated as a mystery. **A finding that is written down and not wired into an executable guard
+decays to zero value on a timescale of days**, and the decay is invisible because the record still
+reads correctly to anyone who happens to open it. **The remedy is not "write it down better" — it
+is that a finding is not closed until a check refuses on it.**
+
+**3. AND THE ONE THAT CHANGES HOW TO READ THE COMPLETION RULE.** Arm A's artifact has **rc = 0 and
+an `End` line**. **A run can satisfy every clause of the strict completion rule and still carry a
+wholly fabricated field.** Completion is a statement that **the run finished**; it is not, and was
+never, a statement that **a reader inside it could see**. These are orthogonal, and this pair of
+logs is the cleanest demonstration of it the lab has produced: **two runs, both complete, one of
+them entirely fictitious, distinguishable by no completion clause whatsoever.**
+
+**That is the argument for why the planted-control rule sits BESIDE the completion rule rather than
+inside it.** Completion checks the *process*; the plant checks the *reader*. Folding the plant into
+completion would make it look like the last clause of a checklist that a passing run has already
+satisfied — and a passing run is exactly the case in which it must still be run. **Arm A passes
+completion. Only a control can convict it.**
+
+**Recorded because the condition was stated in advance and the lesson was WITHHELD until it was
+met.** An earlier draft of this was refused on the ground that `forces.C`'s fatal explains an rc=1
+crash and **cannot** explain a silent zero — the gap between *"fatals loudly"* and *"returns 68
+zeros"* was the whole question. **The paired control closed it, and the answer was that they are
+different branches of different functionObjects.** The refusal was right, and writing the lesson on
+the mechanism alone would have registered a plausible cause as a confirmed one.
