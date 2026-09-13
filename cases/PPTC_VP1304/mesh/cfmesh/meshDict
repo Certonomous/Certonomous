@@ -7,10 +7,20 @@
 |   sha256 d09a3c61163025b80b294a8cd9826fec3b19bc1e566357713e62271b166277f2     |
 |   verbatim copy kept beside this file as meshDict.ship5415Octree.PUBLISHED    |
 |                                                                              |
-| Every departure from that file is numbered D1..D9 below and carries a one-    |
+| Every departure from that file is numbered D1..D10 below and carries a one-   |
 | line reason.  Keywords not present in the base are cited to the shipped       |
 | cfMesh tutorial they are taken from.  Nothing here is invented.               |
 | Registered and frozen at verification/campaign/PPTC_CFM1_PREREGISTRATION.md   |
+|                                                                              |
+| AMENDED 2026-09-13, PRE-COMPUTE, under that document's v1.1 amendments A1     |
+| and A2 (VERIFICATION_CHARTER 2b: legal only before first compute; the run     |
+| directory /home/ubuntu/certonomous-runs/PPTC_VP1304/CFM1_cartesianMesh did    |
+| not exist when these edits were made).  Three changes, all registered there:  |
+|   D10 ADDED   -- the registered volume refinement, in cfMesh's vocabulary.    |
+|   D5  AMENDED -- nLayers 6 -> 2 (supervisor's ruling, A2.1).                  |
+|   D6  AMENDED -- maxFirstLayerThickness re-set; at 2 layers the old 6-layer   |
+|                  caps WOULD HAVE BOUND and thinned t1 back (A2.7).           |
+|   D9(b) STRUCK -- superseded by D10 and by amendment A1.5.                    |
 \*---------------------------------------------------------------------------*/
 FoamFile
 {
@@ -71,44 +81,109 @@ surfaceMeshRefinement
     }
 }
 
+// D10: ADDED 2026-09-13, PRE-COMPUTE, by amendment A1.  The REGISTERED volume refinement,
+//      in cfMesh's own vocabulary.  FORMS COPIED, NOT INVENTED, from the shipped tutorial
+//      tutorials/cartesianMesh/bunnyOctree/system/meshDict, sha256
+//      da05baa6e65267a73680ab3325336a989a9f6fe72fc07e271bc72abb1497c487 (verbatim copy kept
+//      beside this file as meshDict.bunnyOctree.PUBLISHED); the same `cone` form appears
+//      independently in tutorials/pMesh/bunnyPoly/system/meshDict, sha256
+//      3c0b3ec5dce746a6f79acf8009a4559498f86305449520fac83dd7cc0a7e3ee0.
+//      A cone with radius0 == radius1 IS cfMesh's cylinder -- bunnyOctree's own ear1/ear2
+//      use exactly that, and coneRefinement.C:106-118 interpolates the radius along the
+//      axis, so equal radii give a right circular cylinder of finite extent.  cfMesh ships
+//      no `cylinder` type.
+//      SOURCE OF THE GEOMETRY: make_snappy.py:125-132 (searchableCylinder definitions) and
+//      :151-153 (refinementRegions, levels ((1e15 4)) on both, against the 20.00 mm
+//      background -> 1.25 mm).
+//      LEVELS, NOT cellSize, AND THE REASON IS A TRAP IN THE PUBLISHED SOURCE:
+//      objectRefinement.C:108-130 converts a requested cellSize to a level by halving from
+//      maxCellSize WHILE cellSize <= s*(1+SMALL) -- one halving too many when the ratio is
+//      an exact power of two.  Traced at maxCellSize 0.02: `cellSize 1.25e-3` yields
+//      additionalRefinementLevels 5 and an achieved cell of 6.25e-4 m, a factor 2 FINER
+//      than registered.  `additionalRefinementLevels 4` is cfMesh's own integer vocabulary,
+//      is counted from the same maxCellSize, and reproduces the registered 1.25 mm EXACTLY.
+//      refinementThickness is deliberately NOT set (default 0.0): refinement applies inside
+//      the object only, which is the image of snappy's `mode inside; levels ((1e15 4))`.
+//      NOT TRANSLATED: the 1.3D MRF zone.  It is a cellZone carrying the rotating-frame
+//      source, not a refinementRegions entry (make_snappy.py:133-136, :154), and
+//      objectRefinements cannot write a cellZone.  See D9(b) as struck.
+//      DISCLOSED: no shipped tutorial combines surfaceMeshRefinement with objectRefinements.
+//      Both are read by separate found()-guarded functions called in sequence from
+//      meshOctreeCreator::createOctreeBoxes() -- refineBoxesIntersectingSurfaces() at
+//      meshOctreeCreatorCreateOctreeBoxes.C:499 and refineBoxesContainedInObjects() at :525
+//      -- so neither excludes the other, but the combination is not exhibited by a published
+//      example.  Refusal limb R2 covers the outcome if that reading is wrong: BLOCKED, not
+//      GATE FAIL.
+objectRefinements
+{
+    bladeRegion
+    {
+        type        cone;
+        additionalRefinementLevels  4;
+        p0          (-0.100 0 0);
+        radius0     0.1325;
+        p1          (0.060 0 0);
+        radius1     0.1325;
+    }
+    tipVortex
+    {
+        type        cone;
+        additionalRefinementLevels  4;
+        p0          (-0.250 0 0);
+        radius0     0.130;
+        p1          (0.030 0 0);
+        radius1     0.130;
+    }
+}
+
 // D4: the base's `anisotropicSources` Box, which squashes z by 0.3 to resolve a FREE
 //     SURFACE, is REMOVED.  An open-water propeller test has no free surface.
 
 // D5: patchBoundaryLayers -- the base's one hull patch becomes the four REGISTERED layer
-//     patches of pre-registration §6.3 (make_snappy.py:47), and nLayers 5 -> 6,
-//     thicknessRatio 1.1 -> 1.2 are the registered §6.3 values.
+//     patches of pre-registration §6.3 (make_snappy.py:47), and thicknessRatio 1.1 -> 1.2
+//     is the registered §6.3 value.
+//     AMENDED 2026-09-13 (A2.1): nLayers is 2, NOT the parent registration's 6.  cfMesh
+//     builds the whole stack inside ONE octree cell by construction
+//     (refineBoundaryLayersFunctions.C:684-714), so the layer count sets t1 and nothing
+//     else.  At n=2, t1 = s_P/2.2 -> blades 0.2841 mm -> y+ ~ 51.5, INSIDE the registered
+//     §6.3 wall-function window 30-60.  At n=6, t1 <= 0.0629 mm -> y+ ~ 11.4, OUTSIDE it,
+//     at any first-layer height.  RUNG-LOCAL: the parent open-water registration's §6.3
+//     nSurfaceLayers is untouched.
 // D6: `maxFirstLayerThickness` is NOT in the base.  Keyword taken from the shipped cfMesh
-//     tutorials multipleOrifices / singleOrifice / elbow_90degree.  Values are the
-//     REGISTERED §6.3 first-layer heights (final/1.2^5 at the PRISM-A2 §4 absolute finals).
-//     IT IS PREDICTED NOT TO BIND -- refineBoundaryLayersFunctions.C:688-714 caps but never
-//     thickens.  It is present so the dictionary carries the registered number.
+//     tutorials multipleOrifices / singleOrifice / elbow_90degree.
+//     AMENDED 2026-09-13 (A2.7): the values are the n=2 first-layer heights s_P/2.2,
+//     rounded UP at the fifth significant figure (excess <= 3.2e-5 relative) so that the
+//     min() PROVABLY cannot bind.  THE OLD 6-LAYER VALUES WOULD HAVE BOUND AT n=2 --
+//     min(2.840909e-4, 1.2559e-4) = 1.2559e-4 on blades -- dragging t1 back to the 6-layer
+//     value and defeating the ruling above.  IT IS PREDICTED NOT TO BIND --
+//     refineBoundaryLayersFunctions.C:688-714 caps but never thickens.
 boundaryLayers
 {
     patchBoundaryLayers
     {
         blades
         {
-            nLayers 6;
+            nLayers 2;
             thicknessRatio 1.2;
-            maxFirstLayerThickness 1.2559e-04;
+            maxFirstLayerThickness 2.8410e-04;
         }
         hub
         {
-            nLayers 6;
+            nLayers 2;
             thicknessRatio 1.2;
-            maxFirstLayerThickness 2.5117e-04;
+            maxFirstLayerThickness 5.6819e-04;
         }
         cap
         {
-            nLayers 6;
+            nLayers 2;
             thicknessRatio 1.2;
-            maxFirstLayerThickness 2.5117e-04;
+            maxFirstLayerThickness 5.6819e-04;
         }
         shaft
         {
-            nLayers 6;
+            nLayers 2;
             thicknessRatio 1.2;
-            maxFirstLayerThickness 5.0235e-04;
+            maxFirstLayerThickness 1.1364e-03;
         }
     }
 
@@ -165,10 +240,16 @@ renameBoundary
 //       SKEWNESS (snappy maxBoundarySkewness 4).  There is no published mapping between the
 //       two vocabularies, so none is invented; mesh quality is MEASURED by checkMesh after
 //       the fact and gated as G4, not constrained during meshing.
-//   (b) The registered volume-refinement regions (bladeRegion, tipVortex, the 1.3D MRF
-//       zone) are NOT translated.  cfMesh's `objectRefinements` would express them; doing
-//       so multiplies deviations in a rung whose question is layer extrusion.  CONSEQUENCE,
-//       REGISTERED: this mesh does not carry the registered volume refinement and NO KT or
-//       KQ may EVER be graded on it.
+//   (b) STRUCK 2026-09-13, PRE-COMPUTE, by amendment A1.  It read: "The registered
+//       volume-refinement regions (bladeRegion, tipVortex, the 1.3D MRF zone) are NOT
+//       translated ... this mesh does not carry the registered volume refinement and NO KT
+//       or KQ may EVER be graded on it."  Superseded by D10 below for bladeRegion and
+//       tipVortex: volume refinement is the one deviation that CANNOT be repaired after the
+//       mesh exists, so declining it was the wrong trade and it is corrected before compute.
+//       THE MRF CELLZONE IS STILL NOT CREATED (objectRefinements refines; it does not write
+//       a cellZone) and NO KT, KQ OR ANY SOLVED QUANTITY MAY BE GRADED ON THIS MESH -- the
+//       prohibition stands, re-grounded by amendment A1.5 on the absent MRF zone, on the
+//       independent SPD/negative-volume failures (G4/G5), and on this rung registering no
+//       solver at all.
 
 // ************************************************************************* //
