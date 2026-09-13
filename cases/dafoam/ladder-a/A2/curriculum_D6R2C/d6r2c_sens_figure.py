@@ -75,6 +75,41 @@ warnings.filterwarnings("ignore", category=DeprecationWarning,
 warnings.filterwarnings("ignore", message=r".*numpy\.core\.numeric is deprecated.*")
 
 PLANT = 1.234e-03          # the lab planted-control constant
+
+# -----------------------------------------------------------------------------
+# FIGURE STANDARD (Sanaa, 2026-09-01T0310Z, captured verbatim at
+# etc/sessions/2026-09-01T0310Z_sanaa_actA_figure_header_standard.md, commit
+# 569346b3): "Figures carry no paragraphs.  Each figure has: a title of at most
+# 10 words, axis labels with units, a colour bar with numeric ticks and the unit
+# only, a legend inside the axes, and one caption line of at most 20 words.
+# Every explanation currently printed inside a figure ... moves to the sheet text
+# as a single compact paragraph per figure.  No capitalised phrases ... no
+# meta-commentary about the figure itself."
+#
+# The explanations this reader prints are NOT decoration -- they are the honesty
+# content that stops a lattice sensitivity being read as a skin map.  They are
+# therefore MOVED, never deleted: with --figure-standard the image carries one
+# caption line and the full text is written to <tag>_sheet_text.json for the
+# report to reproduce as its sheet paragraph.  Deleting it would meet the
+# standard's letter and break its purpose.
+# -----------------------------------------------------------------------------
+FIGURE_STANDARD = False       # set by --figure-standard
+SHEET_TEXT = {}               # figure key -> the paragraph moved off the image
+CAPTION_MAX_WORDS = 20
+
+
+def _caption(fig, key, one_line, full_text, **kw):
+    """Print the footer the standard allows, and bank what it moved."""
+    SHEET_TEXT[key] = full_text
+    if FIGURE_STANDARD:
+        n = len(one_line.split())
+        if n > CAPTION_MAX_WORDS:
+            raise SystemExit("D6R2C SENS REFUSE: caption for %s is %d words, "
+                             "the standard allows %d" % (key, n, CAPTION_MAX_WORDS))
+        fig.text(0.012, 0.012, one_line, fontsize=8.2, va="bottom", **kw)
+    else:
+        fig.text(0.012, 0.012, full_text, fontsize=7.6, va="bottom",
+                 family="monospace", **kw)
 SCHEMA_TABLE = "unnamed"   # pyoptsparse/sqlitedict history table
 
 
@@ -334,7 +369,10 @@ def fig_sensitivity(g, ni, nj, nk, X, Z, meta, out_png, scaler, title_extra=""):
            float(X[i[imax], j[imax], k[imax]]), float(Z[i[imax], j[imax], k[imax]])))
     fig.suptitle("D6R2C  shape sensitivity on the FFD control lattice" + title_extra,
                  fontsize=13, y=0.985)
-    fig.text(0.012, 0.005, cap, fontsize=7.4, va="bottom", family="monospace")
+    _caption(fig, "sensitivity_ffd_lattice",
+             "Objective sensitivity on the 96 FFD control points, not on the "
+             "wing skin.",
+             cap)
     fig.subplots_adjust(bottom=0.215, top=0.935, left=0.085, right=0.955)
     fig.savefig(out_png, dpi=150)
     plt.close(fig)
@@ -352,13 +390,14 @@ def fig_twist(t, meta, out_png, scaler):
     ax.set_ylabel("dJ/d(twist DV)  [recorded, driver-scaled]")
     ax.grid(alpha=0.25, linestyle=":")
     ax.set_title("D6R2C %s -- objective sensitivity to the twist design variables" % meta["run_tag"])
-    fig.text(0.012, 0.012,
+    _caption(fig, "sensitivity_twist",
+             "Objective sensitivity to the seven free twist stations; the root "
+             "station is fixed.",
              "Major iteration %s (history record %s).  Recorded in driver-scaled space; "
              "add_design_var scaler = %g for 'twist', so dJ/d(physical twist, deg) = %g x plotted.\n"
              "max |dJ/dtwist| = %.6e at station %d."
              % (meta["iter"], meta["record_key"], scaler, scaler,
-                float(np.abs(t).max()), int(np.argmax(np.abs(t))) + 1),
-             fontsize=7.6, va="bottom", family="monospace")
+                float(np.abs(t).max()), int(np.argmax(np.abs(t))) + 1))
     fig.subplots_adjust(bottom=0.24)
     fig.savefig(out_png, dpi=150)
     plt.close(fig)
@@ -388,18 +427,27 @@ def fig_convergence(series, meta, out_png):
     pos = [max(c, 1e-16) for c in cv]
     a2.semilogy(it, pos, "s-", color="#d62728", lw=1.6)
     a2.set_ylabel("max constraint violation\n(worst over all constraints)")
-    a2.set_xlabel("major iteration")
+    # The x axis is the pyoptsparse HISTORY's own isMajor index, which on this
+    # run runs 0..86.  IPOPT's own table in opt_IPOPT.txt reports 25 majors,
+    # 0..25.  They are different counters and labelling this one "major
+    # iteration" reads as IPOPT's.  Under --figure-standard the axis is named
+    # for what it is; the default label is left as it was so the change is
+    # visible rather than silent.
+    a2.set_xlabel("pyoptsparse history record, isMajor"
+                  if FIGURE_STANDARD else "major iteration")
     a2.grid(alpha=0.3, linestyle=":", which="both")
 
-    fig.text(0.012, 0.012,
+    _caption(fig, "convergence_history",
+             "Objective and worst constraint violation, read from the "
+             "optimiser history on disk.",
              "Source: %s\n"
-             "        (records with funcs and isMajor=True; %d major iterations, 0..%d).\n"
+             "        (records with funcs and isMajor=True; %d records, 0..%d; IPOPT's own\n"
+             "        table reports 25 majors, 0..25 -- the two counters differ).\n"
              "Violation = max over CL equality, thickness and volume constraints of "
              "max(lower - value, value - upper, 0), bounds taken from the history's own conInfo.\n"
              "Values plotted as recorded (unscaled objective; objective scaler 1.0).  "
              "Zero violation is floored at 1e-16 for the log axis."
-             % (meta["history"], len(series), it[-1]),
-             fontsize=7.4, va="bottom", family="monospace")
+             % (meta["history"], len(series), it[-1]))
     fig.subplots_adjust(bottom=0.17)
     fig.savefig(out_png, dpi=150)
     plt.close(fig)
@@ -602,11 +650,18 @@ def main():
     ap.add_argument("--objective", default=None, help="objective key (default from objInfo)")
     ap.add_argument("--dv", default="dvs.shape")
     ap.add_argument("--twist-dv", default="dvs.twist")
+    ap.add_argument("--figure-standard", action="store_true",
+                    help="render to Sanaa's 2026-09-01 figure standard: one "
+                         "caption line per figure, the explanation moved to a "
+                         "<tag>_sheet_text.json sidecar for the report to carry")
     ap.add_argument("--selftest-plant", action="store_true",
                     help="planted control: re-render from a perturbed COPY of the "
                          "history written to disk and REFUSE (exit 2) if the "
                          "output does not change")
     a = ap.parse_args()
+
+    global FIGURE_STANDARD
+    FIGURE_STANDARD = bool(a.figure_standard)
 
     t0 = time.time()
     run_dir = os.path.abspath(a.run_dir)
@@ -681,6 +736,17 @@ def main():
         summary["planted_control"]["verdict"] = "PLANTED CONTROL PASSED"
 
     summary["wall_s"] = round(time.time() - t0, 3)
+    summary["figure_standard"] = bool(FIGURE_STANDARD)
+    if FIGURE_STANDARD:
+        sheet = os.path.join(out_dir, "%s_sheet_text.json" % tag)
+        with open(sheet, "w") as fh:
+            json.dump({"standard": "etc/sessions/"
+                                   "2026-09-01T0310Z_sanaa_actA_figure_header"
+                                   "_standard.md (commit 569346b3)",
+                       "note": "text moved off the images; the report carries "
+                               "it as one compact paragraph per figure",
+                       "sheet_text": SHEET_TEXT}, fh, indent=2)
+        summary["sheet_text_sidecar"] = sheet
     rep = os.path.join(out_dir, "%s_sens_report.json" % tag)
     with open(rep, "w") as fh:
         json.dump(summary, fh, indent=2)

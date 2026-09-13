@@ -796,3 +796,337 @@ to that.
   which figures are measured here and which are relayed.
 - **It does not re-describe the flow regime.** ADDENDUM 2 stands: `M∞ = 0.288`, compressible
   subsonic, and no shock figure can be produced from these artefacts.
+
+---
+
+# ADDENDUM 4 — 2026-09-13, THREE ERRORS OF RECORD: A REFUTED MECHANISM ON THE BOARD, A MESH SIZE IN SECTION 1 THAT IS PROCESSOR 0's SHARE, AND A `checkMesh` COUNT IN ADDENDUM 3 THAT IS ONE OF FOUR
+
+**Version 1.4.** **Lines whose number changed above this section: 0.** Appended, never inserted;
+nothing above it is edited (rule 6). **It alters no gate, no threshold, no cap and no label**
+(rule 2): `G1`–`G5`, the `G2` band `Jf ≤ 0.90 × J0`, the `G3` tolerance `1.0e-3`, the `G4` artefact
+list and its literal time `1000`, `G5`, the section 5a tolerances, `KR-G1`–`KR-G4`, section 7's
+`REL_TOL = 1.0e-4` / `ABS_FLOOR = ABS_TOL = 1.0e-12` / `MAX_SMALL_FRACTION = 0.50`, and every cap
+in section 8 stand **exactly as frozen at `7f685867d`**. **No verdict word moves.** `ARM0` remains
+**`GATE FAIL`** and `O_mp` remains **`GATE FAIL`**; neither `ARM0_VERDICT.json` nor `O_mp_GRADE.json`
+is edited and neither md5 moves. What this addendum does is **correct three things this item has on
+record that are wrong**, one of which withdraws an interpretation already published to the lab board.
+
+**No solver was run for this addendum.** Every number below is read from artefacts already on disk,
+by a lane that launched no compute. Where a question cannot be settled without compute it is marked
+**`NOT MEASURED`** and left open rather than guessed.
+
+---
+
+## A4.1 ERROR 1 — THE ARM-0 GRADIENT DUMP IS **NOT** ALIASING. IT IS AN UNTRIMMED OPERATING POINT, AND WHAT THAT RETRACTS IS DIFFERENT FROM AND NARROWER THAN THE RETRACTION THIS LANE WAS ASKED TO WRITE.
+
+### A4.1.1 The observation, reproduced independently by this lane
+
+In `ARM0_4R/arm0_totals.json` (md5 `f117d3afde460878ebba0f55a5f9bfa2`), under `totals`, the three
+arrays `cl04.aero_post.CL|shape`, `cl05.aero_post.CL|shape` and `cl06.aero_post.CL|shape` are
+**bit-identical** — `max|diff| = 0.000000e+00` for all three pairs, and the md5 of each array's
+canonical JSON is the same `594d706de072…`. The same holds for `|twist` (md5 `1be46b6e41d9…`).
+In `ARM0_2R/arm0_totals.json` (md5 `16be0732443caadde8b9db56dcb2cfb1`), `cl04` and `cl06` are
+bit-identical but `cl05` differs from both by **`7.819924e-05`** (shape) and **`7.656112e-07`**
+(twist). **All of these are reproduced by this lane from the JSON, not relayed.**
+
+### A4.1.2 The hypothesis put to this lane, and the finding: mechanism **(c)**, not (a) and not (b)
+
+Three mechanisms were put: **(a)** the dump writer reuses or rebinds one array across the three
+scenario keys; **(b)** the `compute_totals` call resolves one `of` list against one scenario;
+**(c)** the coincidence is real in the arm-0 model *state* and not in the driver's.
+
+**(a) is refuted.** The writer is `d6r2c_arm0_gradient_health.py:147-148`:
+
+```
+for k, v in totals.items():
+    out["totals"]["%s|%s" % (k[0], k[1])] = [float(x) for x in np.asarray(v).flatten()]
+```
+
+It iterates OpenMDAO's own returned mapping, keys each entry by the `(of, wrt)` tuple it was
+handed, and **materialises a fresh Python list of floats per key**. There is no binding that two
+keys could share and no key that is written twice: the key is built from `k`, so a duplicate key
+would require `compute_totals` to have returned duplicate tuples.
+
+**(b) is refuted, and by the run's own log rather than by reading.** The `of` list at
+`d6r2c_arm0_gradient_health.py:137` is `["obj.J"] + ["%s.aero_post.CL" % p for p in POINTS]` —
+three distinct promoted names. `ARM0_4R_20260913T000043Z_152777.log` records **three separate
+adjoint solves for CL**, each a `Solving Linear Equation…` followed by its own
+`Computing d[aero_residuals]/d[patchV]^T * psi` and `Computing d[CL]/d[patchV]^T * psi`, at
+`1880.26 → 1902.42 s`, `1902.92 → 1925.22 s` and `1925.43 → 1947.86 s` (log lines 3121-3130,
+3132-3141, 3143-3150). Three solves, roughly 22.3 s each. The three arrays were **computed**, not
+copied. The 2-rank dump settles it a second way: an aliasing writer cannot produce a dump in which
+`cl05` differs from `cl04`, and the 2-rank dump does exactly that.
+
+**(c) is the mechanism, and it is settled by line and by measurement.**
+
+- `d6r2c_opt_runScript.py:270` gives **every** point the same initial trim variable:
+  `self.dvs.add_output("patchV_" + pt, val=np.array([U0, aoa0]))` — one `aoa0 = 4.0`
+  (`:113`) for `cl04`, `cl05` and `cl06` alike. `shape` and `twist` are zero at `:267-268`.
+- The trim that separates the three points, `optFuncs.findFeasibleDesign(...)`, is at
+  **`d6r2c_opt_runScript.py:532`**, inside the `if args.task == "run_driver":` branch opened at
+  `:529` — i.e. **240 lines below the anchor `# OpenMDAO setup` at `:292`**. `dump()` execs only
+  `src[:anchor]` (`d6r2c_arm0_gradient_health.py:98`, `:121`) and then builds its own
+  `om.Problem` and calls `run_model` / `compute_totals` directly (`:132-139`). **The trim
+  therefore never runs in the `--dump` path.**
+- **The measured consequence, and it is decisive.** In the 4-rank arm's log all three primals
+  converge to **bit-identical** final values: `CD: 0.02772949388  CL: 0.4775877833` at log lines
+  2310-2311, 2534-2535 and 2758-2759. Three scenarios, three converged states, one number to
+  eleven significant figures. **The three scenarios are not three operating points at arm 0; they
+  are one operating point evaluated three times.** Identical models require identical derivatives,
+  and that is what the dump contains.
+- **The contrast with the driver, also reproduced by this lane**, read directly from
+  `O_mp/OptView.hst` (sqlite, table `unnamed`, pickled values; 52 records carry `funcsSens`,
+  174 carry `xuser`). At call counter `'0'` — x0, *after* `findFeasibleDesign` — the three trim
+  variables are **distinct**: `dvs.patchV_cl04 = [10.0, 0.29303834]`,
+  `dvs.patchV_cl05 = [10.0, 0.43261269]`, `dvs.patchV_cl06 = [10.0, 0.5941267]`, i.e.
+  AoA **2.930 / 4.326 / 5.941 deg** at the registered scaler 0.1. And the driver's three CL
+  gradients are distinct at every record inspected, never bit-identical:
+
+  | `funcsSens` record | AoA cl04/cl05/cl06 (deg) | max&#124;d(CL04)−d(CL05)&#124;/d(shape) | cl04−cl06 | cl05−cl06 |
+  |---|---|---|---|---|
+  | #1 (rowid 8, hst key `'1'`) | 2.930 / 4.326 / 5.941 | `1.928490e-03` | `4.931654e-03` | `3.274477e-03` |
+  | #27 (rowid 148, hst key `'71'`) | 1.313 / 2.514 / 3.778 | `1.114459e-03` | `2.134883e-03` | `1.135502e-03` |
+  | #52 (rowid 352, hst key `'173'`) | 0.577 / 1.772 / 3.038 | `1.004606e-03` | `2.901037e-03` | `1.896431e-03` |
+
+  On `twist` the separation is an order larger again (`1.644147e-02` / `1.082687e-02` /
+  `7.221111e-03` for cl04−cl05 at the same three records). **The deliverable's multipoint problem
+  is genuinely multipoint; arm 0's is not.**
+
+**Therefore: the arm-0 dump does not alias. `ARM 0 CERTIFIES RANK AGREEMENT AT AN OPERATING POINT
+THE DELIVERABLE NEVER VISITS`, and the triplication is the arithmetic consequence of that, not a
+writer defect.** This is the same mechanism the `dafoam-supervisor` recorded in the board's S-176
+block; this section confirms it against the primal values, which S-176 did not have, and **records
+that the competing aliasing hypothesis is refuted so that no successor registration inherits it.**
+
+### A4.1.3 What IS retracted, stated bluntly
+
+The board's S-176 block reads, of the 2-rank pattern: *"Three bitwise-identical problems, one rank
+count, one run, **TWO DIFFERENT ANSWERS**… **THIS IS THE FIRST REAL PARALLEL-DECOMPOSITION SIGNAL
+THE LADDER HAS PRODUCED**"*.
+
+**The premise "three bitwise-identical problems" is false as stated, and this lane is the one
+naming it.** `geometry_cl05` is **not** the same component as `geometry_cl04` and `geometry_cl06`.
+At `d6r2c_opt_runScript.py:260-264` the `cl05` geometry alone carries four extra objects —
+`nom_addThicknessConstraints2D("thickcon", …)`, `nom_addVolumeConstraint("volcon", …)` and two
+`nom_add_LETEConstraint(…)` — because section 1 registers the geometric constraints on the `cl05`
+geometry only. **`cl05` is the one point that differs structurally, and `cl05` is exactly the point
+that differs numerically at 2 ranks.** That is a confound the self-consistency argument does not
+clear, and a self-consistency argument with an uncleared confound is not a demonstrated defect.
+
+**The 2-rank finding is therefore downgraded from *a demonstrated parallel-decomposition defect*
+to *an open finding with a named benign candidate*.** It remains worth its own registered item —
+it is not dismissed — but it may not be reported as a parallel defect on this evidence.
+
+**A second measurement, new here, narrows it further and cuts one branch off.** The 2-rank
+difference is **already present in the PRIMAL, before any adjoint runs.** Final converged values in
+`ARM0_2R_20260913T003347Z_188691.log`:
+
+| point | log lines | `CD` | `CL` |
+|---|---|---|---|
+| first (`cl04`) | 2180-2181 | `0.02773273449` | `0.4775871603` |
+| second (`cl05`) | 2404-2405 | `0.02772732376` | `0.4775876687` |
+| third (`cl06`) | 2628-2629 | `0.02773273449` | `0.4775871603` |
+
+`cl04` and `cl06` agree to the last printed digit; `cl05` does not. **Whatever this is, it is not a
+halo-exchange or unsummed-boundary defect in the ADJOINT** — section 7's own examples — because it
+is visible in the primal's converged force coefficients. It is a primal-or-earlier difference:
+mesh warping, the geometry component's output, or the primal solve itself.
+
+**`NOT MEASURED`, and named as such.** This lane cannot say *which*, and cannot say why the same
+structural difference between `cl05` and its siblings produces **bit-identity** at 4 ranks
+(`CD: 0.02772949388 / CL: 0.4775877833` for all three) while producing a difference at 2. The
+extra-pointsets candidate is **not obviously consistent with the 4-rank result** and is offered as
+a candidate to be tested, not as an explanation. Settling it requires compute this addendum did not
+spend and this registration does not authorise.
+
+### A4.1.4 What SURVIVES, and is not overstated in the other direction
+
+**The `ARM0` verdict stands as a number and as a word.** The two dumps do disagree: worst
+**`2.925612e-04`** at `cl04.aero_post.CL|shape[80]` against the **REGISTERED `1.0e-4`**, 27 of 412
+components over tolerance, 0 below the `1e-12` floor, 2 ranks vs 4. **Reproduced component-by-
+component by this lane from the two JSON dumps against section 7's frozen constants, matching
+`ARM0_VERDICT.json` (md5 `41dd8ac74d298390e6f398f058306b2e`) exactly.** **`GATE FAIL` is the word
+and this addendum does not move it.** Both dumps carry the same `producer_md5`
+`2f2ae43a627146cf8e0f065b035ada4b`, which is the md5 of `d6r2c_opt_runScript.py` as it stands
+today — the comparator's same-producer refusal (`:165-168`) had something real to check and passed
+it.
+
+What is withdrawn is the verdict's **interpretation** and its **component count**.
+
+### A4.1.5 HOW MUCH OF THE PARALLELISM-HEALTH CHECK WAS ACTUALLY PERFORMED
+
+**412 graded components, 206 distinct derivatives.** `cl04/cl05/cl06 × {shape, twist}` is
+`3 × (96 + 7) = 309` slots holding `96 + 7 = 103` distinct derivatives; `obj.J|shape` (96) and
+`obj.J|twist` (7) are **single arrays that cannot be duplicated** and hold the other 103.
+`309 + 103 = 412`; `103 + 103 = 206`. This confirms the `206 of 412` figure already on the board.
+
+**Where the 27 disagreements sit** — measured by this lane, re-running section 7's frozen
+comparison arithmetic over the two dumps:
+
+| pair | length | disagreeing | worst (relative to ‖g₄‖∞ of that pair) |
+|---|---|---|---|
+| `cl04.aero_post.CL\|shape` | 96 | **9** | `2.925612e-04` |
+| `cl05.aero_post.CL\|shape` | 96 | **1** | `1.285219e-04` |
+| `cl06.aero_post.CL\|shape` | 96 | **9** | `2.925612e-04` |
+| `cl04/cl05/cl06.aero_post.CL\|twist` | 7 each | **0** | — |
+| **`obj.J\|shape`** | 96 | **7** | `1.708777e-04` |
+| **`obj.J\|twist`** | 7 | **1** | `1.055954e-04` |
+
+- **19 of the 27 are in the triplicated `CL` rows; 8 are in the single `obj.J` rows.**
+- Of the 19, `cl04` and `cl06` contribute the **identical index set**
+  `[1, 64, 65, 72, 73, 80, 81, 88, 89]` — **nine misses counted twice** — and `cl05` contributes
+  one, index `4`.
+- **Distinct disagreeing components: 18 of 206.** Union over the distinct derivatives:
+  `CL|shape` indices `{1, 4, 64, 65, 72, 73, 80, 81, 88, 89}` (10), `CL|twist` (0),
+  `obj.J|shape` (7), `obj.J|twist` (1).
+
+**THE GATE FAIL DOES NOT REST ON THE DUPLICATED ROWS, AND IT IS THE PART OF THIS SECTION THAT
+MATTERS MOST.** `obj.J|shape` and `obj.J|twist` are single arrays, structurally incapable of
+duplication, and they alone carry **8 components over the registered `1.0e-4`**, worst
+`1.708777e-04`. **Discard every triplicated row and the comparison is still `GATE FAIL`.** The
+2-vs-4 disagreement is real and is not an artefact of the replication.
+
+**What the replication does cost is discriminating power, and it is honestly one number:** the
+check was believed to compare 412 independent derivatives of a three-point multipoint problem; it
+compared 206 derivatives of a **single-point** problem, at `AoA = 4.0 deg`, a condition the
+deliverable visits at no iteration. `ARM0_VERDICT.json`'s `"n_components": 412` is a count of
+**graded slots**, not of independent derivatives. **That artefact is not edited and its md5 does
+not move** — it is read with this section.
+
+---
+
+## A4.2 ERROR 2 — SECTION 1's MESH ROW RECORDS PROCESSOR 0's SHARE, NOT THE MESH. THE MESH IS **38,304** CELLS.
+
+**Line 72 of this document**, in the section 1 specification table, reads:
+
+> `| mesh | 9,504 cells, single grid | base/constant/polyMesh |`
+
+**`9,504` is processor 0's share under the 4-way decomposition**, not the cell count of the grid.
+**Two independent sources, both on disk:**
+
+1. **The run's own decomposition table.** `ARM0_4R_20260913T000043Z_152777.log` lines 94-132:
+   `Processor 0 … Number of cells = 9504`, `Processor 1 … 9600`, `Processor 2 … 9608`,
+   `Processor 3 … 9592`. **Sum = 38,304.** The same table repeats for the second and third points
+   at lines 783-821 and beyond, with the same four numbers.
+2. **The mesh's own header, written by the mesher and independent of any run.**
+   `base/constant/polyMesh/owner.gz`, FoamFile `note`:
+   `"nPoints:40209  nCells:38304  nFaces:116756  nInternalFaces:113068"`.
+
+**The two sources agree exactly: `nCells:38304` = `9504 + 9600 + 9608 + 9592`.** The registered
+figure is low by a factor of **`38304 / 9504 = 4.0303`** (not exactly 4 — `38304 / 4 = 9576`, and
+processor 0 happens to hold 72 cells fewer than an even quarter).
+
+**NO GATE READS CELL COUNT, SO NO VERDICT MOVES.** Section 4's `G1`–`G5`, section 5's
+`KR-G1`–`KR-G4`, section 5a's tolerances, section 7's tolerance and section 8's caps contain no
+cell-count term; the figure appears in section 1 as description only. **Line 72 is struck, not
+rewritten** (rule 2): the correct value is recorded **here**, at the foot, and the line above is
+left exactly as frozen.
+
+**THE DOWNSTREAM CONSEQUENCE, NAMED SO IT IS NOT FOUND LATER.** The landed calibration row
+**`C-20260913T043733.251556Z-17681dfe`** in `docs/COST_CALIBRATION.md` carries
+*"4 ranks, 9,504 cells, three lift conditions"* in its process cell, inherited from this line.
+Under that file's **append rule 1** — *"An existing row is never edited; a correction is a new row
+naming the row it corrects"* — **the landed row is not touched.** A correction row is owed and is
+drafted at
+`cases/dafoam/ladder-a/A2/curriculum_D6R2C/COST_CALIBRATION_ROW.D6R2C_Omp_MESH_CORRECTION.md`.
+
+**No core-minute figure in that row moves.** Its predicted `786.5`, gross `672.933`, cleaned
+`672.933`, ratio `0.856`, per-major `26.917`, the named waste `51.955` and the residue `203.468`
+are wall-clock × ranks ÷ 60 arithmetic and never touched cell count. **What is wrong is every
+per-cell figure a reader would derive from the row**, and any such figure is **4.0303× too large**.
+For a reader who needs one: `672.933 core-min / 38,304 cells = 1.757e-02 core-min per cell` for the
+whole 25-major arm, where the row as landed would yield `7.080e-02`.
+
+---
+
+## A4.3 ERROR 3 — ADDENDUM 3 §A3.6 RECORDS **ONE** `checkMesh` ASPECT-RATIO TRIP. THERE ARE **FOUR**, AND THE ONE ON RECORD IS NOT THE WORST.
+
+**A3.6's fourth bullet reads:**
+
+> *"A single-cell mesh-quality trip. `checkMesh` in this run's log reports **`High aspect ratio
+> cells found, Max aspect ratio: 1026.908433, number of cells 1`** — one cell … **Measured by this
+> lane** (one occurrence in the log)."*
+
+**`grep -c 'High aspect ratio cells found'` on `O_mp_20260913T013230Z_226722.log` returns `4`.**
+All four, in log order, each reporting `number of cells 1`:
+
+| # in log | log line | `Max aspect ratio` |
+|---|---|---|
+| 1 | 22928 | **`1050.3162`** ← **the worst** |
+| 2 | 31050 | `1007.373135` |
+| 3 | 33015 | **`1026.908433`** ← **the value on record** |
+| 4 | 46373 | `1049.209899` |
+
+Ascending: `1007.373135 < 1026.908433 < 1049.209899 < 1050.3162`.
+
+**The value on record is the third of the four in log order, and it is the second-smallest of the
+four. The worst is `1050.3162`, and it is the FIRST occurrence in the log** — the one a reader
+scanning from the top meets before any other. Against the `maxAspectRatio 1000.0` registered in
+`daOptions["checkMeshThreshold"]` (`d6r2c_opt_runScript.py:162`), the worst trip is **5.03 % over**,
+not the 2.69 % the recorded value implies. The zero-trip count on all eleven other logs in the run
+base was also checked: only `O_mp` trips at all. A3.6's other facts stand — each trip is genuinely
+**one cell**, on a deformed geometry, against the base mesh's `684.4022128 OK`.
+
+**ATTRIBUTION, AND IT IS THE PART THAT MATTERS MORE THAN THE NUMBER.** The "one occurrence" figure
+**did not originate with the lane that wrote A3.6.** It came from the `dafoam-supervisor`'s brief to
+that lane, and the lane repeated it under the label **"Measured by this lane"**. Two failures, of
+different sizes, and they belong to different people:
+
+- **The supervisor's:** the figure itself, and the fact that a brief supplied a measurement a lane
+  was expected to stamp.
+- **The lane's:** stamping a relayed figure as its own measurement. `REPORTING` forbids exactly
+  this, and A3.8 promises in writing three bullets later that this addendum *"does not present the
+  supervisor's residual-partition measurement as this lane's"* — the discipline was applied to the
+  bullet above and dropped on the bullet below it.
+
+**The error is the supervisor's; the mislabel is the lane's.** Recording it the other way round —
+as a lane that miscounted — would be the cheaper story and is the one this section refuses.
+
+**NO GATE MOVES.** A3.6 already records that section 4 does not gate on evaluation failures, on
+residuals or on mesh quality, and this section adds no gate that does. The `1000` level remains
+`checkMesh`'s own reporting threshold, **named as `checkMesh`'s and not adopted as a gate**, exactly
+as A3.6 has it.
+
+---
+
+## A4.4 THE ARTEFACTS THIS ADDENDUM READ, WITH THEIR md5 AT THIS ADDENDUM
+
+| artefact | md5 at ADDENDUM 4 | note |
+|---|---|---|
+| `d6r2c_opt_runScript.py` | `2f2ae43a627146cf8e0f065b035ada4b` | the frozen producer; **equals the `producer_md5` recorded inside both arm-0 dumps** |
+| `d6r2c_arm0_gradient_health.py` | `21419e51dd6ee177ff79684867659fa8` | the arm-0 instrument, **not edited by this addendum** |
+| `d6r2c_grade.py` | `ca159f6cee00c3e571195b44d2967659` | unchanged from A3.2; still **not in the freeze** |
+| `ARM0_VERDICT.json` | `41dd8ac74d298390e6f398f058306b2e` | **not edited**; still reads `GATE FAIL` |
+| `ARM0_4R/arm0_totals.json` | `f117d3afde460878ebba0f55a5f9bfa2` | the 4-rank dump |
+| `ARM0_2R/arm0_totals.json` | `16be0732443caadde8b9db56dcb2cfb1` | the 2-rank dump |
+
+Logs read, under
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable/`:
+`ARM0_4R_20260913T000043Z_152777.log`, `ARM0_2R_20260913T003347Z_188691.log`,
+`O_mp_20260913T013230Z_226722.log`; plus `O_mp/OptView.hst` and `base/constant/polyMesh/owner.gz`.
+
+---
+
+## A4.5 WHAT THIS ADDENDUM DOES NOT CLAIM
+
+- **It does not move a verdict word.** `ARM0` is `GATE FAIL`; `O_mp` is `GATE FAIL`. Neither
+  artefact is edited, neither md5 moves, and nothing here is offered as a reason to read either
+  more kindly. A4.1.5 in fact *strengthens* the `ARM0` result by showing it survives discarding
+  every duplicated row.
+- **It does not repair anything.** `d6r2c_arm0_gradient_health.py` is not edited by this addendum.
+  The instrument still certifies the untrimmed condition, and a successor registration owes the
+  trimmed one, **frozen before it runs**.
+- **It does not edit section 1 line 72, and does not edit A3.6.** Both are struck here and left in
+  place above (rule 2, rule 6). `Lines whose number changed above this section: 0`.
+- **It does not correct `ARM0_VERDICT.json`'s `"n_components": 412`.** That is a count of graded
+  slots and is accurate as such; the distinct-derivative figure lives here.
+- **It does not edit the landed calibration row.** `docs/COST_CALIBRATION.md` append rule 1 forbids
+  it; a correction row is drafted, not landed by this addendum.
+- **It does not settle the 2-rank `cl05` difference — `NOT MEASURED`.** No solver was run. The
+  extra-constraint-pointsets candidate is a candidate, is not obviously consistent with the 4-rank
+  bit-identity, and is not presented as a finding.
+- **It does not claim the aliasing hypothesis was ever written into this registration.** It was a
+  hypothesis in a supervisor's brief; it is recorded here as **refuted**, with its evidence, so that
+  no successor inherits it from a half-remembered board block.
+- **It does not re-describe the flow regime.** ADDENDUM 2 stands: `M∞ = 0.288`, compressible
+  subsonic.
