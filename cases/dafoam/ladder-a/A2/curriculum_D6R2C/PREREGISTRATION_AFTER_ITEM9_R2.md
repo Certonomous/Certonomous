@@ -977,3 +977,97 @@ evidence rather than a number someone went hunting for.
 - **It does not claim the rung-2 hypothesis is refuted.** It claims the opposite: **it has not yet been
   tested.** §3e's discriminator stands exactly as frozen and is still the test.
 - **It does not touch `primalMinResTol`.**
+
+---
+
+## ADDENDUM 4 — 2026-09-13 — THE GRADE-RECORD FILENAME IS A RULE, NOT A PATTERN; AND `FM8` IS A `PASS`
+
+**This addendum carries the document to version 1.4.** Earlier version lines are **deliberately not
+edited**, for the reason `ADDENDUM 1` gives.
+**Lines whose number changed above this section: 0.** Proof in §A4.3.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL**, and **does not touch the grading
+path**, whose md5 `1a5ca51f8dab59e3c72b9a71ce8f77e6` is unchanged across **all four** freezes of this
+document.
+
+### A4.0 THE RULE, STATED INSTEAD OF INFERRED
+
+`ADDENDUM 2` §A2.1 registered the grading `--out` path for **`FM7` by name**. `FM8` then ran, and its
+filename was chosen by **applying the same shape to a new arm id** — which is an unstated rule a later
+reader has to infer from two examples. **That is the shape of thing this item has been paying for all
+night**, so it is stated:
+
+> **THE GRADE RECORD FOR EVERY ARM OF THIS REGISTRATION IS
+> `<run root>/AFTER_ITEM9R2_<ARM>_GRADE.json`, WITH `<ARM>` THE ARM ID THAT RAN.**
+> `d6r2c_fm6_grade.py`'s `--out` default is `AFTER_ITEM9R2_GRADE.json`, which carries **no arm id at
+> all**, so `--out` is passed **explicitly on every grading** and is never left to the default.
+
+Applied so far: `AFTER_ITEM9R2_FM8_GRADE.json`. **The rule covers arms not yet run**, which a pattern
+inferred from examples does not.
+
+**And the reason it matters is still §A2.0's:** the `arm` field **inside** every record reads `"FM6"`
+and **is wrong** for any other arm. Two identifiers carry the truth — the filename and the ledger row —
+and one does not. **A rule that names the filename is what keeps that count at two.**
+
+### A4.1 `FM8` — THE RESULT, AND THE ONE THING A READER MUST NOT CONCLUDE FROM IT
+
+**`FM8`: `PASS`.** rc=0, 144 s wall, **9.600 core-min** against a cap of 47.211 (20.3 % of it) and a
+prediction of 15.737. `I1`, `H1`, `H2`, `H3`, `H4` all hold; all five planted controls visible;
+**zero primal failures**, where `FM5` and `FM7` each stalled at `1.278377566e-05`.
+
+| | value |
+|---|---|
+| `J_fresh` | `0.023063278222500323` |
+| `Jf` (deformed mesh, inherited) | `0.023063259528677764` |
+| absolute difference | **`1.869382e-08`** against the band `3.064163e-04` — **16,391× inside** |
+| `H1` `worst_dist` | `5.010837892761856e-09` — the ADDENDUM 4 §A4.3 **equality**, met bit for bit on a third run |
+
+**THE REGISTERED CHANGE TOOK EFFECT, AND THAT WAS CHECKED BEFORE THE NUMBER WAS BELIEVED.** `FM5` and
+`FM7` both begin at `p initRes = 1.0` — a freestream start normalises to exactly 1. **`FM8`'s three
+conditions begin at `4.476e-02`, `1.937e-02`, `1.172e-02`: two decades below a freestream start.**
+`G-VERIFY` recorded `t100 = 3.734093363e-06` against `FM5`'s `1.103361217e-03` and no floor line at all.
+
+**THE CAVEAT, WHICH IS PART OF THE RESULT AND NOT A FOOTNOTE.** `1.869e-08` is **46.9× tighter than
+`N-D48`'s measured path-dependence of `8.765e-07`** — two solutions on **different meshes** agreeing
+more closely than this solver agrees with itself on the **same** mesh reached by a different path. **A
+reader handed that number without this paragraph will conclude the solve inherited its answer.** It did
+not: the transferred field does **not** satisfy the fresh-mesh equations — the solves start at residual
+`~1e-2`, not `1e-8`, and do roughly four decades of work — and the solution moved, `cl05`'s `CL`
+shifting by `1.45e-7`. **The honest reading: the two meshes are geometrically very close** (identical
+topology, same extrusion parameters, first-cell heights 1.0 % apart) **and a converged start removes the
+cold-start path-dependence channel.** §2e registered `H3` as *"the only thing that differs is the
+mesh"*; **with the initialisation that is MORE true than it was for a freestream start, not less** — but
+the comparison no longer carries the cold-start channel, and **that sentence belongs in the item-10
+report rather than left to be inferred.**
+
+### A4.2 A VACUOUS CLAUSE IN AN INHERITED INSTRUMENT — DISCLOSED, NOT REPAIRED
+
+**`H4`'s `primal_converged` is carried by `d6r2c_freshmesh.py`'s `_converged()`, which DEFAULTS TO
+`True` when `mp0X/primal_residual.json` is absent — and it is absent.** That clause is therefore
+**vacuous**: `H4`'s convergence evidence is carried entirely by `rc = 0` and the absence of any
+`Primal solution failed` line. **That is real evidence** — `FM5` and `FM7` both showed `rc = 1` with a
+failure line — **but it is not the evidence the clause claims to be.**
+
+**It is in the REUSED producer, which is frozen and unchanged at `1d15ce361673ca600d565280441b67e0`, and
+it is NOT repaired here.** It did not bite on `FM8` because `rc` carries the same information. **It is
+disclosed now rather than discovered on an arm where `rc` and the field disagree.**
+
+### A4.3 THE APPEND-ONLY PROOF
+
+- Pre-append state of the working-tree file, read in the same shell invocation as the append: md5
+  **`55fd03d2306b6e2f8f9de4c17f9023bd`**, **979 lines**, and **byte-identical to `HEAD`'s committed blob** — asserted in
+  that same invocation, so the append is provably the first change since the freeze.
+- `git diff --numstat` on this path must show **insertions only and `0` deletions**. *(No count is
+  asserted: a concurrent commit landing during a `git diff` makes the number read against a stale
+  baseline — measured on `ADDENDUM 2`.)*
+- **Lines whose number changed above this section: 0.**
+- This is `ADDENDUM 4`, the number derived from the maximum existing heading, never a count.
+
+### A4.4 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not re-grade anything.** `FM8` is `PASS`; `FM6` and `FM7` are `NOT A RESULT`, closed.
+- **It does not touch the grading path, any gate, threshold, cap or label**, and it does not repair the
+  vacuous clause of §A4.2.
+- **It does not claim the fresh mesh validates the 24.732 %.** `H3` is a **two-mesh comparison at one
+  nominal resolution** — no Roache triple, no GCI, no observed order — and `O_mp` stands at `GATE FAIL`.
+- **It does not touch `primalMinResTol`.**
