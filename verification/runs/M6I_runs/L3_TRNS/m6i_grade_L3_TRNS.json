@@ -1,0 +1,268 @@
+{
+ "verdict": "GATE FAIL",
+ "why": "B1 misses: ['eta0.20-lower', 'eta0.20-upper', 'eta0.44-lower', 'eta0.44-upper', 'eta0.65-lower', 'eta0.65-upper', 'eta0.80-lower', 'eta0.80-upper', 'eta0.90-lower', 'eta0.90-upper', 'eta0.96-lower', 'eta0.96-upper'] ; B2 misses: ['eta0.65', 'eta0.90']",
+ "prereg": "verification/campaign/A3_M6_AGARD_CP_VALIDATION_PREREGISTRATION.md",
+ "reference": {
+  "document": "AGARD Advisory Report No. 138 (May 1979), ISBN 92-835-1323-1, Appendix B1, V. Schmitt and F. Charpin (ONERA)",
+  "table": "TABLE B1-14, TEST 2308: M0 = 0.8395, ALPHA = 3.06 deg, REC = 11.72e6",
+  "file": "models/onera_m6/agard_ar138_table_b1_14_test2308_cp.dat",
+  "title_page_verified": true
+ },
+ "stations_graded": [
+  0.2,
+  0.44,
+  0.65,
+  0.8,
+  0.9,
+  0.96
+ ],
+ "station_excluded": 0.99,
+ "preconditions": {
+  "cfd_M_inf": 0.8395,
+  "ref_M0": 0.8395,
+  "mach_delta": 0.0,
+  "P4_End_line_present": true,
+  "run_log": "verification/runs/M6I_runs/L3_TRNS/log.rhoSimpleFoam"
+ },
+ "planted_control": {
+  "plant": 0.1234,
+  "planted_station": 0.44,
+  "planted_surface": "lower",
+  "n_points_planted": 11,
+  "rms_clean": 0.16673737404744288,
+  "rms_planted": 0.23200765385081534,
+  "rms_moved_by": 0.06527027980337247,
+  "required_response": 0.0617,
+  "reader_saw_the_plant": true
+ },
+ "cp_rows": {
+  "eta0.20-lower": {
+   "eta": 0.2,
+   "surface": "lower",
+   "n_exp_orifices": 11,
+   "n_graded": 11,
+   "n_excluded_shock_zone": 0,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.16129805048185045,
+   "max_abs_dev": 0.4199272122332368,
+   "mean_bias": 0.07115574848963148,
+   "shock_zone_xoc": null,
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.20-upper": {
+   "eta": 0.2,
+   "surface": "upper",
+   "n_exp_orifices": 23,
+   "n_graded": 19,
+   "n_excluded_shock_zone": 4,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.2441178775034233,
+   "max_abs_dev": 0.7215453408060273,
+   "mean_bias": 0.09718638469763206,
+   "shock_zone_xoc": [
+    0.47519,
+    0.6753499999999999
+   ],
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.44-lower": {
+   "eta": 0.44,
+   "surface": "lower",
+   "n_exp_orifices": 11,
+   "n_graded": 11,
+   "n_excluded_shock_zone": 0,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.16673737404744288,
+   "max_abs_dev": 0.4060530858422281,
+   "mean_bias": 0.04375461726548979,
+   "shock_zone_xoc": null,
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.44-upper": {
+   "eta": 0.44,
+   "surface": "upper",
+   "n_exp_orifices": 23,
+   "n_graded": 19,
+   "n_excluded_shock_zone": 4,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.3119469573917857,
+   "max_abs_dev": 0.7014226221750361,
+   "mean_bias": 0.12371674014302989,
+   "shock_zone_xoc": [
+    0.4242699999999999,
+    0.6242700000000001
+   ],
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.65-lower": {
+   "eta": 0.65,
+   "surface": "lower",
+   "n_exp_orifices": 11,
+   "n_graded": 11,
+   "n_excluded_shock_zone": 0,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.15634276585390827,
+   "max_abs_dev": 0.3549403524242312,
+   "mean_bias": 0.016549494965046006,
+   "shock_zone_xoc": null,
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.65-upper": {
+   "eta": 0.65,
+   "surface": "upper",
+   "n_exp_orifices": 23,
+   "n_graded": 19,
+   "n_excluded_shock_zone": 4,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.3393144455220687,
+   "max_abs_dev": 0.7245343298762374,
+   "mean_bias": 0.12566597813736344,
+   "shock_zone_xoc": [
+    0.37488999999999995,
+    0.57545
+   ],
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.80-lower": {
+   "eta": 0.8,
+   "surface": "lower",
+   "n_exp_orifices": 11,
+   "n_graded": 11,
+   "n_excluded_shock_zone": 0,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.15850834030927322,
+   "max_abs_dev": 0.3446327327656409,
+   "mean_bias": 0.011076429859696172,
+   "shock_zone_xoc": null,
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.80-upper": {
+   "eta": 0.8,
+   "surface": "upper",
+   "n_exp_orifices": 23,
+   "n_graded": 19,
+   "n_excluded_shock_zone": 4,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.36717485579422904,
+   "max_abs_dev": 0.7388269739926432,
+   "mean_bias": 0.12327769424531136,
+   "shock_zone_xoc": [
+    0.27572,
+    0.4742
+   ],
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.90-lower": {
+   "eta": 0.9,
+   "surface": "lower",
+   "n_exp_orifices": 14,
+   "n_graded": 14,
+   "n_excluded_shock_zone": 0,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.15854333628184564,
+   "max_abs_dev": 0.35525294358024584,
+   "mean_bias": 0.023535555318256834,
+   "shock_zone_xoc": null,
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.90-upper": {
+   "eta": 0.9,
+   "surface": "upper",
+   "n_exp_orifices": 31,
+   "n_graded": 27,
+   "n_excluded_shock_zone": 4,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.3841190317667334,
+   "max_abs_dev": 0.7298405359992368,
+   "mean_bias": 0.09659976802122971,
+   "shock_zone_xoc": [
+    0.19928,
+    0.36024
+   ],
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.96-lower": {
+   "eta": 0.96,
+   "surface": "lower",
+   "n_exp_orifices": 14,
+   "n_graded": 14,
+   "n_excluded_shock_zone": 0,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.1679218310652737,
+   "max_abs_dev": 0.36520859934305466,
+   "mean_bias": 0.030125372702071152,
+   "shock_zone_xoc": null,
+   "band_rms": 0.05,
+   "within_band": false
+  },
+  "eta0.96-upper": {
+   "eta": 0.96,
+   "surface": "upper",
+   "n_exp_orifices": 31,
+   "n_graded": 27,
+   "n_excluded_shock_zone": 4,
+   "n_dropped_outside_cfd_span": 0,
+   "rms_dev": 0.3590631888948414,
+   "max_abs_dev": 0.7272836937314846,
+   "mean_bias": 0.07421501398183633,
+   "shock_zone_xoc": [
+    0.16030999999999995,
+    0.3197500000000001
+   ],
+   "band_rms": 0.05,
+   "within_band": false
+  }
+ },
+ "shock": {
+  "eta0.65": {
+   "x_shock_exp": 0.47517,
+   "x_shock_cfd": 0.815045,
+   "delta_x": 0.33987500000000004,
+   "abs_delta_x": 0.33987500000000004,
+   "band_delta_local": 0.05014000000000002,
+   "band_source": "one local orifice interval, AGARD AR-138, measured from the reference file",
+   "registered_table_value": 0.05,
+   "exp_cp_rise_at_shock": 0.424,
+   "cfd_cp_rise_at_shock": 0.08224621458184417,
+   "n_resampled_dropped": 0,
+   "within_band": false
+  },
+  "eta0.90": {
+   "x_shock_exp": 0.27976,
+   "x_shock_cfd": 0.923335,
+   "delta_x": 0.643575,
+   "abs_delta_x": 0.643575,
+   "band_delta_local": 0.04024,
+   "band_source": "one local orifice interval, AGARD AR-138, measured from the reference file",
+   "registered_table_value": 0.04,
+   "exp_cp_rise_at_shock": 0.6399999999999999,
+   "cfd_cp_rise_at_shock": 0.05153344053005418,
+   "n_resampled_dropped": 0,
+   "within_band": false
+  }
+ },
+ "cost": {
+  "wall_s": 0.015588521957397461,
+  "ranks": 1,
+  "core_min_measured": 0.0002598086992899577,
+  "cap_core_min": 3.0,
+  "within_cap": true,
+  "cost_basis": "MEASURED from this grader's own wall clock on 1 rank. Any dollar figure is DERIVED, not measured, at the owner-stated $0.0513/core-h; the box cannot read its own billing."
+ },
+ "disclosures": [
+  "SINGLE GRID. This is a VALIDATION comparison, not a verification. No grid triple exists, therefore NO observed order and NO GCI is computed, quoted or implied (prereg section 0 and section 8.2).",
+  "The sibling run A3GC-AR1 is graded NOT A RESULT on an internal nuTilda convergence gate. Its CD 0.02300300328 and CL 0.3131159742 sat inside their +/-2% band and that does not lift the verdict. An internal convergence verdict does not bar an external validation comparison, but it never leaves the report (prereg section 9).",
+  "AGARD AR-138 section 6.2 applies NO WALL-INTERFERENCE CORRECTION, at a semispan/tunnel-width ratio of 0.7 (section 4.2) at M0 = 0.84. The reference does not quantify that bias. The CFD is free-air. The bias is disclosed, not removed (prereg section 1.1 and section 8.4).",
+  "AGARD AR-138 section 6.1.1 (Cp accuracy) is BLANK, and its section 6.1.4 repeatability pairs are at other conditions (TABLE B1-10 is TEST 2385 at M0 ~ 0.459). The reference publishes no Cp accuracy at the graded condition. The B1 band of 0.050 is therefore the lab's DECLARED ALLOWANCE, labelled judgement in the pre-registration, not a reference-derived number. The B2 shock band IS reference-derived with no judgement in it (prereg section 5)."
+ ]
+}

@@ -1,0 +1,73 @@
+{
+  "team": "cfd",
+  "case_id": "M6I-R10-L3-TRNS",
+  "prereg_commit": "d35d36f9c671e707000bd0bdf9130bd12a524c0f",
+  "prereg_path": "verification/campaign/M6I_R10_TRANSONIC_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/M6I_runs/launch_m6i_v3.sh",
+    "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_TRNS",
+    "4"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_TRNS",
+  "ranks": 4,
+  "cost_core_min_estimate": 5.9,
+  "cost_basis": "MEASURED basis: L3 cost 5.87 core-min (0.40 ramp + 5.47, 3000 iterations, 4 ranks) from its own CORE_MINUTES.txt. transonic no assembles a SIMPLER pressure equation (fvm::div(phid,p) absent) but adds adjustPhi's global reduction, so the prediction is the measured L3 rate unchanged: 5.9 core-min. CAP 46.6 core-min = 3x R9's MEASURED 15.53, the worst factor this family has recorded (x2.65 where the estimate said x1.6). The cap is set from a MEASURED worst case, not from this prediction -- the only reason R9's miss cost nothing. Nothing is killed on spend or clock (Sanaa directive #17). Dollars DERIVED, NOT MEASURED at $0.0513/core-h -> ~$0.005.",
+  "memory_floor_gb": 4.0,
+  "memory_footprint_gb": 0.5,
+  "_memory_basis": "0.5 GB TRANSCRIBED from the FROZEN M6I_R1_SOLVE_PREREGISTRATION.md memory table (L3, 15,360 cells). That table states of itself 'DECLARED, NOT A MEASURED PEAK RSS'. Sanaa item 7's class-table limb, not a measured peak. R9's entry OMITTED this field and the runner refused it at gate B; that is not repeated.",
+  "enqueued_by": "cfd lab-lane, after cfd-supervisor froze R10 at d35d36f9c and landed the transonic-set launcher diff at a0bf809c5",
+  "cap_core_min_registered": 46.6,
+  "cap_status": "TRANSCRIBED-FROM-REGISTRATION",
+  "cap_source": "verification/campaign/M6I_R10_TRANSONIC_PREREGISTRATION.md section 7",
+  "_blocked": "CLEARED. The launcher diff landed at a0bf809c5d204727741f1b174a1e068e3e49f3c7; launch_m6i_v3.sh on disk is sha256-identical to HEAD and to that commit, and its widened matcher ACCEPTS the staged case (transonic no). The equations.p == 1 assert at line 112 is deliberately unchanged and still cites pEqn.H:36 -- precisely the line that never executes under transonic no. Disclosed in R10 section 2 and in a0bf809c5's commit message; not silently repaired.",
+  "_fail_closed": "The fail-closed placeholder is replaced with the real freeze sha now that R10 is frozen at d35d36f9c671e707000bd0bdf9130bd12a524c0f AND the launcher diff is landed. Until BOTH held, the entry could not launch.",
+  "_staging_discharged": "L3_TRNS staged from L3 after the freeze. Section 3 assertions: constant/ byte-identical; exactly 3 differing files in system/ (controlDict, fvSolution, fvSolution.startup); exactly 3 changed/added lines (two transonic yes->no, one clipCount include); exactly 1 new file (system/clipCount.fo); nNonOrthogonalCorrectors left at 2 -- R9's 5 deliberately NOT carried forward; forceCoeffs, residuals and yPlus byte-identical to L3.",
+  "_authorisation": "ENQUEUEING IS NOT AUTHORISATION. SUPERVISION_CHARTER section 3 check 4 is the supervisor's own and is not discharged by this file. No agent's message is Sanaa's consent.",
+  "verdict_state": "PENDING -- armed, not yet graded.",
+  "_launch": {
+    "utc": "2026-09-13T08:33:23Z",
+    "pid": 1439973,
+    "sid": 1439973,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_TRNS/STATUS.queue.M6I-R10-L3-TRNS",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_TRNS/launcher.queue.out",
+    "started_epoch": 1789288403.1191313,
+    "resumed_from": null,
+    "status_seen_utc": "2026-09-13T08:35:23Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.M6I-R10-L3-TRNS (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "UNPINNED",
+    "detail": "entry declares no 'grading_freeze': no comparator is named, so the sha of the script that will grade case M6I-R10-L3-TRNS is NOT pinned to freeze d35d36f9. Nothing is predicted about this run's grading, and that absence is recorded rather than read as a pass.",
+    "field": null,
+    "paths": [],
+    "prereg_commit": "d35d36f9c671e707000bd0bdf9130bd12a524c0f",
+    "refusal_eligible": true,
+    "source": "NONE",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "NO_PREDICTION_NOT_PINNED",
+    "actual": null,
+    "case_id": "M6I-R10-L3-TRNS",
+    "walked_commit": "a0bf809c5d204727741f1b174a1e068e3e49f3c7",
+    "recorded_utc": "2026-09-13T08:33:23Z"
+  }
+}
