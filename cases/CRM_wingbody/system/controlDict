@@ -3,17 +3,26 @@ application     rhoSimpleFoam;
 startFrom       latestTime;
 startTime       0;
 stopAt          endTime;
-endTime         300;                 // SMOKE: her section 7.2, 300 iterations
+endTime         300;
 deltaT          1;
 writeControl    timeStep;
-writeInterval   200;                 // checkpoint every 200 iterations until the rate is
+writeInterval   200;
                                      // measured (her checkpoint rule item 1); revised to
                                      // <=30 min once the measured rate exists
-purgeWrite      2;                   // last two checkpoints kept
+purgeWrite      2;
 writeFormat     binary;
 writePrecision  12;
 writeCompression off;
 timeFormat      general;
 timePrecision   6;
 runTimeModifiable false;
+// NOTE ON THE THREE CONTROLS ABOVE, because stale per-line comments on them cost this act real
+// evidence twice. They are set PER RUN by the queue entry and the launcher, so any comment here
+// describing a particular value WILL go stale:
+//   endTime       -- overridden by the launcher's ENDTIME argument, AND during the ramp stage it is
+//                    set to STARTUP_ITERS (default 200), which DOMINATES a smaller requested endTime.
+//   writeInterval -- how often a field is EVER WRITTEN.
+//   purgeWrite    -- how many written fields are KEPT, and purgeWrite N KEEPS THE MOST RECENT N.
+//                    purgeWrite 0 KEEPS EVERYTHING. These are two different controls and this act
+//                    was bitten by each separately.
 functions { #include "forces" }
