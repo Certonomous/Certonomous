@@ -1,0 +1,66 @@
+PPTC VP1304 -- BIRTH CERTIFICATE, coarse level.  Generated 2026-09-13 by
+cases/PPTC_VP1304/mesh/birth_certificate.py against the mesh at
+  /home/ubuntu/certonomous-runs/PPTC_VP1304/L1_prod7s/constant/polyMesh
+from that case's own log.checkMesh and log.snappyHexMesh.  The mesh tree itself is
+outside git (it is gigabytes); THIS FILE IS THE RECORD OF IT and cites the mesh
+sha256 below so the two cannot drift apart.
+NO SOLVER HAS RUN IN THIS ACT.  This certificate is a MESH verdict, not a result.
+----------------------------------------------------------------------------
+
+BIRTH CERTIFICATE -- level coarse (family ratio 1.0)
+  cells                                     3939801   (family target, context, not a gate)
+  mesh sha256                        1d05098f56a35244bcb524bcd9ca46a4e1fabcc6c6474bd9a105b3f7b98039e5
+
+  RECORDED MESH PROPERTIES -- free to choose, now fixed, stated as numbers
+    wedge phase                   21.2830 deg about x; periodic planes at -14.7170 and +57.2830 deg
+    minimum clearance, plane to blade   4.5084 deg
+      basis: minimum angular distance from either periodic plane to the nearest of 17,843,469 blade vertices, folded onto one 72 deg passage
+      one blade occupies 62.98 deg of the 72 deg passage; inter-blade gap 9.0169 deg
+      WHY IT IS NOT ZERO: built symmetric about theta = 0 the planes sat at
+      -36.0000 and +36.0000 deg with clearance 0.0000 deg -- IN the blade -- and
+      snappyHexMesh died in layer addition at a face whose four corners were
+      all at theta = -36.0000 deg, r = 110.6 mm. Reproduced on TWO independent
+      tessellations. A periodic plane cutting a blade is not physically wrong;
+      snappy simply cannot extrude layers through a wall ending on a cyclic.
+
+  (A) SANAA SECTION 5 QUALITY GATES -- these BLOCK
+  max non-orthogonality (deg)              169.4750   gate < 70           GATE FAIL  
+  max skewness                             305.3904   gate < 4            GATE FAIL  
+  max adj. cell volume ratio               801.9808   gate <= 1.25        GATE FAIL  479853 of 11793403 internal faces over the cap
+
+  (B) LAB CORRECTNESS CHECKS -- these BLOCK, and they are the LAB'S, not hers
+  min cell volume (m3)                 -5.65059e-10   gate > 0            GATE FAIL  
+  CORRECTNESS: cyclic point match       1.47722e-09   gate < 1e-6         PASS  NOT a quality metric -- a mismatched periodic pair returns a confidently wrong KT with no residual signature
+  cells across tip chord                       62.4   gate >= 6           PASS  c_tip = 39.0 mm; outermost band of the twelve-radius section sweep (compare_sections.py); DECLARED, and it clears its gate by a wide margin at every level
+
+  (C) DISCLOSURES -- these NEVER block, and each is a NUMBER
+  max aspect ratio                   18348899000000000475638353684968359788664548961711083329120058857057274087752809313861992710144.0000   advisory 1000        DISCLOSED (never a lone rejection)
+  prism layers -- dictionary asks 6 at ratio 1.2 [DISCLOSED, not gating]:
+    Reading A (SPECIFICATION) governs by supervisor ruling: the registered
+    requirement is on the DICTIONARY. ACHIEVED coverage is reported below and
+    a shortfall CAPS THE FIDELITY CHIP; it does not move a band.
+    ACHIEVED -- from the extrusion counters and the cell delta, NEVER from the
+    per-patch table, which is the REQUEST. A table reading "6 layers" has been
+    measured on a mesh with ZERO layers and an rc of 0.
+      faces extruded                           0 of 76,465  (0.0 %)
+      layer cells added                        0 of 458,790  (0.0 %)
+      -> NO PRISM LAYER EXISTS ON THIS MESH. Coverage 0.0 % on every patch.
+         The per-patch table below is what was ASKED FOR and was NOT achieved.
+    blades                               0.00 of 6 nominal, coverage   0.0 %   SPEC SHORT -- DISCLOSED, NOT A GATE
+                                     (requested on 76465 faces)
+    hub                                not in the request table
+    cap                                not in the request table
+    shaft                              not in the request table
+  cells across LE radius                      2.301   asks >= 8        SPEC SHORT -- DISCLOSED, NOT A GATE
+      shortfall 3.48x on the LITERAL parse (needs cell <= 0.1797 mm, has 0.6250 mm); 1.74x on the conventional one (cell <= R/4)
+      R_LE = 1.438 mm at r/R = 0.60 (smallest of the three ACCEPTED stations; 0.70 and outboard were REFUSED by the clamp guard and are NOT extrapolated)
+      surface cell 0.6250 mm. ADDENDUM E.5 registered the LITERAL parse as GOVERNING and
+      E.6 accepted route 2 -- build as registered, DISCLOSE the limitation. This ruling does
+      NOT extend from the prism-layer clause by analogy; it predates it.
+  cells across tip chord            -- see class (B): the lab holds this one STRICT and BLOCKING
+
+MESH ADMISSIBILITY: NOT ADMISSIBLE -- 4 gate(s) failed:
+    max non-orthogonality (deg): 169.4750 against < 70
+    max skewness: 305.3904 against < 4
+    max adj. cell volume ratio: 801.9808 against <= 1.25
+    min cell volume (m3): -5.65059e-10 against > 0

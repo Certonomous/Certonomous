@@ -11,11 +11,34 @@ Writes `system/blockMeshDict` for the domain registered in pre-registration sect
 AXIS ORIENTATION, from GEOMETRY_ADMISSION_RECORD.md section 2: the nose cap sits at +x and
 the shaft at -x, so the freestream runs +x -> -x.  The inlet is therefore the +x face.
 
-THE AXIS IS IN THE FLUID and must be meshed.  Upstream of the nose-cap tip (x > +0.134 m)
-there is no body on the centreline, so an annular background with a hollow core would leave
-an unphysical hole there.  The inner radial block is therefore a pie slice whose inner edge
-is COLLAPSED onto the axis, giving prism cells along the centreline -- the standard sector
-construction.  Those cells sit in the far field ahead of the cap and are refined by nothing.
+THE AXIS IS IN THE FLUID and must be represented.  Upstream of the nose-cap tip
+(x > +0.134 m) there is no body on the centreline, so a hollow core would leave an
+unphysical hole there.
+
+COLLAPSING THE INNER EDGE ONTO THE AXIS WAS TRIED FIRST AND IS WRONG, AND IT FAILS LOUDLY
+RATHER THAN QUIETLY.  A collapsed pie slice gives PRISM cells (6 points) on the centreline,
+and `snappyHexMesh` refines through `hexRef8`, which requires 8 points per cell:
+
+    cell 192 of level 0 does not seem to have 8 points of equal or lower level
+    cellPoints:6(315 316 324 210 211 219)      hexRef8.C:3787, MPI_ABORT on every rank
+
+The earlier claim that those cells are "refined by nothing" was wrong: the registered
+refinement regions `bladeRegion` and `tipVortex` are CYLINDERS ABOUT THE AXIS, so they
+contain the centreline cells by construction, and the buffer of `nCellsBetweenLevels` from
+the shaft surface at r = 20 mm reaches the axis regardless.
+
+THE AXIS IS THEREFORE A SLIP CYLINDER OF RADIUS R_AXIS = 2 mm, patch `axisRod`.  The
+background becomes 100 % hexahedral and hexRef8 is satisfied.  What this costs, stated:
+  * For x < about +0.127 m the rod lies INSIDE the cap, hub, shaft and extension, so
+    snappyHexMesh deletes those cells and the patch does not exist there at all.
+  * Ahead of the nose it is a 4 mm rod on the centreline, 1.6 % of D, blocking 0.026 % of
+    the propeller disc area.
+  * It carries `slip`: zero shear and no penetration.  In an aligned uniform stream a slip
+    cylinder IS a stream surface, so the ideal-flow disturbance is identically zero and the
+    real disturbance vanishes as R_AXIS -> 0.  It appears in NEITHER graded integration
+    patch list (amendment 2) and is disclosed on the certificate.
+This is a MESH IMPLEMENTATION change.  It alters no gate, threshold, cap or label, and no
+solver had run in this act when it was made.
 
 GRADING.  The domain is 2.25 m long and 1.0 m in radius while the propeller is 0.25 m across,
 so a uniform background is impossible at any sensible cell count: at 25 mm it would be 90 M
@@ -36,7 +59,29 @@ R_OUTER = 4.0 * D           # +1.000
 
 X_NEAR_FWD = +0.30          # near-field box, forward face
 X_NEAR_AFT = -0.30          # near-field box, aft face
-R_NEAR = 0.16               # radial split: pie slice inside, graded annulus outside
+R_NEAR = 0.16               # radial split: inner block inside, graded annulus outside
+R_AXIS = 0.002              # slip-cylinder radius replacing the collapsed axis (see above)
+
+# SECTOR PHASE -- THE ANGLE THE 72 deg WEDGE IS ROTATED ABOUT x, AND IT IS NOT COSMETIC.
+# Built symmetric about theta = 0, the periodic planes land at -36 and +36 deg and they cut
+# THROUGH A BLADE. snappyHexMesh then dies in layer addition:
+#
+#   Did not determine new position for face 12614739 owner 3942683 neighbour -1 region -1
+#   polyTopoChange::getFaceOrder ... polyTopoChange.C line 876
+#
+# and the four points it prints lie at theta = -36.0000 deg exactly, r = 110.6 mm, on the
+# periodic0 plane at blade-tip radius. Reproduced on TWO independent tessellations.
+#
+# MEASURED, over all 17,843,469 blade vertices folded into one 72 deg passage: one blade
+# occupies 62.98 deg and the inter-blade gap is 9.0169 deg, running from folded 52.7746 to
+# 61.7915 deg. The wedge as built has clearance 0.0000 deg -- its plane is IN the blade.
+# Placing the plane at the middle of that gap gives 4.5084 deg of clearance, which at the
+# 125 mm tip is 9.84 mm of fluid, or 16 coarse blade cells.
+#
+# A periodic plane cutting a blade is not physically wrong -- the cyclic transform maps the
+# cut correctly -- but snappyHexMesh cannot extrude prism layers through it, and the blade
+# fits inside 72 deg with room to spare, so there is no reason to ask it to.
+SECTOR_PHASE_DEG = 21.2830
 
 HEADER = """/*--------------------------------*- C++ -*----------------------------------*\\
 | PPTC VP1304 open-water passage -- background sector mesh                    |
@@ -56,11 +101,13 @@ scale   1;
 """
 
 
-def sector_points(x, r, half_deg):
-    """Four (x, y, z) corners at axial station x, radius r, at -half and +half degrees."""
+def sector_points(x, r, half_deg, phase_deg=0.0):
+    """The two (x, y, z) corners at axial station x, radius r, on the two periodic planes,
+    the wedge being rotated about x by phase_deg."""
+    p = math.radians(phase_deg)
     a = math.radians(half_deg)
-    return [(x, r * math.cos(-a), r * math.sin(-a)),
-            (x, r * math.cos(+a), r * math.sin(+a))]
+    return [(x, r * math.cos(p - a), r * math.sin(p - a)),
+            (x, r * math.cos(p + a), r * math.sin(p + a))]
 
 
 def main() -> int:
@@ -69,10 +116,13 @@ def main() -> int:
     ap.add_argument('--ratio', type=float, default=1.0,
                     help='family refinement ratio: 1.0 coarse, 1.5 medium, 2.25 fine')
     ap.add_argument('--half-angle', type=float, default=36.0)
+    ap.add_argument('--phase', type=float, default=SECTOR_PHASE_DEG,
+                    help='wedge rotation about x, deg. Default is the MEASURED value that puts both periodic planes in the inter-blade gap.')
     a = ap.parse_args()
 
     k = a.ratio
     ha = a.half_angle
+    ph = a.phase
 
     # base counts at ratio 1.0 (coarse), scaled by the family ratio and rounded up
     def n(base):
@@ -98,11 +148,13 @@ def main() -> int:
         v.append(p)
 
     for i, x in enumerate(xs):
-        add(('ax', i), (x, 0.0, 0.0))                      # on the axis (collapsed edge)
-        lo, hi = sector_points(x, R_NEAR, ha)
+        lo, hi = sector_points(x, R_AXIS, ha, ph)
+        add(('axs', i, 0), lo)                             # slip cylinder, NOT the axis
+        add(('axs', i, 1), hi)
+        lo, hi = sector_points(x, R_NEAR, ha, ph)
         add(('in', i, 0), lo)
         add(('in', i, 1), hi)
-        lo, hi = sector_points(x, R_OUTER, ha)
+        lo, hi = sector_points(x, R_OUTER, ha, ph)
         add(('out', i, 0), lo)
         add(('out', i, 1), hi)
 
@@ -110,9 +162,10 @@ def main() -> int:
     for i in range(3):
         nx = (n_x_aft, n_x_mid, n_x_fwd)[i]
         gx = (f'{1.0/exp_x_aft:g}', '1', f'{exp_x_fwd:g}')[i]
-        # inner pie slice: the two axis vertices are repeated, collapsing the inner edge
-        b = [idx[('ax', i)], idx[('in', i, 0)], idx[('in', i, 1)], idx[('ax', i)],
-             idx[('ax', i + 1)], idx[('in', i + 1, 0)], idx[('in', i + 1, 1)], idx[('ax', i + 1)]]
+        # inner block: eight DISTINCT points, so hexRef8 can refine it
+        b = [idx[('axs', i, 0)], idx[('in', i, 0)], idx[('in', i, 1)], idx[('axs', i, 1)],
+             idx[('axs', i + 1, 0)], idx[('in', i + 1, 0)], idx[('in', i + 1, 1)],
+             idx[('axs', i + 1, 1)]]
         blocks.append((b, (n_r_in, n_theta, nx), ('1', '1', gx)))
         # outer annulus, graded radially into the far field
         b = [idx[('in', i, 0)], idx[('out', i, 0)], idx[('out', i, 1)], idx[('in', i, 1)],
@@ -120,9 +173,10 @@ def main() -> int:
              idx[('in', i + 1, 1)]]
         blocks.append((b, (n_r_out, n_theta, nx), (f'{exp_r_out:g}', '1', gx)))
         # arc edges so the circumferential faces are true arcs, not chords
-        for shell, rad in (('in', R_NEAR), ('out', R_OUTER)):
+        for shell, rad in (('axs', R_AXIS), ('in', R_NEAR), ('out', R_OUTER)):
             for j in (i, i + 1):
-                mid = (xs[j], rad, 0.0)
+                pr = math.radians(ph)
+                mid = (xs[j], rad * math.cos(pr), rad * math.sin(pr))
                 edges.append((idx[(shell, j, 0)], idx[(shell, j, 1)], mid))
 
     out = [HEADER, 'vertices\n(\n']
@@ -148,17 +202,19 @@ def main() -> int:
         return s
 
     # inlet: +x end, both radial blocks (station index 3)
-    inlet = [[idx[('ax', 3)], idx[('ax', 3)], idx[('in', 3, 1)], idx[('in', 3, 0)]],
+    inlet = [[idx[('axs', 3, 0)], idx[('axs', 3, 1)], idx[('in', 3, 1)], idx[('in', 3, 0)]],
              [idx[('in', 3, 0)], idx[('in', 3, 1)], idx[('out', 3, 1)], idx[('out', 3, 0)]]]
-    outlet = [[idx[('ax', 0)], idx[('in', 0, 0)], idx[('in', 0, 1)], idx[('ax', 0)]],
+    outlet = [[idx[('axs', 0, 0)], idx[('in', 0, 0)], idx[('in', 0, 1)], idx[('axs', 0, 1)]],
               [idx[('in', 0, 0)], idx[('out', 0, 0)], idx[('out', 0, 1)], idx[('in', 0, 1)]]]
+    rod = face_list(lambda i: [[idx[('axs', i, 0)], idx[('axs', i, 1)],
+                                idx[('axs', i + 1, 1)], idx[('axs', i + 1, 0)]]])
     outer = face_list(lambda i: [[idx[('out', i, 0)], idx[('out', i + 1, 0)],
                                  idx[('out', i + 1, 1)], idx[('out', i, 1)]]])
     cyc0 = face_list(lambda i: [
-        [idx[('ax', i)], idx[('ax', i + 1)], idx[('in', i + 1, 0)], idx[('in', i, 0)]],
+        [idx[('axs', i, 0)], idx[('axs', i + 1, 0)], idx[('in', i + 1, 0)], idx[('in', i, 0)]],
         [idx[('in', i, 0)], idx[('in', i + 1, 0)], idx[('out', i + 1, 0)], idx[('out', i, 0)]]])
     cyc1 = face_list(lambda i: [
-        [idx[('ax', i)], idx[('in', i, 1)], idx[('in', i + 1, 1)], idx[('ax', i + 1)]],
+        [idx[('axs', i, 1)], idx[('in', i, 1)], idx[('in', i + 1, 1)], idx[('axs', i + 1, 1)]],
         [idx[('in', i, 1)], idx[('out', i, 1)], idx[('out', i + 1, 1)], idx[('in', i + 1, 1)]]])
 
     def emit(name, typ, faces, extra=''):
@@ -170,6 +226,10 @@ def main() -> int:
     emit('inlet', 'patch', inlet)
     emit('outlet', 'patch', outlet)
     emit('outerBoundary', 'patch', outer)
+    # `patch`, NOT `wall`: a wall-type patch enters wallDist/meshWave, and the k-omega SST
+    # wall treatment would then measure distances to a 2 mm NUMERICAL rod on the
+    # centreline as though it were a body. It carries slip, so it is not a wall.
+    emit('axisRod', 'patch', rod)
     rot = ('        neighbourPatch  periodic1;\n        transform       rotational;\n'
            '        rotationAxis    (1 0 0);\n        rotationCentre  (0 0 0);\n')
     emit('periodic0', 'cyclic', cyc0, rot)
@@ -186,7 +246,8 @@ def main() -> int:
 
     total = sum(nn[0] * nn[1] * nn[2] for _, nn, _ in blocks)
     print(f'wrote {p}')
-    print(f'  family ratio {k}, passage {2*ha:g} deg')
+    print(f'  family ratio {k}, passage {2*ha:g} deg, wedge phase {ph:g} deg '
+          f'(planes at {ph-ha:+.4f} and {ph+ha:+.4f} deg)')
     print(f'  cells: theta {n_theta}, radial {n_r_in}+{n_r_out}, '
           f'axial {n_x_aft}+{n_x_mid}+{n_x_fwd}  -> background {total} cells')
     dx = (X_NEAR_FWD - X_NEAR_AFT) / n_x_mid

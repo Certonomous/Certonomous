@@ -796,3 +796,123 @@ measurement:** a *higher* ceiling is *cheaper*, because it lets flat regions sta
 > rather than as a refusal.** State the resolvable window before the run; classify every sample
 > by which constraint bound it; refuse the clamped ones; and warn on the ones merely crowding a
 > limit. Applies to any measurement derived from a mesh-size parameter, not to this case.
+
+---
+
+## CORRECTION 1 — ADDENDUM H, 2026-09-13. THREE DEFECTS FOUND BY BUILDING THE MESH INSTEAD OF REASONING ABOUT IT, AND ONE CLAIM OF THIS RECORD IS STRUCK AS FALSE
+
+*lines whose number changed above this section: 0*
+
+Every addendum from A to G was written from measurement of an *input*. None of them built a
+mesh. The first attempt to actually run `snappyHexMesh` found three defects in under twenty
+minutes, one of them in this record's own prose. **No solver had run in this act; no gate,
+threshold, cap or label is altered by anything below.**
+
+### H.1 §3's CLAIM THAT THE CENTRELINE CELLS ARE "REFINED BY NOTHING" IS FALSE, AND IT IS STRUCK
+
+§3 above says of the collapsed-axis prism cells: *"Those cells sit in the far field ahead of
+the cap and are refined by nothing."* **That sentence is struck.**
+
+`bladeRegion` and `tipVortex` are `searchableCylinder`s **about the axis** — radius 132.5 mm
+and 130.0 mm, centred on the centreline — so they contain the axis cells **by construction**.
+Independently, the buffer of `nCellsBetweenLevels 3` down from the shaft surface at
+r = 20 mm reaches the centreline whatever the regions do. The claim was never measured; it
+was asserted about a mesh nobody had refined.
+
+### H.2 THE COLLAPSED AXIS ABORTS snappyHexMesh, AND IT ABORTS LOUDLY
+
+`snappyHexMesh` refines through `hexRef8`, which requires **eight points per cell**. A
+collapsed pie slice is a **prism**:
+
+    cell 192 of level 0 does not seem to have 8 points of equal or lower level
+    cellPoints:6(315 316 324 210 211 219)
+    pointLevels:6{0}
+        From Foam::hexRef8::setRefinement  ...  hexRef8.C at line 3787
+    FOAM parallel run aborting  ->  MPI_ABORT on every rank
+
+732 of the background's 19,032 cells were prisms — 12 circumferential × 61 axial × 1 radial.
+
+**THE FIX: the axis becomes a slip cylinder of radius R_AXIS = 2 mm, patch `axisRod`.** The
+background is then 100 % hexahedral. The patch is emitted as type `patch`, **not `wall`**,
+so it does not enter `wallDist`/`meshWave` and the k-omega SST wall treatment never measures
+a distance to a 2 mm numerical rod as though it were a body.
+
+**WHAT IT COSTS, AS NUMBERS:**
+
+| | |
+|---|---|
+| rod diameter | **4 mm = 1.6 % of D** |
+| blockage of the propeller disc | **0.026 %** |
+| where it exists at all | **only ahead of x ≈ +127 mm** — inboard of that the rod lies inside the cap, hub, shaft and extension, and snappyHexMesh deletes those cells |
+| boundary condition | `slip` — zero shear, no penetration |
+| in the graded integrations | **in NEITHER** (amendment 2's thrust or torque patch lists) |
+
+In an aligned uniform stream a slip cylinder **is a stream surface**, so the ideal-flow
+disturbance is *identically* zero and the real disturbance vanishes as R_AXIS → 0. This is a
+**mesh implementation** change, recorded here in the section that owns the original
+collapsed-axis decision, and disclosed on the certificate.
+
+### H.3 THE END-CAP REMOVAL GUARD FIRED, AND WHAT IT CAUGHT WAS ITS OWN SELECTOR
+
+`make_stl.py` removes the disc capping the CAD's aft termination and **verifies the discarded
+area against π r²**. On the production-resolution tessellation it **REFUSED**:
+
+> `*** ABORT: the facets removed at the CAD aft termination total 1323.32 mm2 but the shaft
+> end disc should be 1256.64 mm2.`
+
+**Cause:** the selector was **purely positional** — a 0.5 mm axial window. Once the shaft's
+side-wall facets shrank to ≈0.95 mm, a **0.53 mm band of side wall** fell inside that window.
+2πr × 0.53 mm = 66.6 mm², which is exactly the 66.7 mm² excess.
+
+**Fix: position AND normal.** The disc's normal is axial, the side wall's is radial, and
+`|n·x̂| > 0.9` separates them at **any** tessellation. Result: **3,292 facets, 1256.18 mm²
+against 1256.64, −0.04 %.**
+
+> **THIS IS THE L-221/L-222 SHAPE.** §2.1 of this record already established, for the patch
+> classifier, that *position alone misclassifies and the normal is the discriminator* — and
+> then a selector fifty lines further down used position alone. **A lesson written in one
+> section and not applied in the next is not a lesson that has been learned.** §2.1's own
+> words were "Neither limb is sufficient."
+
+### H.4 OpenFOAM's `etc/bashrc` EXECUTES THE CALLING SCRIPT'S FIRST ARGUMENT
+
+`openfoam2606/etc/bashrc:204` forwards `"$@"` to `etc/config.sh/setup`, which loops over
+those arguments. **Sourced from a script, `"$@"` is the calling script's own arguments.**
+`build_level.sh` is called with the STL path first, so bash **sourced and executed the STL** —
+140,114 facets' worth of `vertex: command not found`.
+
+**Which argument shapes actually fire** — measured with a planted `export PLANTED_EXEC=YES`,
+by the cfd supervisor rather than assumed by this lane, and it **narrows** the first reading
+recorded here:
+
+| argv[1] | fires? | |
+|---|---|---|
+| a **readable file** | **YES** | sourced and executed — arbitrary code execution |
+| **`name=value`** | **YES** | silently eval-exported into the solver's environment, no log line |
+| a **directory** | no | `[ -f "$x" ]` is false; falls through |
+| a plain number | no | |
+
+So a solver launcher passing a case **directory** first is on the safe shape; a **file path**
+or a `name=value` token is not. Guard: **`set --` before sourcing**, the named variables
+having been captured first. Proven both ways: without it `FOAM_SETTINGS=[/tmp/somefile.stl]`,
+with it `FOAM_SETTINGS=[]`. Applied to `build_level.sh`, `launch_pptc.sh` and
+`dead_lever_audit.sh`. The exposure beyond this act is the cfd supervisor's to report.
+
+### H.5 THE TESSELLATION ACTUALLY IN USE FOR THE COARSE LEVEL
+
+`c1.stl` — radial field `size(r) = 0.75 − 0.20·tanh((r−38)/2)`, curvature OFF, 0.55 mm on the
+blades and 0.95 mm inboard. **rc = 0, 525 s wall, 941,004 triangles.** Adequacy gate, per
+patch, at the coarse level:
+
+| patch | area oversized | verdict |
+|---|---|---|
+| `blades` | **5.2 %** | **MARGINAL** |
+| `hub` | 0.0 % | PASS |
+| `cap` | 0.0 % | PASS |
+| `shaft` | 0.0 % | PASS |
+
+**5.2 % is MARGINAL and is recorded as MARGINAL.** It is not rounded to the 5.0 % PASS line,
+and no later reader may read it as PASS. **`c1` CANNOT serve medium or fine** — 97.2 % and
+99.7 % of blade area oversized — and is **not offered for them**. The fine-capable production
+tessellation (`prod7`, the registered 0.20/0.40 radial field) and the medium-capable `cm1`
+were still running when this was written.

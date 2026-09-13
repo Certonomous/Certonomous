@@ -163,9 +163,22 @@ def main() -> int:
     # body opens into the extension.
     #
     # The removal is VERIFIED, not assumed: the discarded area must equal pi r^2 of the shaft.
+    # THE SELECTOR IS POSITION *AND* NORMAL, and the second limb was added after the first
+    # limb alone FAILED on a finer tessellation.  A pure axial window of 0.5 mm swept in a
+    # 0.53 mm band of the shaft's SIDE WALL once the facets there shrank to ~0.95 mm: the
+    # discarded area came out 1323.32 mm2 against the disc's 1256.64, and the area check
+    # REFUSED rather than removing cylinder wall.  The end cap's normal is axial and the
+    # side wall's is radial, so the normal separates them at any tessellation -- exactly the
+    # lesson section 2.1 of MESH_PIPELINE_RECORD.md already recorded for the patch
+    # classifier, applied here where it had not been.
     sh = groups['shaft']
     cx = sh.mean(axis=1)[:, 0]
-    capm = cx < X_CAD_END + 0.5
+    e0, e1, e2 = sh[:, 0], sh[:, 1], sh[:, 2]
+    nn = np.cross(e1 - e0, e2 - e0)
+    ln = np.linalg.norm(nn, axis=1)
+    ln[ln == 0] = 1.0
+    axiality = np.abs(nn[:, 0] / ln)          # |n . xhat|: 1 on the disc, 0 on the wall
+    capm = (cx < X_CAD_END + 1.0) & (axiality > 0.9)
     v0, v1, v2 = sh[capm][:, 0], sh[capm][:, 1], sh[capm][:, 2]
     cap_area = float((0.5 * np.linalg.norm(np.cross(v1 - v0, v2 - v0), axis=1)).sum())
     want = math.pi * R_SHAFT ** 2

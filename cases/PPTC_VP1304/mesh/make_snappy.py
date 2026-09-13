@@ -61,9 +61,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-castellatedMesh true;
-snap            true;
-addLayers       true;
+castellatedMesh {castellate};
+snap            {snap};
+addLayers       {layers};
 
 """
 
@@ -72,6 +72,18 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument('--case', required=True)
     ap.add_argument('--ratio', type=float, default=1.0)
+    # PHASE CONTROL: snappyHexMesh writes constant/polyMesh after EACH phase even under
+    # -overwrite, so a run that dies in layer addition leaves the SNAPPED mesh intact and the
+    # layer phase can be re-run alone. That is a 25-minute saving per attempt and it is the
+    # only reason a layer experiment is affordable at all.
+    ap.add_argument('--castellate', default='true')
+    ap.add_argument('--snap', default='true')
+    ap.add_argument('--layers', default='true')
+    # LAYER PATCH CONTROL: registered default is all four of blades, hub, cap and shaft
+    # (pre-registration 6.3). Narrowing it is a DISCLOSED departure, never a silent one, and
+    # it exists because snappyHexMesh cannot extrude layers on a wall that TERMINATES ON A
+    # CYCLIC -- which in a sector mesh the hub, cap and shaft always do, at any wedge phase.
+    ap.add_argument('--layer-patches', default=','.join(LAYER_PATCHES))
     ap.add_argument('--mrf-diameter', type=float, default=1.3,
                     help='MRF zone diameter in propeller diameters -- REGISTERED PARAMETER, '
                          'sensitivity 1.3 vs 1.6 on the coarse level (pre-registration 6.2)')
@@ -83,7 +95,16 @@ def main() -> int:
     r_mrf = a.mrf_diameter * D / 2.0
     x_mrf = a.mrf_axial * D
 
-    o = [HEADER, 'geometry\n{\n']
+    # str.replace, NOT str.format: the header contains the FoamFile block's literal
+    # braces, and .format would have to escape every one of them. The three switches
+    # are echoed back below so the dictionary that was written is on the record.
+    hdr = (HEADER.replace('{castellate}', a.castellate)
+                 .replace('{snap}', a.snap)
+                 .replace('{layers}', a.layers))
+    for tok in ('{castellate}', '{snap}', '{layers}'):
+        if tok in hdr:
+            raise SystemExit(f'REFUSE: {tok} was not substituted in the header')
+    o = [hdr, 'geometry\n{\n']
     for p in LEVELS:
         o.append(f'    {p}\n    {{\n        type triSurfaceMesh;\n'
                  f'        file "{p}.stl";\n        name {p};\n    }}\n')
@@ -129,7 +150,7 @@ def main() -> int:
              '    explicitFeatureSnap true;\n    multiRegionFeatureSnap false;\n}\n\n')
 
     o.append('addLayersControls\n{\n    relativeSizes true;\n    layers\n    {\n')
-    for p in LAYER_PATCHES:
+    for p in [q for q in a.layer_patches.split(',') if q]:
         o.append(f'        {p}\n        {{\n            nSurfaceLayers {N_LAYERS};\n        }}\n')
     o.append('    }\n')
     o.append(f'    expansionRatio {EXPANSION};\n')
@@ -164,7 +185,9 @@ def main() -> int:
         print(f'    {pp:>16} level {hi} -> surface cell {bg/2**hi:.4f} mm')
     print(f'  MRF zone: diameter {a.mrf_diameter}D = {2*r_mrf:.4f} m, '
           f'axial +-{a.mrf_axial}D = +-{x_mrf:.4f} m   [REGISTERED PARAMETER]')
-    print(f'  layers: {N_LAYERS} at expansion {EXPANSION} on {", ".join(LAYER_PATCHES)} '
+    print(f'  phases: castellatedMesh {a.castellate}, snap {a.snap}, '
+          f'addLayers {a.layers}')
+    print(f'  layers: {N_LAYERS} at expansion {EXPANSION} on {a.layer_patches} '
           f'(none on shaftExtension -- excluded from both graded integrations)')
     print(f'  quality: maxBoundarySkewness 4 (snappy default is 20; MESH_STANDARD 3.2 '
           f'enforces 4 on boundary faces)')
