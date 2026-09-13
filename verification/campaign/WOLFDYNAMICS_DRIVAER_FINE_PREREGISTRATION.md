@@ -404,3 +404,28 @@ and the grading path is fixed at that commit; the frozen file will be verified b
 the coarse rung.
 
 **Contains no submission and no external communication. Nothing leaves the box.**
+
+---
+
+## ADDENDUM 1 — CORRECTION 1 (2026-09-13, cfd-supervisor)
+
+**Lines whose number changed above this section: 0** — measured. Alters no gate, threshold,
+cap or label.
+
+**LINE 396 IS STALE AND IS STRUCK.** It reads *"Drafted by a cfd `lab-lane`, 2026-09-13. NOT
+FROZEN. NO COMPUTE HAS RUN."* — true of the draft, **false from the moment of the freeze at
+`58d24721`**. Line 400's *"the lane will not launch until the supervisor has committed"* is
+struck with it: **the supervisor has committed, and the run is cleared.**
+
+**Authoritative status is the header at lines 3–13: FROZEN 2026-09-13, `58d24721` IS the freeze,
+check 4 discharged, the run may launch.**
+
+**HOW IT WAS CAUGHT, AND WHY THAT MATTERS MORE THAN THE FIX.** Three hours earlier this
+supervisor froze a document whose footer still read "NOT FROZEN" and did not notice, because the
+self-contradiction check was run **against the header only**. The rule adopted from that failure
+was: **search the WHOLE document for status language before committing a freeze, never only the
+line you edited.** On this freeze that search returned **2 occurrences where the replacement
+accounts for 1** — and the arithmetic, not the reading, is what exposed the second one.
+
+**A count that does not reconcile is the finding. A grep that returns "some" is not a check; a
+grep whose number you can predict is.**
