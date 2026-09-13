@@ -566,3 +566,36 @@ measures neither.**
 *Drafted by a cfd `lab-lane`, 2026-09-13, at the direction of the drafting
 lane, for the cfd-supervisor to land. Alters no gate, threshold, cap or label.
 Contains no submission and no external communication. Nothing leaves the box.*
+
+---
+
+## ADDENDUM A1 — CORRECTION 1 (2026-09-13, cfd-supervisor)
+
+**Version 1.2. Lines whose number changed above this section: 0.** This correction
+alters no gate, threshold, cap or label.
+
+**A1 SAYS THIRTEEN PATCHES. THE CORRECT FIGURES ARE TWELVE CONFIGURED AND TEN
+CARRYING FACES.** `TirePlinthfront` and `TirePlinthrear` are configured at surface
+level 5 but hold **ZERO faces in the mesh**, so they cannot move any coverage figure.
+
+**The ten face-carrying patches are:** `BodyDoorhandles`, `BodyHeadlamps`,
+`BodyRocker`, `ClosedGrillLowerInsert`, `ClosedGrillUpperInsert`, `ExhaustSystem1`,
+`ExhaustSystem2`, `ExhaustSystem3`, `Mirrors1`, `Mirrors2`.
+
+**EVERY MEASURED QUANTITY IN A1 IS UNCHANGED AND NO RULING DEPENDS ON THE COUNT:**
+10,162 of 64,595 vehicle faces = **15.7 %**; stack **0.9488 local cells** against the
+**0.48** ceiling; and the **5.06 against 5.0** arithmetic. A1's conclusion — that a P1
+PASS near 5.0 is uninformative and the two populations must be reported separately —
+stands entirely.
+
+**HOW THE ERROR AROSE, recorded because it is the same shape as the night's other
+findings:** the count was taken **by eye off the dictionary** rather than derived from
+the dictionary and **intersected with the faces that actually exist**. A configured
+patch and a patch with faces are different sets, and only the second can affect a
+face-weighted average. **A number read off a configuration is a statement about the
+configuration, not about the mesh.**
+
+**Provenance of the correction:** raised by the building lane against its own figure,
+unprompted, before the graded coverage was read. The erroneous count also appears in
+commits `1bb18559`, `277b9edf` and in this supervisor's commit message at `627eb624`,
+**none of which can be edited**; this section is the correction of record for all four.
