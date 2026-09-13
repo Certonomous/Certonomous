@@ -1637,3 +1637,176 @@ the actual against **898,240** while recording that **29,600 was struck pre-comp
 nothing else (Sanaa item 19), as `ubuntu`, `STARTUP_ITERS=200`, from the `potentialFoam` +
 isentropic initialisation of §C.6. **This addendum is the registration of record**; the
 case-local `REGISTRATION_R1.md` is a working copy and is not authoritative where the two differ.
+
+---
+
+# ADDENDUM 14 — 2026-09-13, R1 IS REFUTED, THE EXHAUSTION CLAUSE FIRES, AND SST IS REGISTERED AS A TEST OF A DIAGNOSIS RATHER THAN AS AN ATTEMPT. Version 1.13.
+
+**lines whose number changed above this section: 0**
+
+## A14.1 R1's RESULT — `GATE FAIL`, AND A12.6 FIRES ON ITS OWN TERMS
+
+`CRM-WB-D8G-SOLVE-T-R1` launched 2026-09-13T06:59:48Z (pid 1403615, 32 ranks, freeze
+`300080d0`, grading freeze stamped `PINNED`), reached both registered reading points, and was
+stopped at iteration 102.
+
+| | A12.6 predicted | measured | |
+|---|---|---|---|
+| **P1** | `h` initial residual **< 0.99 by it 20** | **exactly 1** at it 20, 30, 50 and 70 | **FAIL** |
+| **P2** | clamped fraction **< 1 % at it 50** | **99.60 %** at it 50; **99.84 %** at it 90 | **FAIL** |
+| **P3** | Cd ∈ [0, 0.2], Cl ∈ [0, 1.0] | **Cd −4.100835176057e+15, Cl −1.592849706116e+16** | **FAIL** |
+
+A12.6: *"If P1 AND P2 both fail, the NUMERICS rung is EXHAUSTED."* **It does.**
+
+**A12.3's mechanism is REFUTED.** `consistent yes → no` was applied correctly to both
+dictionaries — the graded diff was that one key — and the failure is **unchanged in kind and
+worse in degree**: 99.84 % clamped against the 92.19 % baseline, forces at 1e16 against order 1.
+**The pressure–velocity coupling algorithm is not the cause.** One further suspect eliminated,
+which is the twenty-first elimination this act has performed.
+
+**A real difference the successor must not average away: the clamp split INVERTED.** The
+baseline ran 60.08 % low / 32.11 % high; R1 ran 37.59 % low / 62.25 % high.
+
+**STOPPED ON SANAA'S ITEM 12** — *"residual growth or a field outside bounds → stop"* — a
+**physics** rule, **not a cap; directive #17 untouched**: 519 core-minutes against a registered
+898,240. SIGTERM to the `mpirun` alone so the launcher's own failed-ramp path ran:
+`STAGE 1 rc=1`, registered dictionaries restored md5-identically, **stage 2 never entered**,
+saving 6,000 iterations of garbage. Record: `SOLVE_T_R1/STOP_RECORD_R1.md`.
+
+## A14.2 🔴 TWO INSTRUMENT FAILURES THAT OUTLIVE THIS ACT
+
+**(a) A residual is a ratio, and a ratio whose denominator is diverging is not a convergence
+measurement.** At iteration 70 the pressure equation reported an initial residual of
+**5.7e-29** while Cd sat at **−3.7e15**; `Ux` fell to 0.013 alongside. **Every residual channel
+reported convergence while the field was garbage** — the normalisation denominator diverges with
+the field, so the *normalised* residual collapses. **Successor rungs gate on the FIELD, never on
+the normalised residual.** This belongs with the act's other instrument failures and is in the
+channel this lab trusts most.
+
+**(b) A rate is not a health channel.** A12.8's P5 predicted the iteration rate would fall below
+30 s/it, on the reasoning that a healthy pressure equation solves faster than a sick one. **It
+came true — 10.81 s/it against a 280.7 s/it basis — while the run destroyed itself.** That is
+exactly the block-195 trap the entry's own advancement rule warns about, and the predictor was
+walked into it by its author. **A predictor that a dying run satisfies is worse than no
+predictor, because it reads as corroboration.** P5 is struck as a health channel and retained
+only as a cost input.
+
+## A14.3 DATED REPAIR — THE CLOSURE GUARD, LANDED AT `0abc91e9`
+
+`launch_crm_wb_v2.sh:84` carried `grep -qE 'RASModel +SpalartAllmaras;' … || fail`, a **hard
+refusal of every closure but Spalart–Allmaras**. §C.6 registers SST as the second closure, §C.7.4
+requires it on Coarse and Medium for the junction bubble, and A12.6 climbs to it: **the launcher
+would have refused the successor its own act registers**, with a message pointing the reader at
+the case dictionary rather than at the guard. **Widened to a closed registered set, never
+deleted** — defaulted to the primary so R1-style runs are unchanged, checked against
+`{SpalartAllmaras, kOmegaSST}`, asserted against the dictionary that will run, and **logged**, so
+`LAUNCH.log` names the closure it never previously carried. Launcher sha256 after repair:
+`1947e507bcb4477fca7d60aa76c203bcc496e41f44d905bb72e21212869ee0f4`.
+
+## A14.4 🔴 THE DIAGNOSIS, REGISTERED AS A FALSIFIABLE PREDICTION **BEFORE** SST RUNS
+
+This is the point of the run and the reason it is not attempt twenty-two.
+
+> **REGISTERED DIAGNOSIS (chief's, recorded here before its test):** an `h` residual pinned at 1
+> with two-thirds of cells clamped from iteration ~40, on a wall-resolved high-aspect-ratio
+> committee grid, is **the classic segregated-steady-solver startup failure — not a closure
+> one.** R1 is evidence for it: changing the coupling algorithm moved nothing.
+>
+> **REGISTERED PREDICTION D:** if the diagnosis is right, **SST pins the same way** — S1 and S2
+> below both fail, with a clamped fraction above 90 % by time step 50.
+>
+> **BOTH OUTCOMES ARE INFORMATIVE, WHICH IS NEW ON THIS ACT.** An SST that **pins** is
+> **positive evidence** for the solver-path diagnosis and the LTS rung is entered with support
+> rather than as a guess. An SST that **clears** **refutes the diagnosis outright**, is the
+> larger finding of the two, and makes the junction-bubble comparison of §C.7.4 available at the
+> same time.
+>
+> **What SST does NOT test:** the mesh. Rung 1 is untouched either way.
+
+## A14.5 THE SST RUN — ONE REGISTERED CHANGE AGAINST THE R1 BASELINE
+
+**Baseline:** R1 exactly as it ran — same mesh, BCs, schemes, freestream, clamps, 32 ranks, same
+two-stage ramp, `consistent no` retained (A12's change stands; it is the baseline now, not the
+variable).
+
+| file | key | R1 | SST rung |
+|---|---|---|---|
+| `constant/turbulenceProperties` | `RASModel` | `SpalartAllmaras` | `kOmegaSST` |
+| launcher argv | `CLOSURE` | *(default)* | `kOmegaSST` |
+
+**FIELDS THAT MUST BE BUILT, AND THEIR REGISTERED FREESTREAM VALUES.** SA carries `nuTilda`;
+SST carries `k` and `omega`, which do not exist in `0.orig`. Derived from the §3 registered
+state (ρ∞ = 0.04503298815, U∞ = 300.019 m/s, c_ref = 7.00532 m, Re = 5×10⁶), **not chosen by
+eye**: μ = ρUc/Re = **1.89298×10⁻⁵ Pa·s**, ν = **4.20346×10⁻⁴ m²/s**, a∞ = U/0.85 =
+**352.96 m/s**. NASA TMR freestream convention for SST:
+
+- **k∞ = 9×10⁻⁹ a∞² = 1.1212×10⁻³ m²/s²**
+- **ω∞ = 10⁻⁶ ρ∞ a∞² / μ = 296.38 s⁻¹**
+
+**Self-check, and it is the reason these values are trusted:** ν_t∞ = k∞/ω∞ = 3.783×10⁻⁶ m²/s,
+so **ν_t∞/ν∞ = 0.0090** — TMR's stated SST freestream ratio to two figures, reproduced from an
+independent path. The same state also reproduces SA's registered `nuTilda` = 3ν =
+1.26104×10⁻³ against the 0.0012610370502 already in `0.orig`.
+
+**Wall treatment (registered, and to be confirmed by the y+ readback, not assumed):** the
+committee grid is wall-resolved, so **no wall functions on the velocity scale** — `k`
+`fixedValue 1e-12` at `wing`/`body`, `omega` `omegaWallFunction` (its viscous-sublayer limit is
+the wall-resolved form), `nut` `nutLowReWallFunction`. `symmetry` symmetric, `farfield`
+inletOutlet on the freestream values above.
+
+## A14.6 SST's REFUTATION CONDITIONS — NUMERIC, WRITTEN FIRST
+
+| # | channel | threshold |
+|---|---|---|
+| **S1** | `h` initial residual | **< 0.99 by iteration 20** |
+| **S2** | `limitTemperature` clamped fraction | **< 1 % at iteration 50** |
+| **S3** | forces | Cd ∈ [0, 0.2] and Cl ∈ [0, 1.0] through iteration 300 |
+| **S4** | field gate, replacing P5 | `p` **absolute** max < 2 × p₀ = 12,854 Pa and `max\|U\|` < 2 U∞. **Read from the field, never from a normalised residual (A14.2a).** |
+
+> **If S1 and S2 both fail, PREDICTION D IS CONFIRMED**, the closure is eliminated, and the act
+> proceeds to the **pseudo-transient (LTS) rung** — drafted at
+> `verification/campaign/CRM_WB_D8G_ADDENDUM_13_LTS_RUNG_DRAFT.md`, to be folded in as its own
+> addendum. **No further steady-`rhoSimpleFoam` variant may be registered on this act**, of any
+> closure, relaxation, clamp, linear solver or initialisation.
+
+## A14.7 COST
+
+Measured R1 rate on this mesh at 32 ranks, same solver and ramp: **10.81 s/iteration** (from
+R1's own `ExecutionTime`, 973.28 s over 90 iterations) — **a measured rate from the run
+immediately preceding, not carried across from another branch.** SST adds a second turbulence
+transport equation, so the honest expectation is dearer per iteration, and the **cap is taken
+from the worst case rather than the prediction**, as M6I's ×2.65-against-a-×1.6-estimate
+requires: worst case remains `rhoSimpleFoam` at **280.7 s/it**.
+
+- Reading points (300 iterations) at the measured rate: **1,730 core-minutes**.
+- To the §6 cap of 6,000 iterations at the measured rate: **34,592 core-minutes** (~$29.6 derived).
+- **Cap registered at the worst case × 3 = 2,694,720 core-minutes.**
+
+`cost_basis`: wall from the solver's own `ExecutionTime`; $0.0513/core-h **reported-by-owner, not
+measured** (`COMPUTE_BUDGET_CHARTER` §5). Directive #17: no cap kills the run. Calibration row
+owed to `docs/COST_CALIBRATION.md`, and it must score **R1 as a stopped run** rather than as a
+ratio against a length never attempted.
+
+## A14.8 🔴 A STRUCTURAL DEFECT IN HOW THIS ACT PINS ITSELF — AND THE ONE-LINE REPAIR
+
+R1's queue entry named **this pre-registration as comparator #1** in `grading_freeze`.
+`grader_freeze_gate.py:575–587` computes `disk = blob_sha(disk_p.read_bytes())` and awards
+`PINNED` **only if `disk == frozen`**. **So appending any addendum to this file flips a live
+run's freeze to `MISMATCH` on a registration that never changed** — bookkeeping corrupting a
+physics verdict. ADDENDUM 13 was therefore held out of this file while R1 was live, and this
+addendum was written only after R1 stopped.
+
+**There is no commit-only mode in that field** — every state it can report is computed from the
+disk read. But **the repair needs no tooling change, because the conflict is self-inflicted**:
+
+- `prereg_commit` + `prereg_path` is **already a pure commit pin**. `check_prereg_at_commit` runs
+  `git cat-file -e <sha>:<path>` and **never reads the disk**, so it is stable under every future
+  addendum. Nothing needs to change there.
+- `grading_freeze` is for **comparators** — the instruments that turn fields into verdicts. Those
+  do not grow addenda and *should* be byte-compared to disk.
+
+> **REGISTERED FROM HERE ON: this pre-registration is NOT named in `grading_freeze`.** It is
+> pinned by `prereg_commit`, by the field designed for it. **The two pins have different jobs and
+> want different semantics — a registration asks "did this text exist at this commit", a
+> comparator asks "is the file about to run byte-identical to the frozen one" — and conflating
+> them put a deliberately growing document under a byte-identity rule.**
