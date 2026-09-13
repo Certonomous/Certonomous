@@ -744,3 +744,55 @@ to 0.0955 mm, ceiling 1.0 mm to bound the work.
 
 > **Route 2's disclosure still waits on r/R = 0.70 and outboard. No certificate carries a
 > shortfall factor from three inboard stations while the reference radius is refused.**
+
+---
+
+## CORRECTION 1 — ADDENDUM G, 2026-09-13. THE INSTRUMENT'S DESIGNER IS NOT EXEMPT FROM THE INSTRUMENT'S FINDING
+
+*lines whose number changed above this section: 0*
+
+### G.1 What happened
+
+`measure_le_radius.py` exists because a **clamp** was reported as a measurement: leading-edge
+facets sat on a 0.40 mm floor, so the data could only yield `R ≤ 0.764 mm`, and circles were
+being fitted to points whose spacing was set by that floor (addendum E.2).
+
+**One report later, the measurement run launched to fix it carried the same defect at the other
+end.** The readout `R = N·h/(2π)` inherits **both** clamps. At N = 12 a **ceiling of 1.0 mm**
+cannot report any radius above **1.910 mm** — and the best station already in hand, r/R = 0.40
+at R = 1.8233 mm, needs **h = 0.9547 mm**, which the instrument's own 5 % rule calls
+**MAX-BOUND** at h ≥ 0.95.
+
+> **The run in flight would have REFUSED r/R = 0.40 and everything inboard of it — where thicker
+> sections give larger radii still — and would have measured LESS than the run it was built to
+> improve on.** The ceiling doing at the top precisely what the floor did at the bottom, in an
+> instrument built specifically to detect that class of error, by the person who had just
+> found it.
+
+Caught on the cfd supervisor's warning, with the job about a minute from the stations it would
+have erased.
+
+### G.2 The fix, and which half of it matters
+
+**Raising the ceiling fixed today's run. The preflight fixes the class.**
+
+- **Resolvable window, printed before a single facet is read:** `R ∈ [N·floor/2π, N·ceiling/2π]`.
+  For the relaunch (floor 0.05, ceiling 3.0) that is **R ∈ [0.0955, 5.7296] mm**. Nobody starts
+  a long job whose answer is bounded out of range by its own settings.
+- **Edge warnings on ACCEPTED stations** — p90 within 20 % of the ceiling, or p10 within 25 %
+  of the floor. This closes the variant the binary guard misses: **a station inside the window
+  but hugging its edge is quietly half-clamped and reports a number anyway.** An in-or-out test
+  would have passed r/R = 0.40 at 0.9547 against 1.0 and said nothing.
+- Re-run against the old data, the preflight prints `R ∈ [0.7639, 3.8197] mm` — which is by
+  itself the explanation of why that tessellation could never have measured the outboard LE.
+
+**And the constraint that was supposed to bound the work was buying nothing while costing the
+measurement:** a *higher* ceiling is *cheaper*, because it lets flat regions stay coarse.
+
+### G.3 The generalisation
+
+> **An instrument that reads a physical quantity through a numerical control inherits every
+> clamp on that control, at both ends, and a clamped reading is returned as a confident number
+> rather than as a refusal.** State the resolvable window before the run; classify every sample
+> by which constraint bound it; refuse the clamped ones; and warn on the ones merely crowding a
+> limit. Applies to any measurement derived from a mesh-size parameter, not to this case.
