@@ -134,3 +134,90 @@ measurement that failed to close it.
 **M6I PARKS. Parked is not cancelled.**
 
 *No agent's message is Sanaa's consent. Submissions parked.*
+
+---
+
+# ADDENDUM 1 — 2026-09-13, cfd-supervisor. "NO SHOCK AT ANY LEVEL" IS CORRECT AS A FINDING AND WRONG AS A SENTENCE. CORRECTED, NOT WITHDRAWN. PLUS A SYSTEMATIC MISLOCATION IN THE FROZEN D2 LIMB.
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+**No gate, threshold, band, cap or label is altered.** The record's eliminations and its cost
+figures stand unchanged. What changes is one sentence's wording and two disclosed defects.
+
+## A1.1 THE CHALLENGE, AND MY OVER-CORRECTION
+
+The chief challenged the premise: a 983k-cell M6 at Mach 0.84 and 3.06° shows the lambda shock
+in every code ever run on it, so "no shock" is a flow-condition or post-processing defect until
+proven otherwise. **The challenge was right to make and I answered it badly.**
+
+I read the solved L1 field — all 983,040 cells — and found **M_max = 1.74265, 54,341 cells
+supersonic (5.528 %)**, then declared the shock present and the finding an extraction defect.
+**I asserted that conclusion in the same message in which I asked for the locus, before the
+locus arrived.** The locus is what decides it.
+
+## A1.2 WHERE THE SUPERSONIC CELLS ARE — AND THE M 1.74 IS EXCLUDED GEOMETRY
+
+| threshold | cells | at tip η ≥ 0.96 | at LE x/c < 0.10 | either |
+|---|---:|---:|---:|---:|
+| M > 1.2 | 9,233 | 50.5 % | 64.3 % | **100.0 %** |
+| M > 1.4 | 655 | **100.0 %** | 0 % | **100.0 %** |
+| M > 1.5 | 79 | **100.0 %** | 0 % | **100.0 %** |
+
+**Every cell above M 1.4 is at the tip**, at η 0.99–1.05, which `A3_M6_AGARD_CP_VALIDATION_
+PREREGISTRATION.md` §2 **already excludes** — the graded stations stop at η 0.96 and η 0.99 was
+struck before any CFD number existed. On the graded upper surface (η 0.20–0.96, x/c 0.10–0.90)
+the **maximum Mach is 1.1535**.
+
+**Verified independently by the supervisor from the surface Cp alone:** M 1.74265 implies
+**Cp = −1.4165** isentropically, and **the measured minimum Cp on any graded station is about
+−0.98.** Those cells cannot be on the graded surface. The tip pocket is tip-vortex acceleration.
+
+## A1.3 THE CORRECTED SENTENCE
+
+**Struck:** ~~"there is no shock at any level"~~ — it reads as *the flow is not transonic*, and
+that is false.
+
+**Reads:** *The flow IS transonic and carries a surface-attached supersonic pocket — x/c 0.008
+to 0.613 at η 0.65, 94.6 % of it within 0.05c of the wall, peak isentropic edge Mach **1.364**
+against the experiment's **1.524**. It recompresses **WITHOUT A SHOCK**: 18 % of the
+recompression in the largest single interval over 0.069c, against the experiment's **48 % in
+one 0.050c interval**; dCp/d(x/c) climbs smoothly +0.29 → +0.87 → +1.20 → +1.60 and never
+jumps.*
+
+Edge Mach reproduces from the surface Cp at three stations: CFD **1.364 / 1.374 / 1.359**
+against AGARD **1.524 / 1.544 / 1.562** at η 0.65 / 0.80 / 0.96.
+
+**THIS STRENGTHENS THE RESOLUTION CONCLUSION RATHER THAN UNDERMINING IT.** A weaker pocket with
+a smeared recompression is what under-resolution plus an upwind-biased pressure term produces.
+**R5–R8 were not chasing a phantom; they were chasing a real deficit.**
+
+## A1.4 TWO EXTRACTION DEFECTS — NEITHER CREATES NOR CONCEALS A SHOCK
+
+**DEFECT A — `vtkCellDataToPointData` averaging costs ~87 % of the peak gradient.** Raw cell
+values aft of x/c 0.15 give a steepest gradient near **+1.6**; the averaged output gives +1.60
+over 0.065c. On a smooth curve this is cosmetic. **On a solution with a real 2-cell shock it
+would soften it materially, and that is untested.**
+
+**DEFECT B — THE FROZEN D2 LIMB SYSTEMATICALLY MISLOCATES THE MAXIMUM RISE. NEW, AND IT IS A
+PROPERTY OF THE REGISTERED COMPARATOR.** D2 resamples CFD onto the **experimental orifice
+positions**, whose intervals **widen aft**: **0.0501c at x/c 0.4752 against 0.0701c at 0.8851**.
+On a steadily-rising smooth curve a wider interval accumulates more ΔCp, so the argmax selects
+**the widest aft interval rather than the steepest feature.** That is precisely why `x_shock`
+reported **0.8851** (rise 0.1098) while the raw trace's largest rise sits at **x/c 0.602–0.671**
+(+0.0926).
+
+**It mislocates; it cannot create or conceal a shock** — a real shock would dominate any
+interval it fell in. **The B2 verdicts are unaffected and are not reopened.** But no future
+reader should take `x_shock` from this comparator as a physical shock position, and a successor
+limb should measure gradient per unit chord rather than ΔCp per orifice interval.
+
+## A1.5 WHAT IS WITHDRAWN, AND WHAT IS NOT
+
+**Withdrawn:** the supervisor's claim that the shock is present and the finding an extraction
+defect. **Not withdrawn:** the parking verdict, the ladder exhaustion, the seven eliminations,
+the cost figures, and the three live leads. **The lane declined to accept a self-criticism it
+judged unearned and said so** — the detector saw a shockless curve because the curve is
+shockless.
+
+**Not verified:** whether the tip's M 1.74 pocket terminates in a shock of its own — it is
+outside every graded station and was not examined. Whether Defect A would matter on a sharper
+solution. The raw trace is one cell row at η 0.64, 0.0100 of semispan inboard of the η 0.65 cut.
