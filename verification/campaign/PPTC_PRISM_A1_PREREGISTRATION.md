@@ -113,3 +113,24 @@ measured** — the box cannot read its own billing. 20 core-min = 0.333 core-h
 No solver. No queue entry. No edit to
 `cases/PPTC_VP1304/PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md` or any other
 frozen document. No change to `F360_coarse/`, which another lane holds.
+
+---
+
+## ADDENDUM 1 — 2026-09-13, AFTER first compute. TWO CITATION LINE NUMBERS CORRECTED. NO GATE, THRESHOLD, CAP OR LABEL IS ALTERED.
+
+Version 1.1. Lines whose number changed above this section: 0.
+
+Section 2 cited the layer-iteration-0 quality block as
+`log.snappyHexMesh:3170-3180`. The correct range in
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/F360_coarse/log.snappyHexMesh`
+is **3251-3259**, with the summing line `Detected 7674028 illegal faces` at
+**3260** and `Extruding 0 out of 724711 faces (0%)` at **3261**. The struck
+citation is left in place above, unedited; this is the correction.
+
+The nine counts at 3251-3259 sum to exactly 7,674,028, which is the figure the
+log prints at 3260 — so "illegal faces" there is the sum of the mesh-quality
+block, not a separate narrower test. The dominant term, `faces with face pyramid
+volume < 1e-13 : 5613625` at 3252, is 73.2% of it.
+
+The rung's §5 cost cap of 20 core-min, the three thresholds of §4 and the labels
+of §4 are untouched by this addendum.
