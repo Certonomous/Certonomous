@@ -10,7 +10,9 @@ independently three times in this lab:
   * 2026-09-03, heat-transfer, verification/runs/T-family/T5_runs/
     YPLUS_RECOVERABILITY_2026-09-03/README.md  (paired live control, 0 core-min)
   * 2026-09-12, cfd, verification/campaign/DRIVAER_SOLVED_YPLUS_2026-09-12.md
-    (52/52 patches zero on both arms; caught by a CRM positive control)
+    (52/52 patches NON-ZERO under the solver spelling, on both arms -- "both arms"
+    there means the two DrivAer CONFIGURATIONS, not two invocations; that record
+    had already REJECTED the generic form as a failed control at its :21-22)
   * 2026-09-13, cfd, 53/53 patch readings zero across two different solvers
 
 The canonical minimal reproduction is already on disk and needs no rebuild:
@@ -27,9 +29,19 @@ Route (a) is the operative one for wall-function cases: a CRM case that HAS wall
 functions still returned zero under the generic binary, which route (b) cannot
 explain.
 
-THIS IS NOT AN UPSTREAM DEFECT REPORT.  Whether (a) is a bug or documented
-behaviour of ``postProcess`` has NOT been researched.  Nothing here is filed,
-sent or reported outside this box (standing rule 7).
+THIS IS NOT AN UPSTREAM DEFECT REPORT, AND (a) IS NOT A BUG.  Researched
+2026-09-13: ``yPlus.C:171-184`` is an explicit else branch that prints "Unable to
+find turbulence model in the database: yPlus will not be calculated", then -- only
+under ``postProcess`` -- prints the remedy itself ("Please try to use the solver
+option -postProcess, e.g.: <solver> -postProcess -func yPlus"), and returns false,
+so the field is never computed and ``write()`` emits construction zeros.  DOCUMENTED
+BEHAVIOUR WITH THE FIX IN THE OUTPUT.  Paired measurement on the canonical repro,
+motorBike at t=300: ``postProcess`` 68/68 all-zero with that warning present once;
+``simpleFoam -postProcess`` 68/68 NON-ZERO with the warning absent (lowerWall
+3.591/3637/201.6).  The warning sits at ``motorBike/log.yPlus:39-43``, dated
+2026-07-27, THREE LINES ABOVE the first of its 68 zeros -- the cause and the cure
+were in the very log the zeros were read from.  Nothing here is filed, sent or
+reported outside this box (standing rule 7).
 
 WHAT THIS MODULE IS FOR.  CLAUDE.md rule 3: a zero from a reader not shown able
 to see a non-zero is not evidence.  This guard is the reader-side half of that.
