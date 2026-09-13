@@ -29277,3 +29277,50 @@ check with a race in it.
 explicitly** — `HEAD`, or a sha. **A bare `git diff`, `git diff --stat`, `git diff --numstat` or
 `git status` has no place in a verification**, and `git diff --cached` is the same hazard wearing
 the other face. Prefer a form with **no shared mutable state in it at all**.
+
+## L-595 — THE UNIFYING FAULT BEHIND THREE OF TONIGHT'S DEFECTS: A CHECK MUST EXERCISE THE THING, NOT DESCRIBE IT. Prefer executing to inspecting
+
+**Three checks in one night, in one item, each written by a careful author specifically to be
+rigorous, each of which consulted the WRONG OBJECT and reported success:**
+
+| # | the check | what it claimed | what it actually read |
+|---|---|---|---|
+| 1 | `grep -c '<path>' "$0"` counting live processes / surviving literals | how many exist | **its own text**, which contained the pattern |
+| 2 | `git diff --numstat` proving append-only | worktree vs **HEAD** | worktree vs the **shared INDEX**, which peers move |
+| 3 | `grep -q 'bash /mnt/$ARM/$(basename' "$0"` | the command string is **valid** | the line **mentions** the variable |
+
+**Number 3 is the clearest and it cost a launch.** A repair replaced a hard-coded filename with
+`$(basename "$CMDFILE")` and got the escaping wrong, leaving a stray quote. **A control was added
+for exactly that line. It passed.** The selftest reported `PASS n=13` on a launcher that could not
+start a container, because a `grep` over source text **cannot distinguish a line that mentions a
+thing from a line that works.**
+
+**THE UNIFYING FAULT.** In each case the check operated on something ADJACENT to the property
+being claimed — the file's text instead of the process table, the index instead of the commit,
+the source line instead of its behaviour. **Adjacency is what makes these survive review: the
+check looks like it is about the right thing, and it is about something one step away from it.**
+
+**THE RULE: EXERCISE, DO NOT DESCRIBE.**
+1. **To claim a string is valid shell, RUN THE PARSER ON THE STRING** — `bash -n -c "$CMD"` — not
+   a pattern match on the line that builds it. The repair here builds the string **once**,
+   validates it, then passes **that same object** to `docker run`: **the string that is checked is
+   the string that runs.**
+2. **To claim a file is unchanged relative to a commit, compare against THE COMMIT**, by blob
+   hash, not against shared mutable state (L-594).
+3. **To count things, use a predicate the counter itself cannot satisfy** (L-580).
+4. **Ask of every check: what object does this actually read, and is it the object the claim is
+   about?** If the answer is "a description of it", the check is one step away from the truth and
+   will one day report the description's state instead of the thing's.
+
+**THE TELL.** A check built from `grep`, `wc`, or a bare git subcommand over **source text** is
+almost always describing. A check that **runs the real code path, on the real object, and fails
+when that object is broken** is exercising. When both are available, the second costs no more and
+cannot drift from what it claims.
+
+**DRIVE IT AGAINST A BROKEN COPY.** Every repair in this family that held was one whose control
+was **driven against a deliberately broken artefact and seen to fail on it** — not asserted, not
+reasoned about. The three failures above were all controls **that had never been shown to fail.**
+
+**Recorded because the author found all three against their own work, in sequence, and named the
+pattern rather than filing three separate bugs** — including the second one introduced while
+repairing the first, and a fourth caught inside the addendum documenting the third.

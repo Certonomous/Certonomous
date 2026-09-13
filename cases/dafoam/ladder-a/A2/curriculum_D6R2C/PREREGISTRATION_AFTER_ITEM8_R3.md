@@ -721,3 +721,135 @@ launcher was the author's own. `= $0.00068` derived, not measured, `cost_basis` 
 - **It does not claim the launcher is now correct.** It claims two specific defects are repaired, two
   controls now fail on a broken copy, and the launcher reports its own md5 so the table and the artefact
   are comparable. **`DEC6` is the test.**
+
+---
+
+## ADDENDUM 2 — 2026-09-13 — `rc = 2`: THE ADDENDUM 1 REPAIR SHIPPED A QUOTING DEFECT, AND ITS CONTROL WAS A GREP
+
+**This addendum carries the document to version 1.2.** Line 4 still reads `Version 1.0` and is
+**deliberately not edited.**
+
+**Lines whose number changed above this section: 0.** Proof in §A2.7.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** Every gate and constant stands as
+frozen. **`DEC5`'s and `DEC6`'s `NOT A RESULT` rows both stand, are never re-seeded and are never
+re-graded.**
+
+### A2.0 WHAT HAPPENED
+
+`DEC6` launched 2026-09-13T09:19:38Z. **Every guard passed**, including the new ones — cap `1082.100`
+resolved under the `DEC6 → DEC5` mapping, `G_DEPSLIB_PASS`, `scanned=2 staged=2`, `G_COLD`. Then:
+
+```
+bash: -c: line 1: unexpected EOF while looking for matching `"'
+rc = 2, 1 s wall, 0.067 core-min
+```
+
+Frozen grader **REFUSED, exit 2, `REFUSE_MISSING_DECOMP_RECORD`** → **`NOT A RESULT`**. Cap untouched
+(0.006 % used), hygiene clean.
+
+### A2.1 THE DEFECT — INTRODUCED BY THE ADDENDUM 1 REPAIR ITSELF
+
+ADDENDUM 1 replaced a hard-coded command-file name with `$(basename "$CMDFILE")` **and got the escaping
+wrong**. Reproduced exactly, not inferred:
+
+```
+ADDENDUM 1 built:  . /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/DEC6/d6r2c_dec5_cmd.sh"
+                                                                                              ^ stray quote
+bash -n:           bash: -c: line 1: unexpected EOF while looking for matching `"'
+```
+
+**The trailing `"` is the whole failure**, and it reproduces the container's message character for
+character. **This is the third launch attempt stopped by this launcher and the SECOND defect introduced
+while repairing the previous one.**
+
+### A2.2 THE FINDING THAT MATTERS MORE THAN THE QUOTE — **A GREP IS NOT A TEST THAT SOMETHING RUNS**
+
+ADDENDUM 1 added a control for exactly this line. **It passed.** It was:
+
+```
+grep -q 'bash /mnt/\$ARM/\$(basename' "$0"
+```
+
+**It asserted that the line MENTIONED `$CMDFILE`. It could not tell whether the result was valid
+shell.** The launcher selftest reported `PASS n=13` on a launcher that could not start a container —
+the same shape as ADDENDUM 1's own finding, one level in: **a check on the TEXT of a line is not a check
+that the line RUNS.** Tonight this family has now produced: a check that read its own error message
+(§A1.3), a check that read the wrong git reference (§A1.9), and a check that read a line instead of
+executing it.
+
+### A2.3 THE REPAIR — BUILD ONCE, VALIDATE, THEN PASS
+
+```
+CONTAINER_CMD=". /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/$ARM/$(basename "$CMDFILE")"
+bash -n -c "$CONTAINER_CMD" || { echo "ABORT G-CMDSTRING …"; exit 6; }
+```
+
+**The string that is checked is the string that runs** — one object, constructed once, validated as
+shell before `docker run` ever sees it, and echoed into the log as `D6R2C_DEC5_CONTAINER_CMD` so a
+reader can see what the container was told to do. A malformed string now **aborts at launch** instead of
+burning a container.
+
+**AND THE CONTROL NOW EXECUTES INSTEAD OF GREPPING.** It builds the string the same way the launcher
+does, requires `bash -n -c` to accept it, **and** requires it to name the staged file.
+**DRIVEN AGAINST A COPY CARRYING ADDENDUM 1's ESCAPING, IT FAILS**:
+`SELFTEST FAIL the container command string is malformed`. Verified on the repaired file:
+`CONTAINER_CMD = . /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/DEC6/d6r2c_dec5_cmd.sh`,
+`bash -n: VALID`.
+
+### A2.4 §A1.4's MECHANISM WORKED ON ITS FIRST RUN
+
+The ledger row reads:
+
+```
+D6R2C_DEC5_ROW arm=DEC6 … launcher_md5=0d1d117ac90b19636152eb6999dfde5f
+```
+
+**That is exactly the value §A1.6 registered**, so the table and the artefact that ran were comparable
+by a reader, on the first arm after the mechanism was added. **The self-md5 report did its job even
+though the launcher failed** — which is the point of a channel that records rather than gates.
+
+### A2.5 SECTION 9 — WHAT MOVED AND WHAT DID NOT
+
+| file | md5 at ADDENDUM 1 | md5 now | moved? |
+|---|---|---|---|
+| `d6r2c_dec5_grade.py` | `434dfbd6b45e7b6e31792fc37cc2db00` | unchanged | **NO — THE GRADING PATH DID NOT MOVE, ITS PIN DID NOT CHANGE** |
+| `d6r2c_dec5_decomp.py` | `fb19791784ebb73747c2f6c466a0d174` | unchanged | **NO** |
+| `d6r2c_dec5_genwingmesh.py` | `554b6bba6bbcc90d7d00cb39c17d635d` | unchanged | **NO** |
+| `d6r2c_guard_deps.sh` | `1de7fcd349b7227a49a008f180f909cc` | unchanged | **NO** |
+| `d6r2c_dec5_run_arm.sh` | `0d1d117ac90b19636152eb6999dfde5f` | **`e1de4e8b303153d7a6ac2e7da13f1379`** | **YES — this addendum is that disclosure** |
+
+Launcher selftest **`PASS n=14`** (the count updated with the new control, §A1.7's lesson applied this
+time without being told); producer **`PASS n=56`**; grader **`PASS n=89`**.
+
+### A2.6 `DEC7` — THE RE-RUN ID
+
+`DEC6` holds a ledger row and a directory, so `G-COLD` refuses it. **`DEC7` is the successor and
+inherits the IDENTICAL registered figure** by the same `→ DEC5` mapping into the frozen grader.
+**`DEC7` IS KEYED AT EVERY ARM-ID SITE IN THIS SAME REPAIR** — the cap mapping, the accepted-arm
+`case`, the usage string — and the launcher md5 in §A2.5 is the value AFTER that keying, because a
+table written before the last edit is the defect this addendum is about. **No new
+threshold; the grader is not touched.** Every arm-id site keyed, asserted by control.
+
+### A2.7 THE APPEND-ONLY PROOF — BY THE SOUND METHOD OF §A1.9
+
+- `HEAD`'s blob is **723 lines**, md5 **`94e72afc41fa7bf86414ef4fc202fbe0`**, and `head -723` of the
+  worktree hashes identically. **Nothing above line 723 was touched.** The count is derived from the
+  blob in the same shell invocation.
+- **`git diff HEAD --numstat`** — never bare `git diff`, which reads the shared index (§A1.9, L-594) —
+  is quoted as corroboration only.
+
+### A2.8 SPEND
+
+`DEC6`: **0.067 core-min**, defect-attributable waste, the author's own. Cumulative on this
+registration: `DEC5` 0.800 + `DEC6` 0.067 = **0.867 core-min = $0.00074 derived, not measured.**
+**Three launch attempts have cost 0.867 core-min between them** — §11a's cheap-and-disposable design
+holding, with the expense in turnaround rather than compute. **No calibration row: no arm has
+completed.**
+
+### A2.9 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not move the grading path**, any gate, threshold, cap or label.
+- **It does not re-grade `DEC5` or `DEC6`.** Both stand at `NOT A RESULT`.
+- **It does not claim the launcher is now correct.** It claims one further defect is repaired and that
+  the control for it now executes rather than greps. **`DEC7` is the test.**

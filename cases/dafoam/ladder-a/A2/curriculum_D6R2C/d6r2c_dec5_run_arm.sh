@@ -103,7 +103,7 @@ cap_core_min() {
   # read from the FROZEN grader under DEC5's own key.  NO NEW THRESHOLD IS
   # INVENTED, none is raised and none is reduced, and the grader is NOT touched.
   local a="$1"
-  case "$a" in DEC6) a=DEC5 ;; esac
+  case "$a" in DEC6|DEC7) a=DEC5 ;; esac
   python3 "$SRC/d6r2c_dec5_grade.py" --print-cap "$a" 2>/dev/null
 }
 
@@ -375,8 +375,16 @@ if [ "$ARM" = "--selftest" ]; then
   # existed in TWO places -- the CMDFILE assignment and the docker line -- and
   # the rename moved one.  The selftest never read the docker invocation, so it
   # passed n=9 on a launcher that could not start.  ONE SOURCE now, asserted.
-  grep -q 'bash /mnt/\$ARM/\$(basename' "$0" \
-    && echo "SELFTEST ok the container command path is derived from \$CMDFILE, not a second literal" \
+  # THE CONTROL EXECUTES THE CONSTRUCTION INSTEAD OF GREPPING IT.  ADDENDUM 1's
+  # grep passed on a line that could not run; this builds the string the same way
+  # the launcher does and requires it to be VALID SHELL naming the right file.
+  ( ARM=DEC6; CMDFILE=/tmp/x/d6r2c_dec5_cmd.sh
+    C=". /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/$ARM/$(basename "$CMDFILE")"
+    bash -n -c "$C" 2>/dev/null && case "$C" in *"/mnt/DEC6/d6r2c_dec5_cmd.sh"*) exit 0 ;; *) exit 1 ;; esac ) \
+    && echo "SELFTEST ok the container command string is VALID SHELL and names the staged file" \
+    || { echo "SELFTEST FAIL the container command string is malformed"; rc=1; }
+  grep -q 'CONTAINER_CMD=' "$0" \
+    && echo "SELFTEST ok the docker line passes \$CONTAINER_CMD, not a second literal" \
     || { echo "SELFTEST FAIL the docker line carries its own copy of the command-file name"; rc=1; }
   # L-580: this predicate is written so THIS LINE CANNOT SATISFY IT -- the file
   # holds the bracketed form, which the regex itself does not match.  The first
@@ -385,8 +393,8 @@ if [ "$ARM" = "--selftest" ]; then
   [ "$(grep -c 'd6r2c_de[c]4_' "$0")" -eq 0 ] \
     && echo "SELFTEST ok no predecessor literal survives anywhere in this launcher" \
     || { echo "SELFTEST FAIL a predecessor literal survives: $(grep -n 'd6r2c_de[c]4_' "$0" | head -3)"; rc=1; }
-  [ "$(cap_core_min DEC6)" = "$(cap_core_min DEC5)" ] \
-    && echo "SELFTEST ok DEC6 carries the IDENTICAL registered cap as DEC5" \
+  [ "$(cap_core_min DEC6)" = "$(cap_core_min DEC5)" ] && [ "$(cap_core_min DEC7)" = "$(cap_core_min DEC5)" ] \
+    && echo "SELFTEST ok DEC6 and DEC7 carry the IDENTICAL registered cap as DEC5" \
     || { echo "SELFTEST FAIL DEC6 does not carry DEC5's cap"; rc=1; }
   grep -q 'launcher_md5=\$(md5sum "\$0"' "$0" \
     && echo "SELFTEST ok the launcher reports its OWN md5 into the ledger row" \
@@ -405,11 +413,11 @@ if [ "$ARM" = "--selftest" ]; then
     && echo "SELFTEST ok both successor instruments are pinned in this file" \
     || { echo "SELFTEST FAIL an instrument is unpinned"; rc=1; }
   # the count is the number of checks ACTUALLY DRIVEN above.
-  [ "$rc" -eq 0 ] && echo "D6R2C_DEC5_LAUNCH SELFTEST PASS n=13" || echo "D6R2C_DEC5_LAUNCH SELFTEST FAIL"
+  [ "$rc" -eq 0 ] && echo "D6R2C_DEC5_LAUNCH SELFTEST PASS n=14" || echo "D6R2C_DEC5_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_dec5_run_arm.sh <DEC5|DEC6> <image>  |  --selftest"; exit 64; }
-case "$ARM" in DEC5|DEC6) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
+test -n "$ARM" || { echo "ABORT usage: d6r2c_dec5_run_arm.sh <DEC5|DEC6|DEC7> <image>  |  --selftest"; exit 64; }
+case "$ARM" in DEC5|DEC6|DEC7) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
@@ -478,6 +486,19 @@ exit $rc
 CMD
 echo "D6R2C_DEC5_CMD arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1)"
 
+# ---- ADDENDUM 2: THE COMMAND STRING IS BUILT ONCE, VALIDATED, THEN PASSED.
+# ADDENDUM 1 replaced a hard-coded command-file name with $(basename "$CMDFILE")
+# and got the escaping wrong: the container received an unbalanced quote and
+# died with `bash: -c: line 1: unexpected EOF while looking for matching '"'`,
+# rc=2, in one second.  The ADDENDUM 1 control was a GREP -- it asserted the line
+# MENTIONED $CMDFILE and could not tell whether the result was valid shell.
+# A check on the shape of a line is not a check that the line runs.
+CONTAINER_CMD=". /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/$ARM/$(basename "$CMDFILE")"
+bash -n -c "$CONTAINER_CMD" 2>/dev/null || {
+  echo "ABORT G-CMDSTRING the container command string is not valid shell:"
+  echo "  $CONTAINER_CMD"; exit 6; }
+echo "D6R2C_DEC5_CONTAINER_CMD $CONTAINER_CMD"
+
 T0=$(date +%s)
 sudo -n docker run -d --name "$NAME" \
     --user ${RUN_UID}:${RUN_GID} --group-add ${EXTRA_GID} -e HOME=/tmp \
@@ -485,7 +506,7 @@ sudo -n docker run -d --name "$NAME" \
     --oom-score-adj=500 \
     -v "$BASE":/mnt -v "$PARENT_BASE":/mnt/parent:ro \
     -w "/mnt/$ARM" "$IMG" bash -lc \
-    ". /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/$ARM/$(basename \"$CMDFILE\")" \
+    "$CONTAINER_CMD" \
     > /dev/null 2>&1 || { echo "ABORT docker run failed"; exit 6; }
 echo "D6R2C_DEC5_LAUNCHED name=$NAME arm=$ARM uid=${RUN_UID}:${RUN_GID}+${EXTRA_GID} ranks=$RANKS cpuset=$CPUSET"
 
