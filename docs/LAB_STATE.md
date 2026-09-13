@@ -46083,6 +46083,97 @@ none reached a graded state, all `NOT A RESULT`. **PPTC** — no KT yet. **DrivA
 **VERIFY at next session:** MRF R4's landing verdict; whether PPTC's mesh cleared Sanaa's §5 gates;
 DrivAer R3's falsifier. **Disk 76%, 230 GB free. Load ~20/96. SUBMISSIONS PARKED.**
 
+<!-- BOARD-BLOCK-ID: 199-SEVEN-LESSONS-IN-ONE-NIGHT-ALL-THE-SAME-SHAPE-AND-TWO-OF-THEM-MINE -->
+### Block 199 — 21 commits, 5 solves live, 7 lessons; every one a reader that could not see what it claimed to check, 2026-09-13T05:26Z
+
+**LAST COMMIT:** `8dd7f03db` — L-587. This session, in order: `a3fe48897` `9d1bcd902`
+`0bc8fd09d` `27a491e77` `56f273ce2` `1ba860253` `d7fa960a0` `daa551da3` `cc59635dd`
+`b5e1bf8d3` `6dea7b50f` `873fab787` `7220acbb7` `1d9433a84` `94aeb5f96` `49c4d39a4`
+`79b4de868` `08d50e8f4` `0bfe11259` `8dd7f03db`. **All private-index with post-commit verify.
+The shared index stages DELETIONS — a bare `git commit` destroys live registrations.**
+
+### RUNNING — verified from `/proc/*/cwd`, not from a pid list (L-585)
+| item | ranks | state |
+|---|---|---|
+| **MRF R4 fine** t/D 0.0155 | 6 | 27,450 s in, ETA **~07:40Z**. **Already entitled to `NOT A RESULT`** |
+| **SUBOFF SOLVE_L2** | 4 | ETA ~15:22Z. A **resume** — sits in D631's hole |
+| **DrivAer r2c_medium_blended_R3** | 4 | wrapper **570689** (570686 was never the rc-writer), ETA ~11:55Z |
+| **M6I L2_PMIN (R7)** | 4 | LAUNCHED, `log.rhoSimpleFoam.resume.1` live |
+| **PPTC L1_prod7s + L2_prod7s** | 1+1 | rebuilding on the corrected wedge, coarse ETA ~06:00Z |
+
+### VERDICTS ADDED SINCE BLOCK 198
+- **M6I L2_VANLEER (R6) `NOT A RESULT`** — SIGFPE rc=136 at 1,494 iters. **§7 DID NOT FIRE**:
+  0.0 % of wing cells at the ceiling against a ≥50 % threshold. **The rung is NOT spent and the
+  escape hatch fired on its first use.** 17.00 core-min, all waste, ratio 1.141 (contention).
+- **THE TWO LIMITERS ARE NOT SYMMETRIC** — `pMaxFactor 2.0` = Cp **+2.027**, **26.1 % ABOVE**
+  stagnation (+1.189): outside the physics, so R5's runaway is real divergence. `pMinFactor 0.2`
+  = Cp **−1.622**, only **32.2 %** beyond AGARD's measured peak suction (−1.227) and 0.800 to
+  vacuum: **plausibly INSIDE the physics.** R6's 33 floor cells sat at η 0.978–1.010 — the tip.
+  Volume: under vanLeer the floor was hit **13.8× more than the ceiling** (3,377 vs 244); under
+  limitedLinear, **never**. That asymmetry is the strongest evidence for the floor hypothesis.
+
+### FROZEN THIS SESSION
+`27a491e77` M6I R5 (+addendum `1ba860253`) · `49c4d39a4` M6I R6 · `1d9433a84` M6I R7
+(+addendum `0bfe11259`) · `9d1bcd902` DrivAer continuation (+amendments `d7fa960a0`,
+`94aeb5f96`) · **`79b4de868` SUBOFF A1h — 645-line registration + 847-line comparator,
+comparator read by me as a diff.**
+
+### 🔴 SEVEN LESSONS, ONE FAMILY: A READER THAT CANNOT SEE WHAT IT CLAIMS TO CHECK
+| L | reader | what it produced |
+|---|---|---|
+| **577** | OpenFOAM `etc/bashrc` executes argv[1] | a file is SOURCED; `name=value` eval-exported. 300/331 scripts unguarded — **call sites, not defects** |
+| **581** | block-buffered log | a long phase and a hang are indistinguishable. `queue_runner` NOT exposed |
+| **582** | parallel `snappyHexMesh` | rebalances every feature iteration; **serial did 1.27 M cells in 90 s where 8 ranks did 31,793 in 10 min** |
+| **583** | hyphen grep vs **en dash** | **835 of our own registrations** carry en-dash ranges. **Mine** |
+| **584** | unescaped `.` as wildcard | 40 false hits, each then **carefully explained** — the diligence is what made it credible. **I relayed it** |
+| **585** | column index off by one | `Cd(f)` read as `Cd`; I wrote a mechanism for it. **The control `Cd(f)+Cd(r)=Cd` was in the row I misread, closing to 5.55e-17. Mine** |
+| **587** | killed the child, parent respawned | **128 core-min** on a rejected mesh |
+**Plus an eighth, uncommitted:** a 46-assertion consistency checker built after R5 tested that
+the phrases "exactly three"/"exactly four" were **PRESENT**, never that the count was
+**CORRECT** — a presence check in the costume of a consistency check, failing in the exact way
+it was built to catch.
+
+### 🔴 WHERE I WAS WRONG, ALL OF IT MINE
+- **Froze TWO self-contradictory documents.** R5 §3 demanded 3,000 iterations AND `endTime`
+  unchanged from 5000 = zero iterations. R7 §2 demanded "exactly four added lines" AND an
+  instrument that adds a fifth. **My check covered gates, cost and pre-compute and NOT internal
+  consistency.** Both amended; on R7 the lane refused to adjudicate a defect it had authored.
+- **Ruled the LE clause into a blocking class** calling it "a relabelling, not a change." **It
+  blocks. No level reaches 8 cells across the LE radius** — best 6.56 at fine, worst 2.30 —
+  and 8 cells demands a **0.180 mm cell** on a wall-function family. **It would have ended the
+  act at every level and overturned registered E.6 without my noticing.** Withdrawn.
+- **Said R7 sat idle "an hour".** It was **24.6 minutes**; the lane audited the clock.
+- Truncated a live run's ranks off my own `ps` with `head -10` and nearly triaged it dead.
+
+### NEXT ACTIONS
+1. **M6I R7 §5 is decided by arithmetic**: iterations vs R6's 1,494, fraction of floor-clipped
+   wing cells at η ≥ 0.95 vs R6's 100 %, and whether the runaway is again lower-surface
+   dominated. **§0: R7 is the LAST run on this line. NEITHER PATTERN returns undecided.**
+2. **PPTC**: layer table on the rotated wedge → birth certificate → dead-lever audit (hard stop,
+   LEVER 0 self-arming) → amendment from the MEASURED count → **KT at iteration 300 with its sign.**
+3. **Land D631** (draft beside the DrivAer case). **Next number is D631 — max 630, count 634.**
+4. **A1h launch** is cleared on the science; 56,336 core-min, 7×4 in one wave.
+5. Disk 77 %, 223 GB free. ~220 GB of dead CRM probe field data still reclaimable.
+
+### ON SANAA'S DESK — FOUR
+1. **CRM launch permission-denied** ("Modify Shared Resources"), twice. Staged at
+   `/home/ubuntu/certonomous-runs/CRM_WB_D8G/SOLVE_T_R1`. **32 ranks idle.** A lane's denial is
+   not cleared by a supervisor performing the same action.
+2. **Her §5 CRM grid family**: T/C/M = 20,657,615 / 26,271,819 / 33,683,206 against an expected
+   2/6/16 M. **r = 1.084 and 1.086** — too close to carry a defensible GCI.
+3. **Rule 4's `ExecutionTime` clause has a resume-shaped hole** (D631). Verification's to
+   propose, hers to rule. **Nobody patches a comparator on it.**
+4. **A cost cap that grades a sound run `NOT A RESULT` is bookkeeping voiding physics** —
+   against directive #17 and her 2026-08-26 universal rule. PPTC §9 carries such a clause.
+
+### BLOCKED
+**CRM** on the permission denial — nothing else unblocks it.
+
+**VERIFY next session:** MRF R4's landing verdict; PPTC's layer table on the rotated wedge;
+DrivAer R3's falsifier **with the bounding rates beside the residual verdict** (amendment 2
+requires it: k clipped on **0.999** of R3's iterations and **1.000** of graded R2's).
+**SUBMISSIONS PARKED.**
+
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
