@@ -33632,7 +33632,7 @@ Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 
 <!-- BOARD-BLOCK-ID: 169-STATE-ONLY-PER-SANAAS-LESS-PLUMBING-DIRECTIVE -->
 
-**Section last written:** 2026-09-12T02:23:13Z by the cfd-supervisor (Opus 5). Newest block is 191 at the foot of this section.
+**Section last written:** 2026-09-13T22:50Z by a cfd `lab-lane` (Opus 5). **Newest block is 206 at the FOOT of this section.** *(This line previously asserted 2026-09-12T02:23:13Z and "newest block is 191" while block 205 sat at the foot, written 2026-09-13; that stale assertion caused a dictated block id to collide with an id already used twice. Corrected here.)*
 
 ### RUNNING
 | item | state |
@@ -47097,6 +47097,47 @@ touched them and must not.** Still open on the chief's desk for the heat-transfe
    owed on every gate built tonight.
 
 **SUBMISSIONS PARKED.**
+
+<!-- BOARD-BLOCK-ID: 206-PRISM-A2-IS-IN-THE-SHRINK-ITERATIONS-EVERY-PPTC-SOLVER-IS-BLOCKED-ON-A-MISSING-MRF-ZONE-AND-THE-ID-I-WAS-GIVEN-WAS-ALREADY-TAKEN-TWICE -->
+
+**Section last written:** 2026-09-13T22:50Z by a cfd `lab-lane` (Opus 5), via `scripts/lab_state_section.py` + the rule-10 private-index protocol (`§2df`), rebuilt against the CURRENT HEAD.
+
+> **ID CORRECTION, RULE 11, STATED BEFORE THE CONTENT.** This block was dictated as **192**. **`192` is already in use twice in this section** (`192-RESUME-STATE-PENDING-VERDICTS-AND-THEIR-ARTIFACT-PATHS` and `192-96-CORE-RESTART-FOUR-ACTS-LIVE-AND-A-RUNNER-CHECK-THAT-CALLS-AN-HONEST-PIN-ABSENT`). The **maximum existing id is 205**; re-derived from the tail, never counted (the section holds **188 blocks** — block count and highest number are different figures). **This block is 206.** The dictation was made in good faith from this section's own header line, which read *"Section last written: 2026-09-12T02:23:13Z … Newest block is 191 at the foot"* while block **205** sat at the foot, written today. **That header line is a FIFTH stale-status instance of the class escalated below** — and it is the first one that actively caused a second defect rather than merely sitting there. The header is corrected above.
+
+### RUNNING
+| item | state |
+|---|---|
+| **PRISM-A2 absolute-thickness build** | **`PENDING`.** pid **1768257**, `snappyHexMesh -overwrite`, cwd `/home/ubuntu/certonomous-runs/PPTC_VP1304/PRISM_A2_absthick`, launched **22:34:09Z**, **1 rank**. In the **shrink/undo iterations**. Registered cap **180 core-min**. |
+| **Wolf Dynamics DrivAer FINE** | **REATTACH, NEVER RESTART.** ~**36–40 h**. |
+
+**PRISM-A2 exists to answer one question:** whether `relativeSizes false` with **absolute** thicknesses extrudes at all on this geometry, where the parent extruded **0 of 780,220** faces with **363,015** convicted.
+
+**DrivAer FINE gates:** **F1** window mean **200–10000** vs **0.256412** at **1.0 %**; **F2** endpoint vs **0.257031** at **2.0 %**; **F3** cells **4,048,483**; **F4** completion; **F5** `nProcs` **4**. **P1 is reported FIRST, before any coefficient is quoted, because the force file will NOT be byte-identical and a byte-identical reproduction corroborates nothing.**
+
+### VERDICTS SINCE THE LAST BLOCK
+- **PPTC shaft-4 rung: `GATE FAIL`** (`0d37987c8`; cost calibration at `452e1894a`). **The lever pulled PUSHED.** Aimed at **removing** the 4-to-3 transition, it **ADDED 72,960 such faces, +15.5 %**, because `shaft` runs **upstream past where the level-4 regions reach**. **P2, P5 and P7 held, so there is no prediction miss** — the registration predicted the mesh correctly and the *lever* was wrong, which is a different and more useful failure.
+- **DrivAer R5: `PENDING`.** **Not graded**, on Sanaa's ruling — *"stored and set aside till we look at it and grade it later since wolf dynamics case is provenly good"*. **Nothing failed.** `PENDING` here is a queue state, not a softened `GATE FAIL`.
+
+### BLOCKED
+**Every solver in the PPTC act is `BLOCKED`, on the missing MRF `cellZone`.** `log.topoSet` in `PRISM_A2_absthick` ends in a FOAM fatal on **`cannot find file topoSetDict`** — a logged fatal that **went unread for eleven hours** — and `checkMesh` on the sibling mesh **independently** reports **`cell zones: 0`** / **`No cellZones found`**. Two instruments, agreeing, from different directions.
+
+**Unblocked by, and only by:** `topoSet` at **rc = 0** *plus* **the zone proven on disk BY NAME AND CELL COUNT**. **No solver touches any mesh in this act before both.**
+
+### RESERVED — NOT BORROWABLE
+On Sanaa's words, *"nobody touches or steals the propeller's cores or the drivaer ones. (20) bc i want them"*: **propeller 48 ranks, DrivAer 20 ranks. IDLE RESERVED RANKS STAY IDLE.** This is an order, not a scheduling heuristic, and it is not to be optimised away by a later session that sees idle cores.
+
+### CRM WING-BODY — PARKED
+**PARKED per Sanaa (§H).** **ADDENDUM 16 registered and UNCOMMITTED.** Status line: *"committee grid imported, mesh rung identified, in progress"*. **Its 32 ranks went to the propeller.**
+
+### OWED — MARK IT `VERIFY`
+`MESH_STANDARD` **§17.3** describes the PPTC geometry as a **72-degree wedge**; `blockMeshDict` gives **60 azimuthal cells over the FULL 360** and **no `type wedge` patch`**. **The MECHANISM is unaffected.** This is a **correction owed, not a retraction** — and it is marked `VERIFY` rather than asserted.
+
+### FOR THE CHIEF — ESCALATED, NOT DECIDED
+**A commit-time check comparing a document's own status assertions against the commit carrying them.** **FOUR stale-status instances landed in frozen documents in one night** — the R5 footer, the Wolf Dynamics FINE footer, and **two** PRISM-A2 amendment wrappers — **and every one was caught by a human-in-the-loop reading the document for some OTHER purpose.** **Four in one night is a rate, not a coincidence.** *(This block adds a fifth: this section's own header line, above — and it is the one that propagated into a second defect.)* **That instrument is verification-team-shaped and is NOT cfd's to build.**
+
+**Also for the chief:** `docs/LESSONS.md` (**3 offenders**) and `docs/NUMERICS_KNOWLEDGE.md` (**1**) are **blocked at exit 7** on the **same malformed-id class** repaired for `COST_CALIBRATION` at `c4852811`. **Verification's register, not cfd's.**
+
+**`NOT FILED` stands. SUBMISSIONS PARKED.**
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
