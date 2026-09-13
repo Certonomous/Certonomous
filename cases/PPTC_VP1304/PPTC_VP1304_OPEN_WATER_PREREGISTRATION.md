@@ -1560,3 +1560,66 @@ mutation.**
 
 **Pre-compute. C1 PASS, C2 PASS, C3 ARMED, C4 ARMED at 12 clauses, C5 ARMED, SPD gate ARMED.
 Every instrument on the PPTC grading path is armed before the first solve.**
+
+---
+
+## AMENDMENT 10 — 2026-09-13, before first compute. 🔴 THE C4 AND C5 CONTROLS NEVER RAN UNDER `--selftest`, AND A PAIRWISE SWEEP FOUND IT
+
+**Legality.** Rule 2, before first compute; condition checked at
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/`. **Nothing registered moves**; controls and
+their wiring only.
+
+### A10.1 The finding, and it is A9.5's failure mode 3 inside this file's own suite
+
+A9.5 set pairwise mutation as owed work. Driving it found something first: **neutering
+C4/G-1, C4/G-2 or C5's refusal limb left `--selftest` GREEN.** Not because the clauses were
+weak — **because the mutated lines were never reached.** `readable_controls()` and
+`provenance_controls()` sat **below** the `--selftest` early return, so
+**`analyse_pptc.py --selftest` — the invocation anyone uses to check the instrument —
+exercised C1 and C2 and nothing else**, while A6.4 and A9.4 both claimed the controls ran on
+every invocation. **They ran only when a `--case` was supplied.**
+
+**Repaired:** both suites now arm **before** the early return. `--selftest` reports
+`C1, C2 pass; C4 and C5 controls armed`.
+
+### A10.2 The sweep, with the baseline checked first
+
+**A red baseline makes every mutation trivially red — a false all-clear.** The baseline is
+asserted `rc = 0` before any mutant is judged.
+
+| | result |
+|---|---|
+| baseline | `rc = 0` |
+| **7 single-clause mutations** | **6 RED, 1 survivor (named in A10.3)** |
+| **21 pairwise mutations** | **21 RED — the A9.5 pairwise gap is CLOSED, not recorded** |
+
+### A10.3 🔴 The one survivor, named rather than papered over
+
+**Mutation:** degrade `zone_cell_count`'s anchored zone-block match to a loose name match.
+**It survives, and the reason is failure mode 1 one level down.**
+
+Under the mutation the loose match lands on the header's `names ( MRFzone )`, finds no
+`cellLabels` declaration, and returns **0** — so the case still **REFUSES**, but via the
+**empty-zone** clause instead of the **zone-not-found** clause. The control's granularity is
+**the gate (G-2), not the clause within it**, so a refusal from either satisfies it.
+
+**This is recorded as understood, not fixed.** The anchor is **defence in depth, not
+load-bearing for the verdict**: both paths refuse, and both refuse correctly. **Contriving a
+fixture purely to turn this red would be papering over the granularity question rather than
+answering it.** The honest statement is that **C4's controls discriminate at gate level and
+not at clause level**, and that is owed work for whoever takes the next pass.
+
+### A10.4 What the fixture cost, twice in one hour
+
+The header-only fixture added here **initially tested nothing**: its branch sat last and
+`zone_on_disk` (default `True`) swallowed it, so it silently wrote a **normal** `cellZones`.
+**The control went red on the UNMUTATED code and that is how it was caught.** Branch order
+corrected; the fixture is checked first.
+
+**Twice in one hour, the control caught its own fixture rather than the code.** That is what
+it is for, and it is the practical meaning of A9.5's failure mode 2.
+
+### A10.5 Status
+
+**Pre-compute. Baseline green; 6 of 7 singles RED with the survivor named; 21 of 21 pairs
+RED. C1 PASS, C2 PASS, C3 ARMED, C4 ARMED at 13 clauses, C5 ARMED, SPD gate ARMED.**

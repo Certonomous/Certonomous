@@ -953,7 +953,8 @@ def _cellzones_text(zone: str, ncells: int) -> str:
 def _c4_fixture(root: str, end: int = 5, rc: int = 0, end_line: bool = True,
                 steps=None, zone: str = 'MRFzone', zone_on_disk: bool = True,
                 omega: float = 94.2, fields: bool = True, age_ok: bool = True,
-                ncells: int = 11412958, nproc: int = 0) -> str:
+                ncells: int = 11412958, nproc: int = 0,
+                zone_declared_only: bool = False) -> str:
     """A synthetic PPTC run that PASSES C4, unless asked to break exactly one clause."""
     os.makedirs(os.path.join(root, 'system'), exist_ok=True)
     os.makedirs(os.path.join(root, 'constant', 'polyMesh'), exist_ok=True)
@@ -963,7 +964,17 @@ def _c4_fixture(root: str, end: int = 5, rc: int = 0, end_line: bool = True,
     open(os.path.join(root, 'constant', 'MRFProperties'), 'w').write(
         'MRF1\n{\n    cellZone %s;\n    active yes;\n    omega constant %g;\n}\n'
         % (zone, omega))
-    if zone_on_disk and nproc == 0:
+    if zone_declared_only:
+        # 🔴 THE HEADER NAMES THE ZONE, BUT NO ZONE BLOCK EXISTS.  Checked FIRST, because
+        # this branch used to sit last and `zone_on_disk` (default True) swallowed it -- the
+        # fixture silently wrote a NORMAL cellZones and the control tested nothing. Caught by
+        # the control going red on the UNMUTATED code, 2026-09-13. This is the only fixture
+        # that can tell an ANCHORED zone-block match from a loose name match.
+        open(os.path.join(root, 'constant', 'polyMesh', 'cellZones'), 'w').write(
+            'FoamFile\n{\n    version 2.0;\n    format ascii;\n    object cellZones;\n'
+            '    meta\n    {\n        names           ( %s );\n    }\n}\n'
+            '// * * * //\n\n0\n(\n)\n' % zone)
+    elif zone_on_disk and nproc == 0:
         open(os.path.join(root, 'constant', 'polyMesh', 'cellZones'), 'w').write(
             _cellzones_text(zone, ncells))
     elif zone_on_disk:
@@ -1020,6 +1031,8 @@ def readable_controls(verbose: bool = True) -> None:
         ('MRF cellZone absent from disk -- DEAD LEVER', dict(zone_on_disk=False), 'G-2'),
         ('MRF omega == 0 -- DEAD LEVER', dict(omega=0.0), 'G-2'),
         ('MRF cellZone EMPTY -- DEAD LEVER', dict(ncells=0), 'G-2'),
+        ('cellZone NAMED IN THE HEADER but never DEFINED', dict(zone_declared_only=True),
+         'G-2'),
     ]
     fired = []
     with tempfile.TemporaryDirectory() as td:
@@ -1269,20 +1282,29 @@ def main() -> int:
               'own page 2.13 coefficients')
         check_selftest()
 
+        # 🔴 C4's AND C5's CONTROLS ARM HERE, BEFORE THE --selftest EARLY RETURN.
+        # They used to sit below it, so `--selftest` -- THE INVOCATION ANYONE USES TO CHECK
+        # THE INSTRUMENT -- exercised C1 and C2 and nothing else, while this file claimed the
+        # controls ran on every invocation. Found 2026-09-13 by a clause-level mutation sweep:
+        # neutering C4/G-1, C4/G-2 or C5's refusal limb left `--selftest` GREEN, because the
+        # mutated line was never reached. That is failure mode 3 of A9.5 -- a control that
+        # does not run while looking as though it did -- caught in this file's own suite.
+        readable_controls()
+        provenance_controls()
+
         if a.selftest:
-            print('\nSELF-TEST COMPLETE. C1 and C2 pass. C3 requires a case with forces output.')
+            print('\nSELF-TEST COMPLETE. C1, C2 pass; C4 and C5 controls armed. '
+                  'C3 requires a case with forces output.')
             return 0
 
         if not a.case or a.J is None:
             raise Refusal('--case and --J are required unless --selftest is given')
 
         print('C5  PROVENANCE is this the output of a REAL solve? (labels; never adjudicates)')
-        provenance_controls()
         _prov = provenance(a.case)
         print(f'    {_prov["status"]} -- {_prov["reason"]}')
 
         print('C4  READABLE   may a force be read from this case at all? (refusal-only)')
-        readable_controls()
         _fr = force_is_readable(a.case)
         if not _fr['readable']:
             raise Refusal('C4: no force may be read from this case.\n    '
