@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py", line 1130, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py", line 992, in main
+    pc_lo = planted_zero(CASE, PATCH_LO)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py", line 599, in planted_zero
+    before, _ = FR.area_average(case, time, field, patch)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/foam_patch_reader.py", line 170, in area_average
+    vals = patch_values(os.path.join(p, t, field), patch, nf)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/foam_patch_reader.py", line 51, in patch_values
+    body = _strip(open(field_path).read())
+                  ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/112/p_rghMean'

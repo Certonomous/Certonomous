@@ -1,0 +1,563 @@
+{
+  "level": "K2h_L3",
+  "case": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3",
+  "registration": "/home/ubuntu/Certonomous/docs/campaigns/F14-cooling-ladder/K2h_PREREGISTRATION.md",
+  "triple": "NONE -- K2h_L1 and K2h_L2 DO NOT EXIST; section 3 forbids an observed order or a GCI from a mixed steady/time-averaged set, with no caveat and no footnote",
+  "freeze": {
+    "state": "FROZEN AND VERIFIED",
+    "n_pinned": 2,
+    "pinned": {
+      "scripts/roache_triple.py": "fcae041ffb22c48735cbd6b045507818802f504eda503adf612ae2a581aa79d8",
+      "verification/runs/F14-cooling-ladder/K2g_runs/foam_patch_reader.py": "f3ee1fcf6d971724613a899d90b8cc654bf5d341794ae00a042193e678d06e03"
+    }
+  },
+  "cost": {
+    "per_segment": [
+      {
+        "segment": 1,
+        "exec_s": 3269.86,
+        "core_min": 217.99066666666667,
+        "steps": 1817,
+        "dt_mean": 0.005910165484651624,
+        "s_per_step": 1.8005837004405287
+      },
+      {
+        "segment": 2,
+        "exec_s": 25456.45,
+        "core_min": 1697.0966666666668,
+        "steps": 17258,
+        "dt_mean": 0.005910165485,
+        "s_per_step": 1.4750521497276625
+      }
+    ],
+    "total_exec_s": 28726.31,
+    "total_core_min": 1915.0873333333334,
+    "point_core_min": 420.0,
+    "cap_core_min": 1260.0,
+    "ratio_vs_point": 4.559731746031746,
+    "ratio_vs_cap": 1.519910582010582,
+    "point_crossed": true,
+    "cap_crossed": true,
+    "dollars_DERIVED_NOT_MEASURED": 1.63739967,
+    "rate_basis": "$0.0513/core-h, owner-stated 2026-08-21/22, REPORTED-BY-OWNER and NOT MEASURED (COMPUTE_BUDGET_CHARTER section 5)"
+  },
+  "D_COMPLETE": {
+    "state": "COMPLETE",
+    "why_not": [],
+    "detail": {
+      "clause_1_rc": {
+        "rc": 0,
+        "source": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/STATUS.K2h_L3"
+      },
+      "clause_2_End_lines_per_segment": [
+        0,
+        1
+      ],
+      "clause_3_endTime": {
+        "test": "Time::end(): last_time > endTime - 0.5*deltaT",
+        "last_logged_time": 111.998,
+        "endTime": 112.0,
+        "deltaT_read_from_the_run": 0.005910165485,
+        "half_deltaT_tolerance": 0.0029550827425,
+        "shortfall": 0.001999999999995339,
+        "inside_the_solvers_own_tolerance": true,
+        "note": "Exact float equality is NOT the test and never was the solver's. deltaT is read from the run, not from a constant.",
+        "result": "REACHED endTime"
+      },
+      "INFRASTRUCTURE_last_written_time": {
+        "per_rank": {
+          "processor0": 110.0,
+          "processor1": 110.0,
+          "processor2": 110.0,
+          "processor3": 110.0
+        },
+        "value": 110.0,
+        "endTime": 112.0,
+        "why_it_differs": "writeInterval 5 does not divide endTime 112, and OpenFOAM writes only on writeInterval boundaries. AD7.3: which directory the last write landed in is an INFRASTRUCTURE fact and does NOT by itself produce NOT A RESULT."
+      },
+      "clause_4_fields": {
+        "at_time": "110",
+        "required": [
+          "T",
+          "U",
+          "p_rgh",
+          "alphat",
+          "nut",
+          "k",
+          "omega",
+          "phi",
+          "p_rghMean",
+          "TMean",
+          "UMean"
+        ],
+        "missing": [],
+        "not_banner_closed": [],
+        "checked": "presence AND OpenFOAM's own end-of-file banner, all 4 ranks"
+      },
+      "clause_5_age_guard": {
+        "state": "AGE GUARD SATISFIED",
+        "reference_mtime": 1789245399.3004358,
+        "reference_files": [
+          "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/0/T",
+          "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/0/T",
+          "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor1/0/T",
+          "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor2/0/T",
+          "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor3/0/T"
+        ],
+        "stale": []
+      },
+      "clause_6_accumulator": {
+        "state": "AGREE",
+        "detail": {
+          "rows": {
+            "processor0": {
+              "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/110/uniform/functionObjects/functionObjectProperties",
+              "fields": {
+                "p_rgh": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "T": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "U": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                }
+              }
+            },
+            "processor1": {
+              "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor1/110/uniform/functionObjects/functionObjectProperties",
+              "fields": {
+                "p_rgh": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "T": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "U": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                }
+              }
+            },
+            "processor2": {
+              "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor2/110/uniform/functionObjects/functionObjectProperties",
+              "fields": {
+                "p_rgh": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "T": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "U": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                }
+              }
+            },
+            "processor3": {
+              "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor3/110/uniform/functionObjects/functionObjectProperties",
+              "fields": {
+                "p_rgh": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "T": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                },
+                "U": {
+                  "totalIter": 11507,
+                  "totalTime": 68.0082742316576
+                }
+              }
+            }
+          },
+          "looked_in": [
+            "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/110/uniform/functionObjects/functionObjectProperties",
+            "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor1/110/uniform/functionObjects/functionObjectProperties",
+            "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor2/110/uniform/functionObjects/functionObjectProperties",
+            "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor3/110/uniform/functionObjects/functionObjectProperties"
+          ],
+          "fo_name": "dpAverage",
+          "signature": {
+            "processor0": [
+              [
+                "T",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "U",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "p_rgh",
+                11507,
+                68.0082742316576
+              ]
+            ],
+            "processor1": [
+              [
+                "T",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "U",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "p_rgh",
+                11507,
+                68.0082742316576
+              ]
+            ],
+            "processor2": [
+              [
+                "T",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "U",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "p_rgh",
+                11507,
+                68.0082742316576
+              ]
+            ],
+            "processor3": [
+              [
+                "T",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "U",
+                11507,
+                68.0082742316576
+              ],
+              [
+                "p_rgh",
+                11507,
+                68.0082742316576
+              ]
+            ]
+          }
+        },
+        "STRICTER_THAN_THE_ORIGINAL": "AD7.3 clause 6 requires the fieldAverage accumulator PRESENT AND AGREEING across all four ranks on totalIter and totalTime. The original text asked only that the mean FIELDS be present. Four present-but-disagreeing accumulators would have satisfied that and still produced a wrong mean."
+      },
+      "log_segments": [
+        {
+          "segment": 1,
+          "n_Time": 1817,
+          "n_ExecutionTime": 1816,
+          "t_first": 0.0059312,
+          "t_last": 10.7388,
+          "exec_s": 3269.86,
+          "core_min": 217.99066666666667,
+          "dt_mean": 0.005910165484651624
+        },
+        {
+          "segment": 2,
+          "n_Time": 17258,
+          "n_ExecutionTime": 17258,
+          "t_first": 10.0059,
+          "t_last": 111.998,
+          "exec_s": 25456.45,
+          "core_min": 1697.0966666666668,
+          "dt_mean": 0.005910165485
+        }
+      ],
+      "concatenated_n_exec_DO_NOT_USE": 19074,
+      "flagged_log_lines": [],
+      "AD7_4_DISCLOSURE": "The graded DPbar is the mean over simulated 42 -> 110 s, NOT 42 -> 112 s. That is 68 s of the registered 70 s window -- 97.1 %. The registered S-WINDOW is 42 -> 112 and it was NOT fully covered, because this solver writes only on writeInterval boundaries and 112 is not one.",
+      "AD7_4_DISCLOSURE_COMPUTED_AT": 110.0,
+      "MEASURED_COVERED_WINDOW": {
+        "AD8_4_PARAGRAPH_VERBATIM": "Averaging's first included step was t = 41.99763593, not 42 -- 0.00236407 s early, 0.400 of one timestep, by OpenFOAM's own `timeStart - 0.5*deltaT` gate. The accumulated interval therefore begins at 41.99172577. The direction is MORE coverage, not less: 0.003 % of the 70 s window, four orders of magnitude below the ~2 s shortfall at the other end that AD7.4 already discloses.",
+        "first_step_INCLUDED_in_the_mean": 41.99763593382704,
+        "first_step_early_by_s": 0.002364066172958701,
+        "first_step_early_in_timesteps": 0.39999999646473505,
+        "the_two_numbers_differ_by_one_deltaT": 0.005910165484635854,
+        "deltaT_implied_by_totalTime_over_totalIter": 0.005910165484631754,
+        "covered_start_MEASURED": 41.991725768342405,
+        "covered_end": 110.0,
+        "registered_timeStart": 42.0,
+        "earlier_than_registered_s": 0.008274231657594555,
+        "totalTime": 68.0082742316576,
+        "totalIter": 11507,
+        "as_fraction_of_registered_window_pct": 0.011820330939420793,
+        "why": "fieldAverage adds the WHOLE deltaT of the step during which it activates, and timeStart 42 is not a step boundary, so the step that crossed 42 contributed its entire deltaT including the part before 42. Ordinary OpenFOAM behaviour, not a defect; the accumulator is not corrected.",
+        "direction": "EARLIER, i.e. MORE coverage than the registered start implies, and it moves the mean toward slightly earlier data"
+      }
+    }
+  },
+  "accumulator": {
+    "state": "AGREE",
+    "detail": {
+      "rows": {
+        "processor0": {
+          "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/110/uniform/functionObjects/functionObjectProperties",
+          "fields": {
+            "p_rgh": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "T": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "U": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            }
+          }
+        },
+        "processor1": {
+          "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor1/110/uniform/functionObjects/functionObjectProperties",
+          "fields": {
+            "p_rgh": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "T": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "U": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            }
+          }
+        },
+        "processor2": {
+          "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor2/110/uniform/functionObjects/functionObjectProperties",
+          "fields": {
+            "p_rgh": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "T": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "U": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            }
+          }
+        },
+        "processor3": {
+          "file": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor3/110/uniform/functionObjects/functionObjectProperties",
+          "fields": {
+            "p_rgh": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "T": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            },
+            "U": {
+              "totalIter": 11507,
+              "totalTime": 68.0082742316576
+            }
+          }
+        }
+      },
+      "looked_in": [
+        "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/110/uniform/functionObjects/functionObjectProperties",
+        "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor1/110/uniform/functionObjects/functionObjectProperties",
+        "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor2/110/uniform/functionObjects/functionObjectProperties",
+        "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor3/110/uniform/functionObjects/functionObjectProperties"
+      ],
+      "fo_name": "dpAverage",
+      "signature": {
+        "processor0": [
+          [
+            "T",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "U",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "p_rgh",
+            11507,
+            68.0082742316576
+          ]
+        ],
+        "processor1": [
+          [
+            "T",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "U",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "p_rgh",
+            11507,
+            68.0082742316576
+          ]
+        ],
+        "processor2": [
+          [
+            "T",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "U",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "p_rgh",
+            11507,
+            68.0082742316576
+          ]
+        ],
+        "processor3": [
+          [
+            "T",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "U",
+            11507,
+            68.0082742316576
+          ],
+          [
+            "p_rgh",
+            11507,
+            68.0082742316576
+          ]
+        ]
+      }
+    },
+    "STRICTER_THAN_THE_ORIGINAL": "AD7.3 clause 6 requires the fieldAverage accumulator PRESENT AND AGREEING across all four ranks on totalIter and totalTime. The original text asked only that the mean FIELDS be present. Four present-but-disagreeing accumulators would have satisfied that and still produced a wrong mean."
+  },
+  "GRADED_AT_TIME": {
+    "value": 110.0,
+    "endTime_registered": 112.0,
+    "derived_from": "d_complete's INFRASTRUCTURE_last_written_time -- the same value AD7.4's disclosure is computed from, asserted equal above. Never typed.",
+    "why_not_endTime": "AD5.3 proved arithmetically, MID-RUN and before any DPbar existed, that no 112 directory would ever be written: at the final step writeTimeIndex_ is 22 and the computed write index is 22, and 22 > 22 is FALSE. Disk agrees -- no 112 on any rank or in the case root. A read at endTime could only ever raise.",
+    "same_time_used_for": [
+      "planted_zero(tile)",
+      "planted_zero(return)",
+      "dpbar",
+      "dpbar_decomposed_crosscheck"
+    ]
+  },
+  "planted_zero": {
+    "return": {
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000000003,
+      "reader_delta": 0.0012340000000000003,
+      "reader": "analyse_k2h.area_average[return]",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/110/p_rghMean",
+      "level": "K2h_L3",
+      "before": 0.0,
+      "after": 0.0012340000000000003
+    },
+    "tile": {
+      "passed": true,
+      "planted": 0.001234,
+      "read_back_delta": 0.0012340000000001794,
+      "reader_delta": 0.0012340000000001794,
+      "reader": "analyse_k2h.area_average[tile]",
+      "artifact": "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/110/p_rghMean",
+      "level": "K2h_L3",
+      "before": 27.981013405397942,
+      "after": 27.982247405397942
+    }
+  },
+  "DPbar": {
+    "value": 27.981013405397942,
+    "detail": {
+      "hi": 27.981013405397942,
+      "lo": 0.0,
+      "path_hi": "reconstructed",
+      "path_lo": "reconstructed"
+    },
+    "band": [
+      27.9699,
+      28.0901
+    ],
+    "reader": "FROZEN foam_patch_reader.area_average",
+    "field": "p_rghMean",
+    "AD7_4_DISCLOSURE": "The graded DPbar is the mean over simulated 42 -> 110 s, NOT 42 -> 112 s. That is 68 s of the registered 70 s window -- 97.1 %. The registered S-WINDOW is 42 -> 112 and it was NOT fully covered, because this solver writes only on writeInterval boundaries and 112 is not one.",
+    "what_this_quantity_actually_is": "DP_module = areaAvg(p_rghMean, tile) - areaAvg(p_rghMean, return). The `return` term is STRUCTURALLY ZERO: that patch's p_rgh boundary condition is `return { type fixedValue; value uniform 0; }`, so it reads exactly 0.0 at every step of both log segments. DP_module is the TILE-SIDE AREA AVERAGE AND NOTHING ELSE; the subtraction is a formality and the name 'pressure drop' overstates it. This changes NO gate -- K2g established the same quantity on the same construction at 27.189 and 27.730 m2/s2.",
+    "planted_zero_is_what_makes_the_zero_evidence": "Both patches were shown able to see a planted 0.001234: see the `planted_zero` block, where each read_back_delta equals the plant to 1e-12. A zero from a reader not shown able to see a non-zero is not evidence (CLAUDE.md rule 3).",
+    "crosscheck_decomposed": 27.98101340539794,
+    "crosscheck_note": "decomposed",
+    "crosscheck_delta": 3.552713678800501e-15
+  },
+  "D_STATIONARY": {
+    "state": "STATIONARY",
+    "detail": {
+      "series_n": 18950,
+      "series_t_first": 0.0059312,
+      "series_t_last": 111.998,
+      "note": "the dense series stops at 111.9980, short of endTime 112",
+      "half1_mean": 27.981019332728085,
+      "half1_n": 5922,
+      "half1_span": [
+        42.0035,
+        76.9976
+      ],
+      "half2_mean": 27.981068867781037,
+      "half2_n": 5922,
+      "half2_span": [
+        77.0035,
+        111.998
+      ],
+      "window_mean_dense": 27.981043999411206,
+      "window_n": 11844,
+      "window_span": [
+        42.0035,
+        111.998
+      ],
+      "window": [
+        42.0,
+        77.0,
+        112.0
+      ],
+      "tolerance": 0.005,
+      "half_difference": 4.9535052951910075e-05
+    },
+    "instrument": "PRIMARY: the dense per-time-step dp_tile/dp_return series, trapezoid-weighted. Section 6 does not pin an instrument for D-STATIONARY and this instrument states which it used rather than choosing quietly."
+  },
+  "verdict": "PASS",
+  "verdict_reason": "DPbar = 27.981013 m2/s2 lies inside the pre-registered G-DPBAR band [27.9699, 28.0901]",
+  "cap_note": "THE CAP IS REPORTED BESIDE THE PHYSICS VERDICT AND MOVES IT IN NEITHER DIRECTION. Whether a cap crossing forces NOT A RESULT is ESCALATED AND UNRULED (her item 7 'cap -> NOT A RESULT, never raised' against her 2026-08-26 universal rule that bookkeeping never voids physics, against this entry's own _field_classes which places cost among the INFRASTRUCTURE fields). This instrument therefore neither suppresses the crossing nor lets it manufacture a NOT A RESULT. CAP 1260 core-min CROSSED: actual 1915.1 core-min = 4.56x POINT 420, 1.52x cap."
+}
+
+==============================================================================
+K2h_L3  --  ONE LEVEL, NO TRIPLE, NO OBSERVED ORDER, NO GCI
+VERDICT: PASS
+REASON : DPbar = 27.981013 m2/s2 lies inside the pre-registered G-DPBAR band [27.9699, 28.0901]
+WINDOW : The graded DPbar is the mean over simulated 42 -> 110 s, NOT 42 -> 112 s. That is 68 s of the registered 70 s window -- 97.1 %. The registered S-WINDOW is 42 -> 112 and it was NOT fully covered, because this solver writes only on writeInterval boundaries and 112 is not one.
+COST   : THE CAP IS REPORTED BESIDE THE PHYSICS VERDICT AND MOVES IT IN NEITHER DIRECTION. Whether a cap crossing forces NOT A RESULT is ESCALATED AND UNRULED (her item 7 'cap -> NOT A RESULT, never raised' against her 2026-08-26 universal rule that bookkeeping never voids physics, against this entry's own _field_classes which places cost among the INFRASTRUCTURE fields). This instrument therefore neither suppresses the crossing nor lets it manufacture a NOT A RESULT. CAP 1260 core-min CROSSED: actual 1915.1 core-min = 4.56x POINT 420, 1.52x cap.
+==============================================================================

@@ -1,0 +1,45 @@
+==============================================================
+2026-09-12T22:17:33Z autograde armed, watching pid 24659
+2026-09-13T04:55:34Z solver pid 24659 has exited
+--- STATUS.K2h_L3 (rc is the WRAPPER's, not setsid's) ---
+case=K2h_L3
+rc=0
+wall_s=25520
+ranks=4
+core_min=1701.333
+timeout_s=0_NO_KILLING_CAP_SANAA_20260912_17
+execution_time_s=25456.45
+n_timesteps=19074
+resumed=yes
+solver=buoyantBoussinesqPimpleFoam
+note=clean
+ended_utc=2026-09-13T04:54:56Z
+--- reconstructed times in the case root ---
+0 110 
+2026-09-13T04:55:34Z grading with the FROZEN path
+comparator exit 1  (NO VERDICT MAY BE READ FROM AN EXIT CODE -- the
+verdict is the word the comparator printed, and that word is read below)
+--- stderr ---
+Traceback (most recent call last):
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py", line 1130, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py", line 992, in main
+    pc_lo = planted_zero(CASE, PATCH_LO)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/analyse_k2h.py", line 599, in planted_zero
+    before, _ = FR.area_average(case, time, field, patch)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/foam_patch_reader.py", line 170, in area_average
+    vals = patch_values(os.path.join(p, t, field), patch, nf)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/foam_patch_reader.py", line 51, in patch_values
+    body = _strip(open(field_path).read())
+                  ^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/112/p_rghMean'
+2026-09-13T04:55:34Z VERDICT: UNREADABLE
+NOT RENDERING. The comparator printed 'UNREADABLE', which is not a
+verdict this level owns. A figure carrying a word the grade record
+does not carry is worse than no figure: it travels further than the
+verdict does. Fix the grading path first.
+2026-09-13T04:55:34Z autograde done

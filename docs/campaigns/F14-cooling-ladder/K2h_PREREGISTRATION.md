@@ -1266,3 +1266,129 @@ so that artifact's structural zero is evidence.**
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 9 — 2026-09-13 ~05:10Z, POST-LANDING, PRE-VERDICT: THE COMPARATOR CONTRADICTED ITS OWN REGISTRATION AND CRASHED; REPAIRED UNDER `VERIFICATION_CHARTER` §2d.1 BEFORE ANY `DPbar` EXISTED
+
+**Version 1.9 → 2.0. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0. NO GATE, THRESHOLD, BAND, CAP OR
+LABEL IS ALTERED.** `G-DPBAR` stays [27.9699, 28.0901] m²/s²; `D-STATIONARY`
+stays 5.0e-03 m²/s²; `S-SETTLE` 0–42 s and `S-WINDOW` 42–112 s stand; AD7.3's
+six clauses are byte-unchanged; **AD7.4's registered sentence is NOT edited**
+(§AD8.4 already ruled that a lane does not improve a registered sentence, not
+even toward more precision).
+
+### AD9.1 WHAT HAPPENED
+
+The solver landed clean at **04:54:59Z** — `rc=0`, `End`, last time 111.998,
+`note=clean`. `analyse_k2h.py` then died on an **uncaught `FileNotFoundError`**
+at `processor0/112/p_rghMean`. `GRADE.K2h_L3.json` was **zero bytes**: the
+traceback beat the emitter, so there was **no verdict, no value and no render**.
+
+***IT WAS NOT ONE BUG. FOUR GATING CALL SITES TOOK `time=ENDTIME` AS A DEFAULT
+PARAMETER*** — `planted_zero` twice, `dpbar` **(the graded value itself)**, and
+`dpbar_decomposed_crosscheck`. Repairing only the plant would have moved the
+crash ten lines down onto `DPbar`. **Every call site on the REFUSAL and
+diagnostics path already passed its time explicitly.** *The instrument was
+correct everywhere it did not decide and defaulted to an impossible directory
+everywhere it did.*
+
+***AND NO TEST COULD HAVE CAUGHT IT.*** The crash site is reachable only past
+`if comp != "COMPLETE": return`, so it could not execute until the run finished.
+The single pre-landing test returned `D_COMPLETE INCOMPLETE`, took the early
+return, and **its output carries no `planted_zero` key at all** — verified by the
+key's absence, not inferred. **Every rehearsal exercised the branch that could be
+reached, never the branch that decides.** *`L-575`'s lesson relocated from a sort
+order into a control-flow branch.*
+
+### AD9.2 §2d.1's FOUR CONDITIONS, EACH ARGUED
+
+1. **DEMONSTRABLE ERROR, NOT PREFERENCE.** The directory cannot exist. **§AD5.3
+   proved it arithmetically MID-RUN** — at the final step `writeTimeIndex_` is 22
+   and the computed write index is 22, and **22 > 22 is FALSE** — and disk agrees:
+   no `112` on any rank or in the case root. A read there could only ever raise.
+2. **ESTABLISHED BY AN INSTRUMENT INDEPENDENT OF THE HYPOTHESIS, WHICH GRADES
+   NOTHING** — the load-bearing condition, satisfied twice. An uncaught traceback
+   grades nothing and cannot know which way a verdict would move. ***And the
+   stronger one: §AD5.3 PREDICTED IN WRITING, MID-RUN, THAT NO 112 DIRECTORY
+   WOULD BE WRITTEN — before any `DPbar` existed. A prediction made before the
+   value exists cannot have been selected to move the value.***
+3. **DISCLOSED, INSTRUMENT NAMED, WHAT MOVED QUANTIFIED — exactly, not
+   flatteringly: *NOTHING NUMERICAL MOVED.*** Pre-repair there was **no value at
+   all**, a zero-byte file and a traceback. ***This repair does not change a
+   number; it produces the first one.*** That is not an improvement and is not
+   dressed as one.
+4. **PRE-REPAIR VALUES RECORDED BESIDE THE PUBLISHED ONES**, preserved **before**
+   the regrade could overwrite them, in
+   `verification/runs/F14-cooling-ladder/K2h_runs/CRASH_PRE_REPAIR/`:
+   `GRADE.K2h_L3.json.PRE_REPAIR` (**0 bytes**, sha256 `e3b0c442…`),
+   `GRADE.K2h_L3.err.PRE_REPAIR` (1,247 bytes, `367a2ccd…`),
+   `autograde.K2h_L3.out.PRE_REPAIR` (2,287 bytes, `88744da4…`).
+
+### AD9.3 THE REGISTRATION HAD ALREADY DECIDED THIS — WHICH IS WHY IT IS A REPAIR AND NOT A CHOICE
+
+**§AD5.3:** the accumulator is written into the **t = 110** directory carrying the
+mean over 42 → 110, 68 s of the registered 70 s window. **§AD7.4, verbatim:** *"The
+graded `DPbar` IS the mean over simulated 42 → 110 s, NOT 42 → 112 s."*
+***The comparator CONTRADICTED ITS OWN REGISTRATION.*** Reading at the last
+written time **executes** the registration; it does not relax it.
+
+### AD9.4 THE REPAIR
+
+- **(a)** The four gating sites pass the time **explicitly**, derived from the same
+  `last_written` that `d_complete` computes and AD7.4's disclosure is computed
+  from. ***NOT hardcoded to 110*** — a typed literal beside computed neighbours is
+  the defect struck from `AD8_4_PARAGRAPH_VERBATIM`, and its twin is not installed.
+- **(b)** New refusal: the graded read time must equal the time AD7.4's disclosure
+  was computed at. ***REPORTED HONESTLY AS WHAT IT IS: A REGRESSION GUARD, NOT A
+  LIVE DISCRIMINATOR.*** Both values derive from the **same** `last_written` local,
+  so on any reachable state of today's code **the assert cannot fire**; it refused
+  only under an injected mismatch. It guards a **future** edit that computes the
+  caption's time and the graded time from two different places — the divergence
+  that would be silent. ***On this run the caption/value correspondence holds by
+  SHARED PROVENANCE, which is a stronger reason than an assert, and no credit is
+  borrowed from a check that could not have failed.***
+- **(c)** The default on `planted_zero`, `dpbar`, `dpbar_decomposed_crosscheck`
+  **and** `accumulator_agreement` is now a **sentinel that REFUSES**. Not a
+  corrected default: a correct default still lets the next caller not think about
+  it. **`L-221`/`L-222` — a lesson is not applied until EVERY call site asserts
+  it — so the assert lives in the CALLEE**, where no future call site can omit it.
+- **(d)** The plant plants **at the time that is graded**. Rule 3 controls the read
+  that produces the answer, not a neighbouring one.
+
+### AD9.5 DRIVEN, NOT REASONED ABOUT — AND SHOWN ABLE TO FAIL (`L-570`)
+
+The sentinel **refuses** on all four callees; an explicit time still passes the
+guard and reaches the frozen reader; **a blind reader that cannot see the plant
+gives `passed=False`, delta 0.0 against the 1.234e-03 plant**; missing fields give
+`INCOMPLETE` and are **named**, with the positive control that the same call names
+none when all eight are present; AD9(b) refuses on injected mismatch, quotes both
+times, leaves `verdict` null and exits 2 — **and does not fire when they agree**.
+
+***Tests 6 and 7 ran with `dpbar`, `planted_zero` and the crosscheck HARD-BLOCKED
+to raise, so a failed assertion could not have leaked the graded value. Test 7's
+positive control was blocked AT `planted_zero`, which is (d) demonstrated in
+EXECUTION order rather than asserted from source order.***
+
+### AD9.6 ONE DELIBERATE NON-CHANGE, RECORDED RATHER THAN LEFT TO BE NOTICED
+
+`accumulator_agreement` is still called with `ENDTIME` **explicitly** in its
+`None` fallback. That branch runs only when there is **no written time on any
+rank** — in which case there **is** no correct time to pass, `D-COMPLETE` has
+already appended its own named failure, and the early return grades
+`NOT A RESULT` **with a reason**. Converting it to the sentinel would replace a
+clean diagnostic `INCOMPLETE` with a bare refusal and lose that reason. It is
+explicit, not a default, and returns `ABSENT` rather than raising.
+
+### AD9.7 THE ORDERING IS THE DEFENCE
+
+**The repair was committed at `ab65cd45e5c7d485caba38d7c5d4ff1ddcc8889d` BEFORE it
+was run, and no `DPbar` had been computed by any route at that moment** — no patch
+read, no partial or diagnostic read of the graded quantity. ***This is the same
+structure as AD7.3's: the rule fixed before the number it will be applied to. If
+that ordering were false, this would be a gate moved to fit an answer and should
+be read as one.***
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*

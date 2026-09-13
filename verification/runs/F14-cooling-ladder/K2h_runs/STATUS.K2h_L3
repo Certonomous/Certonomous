@@ -1,0 +1,12 @@
+case=K2h_L3
+rc=0
+wall_s=25520
+ranks=4
+core_min=1701.333
+timeout_s=0_NO_KILLING_CAP_SANAA_20260912_17
+execution_time_s=25456.45
+n_timesteps=19074
+resumed=yes
+solver=buoyantBoussinesqPimpleFoam
+note=clean
+ended_utc=2026-09-13T04:54:56Z

@@ -1,0 +1,16 @@
+==========================================================================
+K2h_L3 renders -- COARSE mesh (K2f_L1) + TIME-AVERAGED fields (K2h_L3 at t = 112)
+==========================================================================
+  ParaView 5.11 (pinned 5.11)
+  re-pointed to K2f_L1 at t = 3000; stamp accepted: K2f_L1 ; 58368 cells ; COARSE level mesh ; NOT A RESULT
+  mesh source K2f_L1: 58,368 cells
+  wrote K2f_L1_coarse_mesh.png (426,634 bytes)  [30,304 of 58,368 cells]
+  field time resolved FROM DISK: t = 110 (registered endTime 112; see the note on FIELD_END for why they differ)
+  re-pointed to K2h_L3 at t = 110; stamp accepted: K2h_L3 ; 664848 cells ; t = 110 ; time-averaged over 42 to 110 s ; PASS
+  field source K2h_L3: 664,848 cells at t = 110
+  COLOUR CONTROL p_rghMean: positive spread 0.14558 over 678,886 px, NEGATIVE (constant array) 0.00516 over 664,710 px, ratio 28.2x (required 8x)
+  wrote K2h_L3_p_rghMean_field.png (56,294 bytes)  [p_rghMean 3.64959 to 28.4117]
+  COLOUR CONTROL TMean: positive spread 0.69066 over 678,607 px, NEGATIVE (constant array) 0.01507 over 664,714 px, ratio 45.8x (required 8x)
+  wrote K2h_L3_TMean_field.png (147,622 bytes)  [TMean 289 to 301]
+  BOTH run trees PROVED unchanged: /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs/K2f_L1 ; /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3
+  630,550 bytes written to /home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/RENDERS
