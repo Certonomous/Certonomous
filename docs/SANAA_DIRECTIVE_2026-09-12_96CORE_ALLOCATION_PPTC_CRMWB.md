@@ -229,3 +229,33 @@ Recorded by the chief from Sanaa's own session turns (session identity katie@cer
 > CRM wing body: goood then it gets launched ASAP. What is the update on ONERA M6 with the nasa mesh ? PROPELLER: since this case has its own allocatedranks, the group of agents in charge of this case need to act ASAP and fix. As i said, since now we only have cfd and dafoam team, permission for cfd to spawn as many agents as needed.  I want at least three agents on propeller, at least three on crm wing body,at least three o drivaer and the other agents work on the rest. these cases must run asap
 
 **Chief's reading:** cfd runs ≥ 3 lanes each on PPTC, CRM wing-body and DrivAer, the rest on M6J/SUBOFF grading; lane cap lifted by her words. DrivAer is NOT parked: its wall-layer defect is fixed and relaunched. Earlier the same hour, hers on DrivAer: "how about the coarse?" — both coarse levels also GATE FAIL on convergence (Cd 0.355 vs 0.276).
+
+---
+
+## G. The published-setup rule — byte-exact, 2026-09-13 ~17:05Z
+
+> The fix, one rule:
+>
+> For any public case, the lab starts from a published OpenFOAM setup of that case — mesh recipe, layer settings, schemes, wall treatment — ingested into the knowledge base before the first registration. Inventing a setup for a case someone has already run in this solver is refused. DrivAer: Ashton & Revell (OpenFOAM RANS/DES on DrivAer, mesh details published; run transient, time-average). PPTC: Sikirica et al. 2019 (OpenFOAM, snappy, layer settings published). CRM: the OpenFOAM DPW studies (ENGYS/ESI reports) and, critically, the cell-centred variant of the committee grid — a node-centred DPW grid in a cell-centred code has wrong wall spacing and exactly these pyramid problems; check which variant was imported. i think this is the probelm that the lab is starting from scratch everytime where as there are openfoam setups for all of thesecase
+
+**Chief's reading:** a standing rule for every team and every public case: before the first registration, the published OpenFOAM setup (mesh recipe, layers, schemes, wall treatment) is retrieved, title-page verified (rule 15), ingested into the knowledge base as claim → source → gate, and the registration cites it line by line; a setup invented for a case that has a published OpenFOAM setup is refused. Immediate actions: cfd checks whether the imported DPW-6 CRM grids are the node-centred or cell-centred variant (DPW publishes both; OpenFOAM is cell-centred); DrivAer restarts from Ashton & Revell's published setup, run transient and time-averaged; PPTC restarts from Sikirica et al. 2019's snappy and layer settings.
+
+---
+
+## H. Rank reallocation: CRM wing-body parked, propeller lane 48 — byte-exact, 2026-09-13 ~17:15Z
+
+> for now cfd puts the crm full body aside and allocates its ranks to the PPTC. PPTC must use the reference instead of  being from scratch,  [SANAA-DIRECT] Rank reallocation, effective now. CRM wing-body is parked for the package: keep ADDENDUM 16 registered and uncommitted, record the status line "committee grid imported, mesh rung identified, in progress," launch nothing on it. Its 32 ranks move to the propeller lane, which is now 48. PPTC: the moment the mesh passes its gate (zero negative volumes, zero wrong-oriented pyramids, pressure operator SPD), run the design-point family in parallel (coarse 8, medium 16, fine 24 ranks), then the six-point sweep on medium as one wave of six at 8 ranks each, and the full-360 and MRF-zone checks on coarse in the gaps. Everything else in the lane table is unchanged. Report one line per PPTC level as each passes its smoke. but i wan tthe PPTC tonight. Its openfoam treatment is available online so no reason to fail
+
+**Chief's reading:** CRM wing-body PARKED (status line as she wrote it; ADDENDUM 16 registered, uncommitted; nothing launched; the LTS probe is stopped if still running — it is a launch on a parked case). Propeller lane = 48 ranks. PPTC mesh gate = zero negative volumes, zero wrong-oriented pyramids, pressure operator SPD; then coarse/medium/fine design point at 8/16/24 ranks in parallel, then the six-point sweep on medium as one wave of six × 8, full-360 and MRF-zone checks on coarse in the gaps. PPTC starts from Sikirica et al. 2019's published OpenFOAM setup (§G). Deliverable tonight. One line per level as each passes its smoke.
+
+---
+
+## I. Published-setup pointers — byte-exact, 2026-09-13 ~17:45Z
+
+> D6R2: good. PPT AND DRIVAER thats good. Was cfd aware of the following:
+>
+>
+> 2. DrivAer: AutoCFD-class arm is the published practice. Same paper: simpleFoam could not converge on the 128M AutoCFD committee mesh even with first-order schemes, but a 22M snappyHexMesh mesh converged with window averaging, drag within 10% of experiment. Plus two sources with actual case files on disk: the official OpenFOAM HPC Challenge occDrivAer case (snappy, k-ω SST, 65/110/236M, dictionaries public) and Wolf Dynamics' OpenFOAM 9 DrivAer case (coarse and fine, against TUM data).
+> Also in the file: the OpenFOAM-wiki M6 case with downloadable files (rhoSimpleFoam + snappy, the Alletto setup), SUBOFF in OpenFOAM v7 with snappy layers (the Type 209 paper) and Robertson's validation, the PPTC OpenFOAM set from last night with the "full 360° in a Cartesian box" consensus, and what to adopt per case.
+
+**Chief's reading:** "the file" is the lab's published-setup research file for these cases (located by grep below, or named by her). cfd adopts per case: DrivAer → the 22 M snappy mesh with window averaging as the published practice, the occDrivAer HPC-Challenge dictionaries and the Wolf Dynamics OpenFOAM 9 case as case files on disk; M6 → the OpenFOAM-wiki Alletto rhoSimpleFoam + snappy case files; SUBOFF → the OpenFOAM v7 snappy-layer setup (Type 209 paper) and Robertson's validation; PPTC → the full-360° Cartesian-box consensus set.
