@@ -19880,6 +19880,31 @@ Grade D4, D8, D9 as each terminates; a cost-calibration row per completion into 
 
 ## heat-transfer
 
+##### heat-transfer 2026-09-13 (update 141): ***WITHDRAWAL — UPDATE 138's "the lane's first background waiter DIED SILENTLY" IS FALSE AND I PUT IT ON THIS BOARD.*** **It was alive and exited normally. And chasing the real bug underneath it found a LIVE GRADING HAZARD that could not have been caught by testing today's tree.**
+
+***THE WITHDRAWAL FIRST, BECAUSE IT IS MINE.*** **Update 138 records a dead watcher and offers it as a process lesson. THERE WAS NO DEATH.** The process was alive throughout and exited normally at 00:37:57Z. **The death was inferred from a `ps … | grep` whose pattern COULD NEVER HAVE MATCHED that process**, because it ran inside a harness wrapper. ***A zero from a reader not shown able to see a non-zero — RULE 3's EXACT FAILURE MODE, applied to a PROCESS CHECK instead of a field.*** **A liveness check IS A READER and needs the same positive control: confirm the pattern finds something you KNOW is running, before concluding that something is not.** **Update 138 is struck on this point and is not rewritten.**
+
+***AND THE WAITER DID HAVE A REAL BUG — WHICH IS THE ONLY REASON THE HAZARD BELOW WAS FOUND.*** It checked for the accumulator with `ls -d …/processor0/*/uniform/…/functionObjectProperties | tail -1`, and that glob sorts **LEXICALLY**: `0 10 15 20 25 30 35 40 45 5 50`. **The lexical last was `5` — a directory that NEVER carries the accumulator — so it watched the wrong time for 22 MINUTES, then fired BY ACCIDENT when `50` landed and happened to sort last.** ***It never once watched the event it was named for, and it would have reported success either way.***
+
+***THE LIVE HAZARD, VERIFIED BY ME, AND IT REACHES THE GRADING PATH. On the time set this run WILL carry at completion — 0, 5, …, 110 — LEXICAL AND NUMERIC SORT DISAGREE:*** **numeric last `110`; lexical last `95`.** **An instrument sorting time directory names as STRINGS would grade `t = 95` while believing it graded the last write — no error, no warning, EVERY CLAUSE PASSING against the wrong directory.**
+
+***AND THE PART THAT MAKES IT DANGEROUS RATHER THAN MERELY WRONG: IT CANNOT BE CAUGHT BY TESTING AGAINST THE LIVE TREE.*** **At writes 0…50 the two orderings HAPPEN TO AGREE, so a test today passes.** **It only bites once `t = 100` exists — about three hours out, on the artifact that actually gets graded.** ***A test against the current state of a growing tree tests the STATE, not the CODE.***
+
+**SEVEN INSTRUMENTS DRIVEN AGAINST A SYNTHETIC TREE CARRYING 0, 5, …, 110 — not reasoned about from their source:** `analyse_k2h._times_on_rank`, `d_complete`'s last-written, the **FROZEN** `foam_patch_reader._tname`, the renderer's time resolution, `watch_k2h`, the dense series, and the G-02b guard. ***ALL NUMERIC. NONE EXPOSED. NOTHING NEEDS FIXING*** — **but that sentence could not have been said honestly without driving it**, and I confirmed the two orderings and `_times_on_rank`'s `float()` myself. The only lexical reader was the throwaway waiter, which has exited and touched nothing.
+
+**`L-575` `2c85464e8` files the hazard.** ***AND ITS OWN COMMIT MESSAGE IS DAMAGED, RECORDED RATHER THAN HIDDEN (`80704dc69`):*** the message was written through an **UNQUOTED** heredoc — `<<EOF` not `<<'EOF'` — because the lesson number had to be interpolated, so the shell **command-substituted the backticked phrase inside it** and the sentence landed as *"shell waiter took  and spent 22 minutes…"*. **The lesson FILE is intact; the message lost eight words; history is NOT rewritten.** ***The rule: the QUOTED delimiter is the protection — and the one case where people drop the quotes is EXACTLY when a variable must be interpolated, which is exactly when a backticked phrase in the same body gets eaten. `-F` DOES NOT PROTECT YOU FROM IT*** — this is the known "backticks kill the commit" trap **one layer earlier**, in the heredoc that WRITES the `-F` file.
+
+**`L-575` assigned from the tail as the MAXIMUM — and the tail had moved to 574 while I worked, so re-deriving in the commit's own shell is what kept it correct.**
+
+**RUN UNCHANGED AND HEALTHY:** t = 49.90 of 112, **886.7 core-min (2.11x POINT, 0.70x cap)**, accumulator **AGREE** on all four ranks, writes through t = 50, rate 1.4859 s/step. **No AD7.3 clause has flipped, no fault lines, nothing in the tree has changed underneath.** Cap crossing **~02:11Z**, completion **~05:05Z**. Solver untouched.
+
+**REPORTING DISCIPLINE, CHIEF'S INSTRUCTION 00:35Z:** state changes only — launch, stop, fail, fix applied, verdict, renders saved. **No interim progress.** The next line upward is **K2h landed and graded, or a failure.**
+
+**ON SANAA'S DESK: NOTHING.**
+
+**Section last written:** 2026-09-13T00:50:00Z by heat-transfer-supervisor personally, clock read. Newest block is **update 141**.
+
+
 ##### heat-transfer 2026-09-13 (update 140): **CLAUSE 6 PASSED ITS FIRST REAL EVALUATION — AND AD7's PERMISSIVE RULING GAINED A THIRD CORROBORATING CALL SITE FROM A DIRECTION NOBODY WAS LOOKING.**
 
 **ADDENDUM 8 `e8e887f78`, v1.8 → v1.9. No gate, threshold, band, label or registered sentence altered.**
