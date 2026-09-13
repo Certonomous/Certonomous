@@ -128,3 +128,49 @@ watched by a **frozen per-run copy** of `watch_grade_r2.sh` at
 byte offset**, so the watcher runs from a frozen copy and never from a path an editor
 may touch. The watcher signals nothing, ever, and re-asserts `/proc/<pid>/cwd` AND
 cmdline on every poll.
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — **THE CASE-WRITER sha256 PINNED AT §114 IS STALE AGAINST THE LIVE PATH, AND THAT IS EXPECTED**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, label or band is
+altered. **No regrade is implied and no verdict of this registration is affected.**
+
+**The pin at line 114 reads `b1b67ae1249636ce4a6ad9246ace236ff05035f87f47031117c68dc81dfe3f1f`
+against `cases/navier_class/DRIVAER/mesh/write_solver_case.py`.** That file was changed on
+2026-09-13 at commit `e7702536125743b22b485074cfb5e253f7952ca5` and now hashes to
+`498f5b10054a996fe2d32b7bbb5acf2a4cea73642519aed12f88838bb9ba2a71`.
+
+**1. THE PINNED HASH IS RESOLVED THROUGH GIT, NEVER FROM DISK.** The canonical form is:
+
+```
+git show ed67a279c416d7a516922b67e6871401f397a04c:cases/navier_class/DRIVAER/mesh/write_solver_case.py | sha256sum
+  -> b1b67ae1249636ce4a6ad9246ace236ff05035f87f47031117c68dc81dfe3f1f
+```
+
+`ed67a279c` is **this registration's own freeze commit**. Verified, not asserted.
+
+**2. THE CHANGE POSTDATES THE RUNS.** Last file activity is **2026-09-12 05:26** in `r2_medium` and
+**2026-09-12 17:30** in `r2_coarse`, both carrying `RUN_RC = 0`; the writer changed **2026-09-13
+18:43**. **The runs this registration governs were produced by `b1b67ae1…`, and nothing about them
+is altered.**
+
+**3. WHAT CHANGED, IN ONE LINE.** The `nut` wall treatment became a **required argument with no
+default** (`--nut-wall-vehicle`, `--nut-wall-floor`), so the writer refuses to write a case whose
+wall treatment nobody stated; a count-based readback asserts the written bytes carry exactly the
+requested treatments. **The reason: R5 registers `nutUSpaldingWallFunction` while the staged case
+carried `nutkWallFunction`, and a silent default is what allowed that divergence.**
+
+**4. 🔴 A `DRIFTED` RESULT AGAINST THE LIVE PATH IS EXPECTED AND IS NOT EVIDENCE OF TAMPERING.** A
+verifier re-checking this pin against the filesystem **will** disagree, and that disagreement is
+this addendum, not a finding. **Re-check through git at the commit named in item 1.**
+
+**5. THE GENERAL DEFECT, RECORDED BECAUSE IT HAS NOW BITTEN THREE INSTRUMENTS IN ONE NIGHT.** *"A
+document pinned as a frozen instrument cannot also be the file that evolves."* Any registration
+pinning a script **by disk hash** acquires a landmine the first time that script is **legitimately
+improved** — PPTC's comparator, CRM's pin naming a blob and a commit that never went together, and
+this. **The fix is the same in all three: pin by commit, resolve through git, never from the
+filesystem.**
+```
+
+---

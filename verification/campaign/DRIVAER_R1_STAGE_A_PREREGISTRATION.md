@@ -876,3 +876,50 @@ fires at all. **A monitor that fires on a healthy run is the mirror of a limb th
 fail**, and Addendum A1 was the limb that could not fail. **M5 IS A REGISTERED MONITOR AND IS
 NOT TOUCHED HERE** — this is a disclosure, with its measurement, for the successor to register
 unambiguously.
+
+---
+
+## ADDENDUM A3 — 2026-09-13 — **THE CASE-WRITER sha256 PINNED AT §258 IS STALE AGAINST THE LIVE PATH, AND THAT IS EXPECTED**
+
+**lines whose number changed above this section: 0.** No gate, threshold, cap, label or band is
+altered. **No regrade is implied and no verdict of this registration is affected.**
+
+**The pin at line 258 reads `b1b67ae1249636ce` against
+`cases/navier_class/DRIVAER/mesh/write_solver_case.py`.** That file was changed on 2026-09-13 at
+commit `e7702536125743b22b485074cfb5e253f7952ca5` and now hashes to
+`498f5b10054a996fe2d32b7bbb5acf2a4cea73642519aed12f88838bb9ba2a71`.
+
+**1. THE PINNED HASH IS RESOLVED THROUGH GIT, NEVER FROM DISK.** The canonical form is:
+
+```
+git show 903dc88d1e5c85cf688816f1ef75a965479d81ba:cases/navier_class/DRIVAER/mesh/write_solver_case.py | sha256sum
+  -> b1b67ae1249636ce4a6ad9246ace236ff05035f87f47031117c68dc81dfe3f1f
+```
+
+`903dc88d1` is **this registration's own freeze commit**. Verified, not asserted.
+
+**2. THE CHANGE POSTDATES THE RUN.** Last file activity in `r1_fine` is **2026-09-11 16:29**; the
+writer changed **2026-09-13 18:43**, more than two days later. **The run this registration governs
+was produced by `b1b67ae1…`, and nothing about it is altered.** *(Stated on measured file activity.
+`r1_fine` carries no `RUN_RC`, so this addendum makes no claim about its completion status.)*
+
+**3. WHAT CHANGED, IN ONE LINE.** The `nut` wall treatment became a **required argument with no
+default** (`--nut-wall-vehicle`, `--nut-wall-floor`), so the writer refuses to write a case whose
+wall treatment nobody stated; a count-based readback asserts the written bytes carry exactly the
+requested treatments. **The reason: R5 registers `nutUSpaldingWallFunction` while the staged case
+carried `nutkWallFunction`, and a silent default is what allowed that divergence.**
+
+**4. 🔴 A `DRIFTED` RESULT AGAINST THE LIVE PATH IS EXPECTED AND IS NOT EVIDENCE OF TAMPERING.** A
+verifier re-checking this pin against the filesystem **will** disagree, and that disagreement is
+this addendum, not a finding. **Re-check through git at the commit named in item 1.**
+
+**5. THE GENERAL DEFECT, RECORDED BECAUSE IT HAS NOW BITTEN THREE INSTRUMENTS IN ONE NIGHT.** *"A
+document pinned as a frozen instrument cannot also be the file that evolves."* Any registration
+pinning a script **by disk hash** acquires a landmine the first time that script is **legitimately
+improved** — PPTC's comparator, whose whole-file hash every lawful amendment invalidated; CRM's pin,
+naming a blob and a commit that never went together; and this. **The fix is the same in all three:
+pin by commit, resolve through git, never from the filesystem.**
+```
+
+---
+---
