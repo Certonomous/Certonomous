@@ -28715,3 +28715,41 @@ present, in the same invocation, and require the reader to find it.**
 
 *Fifth blind instrument of 2026-09-13; siblings L-577, L-581, L-582, L-583. The supervisor
 propagated this one, having personally caught the other four.*
+
+## L-585 — A WRONG COLUMN DOES NOT LOOK WRONG, IT LOOKS LIKE A FINDING — and the artifact usually contains the identity that would catch it
+
+**The supervisor did this one, and it nearly went upward as a result.**
+
+Reading a live DrivAer run I pulled `awk '{print $3}'` from `coefficient.dat`, got **0.14325**,
+compared it to the graded run's settled `Cd` of **0.31507**, and concluded drag had **more than
+halved** and fallen below the A2 band floor. I then wrote a plausible mechanism for it — `k`
+clipped from negative on 99.9 % of iterations suppressing turbulent viscosity — and sent it to a
+lane as something to look at.
+
+**Column 3 is `Cd(f)`, the front contribution. `Cd` is column 2.** The file's own header says
+so and I never opened it. `Cd` had not moved: min 0.29585, last 0.31987, and **0.14325 appears
+zero times in the `Cd` column across all 1,827 rows.**
+
+**THE CONTROL WAS IN THE ROW I MISREAD.** `Cd(f) + Cd(r) = Cd` — measured on that same row,
+0.143631 + 0.176240 = 0.319871 against `Cd` 0.319871, **closing to 5.551e-17.** One line would
+have caught it and neither the lane nor I reached for it.
+
+**WHY THIS IS THE MOST DANGEROUS MEMBER OF ITS FAMILY.** A blind reader returns a zero, which
+invites suspicion. A truncated census returns a small count, which invites suspicion. **0.14325
+is a perfectly plausible drag coefficient for a car.** It does not look like an error; it looks
+like a result — and it came with a mechanism, which made it *more* believable, the same way
+thirty-two carefully categorised false hits did earlier the same night.
+
+**THE RULES:**
+1. **Name the column from the file's own header before interpreting any value from a
+   multi-column artifact.** Not from memory of the format, and never from a hard-coded index.
+2. **Use the identity the artifact already contains.** `Cd(f)+Cd(r)=Cd`, `Cl(f)+Cl(r)=Cl`,
+   component sums, totals against splits — **an internal identity is the cheapest control
+   available and it requires no new instrument.**
+3. **A surprising number gets its provenance checked BEFORE its mechanism is written.** Writing
+   the explanation first is what converts a misread into a finding.
+
+*Sixth reader-limit failure of 2026-09-13 and the second by the supervisor. Siblings: L-577,
+L-581, L-582, L-583, L-584, and the `head -10` that truncated a live run's ranks off a process
+sweep an hour earlier. **Every one is a limit the reader imposed on itself, invisible in its own
+output.***
