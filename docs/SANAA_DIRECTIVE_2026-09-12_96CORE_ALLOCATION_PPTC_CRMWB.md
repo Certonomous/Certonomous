@@ -277,3 +277,19 @@ Immediately before, hers: "Then what was it running ? Ive asked so many times no
 > so for drivaer, there is file to download, for pptc there is openfoam recipe, for M6 what we were doing is fine and we used nasa mehs, fpor dafoam: mach 0.85 you must use dafoam setup and file if available , and make sure the mesh is checke dduring optimization so we avoid mesh artefacts.
 
 **Chief's reading:** DrivAer = downloaded case files (occDrivAer / Wolf Dynamics), verbatim. PPTC = the published OpenFOAM recipe (CFD Support page + Sikirica 2019), mesh built here to it. M6 = the current route stands: NASA-generator mesh, lab solve, M6J family continues to its fine-level grade. dafoam D6R3 = Mach 0.85, the published DAFoam transonic setup and its case files if available, in-run mesh checks (her rules 6–11) mandatory.
+
+---
+
+## L. D6R3 verbatim; occDrivAer path; PPTC OpenFOAM source — byte-exact, 2026-09-13 ~18:25Z
+
+> 1. dafoam: perfect. Then the dafoam team uses exactly that 3D wing at that mach with those files and what that turorial has and rruns EXACTLY that. 2. Drivaer: it should all be here i thinl https://develop.openfoam.com/committees/hpc/-/blob/develop/incompressible/simpleFoam/occDrivAerStaticMesh/system/fvSolution PPTC: sounds good, provided that the paper you reproduce verbatim is an openfoam case. D6R3: for now lets do the verbatim case and reproduce what they have exactl then we can redo wall resolved (but every other in optimization checks remain).
+
+**Chief's reading:** D6R3 = the DAFoam tutorials `CRM_Wing` case run EXACTLY as published (wall functions, single-point CL 0.5 objective as the tutorial has it, its own mesh, FFD, solver settings) — Δ1 resolved as verbatim; the in-optimisation checks (her rules 6–11 as instruments) remain; wall-resolved is a later rerun. The deviation list shrinks to the in-run instruments only; the multipoint objective is NOT applied to this reproduction (she said "runs EXACTLY that"). DrivAer = the occDrivAerStaticMesh case at develop.openfoam.com/committees/hpc/-/tree/develop/incompressible/simpleFoam/occDrivAerStaticMesh (simpleFoam, static mesh), cloned and run verbatim. PPTC = verbatim reproduction only of an OpenFOAM source (Sikirica 2019 is OpenFOAM/snappy; a non-OpenFOAM paper's values are cross-checks only).
+
+---
+
+## M. D6R3 multipoint from the start — byte-exact, 2026-09-13 ~18:35Z
+
+> Dafoam: no lets make itmultipoint from the start, keeping everything else verbatim/ cloned from that case. Multipiint doesnt change the setup it just allows us to look at the optimization under different constraints or conditions, and its moreinteresting.
+
+**Chief's reading:** D6R3 = the DAFoam `CRM_Wing` tutorial cloned verbatim (mesh, extrusion, FFD, wall functions, solver, schemes, optimiser settings) with ONE registered deviation: the multipoint objective — three lift points per her D6R2 instruction (CL 0.4 / 0.5 / 0.6, weights 0.25 / 0.50 / 0.25, lift held at each) — plus the in-run artefact instruments (rules 6–11) as observers/stops and the fresh-mesh confirmation (rule 12) after. Nothing else deviates.
