@@ -1,0 +1,18 @@
+blockMesh rc=0
+blockMesh 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.13
+blockMesh 	Maximum resident set size (kbytes): 192420
+surfaceFeatureExtract rc=0
+surfaceFeatureExtract 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:04.31
+surfaceFeatureExtract 	Maximum resident set size (kbytes): 376396
+decomposePar rc=0
+decomposePar 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:02.36
+decomposePar 	Maximum resident set size (kbytes): 170732
+snappyHexMesh rc=0
+snappyHexMesh 	Elapsed (wall clock) time (h:mm:ss or m:ss): 45:07.29
+snappyHexMesh 	Maximum resident set size (kbytes): 4145104
+reconstructParMesh rc=0
+reconstructParMesh 	Elapsed (wall clock) time (h:mm:ss or m:ss): 3:16.05
+reconstructParMesh 	Maximum resident set size (kbytes): 11197580
+checkMeshFull rc=0
+checkMeshFull 	Elapsed (wall clock) time (h:mm:ss or m:ss): 6:16.68
+checkMeshFull 	Maximum resident set size (kbytes): 22304908

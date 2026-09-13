@@ -1,11 +1,12 @@
 stage=full
 ranks=16
-launch_utc=2026-09-13T18:05:35Z
-repo_HEAD_at_launch=ff5e48c0a67dc9e6374bbb6611e0b29dc836374c
+launch_utc=2026-09-13T18:16:28Z
+repo_HEAD_at_launch=ad2c64be6a9cece5821ba5a2d027235c3cc1eaf4
 prereg_freeze_commit=38aab8e78662d574d1b14b61da7efc5898be5c7e
-prereg_blob_LIVE_AT_LAUNCH=8f0083d195d8bf03c1afa8f87e683c4b4d5a8fcc
+prereg_blob_LIVE_AT_LAUNCH=6742deee67e63513e830481c2f44aa354f270087
 prereg_blob_at_freeze=8f0083d195d8bf03c1afa8f87e683c4b4d5a8fcc
 blob_pin_verified_live=yes
-snappyHexMeshDict_sha256=f1c176fc4841bf24e5e68cc3dcba680042ec13e401138f894e07e73a377dd008
+prereg_change_since_freeze=APPEND-ONLY change verified: first 26566 bytes byte-identical to the freeze, 8277 bytes appended
+snappyHexMeshDict_sha256=3df22e770c43941c078c94bee5666c799ab9a9960b42ab51b39c4a6a4ae8d800
 source_level=r2_medium (h0=0.4 m, surface cell 25.0 mm at level 4)
 build_procedure=PARALLEL np=16 -- the R1/R2 family built SERIAL; disclosed, not silent

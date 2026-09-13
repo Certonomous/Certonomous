@@ -1,5 +1,6 @@
+  nSurfaceLayers = 8 on ALL 51 entries (1 top-level + 50 per-patch); the per-patch block is authoritative in snappyHexMesh and was rewritten in the same edit
 wrote /home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r5_wallfunction/system/snappyHexMeshDict
-  sha256 f1c176fc4841bf24e5e68cc3dcba680042ec13e401138f894e07e73a377dd008
+  sha256 3df22e770c43941c078c94bee5666c799ab9a9960b42ab51b39c4a6a4ae8d800
   registered stack   11.8594 mm; minThickness 0.200 mm (1.7 % of stack) -- rule L4 satisfied
   surface cell 25.0 mm at level 4 (h0 = 0.4 m) -> stack 0.4744 local cells (registration ceiling 0.48)
   box4 level 4 cell  25.0 mm  box    195.9 m3  shell    195.9 m3  -> 12.538 M cells

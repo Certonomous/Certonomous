@@ -49,7 +49,7 @@
      }
  
      locationInMesh (-10.0 5.0 5.0);
-@@ -191,10 +198,11 @@
+@@ -191,63 +198,64 @@
  
  addLayersControls
  {
@@ -65,3 +65,106 @@
  
      layers
      {
+-        BodyA_Pillar { nSurfaceLayers 5; }
+-        BodyDoorhandles { nSurfaceLayers 5; }
+-        BodyFasciafront1 { nSurfaceLayers 5; }
+-        BodyFasciafront2 { nSurfaceLayers 5; }
+-        BodyFender { nSurfaceLayers 5; }
+-        BodyHeadlamps { nSurfaceLayers 5; }
+-        BodyHood { nSurfaceLayers 5; }
+-        BodyRear { nSurfaceLayers 5; }
+-        BodyRearAccess { nSurfaceLayers 5; }
+-        BodyRocker { nSurfaceLayers 5; }
+-        BodyRoof { nSurfaceLayers 5; }
+-        BodySide { nSurfaceLayers 5; }
+-        BodyWindowfront { nSurfaceLayers 5; }
+-        BodyWindowfrontframe { nSurfaceLayers 5; }
+-        BodyWindowSide { nSurfaceLayers 5; }
+-        BodyWindowsideframe { nSurfaceLayers 5; }
+-        BrakeDiscfront { nSurfaceLayers 5; }
+-        BrakeDiscrear { nSurfaceLayers 5; }
+-        ClosedGrillLowerInsert { nSurfaceLayers 5; }
+-        ClosedGrillUpperInsert { nSurfaceLayers 5; }
+-        CTRL_SURFACE_Outlet { nSurfaceLayers 5; }
+-        CTRL_SURFACE_Wheelhouse_LHS { nSurfaceLayers 5; }
+-        CTRL_SURFACE_Wheelshouse_RHS { nSurfaceLayers 5; }
+-        EngineUndershield { nSurfaceLayers 5; }
+-        ExhaustSystem1 { nSurfaceLayers 5; }
+-        ExhaustSystem2 { nSurfaceLayers 5; }
+-        ExhaustSystem3 { nSurfaceLayers 5; }
+-        Mirrors1 { nSurfaceLayers 5; }
+-        Mirrors2 { nSurfaceLayers 5; }
+-        NotchbackB_Pillar { nSurfaceLayers 5; }
+-        NotchbackBodyside { nSurfaceLayers 5; }
+-        NotchbackC_Pillar { nSurfaceLayers 5; }
+-        NotchbackRoof { nSurfaceLayers 5; }
+-        NotchbackTrunk { nSurfaceLayers 5; }
+-        NotchbackWindowrear { nSurfaceLayers 5; }
+-        NotchbackWindowrearframe { nSurfaceLayers 5; }
+-        NotchbackWindowside { nSurfaceLayers 5; }
+-        NotchbackWindowsideframe { nSurfaceLayers 5; }
+-        OCDADetailedUnderbody { nSurfaceLayers 5; }
+-        Powertrain { nSurfaceLayers 5; }
+-        Rimsfront { nSurfaceLayers 5; }
+-        Rimsrear { nSurfaceLayers 5; }
+-        TirePlinthfront { nSurfaceLayers 5; }
+-        TirePlinthrear { nSurfaceLayers 5; }
+-        Tiresfront { nSurfaceLayers 5; }
+-        Tiresrear { nSurfaceLayers 5; }
+-        WheelSupportfront1 { nSurfaceLayers 5; }
+-        WheelSupportfront2 { nSurfaceLayers 5; }
+-        WheelSupportrear { nSurfaceLayers 5; }
+-        floorNoSlip { nSurfaceLayers 5; }
++        BodyA_Pillar { nSurfaceLayers 8; }
++        BodyDoorhandles { nSurfaceLayers 8; }
++        BodyFasciafront1 { nSurfaceLayers 8; }
++        BodyFasciafront2 { nSurfaceLayers 8; }
++        BodyFender { nSurfaceLayers 8; }
++        BodyHeadlamps { nSurfaceLayers 8; }
++        BodyHood { nSurfaceLayers 8; }
++        BodyRear { nSurfaceLayers 8; }
++        BodyRearAccess { nSurfaceLayers 8; }
++        BodyRocker { nSurfaceLayers 8; }
++        BodyRoof { nSurfaceLayers 8; }
++        BodySide { nSurfaceLayers 8; }
++        BodyWindowfront { nSurfaceLayers 8; }
++        BodyWindowfrontframe { nSurfaceLayers 8; }
++        BodyWindowSide { nSurfaceLayers 8; }
++        BodyWindowsideframe { nSurfaceLayers 8; }
++        BrakeDiscfront { nSurfaceLayers 8; }
++        BrakeDiscrear { nSurfaceLayers 8; }
++        ClosedGrillLowerInsert { nSurfaceLayers 8; }
++        ClosedGrillUpperInsert { nSurfaceLayers 8; }
++        CTRL_SURFACE_Outlet { nSurfaceLayers 8; }
++        CTRL_SURFACE_Wheelhouse_LHS { nSurfaceLayers 8; }
++        CTRL_SURFACE_Wheelshouse_RHS { nSurfaceLayers 8; }
++        EngineUndershield { nSurfaceLayers 8; }
++        ExhaustSystem1 { nSurfaceLayers 8; }
++        ExhaustSystem2 { nSurfaceLayers 8; }
++        ExhaustSystem3 { nSurfaceLayers 8; }
++        Mirrors1 { nSurfaceLayers 8; }
++        Mirrors2 { nSurfaceLayers 8; }
++        NotchbackB_Pillar { nSurfaceLayers 8; }
++        NotchbackBodyside { nSurfaceLayers 8; }
++        NotchbackC_Pillar { nSurfaceLayers 8; }
++        NotchbackRoof { nSurfaceLayers 8; }
++        NotchbackTrunk { nSurfaceLayers 8; }
++        NotchbackWindowrear { nSurfaceLayers 8; }
++        NotchbackWindowrearframe { nSurfaceLayers 8; }
++        NotchbackWindowside { nSurfaceLayers 8; }
++        NotchbackWindowsideframe { nSurfaceLayers 8; }
++        OCDADetailedUnderbody { nSurfaceLayers 8; }
++        Powertrain { nSurfaceLayers 8; }
++        Rimsfront { nSurfaceLayers 8; }
++        Rimsrear { nSurfaceLayers 8; }
++        TirePlinthfront { nSurfaceLayers 8; }
++        TirePlinthrear { nSurfaceLayers 8; }
++        Tiresfront { nSurfaceLayers 8; }
++        Tiresrear { nSurfaceLayers 8; }
++        WheelSupportfront1 { nSurfaceLayers 8; }
++        WheelSupportfront2 { nSurfaceLayers 8; }
++        WheelSupportrear { nSurfaceLayers 8; }
++        floorNoSlip { nSurfaceLayers 8; }
+     }
+ 
+     nGrow               0;

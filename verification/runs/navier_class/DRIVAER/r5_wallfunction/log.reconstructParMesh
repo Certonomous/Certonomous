@@ -1,0 +1,194 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : reconstructParMesh -constant
+Date   : Sep 13 2026
+Time   : 19:01:43
+Host   : ip-172-31-43-247
+PID    : 1672018
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/r5_wallfunction
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Merge individual processor meshes back into one master mesh.
+Use if the original master mesh has been deleted or the processor meshes
+have been modified (topology change).
+This tool will write the resulting mesh to a new time step and construct
+{cell,face,point}ProcAddressing files in the processor directories so that
+reconstructPar can be used to reconstruct fields onto the master mesh.
+
+Reasonably tested, but use at your own risk!
+
+Merge assuming correct, fully matched procBoundaries.
+
+Found 16 processor directories
+    Reading database "r5_wallfunction/processor0"
+    Reading database "r5_wallfunction/processor1"
+    Reading database "r5_wallfunction/processor2"
+    Reading database "r5_wallfunction/processor3"
+    Reading database "r5_wallfunction/processor4"
+    Reading database "r5_wallfunction/processor5"
+    Reading database "r5_wallfunction/processor6"
+    Reading database "r5_wallfunction/processor7"
+    Reading database "r5_wallfunction/processor8"
+    Reading database "r5_wallfunction/processor9"
+    Reading database "r5_wallfunction/processor10"
+    Reading database "r5_wallfunction/processor11"
+    Reading database "r5_wallfunction/processor12"
+    Reading database "r5_wallfunction/processor13"
+    Reading database "r5_wallfunction/processor14"
+    Reading database "r5_wallfunction/processor15"
+
+Time = constant
+
+
+Writing merged mesh to "constant/polyMesh"
+
+Reconstructing addressing from processor meshes to the newly reconstructed mesh
+
+Processor 0
+Read processor mesh: "r5_wallfunction/processor0"
+Writing addressing : "r5_wallfunction/processor0/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 1
+Read processor mesh: "r5_wallfunction/processor1"
+Writing addressing : "r5_wallfunction/processor1/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 2
+Read processor mesh: "r5_wallfunction/processor2"
+Writing addressing : "r5_wallfunction/processor2/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 3
+Read processor mesh: "r5_wallfunction/processor3"
+Writing addressing : "r5_wallfunction/processor3/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 4
+Read processor mesh: "r5_wallfunction/processor4"
+Writing addressing : "r5_wallfunction/processor4/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 5
+Read processor mesh: "r5_wallfunction/processor5"
+Writing addressing : "r5_wallfunction/processor5/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 6
+Read processor mesh: "r5_wallfunction/processor6"
+Writing addressing : "r5_wallfunction/processor6/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 7
+Read processor mesh: "r5_wallfunction/processor7"
+Writing addressing : "r5_wallfunction/processor7/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 8
+Read processor mesh: "r5_wallfunction/processor8"
+Writing addressing : "r5_wallfunction/processor8/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 9
+Read processor mesh: "r5_wallfunction/processor9"
+Writing addressing : "r5_wallfunction/processor9/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 10
+Read processor mesh: "r5_wallfunction/processor10"
+Writing addressing : "r5_wallfunction/processor10/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 11
+Read processor mesh: "r5_wallfunction/processor11"
+Writing addressing : "r5_wallfunction/processor11/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 12
+Read processor mesh: "r5_wallfunction/processor12"
+Writing addressing : "r5_wallfunction/processor12/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 13
+Read processor mesh: "r5_wallfunction/processor13"
+Writing addressing : "r5_wallfunction/processor13/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 14
+Read processor mesh: "r5_wallfunction/processor14"
+Writing addressing : "r5_wallfunction/processor14/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+Processor 15
+Read processor mesh: "r5_wallfunction/processor15"
+Writing addressing : "r5_wallfunction/processor15/constant/polyMesh"
+    pointProcAddressing
+    faceProcAddressing
+    cellProcAddressing
+    boundaryProcAddressing
+
+End
+
