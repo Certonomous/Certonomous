@@ -1471,3 +1471,92 @@ added here is consulted **only** when the primary path lacks the module.
 **Pre-compute. C1 PASS, C2 PASS, C3 ARMED with its failing direction driven, C4 ARMED at 12
 clauses, SPD gate ARMED. Every instrument on the PPTC grading path is now armed before the
 first solve.**
+
+---
+
+## AMENDMENT 9 — 2026-09-13, before first compute. C5 PROVENANCE: A `VERDICT: PASS` FROM A SYNTHETIC TREE WAS BYTE-INDISTINGUISHABLE FROM A REAL ONE
+
+**Legality.** Rule 2, before first compute; condition checked at
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/`. **C5 LABELS AND NEVER ADJUDICATES: it cannot
+move a verdict in either direction.** No gate, threshold, band, cap or label is touched.
+
+### A9.1 The hazard, found by arming C3 before the mesh landed
+
+The registered synthetic forces tree is built **from** the measured KT 0.5052, so reading
+0.5052 back is **a round trip of this comparator's algebra, not evidence about the flow**.
+Run end to end on it, the comparator printed `VERDICT: PASS` with the real bands, the real
+`eta_O` and deviations of **+0.00 %** — **byte-indistinguishable from a genuine verdict**. In
+a report, a board block or a screenshot it reads as a PPTC pass, and **nothing downstream
+could tell.**
+
+### A9.2 🔴 The polarity is the whole design
+
+**C5 does not try to detect a synthetic tree.** A synthetic tree built some other way would
+slip through, and a marker that is trusted and silent is worse than none. **It requires
+POSITIVE EVIDENCE OF A REAL SOLVE and treats everything else as `UNVERIFIED-PROVENANCE`** —
+the same doctrine as standing rule 3: the default is *not shown to be real*, and the burden
+is on the artifact.
+
+The evidence is OpenFOAM's own banner — `Build  :`, `Exec   :`, `nProcs :`, `Case   :` — and
+**the `Case` line must name this directory**, so a log copied in from another case confers
+nothing on the tree it was copied into.
+
+### A9.3 What it changes, and what it provably does not
+
+- A **real** solve prints **exactly as before this amendment**: `VERDICT: PASS`, no banner.
+- An **unverified** tree prints the same verdict token **with its provenance attached**, plus
+  an unmissable block. `_emit_verdict` is the **single** renderer, so a bare
+  `VERDICT: PASS` on unverified input is **structurally unreachable**, not merely discouraged.
+- **The marker travels in the machine-readable row** (`--json`): `provenance`,
+  `provenance_reason` and `is_a_result_about_VP1304`. An aggregator lifting `verdict` out of
+  a JSON row and dropping the human banner would otherwise carry a synthetic PASS into a
+  table with nothing attached to it.
+
+### A9.4 Failing direction, driven both ways
+
+| control | required |
+|---|---|
+| tree with no solver banner | **marked `UNVERIFIED`** |
+| a bare `VERDICT: PASS` emitted on unverified input | **impossible** — asserted |
+| tree carrying a real banner whose `Case` line names it | **`REAL-SOLVE`, no banner** |
+| a real verdict altered by the marker | **must not happen** — asserted |
+| **a real banner BORROWED from another case** | **`UNVERIFIED`** |
+| the verdict token itself, `PASS` / `GATE FAIL` / `NOT A RESULT` | **unchanged in both directions** |
+
+Measured: synthetic tree → `VERDICT: PASS   [UNVERIFIED-PROVENANCE — NOT A RESULT ABOUT
+VP1304]` with the block and `is_a_result_about_VP1304: false`; real-banner tree → `REAL-SOLVE`
+and a bare `VERDICT: PASS`.
+
+---
+
+## A9.5 🔴 THE THREE WAYS A CONTROL PASSES WHILE MEANING NOTHING — all three met tonight, on this act and on CRM
+
+**A control can be defeated in three distinct ways, and NONE of them is visible from the exit
+code.** This lab has been reading `rc` as though it were a verdict.
+
+1. **IT REFUSES ON THE WRONG CLAUSE.** A fixture built to break clause X refuses, but on
+   clause Y. The suite records "the control fired". *Repair: every fixture must break
+   exactly one clause and be required to refuse ON THAT CLAUSE.*
+2. **IT RUNS AGAINST A FIXTURE THAT CANNOT EXHIBIT THE FAULT.** The `cellZones` parser passed
+   nine clauses of its own suite because the hand-written fixture had no
+   `meta { names ( … ) }` header — **the trap was absent from the test**. One read of a real
+   file reported 1 cell against a true 11,412,958. *Repair: the fixture must carry the
+   artifact's traps. **A fixture simpler than the artifact is not a control; it is a
+   rehearsal.***
+3. **IT DOES NOT RUN AT ALL, WHILE LOOKING AS THOUGH IT DID.** A mutation control's copy died
+   on `ModuleNotFoundError` **before reaching the mutated line**; `rc=1` was **an import
+   error wearing a refusal's clothes**, and was nearly logged as a success. *Repair: a
+   control must assert it reached the thing it claims to test — the refusal's REASON, not
+   its exit code.*
+
+**And a fourth, from C3's pairwise mutation:** a clause can be **unreachable while its
+neighbours are healthy**. With the plant intact, disabling the tolerance clause changed
+nothing; with the plant broken **and** the tolerance disabled, `+0.0000 %` sailed through and
+a plausible KT 0.5052 printed `VERDICT: PASS`. **The tolerance clause is load-bearing and a
+single-mutation test could never have shown it. Gates with stacked clauses need PAIRWISE
+mutation.**
+
+### A9.6 Status
+
+**Pre-compute. C1 PASS, C2 PASS, C3 ARMED, C4 ARMED at 12 clauses, C5 ARMED, SPD gate ARMED.
+Every instrument on the PPTC grading path is armed before the first solve.**

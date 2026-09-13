@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import math
 import os
 import re
@@ -1076,6 +1077,147 @@ def readable_controls(verbose: bool = True) -> None:
               f'({len(fired) - 1} to REFUSE, the clean fixture to READABLE).')
 
 
+# --------------------------------------------------------------------------------------
+# PROVENANCE -- IS THIS THE OUTPUT OF A REAL SOLVE?   (amendment 9, 2026-09-13)
+# --------------------------------------------------------------------------------------
+# 🔴 THE HAZARD, FOUND BY ARMING C3 BEFORE THE MESH LANDED.  The registered synthetic forces
+# tree (`plant_calibration/make_synthetic_forces.py`) is built FROM the measured KT 0.5052,
+# so reading 0.5052 back is A ROUND TRIP OF THE ALGEBRA AND NOT EVIDENCE ABOUT THE FLOW.
+# Run end to end on it, this comparator printed `VERDICT: PASS` with the real bands, the real
+# eta_O and deviations of +0.00% -- BYTE-INDISTINGUISHABLE FROM A GENUINE VERDICT.  In a
+# report, a board block or a screenshot it reads as a PPTC pass, and nothing downstream can
+# tell.
+#
+# THE POLARITY IS DELIBERATE AND IT IS THE WHOLE DESIGN.  This does NOT try to detect a
+# synthetic tree -- a synthetic tree built some other way would slip through and the marker
+# would be worse than useless for being trusted.  IT REQUIRES POSITIVE EVIDENCE OF A REAL
+# SOLVE and treats everything else as UNVERIFIED.  Same doctrine as standing rule 3: the
+# default is not-shown-to-be-real, and the burden is on the artifact.
+#
+# IT CANNOT MOVE A VERDICT, IN EITHER DIRECTION.  It labels.  A real PASS prints exactly as
+# it printed before this amendment; an unverified one prints the same verdict token WITH its
+# provenance attached, and `_emit_verdict` makes a bare `VERDICT: PASS` on unverified input
+# STRUCTURALLY UNREACHABLE rather than merely discouraged.
+
+PROV_REAL = 'REAL-SOLVE'
+PROV_UNVERIFIED = 'UNVERIFIED-PROVENANCE'
+
+
+def provenance(case: str) -> dict:
+    """Positive evidence that `case` holds the output of a real OpenFOAM solve.
+
+    OpenFOAM writes a banner no fixture generator reproduces by accident -- `Build  :`,
+    `Exec   :`, `nProcs :` and `Case   :`.  The `Case   :` line names the directory the
+    solver actually ran in, so a log copied in from elsewhere does not confer provenance on
+    the tree it was copied into."""
+    r: dict = {'evidence': [], 'missing': []}
+    log = os.path.join(case, 'log.' + SOLVER)
+    if not os.path.isfile(log):
+        r['missing'].append(f'no log.{SOLVER} in the case')
+        r['status'] = PROV_UNVERIFIED
+        r['reason'] = (f'no solver log: nothing in this tree shows a solver ever ran in it')
+        return r
+    with open(log, errors='replace') as fh:
+        head = fh.read(8192)
+    for key in ('Build  :', 'Exec   :', 'nProcs :', 'Case   :'):
+        (r['evidence'] if key in head else r['missing']).append(key.strip())
+    m = re.search(r'^Case   : (.+)$', head, re.M)
+    r['case_line'] = m.group(1).strip() if m else None
+    same = False
+    if r['case_line']:
+        try:
+            same = os.path.realpath(r['case_line']) == os.path.realpath(case)
+        except OSError:
+            same = False
+    r['case_line_matches_this_tree'] = same
+    if r['missing'] or not same:
+        r['status'] = PROV_UNVERIFIED
+        r['reason'] = ('the solver log does not establish that this tree is a real solve'
+                       + (f'; missing banner fields {r["missing"]}' if r['missing'] else '')
+                       + ('' if same else
+                          f'; its `Case` line names {r["case_line"]!r}, not this directory'))
+        return r
+    r['status'] = PROV_REAL
+    r['reason'] = 'solver banner present and its Case line names this directory'
+    return r
+
+
+def _emit_verdict(verdict: str, prov: dict) -> str:
+    """THE ONLY PLACE A VERDICT IS RENDERED.  Returns the string to print.
+
+    On unverified provenance the verdict token NEVER appears unqualified -- not as a
+    convention but because this function is the single emitter and it appends the
+    qualification unconditionally."""
+    if prov.get('status') == PROV_REAL:
+        return f'VERDICT: {verdict}'
+    return (f'VERDICT: {verdict}   [{PROV_UNVERIFIED} -- NOT A RESULT ABOUT VP1304]')
+
+
+def _provenance_banner(prov: dict) -> str:
+    if prov.get('status') == PROV_REAL:
+        return ''
+    return (
+        '\n' + '=' * 78 +
+        '\n  🔴 UNVERIFIED PROVENANCE -- THIS IS NOT A RESULT ABOUT THE PPTC PROPELLER.'
+        '\n  ' + str(prov.get('reason')) +
+        '\n  Every number ABOVE is a round trip of this comparator\'s own algebra over'
+        '\n  whatever was in the input tree. It demonstrates that the pipeline computes;'
+        '\n  it is evidence about NO propeller. Do not quote it, plot it or screenshot it'
+        '\n  as a PPTC coefficient.'
+        '\n' + '=' * 78)
+
+
+def provenance_controls(verbose: bool = True) -> None:
+    """The marker's failing direction, both ways: a synthetic tree MUST be marked, a real
+    one MUST NOT be, and NEITHER may move a verdict."""
+    real_banner = ('/*------------------*- C++ -*------------------*\\\n'
+                   'Build  : _481094f-20260618 OPENFOAM=2606 version=2606\n'
+                   'Arch   : "LSB;label=32;scalar=64"\n'
+                   'Exec   : %s -parallel\nDate   : Sep 13 2026\n'
+                   'nProcs : 8\nCase   : %s\n')
+    with tempfile.TemporaryDirectory() as td:
+        syn = os.path.join(td, 'syn')
+        os.makedirs(syn, exist_ok=True)
+        p_syn = provenance(syn)
+        if p_syn['status'] != PROV_UNVERIFIED:
+            raise Refusal('CONTROL FAILED: a tree with no solver log was accepted as a '
+                          'real solve. The marker cannot fire and is not a marker.')
+        if 'VERDICT: PASS' == _emit_verdict('PASS', p_syn):
+            raise Refusal('CONTROL FAILED: a BARE `VERDICT: PASS` was emitted on '
+                          'unverified provenance.')
+
+        real = os.path.join(td, 'real')
+        os.makedirs(real, exist_ok=True)
+        open(os.path.join(real, 'log.' + SOLVER), 'w').write(real_banner % (SOLVER, real))
+        p_real = provenance(real)
+        if p_real['status'] != PROV_REAL:
+            raise Refusal('CONTROL FAILED: a tree carrying a real OpenFOAM banner whose '
+                          '`Case` line names it was NOT accepted. The marker fires on '
+                          f'everything, which is not a marker: {p_real.get("reason")}')
+        if _emit_verdict('PASS', p_real) != 'VERDICT: PASS':
+            raise Refusal('CONTROL FAILED: the marker altered a REAL verdict. It labels; '
+                          'it does not adjudicate.')
+        if _provenance_banner(p_real) != '':
+            raise Refusal('CONTROL FAILED: the banner printed on a real solve.')
+
+        # A BORROWED LOG CONFERS NOTHING: same banner, another directory's Case line.
+        borrowed = os.path.join(td, 'borrowed')
+        os.makedirs(borrowed, exist_ok=True)
+        open(os.path.join(borrowed, 'log.' + SOLVER), 'w').write(
+            real_banner % (SOLVER, real))
+        if provenance(borrowed)['status'] != PROV_UNVERIFIED:
+            raise Refusal('CONTROL FAILED: a log copied in from another case conferred '
+                          'provenance on the tree it was copied into.')
+
+        # and the verdict TOKEN is untouched in both directions
+        for v in ('PASS', 'GATE FAIL', 'NOT A RESULT'):
+            if not _emit_verdict(v, p_syn).startswith(f'VERDICT: {v}'):
+                raise Refusal(f'CONTROL FAILED: the marker changed the {v!r} token.')
+    if verbose:
+        print('  provenance controls ARMED: no-log marked, real banner accepted, borrowed '
+              'log refused, verdict token unchanged in both directions.')
+
+
 def nearest_registered_J(J: float) -> float:
     j = min(MEASURED, key=lambda x: abs(x - J))
     if abs(j - J) > 1e-3:
@@ -1107,6 +1249,8 @@ def main() -> int:
     ap.add_argument('--J', type=float)
     ap.add_argument('--window', type=int, default=500)
     ap.add_argument('--repo-root', default=os.getcwd())
+    ap.add_argument('--json', action='store_true',
+                    help='emit the machine-readable row, provenance included')
     ap.add_argument('--selftest', action='store_true')
     a = ap.parse_args()
     globals()['_SCRIPTS_FALLBACK_ROOT'] = os.path.abspath(a.repo_root)
@@ -1131,6 +1275,11 @@ def main() -> int:
 
         if not a.case or a.J is None:
             raise Refusal('--case and --J are required unless --selftest is given')
+
+        print('C5  PROVENANCE is this the output of a REAL solve? (labels; never adjudicates)')
+        provenance_controls()
+        _prov = provenance(a.case)
+        print(f'    {_prov["status"]} -- {_prov["reason"]}')
 
         print('C4  READABLE   may a force be read from this case at all? (refusal-only)')
         readable_controls()
@@ -1179,12 +1328,31 @@ def main() -> int:
               f'KT +-{fb_t:.0f}%, 10KQ +-{fb_q:.0f}%: '
               f'KT {"in" if abs(g["d_kt"]) <= fb_t else "OUT"}, '
               f'10KQ {"in" if abs(g["d_kq"]) <= fb_q else "OUT"}')
-        print(f'\nVERDICT: {g["verdict"]}')
+        print('\n' + _emit_verdict(g['verdict'], _prov))
         if g['verdict'] == 'GATE FAIL':
             m = max(abs(g['d_kt']) - BAND_PCT[g['J']][0], abs(g['d_kq']) - BAND_PCT[g['J']][1])
             print(f'  margin outside the band: {m:+.2f} percentage points')
         print('  NOTE: this verdict is subject to Roache triple gating. A row whose grid '
               'triple is not CONVERGING is NOT A RESULT whatever this says.')
+        print(_provenance_banner(_prov))
+
+        if a.json:
+            # THE MARKER TRAVELS IN THE MACHINE-READABLE ROW TOO. An aggregator that lifts
+            # `verdict` out of a JSON row and drops the human banner would otherwise carry a
+            # synthetic PASS into a table with nothing attached to it.
+            json.dump({'case': os.path.abspath(a.case), 'J': g['J'],
+                       'KT': kt_v, 'tenKQ': tenkq, 'eta_O': eta,
+                       'verdict': g['verdict'],
+                       'verdict_rendered': _emit_verdict(g['verdict'], _prov),
+                       'provenance': _prov.get('status'),
+                       'provenance_reason': _prov.get('reason'),
+                       'is_a_result_about_VP1304': _prov.get('status') == PROV_REAL,
+                       'deviation_pct': {'KT': g['d_kt'], 'tenKQ': g['d_kq']},
+                       'comparator': os.path.abspath(__file__),
+                       'prereg_commit': PREREG_COMMIT,
+                       'roache_note': 'subject to Roache triple gating (standing rule 5)'},
+                      sys.stdout, indent=1)
+            sys.stdout.write('\n')
         return 0
 
     except Refusal as e:
