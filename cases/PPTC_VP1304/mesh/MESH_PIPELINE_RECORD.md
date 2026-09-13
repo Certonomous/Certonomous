@@ -500,3 +500,88 @@ it now rests on the extracted feature edge rather than on the surface tessellati
 > recorded before the family is built, not asserted.** If the extracted feature edges do not
 > reproduce the LE to the resolution §6.3 requires, that is disclosed on the certificate with
 > the number.
+
+---
+
+## CORRECTION 1 — ADDENDUM D, 2026-09-12. THE LEADING EDGE IS NOT A CAD FEATURE EDGE, SO NO TESSELLATION CAN MAKE `surfaceFeatureExtract` FIND IT — AND §6.3's LE REQUIREMENT IS NOT MET BY THE REGISTERED FAMILY
+
+*lines whose number changed above this section: 0*
+
+Addendum C argued that turning curvature off was safe for §6.3 because the LE resolution
+requirement "rests on the extracted feature edge rather than on the surface tessellation".
+**That argument is wrong, and it is wrong for a reason no tessellation setting can fix.**
+
+### D.1 The CAD's own curve topology, meshed independently of any surface
+
+`gmsh -1` on the admitted STEP at 0.02–0.05 mm — curves only, 2.7 s, and completely independent
+of the surface tessellation — gives the CAD's true edges:
+
+- **81 curve entities, 4075.07 mm total edge length.**
+- **15 curves lie in the blade region** (mean radius > 45 mm), 848.68 mm total, in three
+  families: **5 × 114.465 mm** spanning r = 36.91 → 124.99 (root to tip, one per blade), and
+  **5 × 27.875 mm** plus **5 × 27.397 mm**, both at r = 124.99 (the tip edges).
+
+**A blade section has two ends. Only ONE root-to-tip curve exists per blade.** The smp'11
+geometry sheet says *"The trailing edge for the upper propeller radii is sharp"* — so the
+114.465 mm curve is the **trailing** edge, a genuine sharp seam, and **the leading edge is a
+smooth rounded region of the surface with no CAD edge at all.**
+
+### D.2 The consequence
+
+> **`surfaceFeatureExtract` cannot extract the leading edge, on any tessellation, at any
+> `includedAngle`.** It finds edges by angular discontinuity between adjacent facets, and on a
+> smooth rounded LE there is no discontinuity to find — not because the tessellation is too
+> coarse, but because the geometry is smooth there. It will extract the trailing edge and the
+> tip edges, which are real CAD seams.
+
+So §6.3's requirement — *"leading-edge radius resolved by at least 8 cells across"* — **must be
+met by SURFACE refinement, not feature-edge refinement**, and addendum C's fallback does not
+exist.
+
+### D.3 The LE radius, measured
+
+Circle fitted to the section within 0.6 mm of the chord end, on the curvature-driven
+tessellation (the only one on disk carrying 0.06 mm facets at the edges):
+
+| station | chord | LE fit |
+|---|---|---|
+| r/R = 0.5 | 62.307 mm | **radius 0.2424 mm**, 77 points, fit residual 0.0338 mm |
+| r/R = 0.7 | 81.366 mm | inconclusive — 6–7 points within 0.6 mm at both ends |
+| r/R = 0.9 | 112.924 mm | inconclusive — 7–8 points at both ends |
+
+**Stated limitation: this is ONE station with a good fit and two inconclusive ones**, the
+outboard sections having too few facets within the fit window because the curvature-driven
+refinement does not distribute uniformly along the span. The r/R = 0.5 value is a measurement;
+the span-wise variation is not yet characterised, and the other end at r/R = 0.5 returning only
+6 points inside 0.6 mm is itself consistent with the sharp trailing edge the geometry sheet
+describes.
+
+### D.4 What §6.3 then demands, against what the family delivers
+
+Taking the measured LE radius of 0.2424 mm:
+
+| reading of "8 cells across" | required cell | fine level's blade cell | shortfall |
+|---|---|---|---|
+| across the radius | 0.030 mm | 0.278 mm | **9.3×** |
+| across the LE (diameter) | 0.061 mm | 0.278 mm | **4.6×** |
+
+> **THE REGISTERED FAMILY DOES NOT MEET §6.3's LEADING-EDGE RESOLUTION AT ANY OF ITS THREE
+> LEVELS, ON EITHER READING.** This is a property of the registered cell targets
+> (0.8 M / 2.7 M / 9 M per passage), not of the tessellation, and no tessellation setting
+> changes it.
+
+### D.5 Status — raised, not decided
+
+Two routes exist and both change something registered, so this lane does not pick one:
+
+1. **A local LE refinement region** — a thin band along the LE path at a much higher level
+   (8.9 mm background ÷ 2⁸ = 0.035 mm) reaches the requirement locally and affordably, because
+   the band is thin. **But the STL must then carry ~0.035 mm facets at the LE**, which requires
+   curvature-driven tessellation — the configuration measured to be far slower here — and it
+   adds a refinement region not named in §6.3.
+2. **Disclose the limitation** — the act reports that the LE is resolved to 0.278 mm against a
+   requirement of 0.030–0.061 mm, with these numbers, on the certificate.
+
+**Raised to the cfd supervisor. No mesh is built on either route until it is settled**, because
+the choice changes the cell count, the tessellation configuration and possibly the registered
+cell targets.
