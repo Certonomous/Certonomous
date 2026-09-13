@@ -1164,3 +1164,48 @@ The plateau bar is composed with the agreement band in **two different structure
 **It moves no bar and grades nothing retroactively.** It binds pre-registrations frozen **after** this date; items already frozen keep the falsifiers they registered, and none of them is reclassified by this section. `D6RF3`, frozen earlier today at `9c079a84`, is in the **conjunction** structure and its §12.5 already checked its `F1`/`F2`/`F3` against this shape and cleared them — `F1`'s bar is `eta_raw`, **the primal's own measured repeatability**, which cannot be mis-sized against what it bounds because it is derived from it. **That is the design this family should prefer, and it is already here.**
 
 **SUBMISSIONS PARKED.**
+
+---
+
+## §22 ADDENDUM — 2026-09-13 — **THE OWNER'S STANDING RULES FOR SHAPE OPTIMIZATION ARE ADOPTED INTO THIS CHARTER. AN OPTIMUM THAT HAS NOT SURVIVED A MESH IT HAS NEVER SEEN IS NOT A RESULT OF THIS LAB.**
+
+**Version: v1.0g → v1.0h.** As in §17, §18, §19, §20 and §21, the version is carried in THIS heading and the `Version 1.0g` line at `:3` is deliberately NOT edited: editing it would renumber nothing but would rewrite a frozen line, and this addendum inserts nothing and edits nothing above itself.
+
+| assertion | value |
+|---|---|
+| lines whose number changed above this section | **0 — proved on BYTES by `cmp -n 148216` against a pre-append copy, exit 0** |
+| gates, thresholds, caps or labels altered in §1–§21 | **none** |
+
+### §22.1 WHAT IS ADOPTED, AND BY WHOSE HAND
+
+On 2026-09-13 the owner issued, in her own session turn, **Standing rules for shape optimization: the optimum must survive a mesh it has never seen** — sixteen rules in four parts (before the first iteration, during the optimization, after the optimization, and what moves up the roadmap). They are recorded **byte-exact and uneditable** at `docs/dafoam/SHAPE_OPTIMIZATION_STANDING_RULES.md`, under the chief's reading. Her closing line — *"plus whatever else the dafoam supervisor can think of"* — is the authority for rules **17–32**, appended below that reading as a dated section by this supervisor on the same date, and **never inside her quoted block**.
+
+**That whole file is adopted here by reference and is part of this charter.** Rules 1–16 are hers and are **not amendable by any agent at any level**, this supervisor included; rules 17–32 are this family's own and are amendable under §16's amendment record like any other clause of this charter. Where a rule in that file and a clause of §1–§21 both apply, **both** apply; nothing in §22 relaxes an existing gate, and §22 alters no gate, threshold, cap or label in §1–§21.
+
+### §22.2 THE CLAUSE WITH TEETH — WHAT A SHAPE-OPTIMISATION PERCENTAGE MAY BE
+
+**No shape-optimisation improvement figure leaves this family — to a record, a report, a certificate or a camera surface — unless the number quoted is the FRESH-MESH number, at matched lift, on all conditions, from scratch** (her rule 12). The deformed-mesh number is reported **beside** it with the difference disclosed; it is never reported alone, and it is never the headline.
+
+**Measured, and this clause is why it exists:** D6R2's weighted-drag reduction of **24.7 %** was measured on the deformed optimisation mesh. It is **withdrawn from every claim** pending a fresh-mesh evaluation at matched lift. The first attempt to supply that number, FM10, is itself `NOT A RESULT`: it flew the three conditions at CL **+0.1493 / +0.1516 / +0.1524** above their targets — **30× the registered finding trigger** — because the evaluator applied the design variables twice, and the ratio **1.2063** computed from it was a fresh-mesh numerator over a deformed-mesh denominator at incompatible lift. **Both the 24.7 % and the 1.2063 are withdrawn; neither is this family's claim, and no agent may quote either as one.**
+
+### §22.3 THE CAUSE-CLASS RULE, AND THE FIFTH CLASS
+
+Her rule 15 requires a cause class on failure — mesh (warp), parameterization (wiggles), trim (lift mismatch), solver — recorded, with the run re-registered and the corresponding rule tightened. **This charter adds a fifth: PRODUCER — the evaluation harness itself**, and requires that **the class be assigned from a measurement that EXCLUDES the others, never from the most plausible story.**
+
+**Measured, 2026-09-13, on the deformed-versus-fresh gap of 139 drag counts.** Every mesh cause class is **excluded**: y+ medians **247 (deformed) versus 223 (fresh)** with **no face below y+ 30 on either mesh**; first-cell height median within **1.6 %**; all five near-wall layer thicknesses within **1 %**; **zero** negative or degenerate volumes on any mesh state; and the gap carried **104.5 % / 102.9 % / 99.6 % by PRESSURE drag** with viscous drag flat to within **7 counts of its own value** — the *opposite* sign and the *opposite* component from a warp that had under-resolved skin friction. The cause was **producer**: `d6r2c_freshmesh.py:423-425` re-applying `shape`/`twist` on a mesh already built from the deformed surface, confirmed by a wall-point fit (`cos∠` median **0.99965**, magnitude ratio **1.234**) and by mid-span camber/chord running base **0.00196** → optimum **0.04810** → FM10 **0.09015**, an increment of **1.91×**.
+
+**The general clause:** a shape-optimisation failure attributed to the mesh, the parameterization, the trim or the solver **states the measurement that excluded the other four classes**. An attribution with no exclusion measurement is a hypothesis and is labelled one.
+
+### §22.4 THE THREE INSTRUMENT CLAUSES THAT BIND AT FREEZE
+
+These are §22's operative additions to §7's pre-registration requirements, and they are checked **by the supervisor personally**, before the freeze sha, on every shape-optimisation registration:
+
+1. **Every instrument named in the frozen table EXISTS at its stated md5.** A table that is *true as written* about files that do not exist is how the defect survived (L-579, committed by this supervisor).
+2. **The pre-freeze check drives the CLI THE LAUNCHER EMITS**, not the graded function. A `--selftest` green against the function proves the function; the FM9 grader's frozen command line could only ever return `NOT A RESULT` and its selftest never saw it (L-595, L-570).
+3. **Every channel a gate reads is shown to have a writer that ran.** `primal_residual.json` had **four readers, zero writers and zero such files anywhere on disk**, and the default `conv[p] = True` stood for every condition. A status channel with no writer defaults to success, silently.
+
+### §22.5 WHAT §22 DOES NOT DO
+
+It moves no bar, grades nothing retroactively, and reclassifies no item frozen before this date. It does not authorise any send: **SUBMISSIONS PARKED** (rule 7) is untouched, the four upstream defect classes remain **NOT FILED**, and §10 is unamended. It does not widen §12's compute authority; every shape-optimisation registration still carries its own cost, now **per objective evaluation and per gradient evaluation separately**, and lands its actual/predicted ratio in `docs/COST_CALIBRATION.md` at completion (rule 30; FM10 predicted 11.400 core-min, incurred 10.677, ratio **0.937**, dollars **derived** at $0.0513/core-h, never measured).
+
+**SUBMISSIONS PARKED.**
