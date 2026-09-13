@@ -30164,3 +30164,58 @@ quantity, a reader blind to its own key, an exit code standing in for a verdict.
 instrument whose correctness criterion was STRICTER THAN THE PROCEDURE IT WAS POLICING**, and it is
 the first failure of the night in the refusing direction. **Both directions are failures of the
 same thing: a control whose criterion was never checked against the claim it stands for.**
+
+---
+
+## L-609 — editing a shell script while an instance of it is running moves the bytes under the running shell: bash resumes at a stale OFFSET, re-executes, and the second run wears the first one's name
+
+**Measured cost: ~400 core-minutes voided, and one graded verdict withdrawn because its artifact was destroyed by the re-entry.**
+
+A lane launched `d6r3_decomp_arm.sh 28` at **21:02:41Z**. At **21:07:09Z**, with that instance still
+running, the lane rewrote the same file to repair a blind instrument control. At **21:12:25Z** a
+**second** container appeared — same name, same arm directory, same shell.
+
+**The ledger says the script ran once. Docker says the launch ran twice.** Exactly one
+`D6R3_DEC_ARM DECOMP_N28` line and exactly one `G-CORES` line were ever written, so the body
+executed once and passed its guards once; yet `docker inspect` gave `Created=21:12:25Z` with
+`RestartCount=0`, and the `docker run` process was a child of **the same arm shell, pid 1725442,
+started 21:02:41Z**. There is no loop in the script and no restart policy on the container.
+
+**THE MECHANISM. `bash` does not slurp a script — it reads it incrementally and keeps a byte
+offset.** Rewriting the file in place moves everything after the edit. When the shell next reads,
+it seeks to its saved offset in the **new** bytes and resumes at whatever now lives there. The edit
+here added lines *above* the launch block, so the shell re-entered the launch block and ran it
+again. `sed -i`, a Python rewrite, `>` into the same path — every in-place rewrite does this.
+`sed -i` is not exempt: it replaces the file, and the running shell holds an offset, not a handle
+to the old content.
+
+**WHY THE SECOND RUN IS WORSE THAN A WASTED ONE, and this is the part that costs a verdict.**
+Re-entry lands **past the guards**, so the second run started on a directory the first had already
+filled — `processor0…27/`, written time directories, a stale age datum. `G-COLD`, the age guard and
+the published-dictionary check had all fired cleanly for the *first* run and none of them fired for
+the *second*. **A run that skipped its own preconditions is not a run, however good its numbers
+look.** And the re-entered `> "$LOG"` **truncated the first run's log**, destroying the artifact
+behind a verdict that had already been read and reported. The verdict was withdrawn: *a number in
+a transcript is a memory, not evidence* (§1, L-27). What survived is only what other, intact logs
+still carried.
+
+**THE RULE — a running script's file is part of the running process. Treat it as read-only until
+the process is gone.**
+1. **Never edit, `sed -i`, rewrite or `git checkout` a script while an instance of it is running.**
+   Before any instrument edit: clear the box of that script's processes, *then* edit, *then* commit.
+2. If a running script must be changed, **copy it to a new path and edit the copy.** Adding to the
+   end is not safe either — the offset is into the old file, and the tail is exactly where a long
+   `docker run` or `mpirun` is parked.
+3. **A re-entry is invisible in the ledger**, because the announcing lines sit above the launch.
+   Detect it at the container/process layer instead: compare the launcher's start time against
+   `docker inspect --format '{{.Created}}'`, and treat a `Created` later than the shell's `lstart`
+   as a re-entry until proven otherwise.
+4. Where a launcher can afford it, **make the launch block idempotent or refuse a second entry** —
+   a sentinel file written beside the arm directory before `docker run`, checked at the top of the
+   block.
+
+**NEAREST RELATIVE: L-587**, killing the worker without killing the launcher that respawns it.
+Both are the same shape — **the process you are reasoning about is not the process that is
+running** — and neither of the older kill lessons (L-10's `pkill -f` matching its own shell, L-5's
+orphaned job) reaches this one. L-587 is a parent outliving a child. This is a script outliving its
+own text.
