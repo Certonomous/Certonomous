@@ -45,11 +45,62 @@ def field(obj, cls, dims, internal, bcs, vehicle):
             "boundaryField\n{\n" + "".join(b) + "}\n")
 
 
+
+NUT_WALL_RE = re.compile(r"\bnut[A-Za-z]*WallFunction\b")
+
+
+def assert_nut_treatments(text, vehicle, floor):
+    """COUNT the nut wall-function tokens on disk; never merely look for them.
+
+    A PRESENCE check cannot work here.  In the normal case the two treatments
+    DIFFER -- Spalding on the vehicle, nutk on the floor, which is what R5
+    registers -- so both strings are legitimately present and `X in text` is
+    satisfied by a STALE THIRD OCCURRENCE as readily as by the right one.
+    That is L-607's shape (one hit is a value, several hits are a hierarchy)
+    in the very script written to prevent it.
+
+    This writer emits EXACTLY TWO wall-function blocks: floorNoSlip, and the
+    ".*" default.  So the expected multiset is known exactly and is derived
+    from the arguments, never hardcoded -- a hardcoded count taken from some
+    other artifact would refuse every case this script writes, and a guard
+    that refuses lawful work is a defect too.
+
+    Returns the measured counts so the caller can RECORD them as evidence.
+    """
+    from collections import Counter
+    want = Counter([vehicle, floor])
+    got = Counter(NUT_WALL_RE.findall(text))
+    if got != want:
+        raise SystemExit(
+            "REFUSE: 0.orig/nut does not carry exactly the requested wall "
+            "treatments.\n"
+            f"  requested (vehicle={vehicle}, floor={floor}): {dict(want)}\n"
+            f"  found on disk:                                {dict(got)}\n"
+            "  A count mismatch means a stale literal survived, a block was "
+            "written twice, or a spelling nobody asked for is present. "
+            "Presence alone would not have caught this.")
+    return dict(got)
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", required=True)
     ap.add_argument("--reference", required=True)
     ap.add_argument("--end-time", type=int, default=3000)
+    # WALL TREATMENT IS STATED, NEVER DEFAULTED.  A default is what let R5 stage
+    # from a case carrying nutkWallFunction while its registration said
+    # nutUSpaldingWallFunction: the R2c arm got Spalding as a registered
+    # one-change and every arm after inherited nutk in silence.  Both are
+    # required with NO default, so this script REFUSES to write a case whose
+    # wall treatment nobody stated.  The value lived at two hardcoded sites and
+    # one of them always won -- L-607's shape -- so each now has one decision.
+    ap.add_argument("--nut-wall-vehicle", required=True,
+                    choices=("nutkWallFunction", "nutUSpaldingWallFunction"),
+                    help="nut wall function on the \".*\" vehicle block. "
+                         "The registration names it; this script does not guess.")
+    ap.add_argument("--nut-wall-floor", required=True,
+                    choices=("nutkWallFunction", "nutUSpaldingWallFunction"),
+                    help="nut wall function on floorNoSlip. Stated separately "
+                         "because it legitimately differs from the vehicle.")
     ap.add_argument("--write-interval", type=int, default=1000)
     a = ap.parse_args()
     root = Path(a.root)
@@ -134,8 +185,23 @@ def main():
         [("inlet", blk("type            calculated;", f"value           uniform {nut_in:.8g};")),
          ("outlet", blk("type            calculated;", f"value           uniform {nut_in:.8g};")),
          (f'"({slip})"', blk("type            slip;")),
-         ("floorNoSlip", blk("type            nutkWallFunction;", "value           uniform 0;"))],
-        blk("type            nutkWallFunction;", "value           uniform 0;")))
+         ("floorNoSlip", blk(f"type            {a.nut_wall_floor};",
+                             "value           uniform 0;"))],
+        blk(f"type            {a.nut_wall_vehicle};", "value           uniform 0;")))
+
+    # READ BACK FROM DISK AND COUNT (rule 3).  An argument that was accepted is
+    # not evidence the bytes carry it, and a file saying "Spalding requested" is
+    # the same class of artifact as the accepted argument.  The counts are.
+    counts = assert_nut_treatments((root / "0.orig" / "nut").read_text(),
+                                   a.nut_wall_vehicle, a.nut_wall_floor)
+    (root / "WALL_TREATMENT_AS_REQUESTED.txt").write_text(
+        f"nut_wall_vehicle={a.nut_wall_vehicle}\n"
+        f"nut_wall_floor={a.nut_wall_floor}\n"
+        "stated on the command line; no default exists in this script\n"
+        "counts ASSERTED against the written bytes of 0.orig/nut:\n"
+        + "".join(f"  {k}={v}\n" for k, v in sorted(counts.items()))
+        + "  any other nut*WallFunction spelling=0 (asserted by exact "
+          "multiset equality, not by presence)\n")
 
     (root / "constant" / "transportProperties").write_text(
         head("dictionary", "transportProperties", "constant") +
