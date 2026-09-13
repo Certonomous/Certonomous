@@ -28592,3 +28592,43 @@ arguments, here in what libc does with your output. Both are invisible until a c
 *Relates to the standing lesson that a red with an innocent explanation is the easiest failure to
 wave through — this is its mirror: a silence with a guilty-looking explanation is the easiest
 healthy run to kill.*
+
+## L-582 — parallel `snappyHexMesh` can be MUCH slower than serial during feature refinement: it rebalances every iteration and rebuilds the surface search tree on every rank each time
+
+**Measured by a three-arm controlled comparison, not inferred.** Same tessellation, same
+dictionaries, same background mesh, three simultaneous arms:
+
+| arm | phase reached | after |
+|---|---|---|
+| 8 ranks, 1.8 M-triangle surface | **feature refinement iteration 4**, stuck 10 min | 31,793 cells |
+| 8 ranks, 7.2 M-triangle surface | **feature refinement iteration 2** | 21,440 cells |
+| **1 rank (genuinely serial), same 1.8 M surface** | **surface refinement it. 3, then shell refinement it. 1** | **1,270,772 cells in ~90 s** |
+
+**Mechanism.** Parallel snappy redistributes whenever load imbalance exceeds
+`maxLoadUnbalance`. The logs show imbalance of **0.83 and 0.93 after every feature
+iteration** against a dictionary value of **0.10**, so it rebalances *every* iteration, and
+each rebalance makes **every rank rebuild its search structures over the whole surface**.
+During feature refinement the mesh is only tens of thousands of cells, so **the redistribution
+cost dwarfs the refinement it is balancing** — you pay the surface-rebuild toll eight times
+over to balance four thousand cells per rank.
+
+**The control that rules out the obvious alternative.** "The surface is simply large" is
+refuted by the serial arm, which reads **the same 1.8 M triangles** and clears the entire
+feature phase in under a minute. **Triangle count is not the driver; redistribution is.**
+
+**It presents as a hang with no error** — which is why this sits beside L-581. There the run
+looked dead and CPU said alive; here CPU says alive and the honest answer is neither: it is
+alive and doing **almost no useful work**. *A busy process is not a progressing one.*
+
+**Exposure, measured and stated at its real strength.** **55 of 60** `snappyHexMeshDict`
+files in this repository set `maxLoadUnbalance 0.1`, and **5 build scripts run snappy under
+`mpirun`**: PPTC, SUBOFF_A1, DRIVAER, SUBOFF_HULL_SAIL_4STERNPLANES and F8's MRF phase.
+**This is not 5 confirmed defects.** The toll is severe only where the surface is large *and*
+the cell count during feature refinement is small — a fine tessellation meshed into a modest
+count. An act meshing a coarse surface into millions of cells may pay little. **Each of the
+five needs its own timing check before any claim is made about it.**
+
+**The fix:** run the feature phase serially, and take a *genuinely* serial path — no
+`decomposePar`, no `reconstructParMesh`, not `mpirun -np 1` — so the parallel code path is
+never entered. Meshing rank count is an infrastructure choice, not a registered physics value,
+but if a pre-registration's cost table names a rank range, a departure from it is disclosed.
