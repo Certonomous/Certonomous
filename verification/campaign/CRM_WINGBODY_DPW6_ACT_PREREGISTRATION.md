@@ -803,3 +803,58 @@ trusts:
 
 **Only the PRESSURE COMPONENT of the forces and the SPREAD of p over the domain give it away.**
 Both are permanent acceptance checks on every level of this family, **read before any timing**.
+
+---
+
+# ADDENDUM 4 — 2026-09-13, THE FIRST RAMP ATTEMPT IS VOID. Version 1.4.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, threshold, cap or label.**
+
+## A4.1 🔴 THE A3.5 DISCRIMINATOR READING IS VOID — STAGE 1 CARRIED A CONFOUND
+
+`CRM-WB-D8G-SMOKE-T-V2-RAMP` (launched 23:58:37Z, pid 151199) produced a stage-1 excursion of
+**p max 4.41×10²⁴ Pa** — which under A3.5 would fire the `potentialFoam` rung.
+
+**IT DOES NOT FIRE IT, BECAUSE THE OBSERVATION IS NOT A CLEAN TEST OF THE RAMP.**
+`fvSolution.startup` carried `maxIter 50` on the pressure solve — carried over from the P3/P4
+probes "to keep the diagnostic affordable", and **never part of the registered ramp**. Stage 1
+therefore tested *ramp + cap*, not *ramp*. A discriminator is only as good as the single change
+it discriminates, and this one had two.
+
+## A4.2 THE CAP IS THE CULPRIT, AND THE SAME RUN CONTAINS ITS OWN CONTROL
+
+Both stages ran in one job, on one mesh, one iteration apart:
+
+| | pressure solve | outcome |
+|---|---|---|
+| **stage 1**, `maxIter 50` | initial 0.999995 → **FINAL 5.127×10⁸** | **DIVERGED**; p max 4.41×10²⁴ Pa |
+| **stage 2**, **uncapped** | initial 0.999993 → **final 9.947×10⁻³ in 231 iterations** | **CONVERGED**, ×100 reduction, relTol met |
+
+**A cap that was harmless on an inert equation is destructive on a live one**, and 231 iterations
+is simply what this pressure equation costs on this mesh — the cap truncated it mid-solve and
+returned a divergent field as though it were an answer. This retrospectively vindicates A2.1's
+refusal to register `maxIter 50`: had it been registered on the P3 "equivalence", it would now be
+frozen into every level of the family.
+
+**`maxIter 50` is removed from `fvSolution.startup`.** This restores the registered configuration
+rather than introducing a change: the stage-2 (graded) solution never carried a cap.
+
+## A4.3 A DEFECT IN THE LAUNCHER — A FAILED STAGE 1 FELL THROUGH INTO STAGE 2
+
+`launch_crm_wb_v2.sh` captured the stage rc as `RC=$(run_solver …)`, and `run_solver` echoed a
+progress line **to stdout**, so `RC` became a multi-line string. `[ "$RC" -ne 0 ]` cannot compare
+that, the guard silently did not fire, **and the graded stage 2 ran on top of a failed ramp.**
+Fixed: the progress line goes to **stderr**, and the guard now **refuses a non-numeric rc** rather
+than comparing it. The rule it breaks is the lab's own — a wrapper must capture the rc *of the
+process*, and anything else on stdout is not the rc.
+
+## A4.4 WHAT IS AND IS NOT ESTABLISHED
+
+- **Established:** the pressure equation is live (A3.1); uncapped GAMG converges it in ~231
+  iterations at ×100 reduction; a `maxIter` cap must never be registered for this family.
+- **NOT established, and not claimed:** whether the §C.6 ramp bounds the startup transient. That
+  test has not yet been run without a confound. **The `potentialFoam` rung of A3.4 stays
+  registered and unfired**, and its firing condition is unchanged.
+- The run is `NOT A RESULT`. No force, coefficient or field from it is graded.

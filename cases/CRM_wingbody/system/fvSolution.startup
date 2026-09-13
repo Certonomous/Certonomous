@@ -4,7 +4,12 @@ FoamFile{version 2.0;format ascii;class dictionary;location "system";object fvSo
 // change and M6I measured what happens when it is altered casually.
 solvers
 {
-    p       { solver GAMG; tolerance 1e-10; relTol 0.01; smoother GaussSeidel; maxIter 50; }
+    // NO maxIter CAP. Carried at 50 in the first ramp attempt "to keep the diagnostic
+    // affordable"; on a LIVE pressure equation that cap DIVERGED the solve -- initial residual
+    // 0.999995 to FINAL 5.13e+08 and p max 4.41e+24 Pa -- while the uncapped solver in the same
+    // run converged 0.999993 -> 9.95e-03 in 231 iterations. A cap that is harmless on an inert
+    // equation is destructive on a working one.
+    p       { solver GAMG; tolerance 1e-10; relTol 0.01; smoother GaussSeidel; }
     "(U|e|h|nuTilda)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-11; relTol 0.01; }
     rho     { solver diagonal; }
 }

@@ -91,8 +91,11 @@ set_endtime () {
   grep -qE "^[[:space:]]*endTime[[:space:]]+${1};" system/controlDict || fail "endTime -> $1 did not read back"
   echo "endTime set to $1 (read back OK)"
 }
+# The progress line goes to STDERR, never stdout: `RC=$(run_solver ...)` captures stdout, so an
+# echo here becomes part of RC. That defect let a FAILED stage 1 fall through into stage 2 --
+# `[ "$RC" -ne 0 ]` cannot compare a multi-line string and the guard silently did not fire.
 run_solver () {
-  echo "--- mpirun -np $RANKS rhoSimpleFoam -parallel  ($1)"
+  echo "--- mpirun -np $RANKS rhoSimpleFoam -parallel  ($1)" >&2
   mpirun -np "$RANKS" rhoSimpleFoam -parallel >> log.rhoSimpleFoam 2>&1
   echo "$?"
 }
@@ -105,7 +108,12 @@ if [ "$RESUME" = "no" ] && [ "$STARTUP_ITERS" -gt 0 ]; then
   set_endtime "$STARTUP_ITERS"
   RC=$(run_solver "stage 1")
   echo "STAGE 1 rc=$RC"
-  [ "$RC" -ne 0 ] && { echo "RC=$RC" > RC.txt; echo "stage 1 failed -- stage 2 NOT entered"; exit "$RC"; }
+  case "$RC" in ''|*[!0-9]*) fail "stage 1 returned a non-numeric rc (\"$RC\") -- refusing to guess";; esac
+  if [ "$RC" -ne 0 ]; then
+    echo "RC=$RC" > RC.txt
+    echo "STAGE 1 FAILED -- STAGE 2 NOT ENTERED. The graded schemes are never run on a failed ramp."
+    exit "$RC"
+  fi
 fi
 
 echo "=== STAGE 2: REGISTERED schemes restored, graded answer produced here ==="
@@ -117,6 +125,7 @@ cp system/controlDict.registered system/controlDict
 [ "$(md5sum < system/controlDict)" = "$CD_MD5" ] || fail "controlDict restore is not byte-identical"
 echo "registered dictionaries restored, all three md5-identical"
 RC=$(run_solver "stage 2")
+case "$RC" in ''|*[!0-9]*) fail "stage 2 returned a non-numeric rc (\"$RC\")";; esac
 echo "RC=$RC" > RC.txt
 echo "=== END $(date -u +%FT%TZ) rc=$RC"
 exit "$RC"
