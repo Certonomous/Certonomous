@@ -121,15 +121,28 @@ def read_cell(arm, ranks, text, armdir, rc):
               "rc=%s, AnalysisError count=%d, named=%s" % (rc, len(ae), named))
 
     # --- IC-G: mesh identity.  Recorded here, compared across cells in --rollup.
-    pts = os.path.join(armdir, "mp04", "constant", "polyMesh", "points")
-    if os.path.isfile(pts):
+    # REPAIR 1 (ADDENDUM 1, 2026-09-13, VERIFICATION_CHARTER s2d.1): this reader looked ONLY for
+    # constant/polyMesh/points and this mesh is stored GZIPPED.  It returned md5=None on every
+    # cell -- a control that reads nothing.  It is repaired to accept either spelling and to NAME
+    # the file it hashed, so a future silence is attributable.  The pre-repair reading, recorded
+    # beside the repaired one per condition (4): mp04_points = "" (empty), md5 = None, IC-G FAIL
+    # on every cell.  The blindness failed CLOSED -- it could not have moved a verdict toward a
+    # pass -- which is why it is a repair and not a widening.
+    pts = None
+    for cand in ("points", "points.gz"):
+        c = os.path.join(armdir, "mp04", "constant", "polyMesh", cand)
+        if os.path.isfile(c):
+            pts = c
+            break
+    if pts:
         import hashlib
         h = hashlib.md5(open(pts, "rb").read()).hexdigest()
     else:
         h = None
     out["mp04_points_md5"] = h
-    ok &= chk("IC-G mp04 polyMesh/points readable for the cross-cell identity check",
-              h is not None, "md5=%s at %s" % (h, pts))
+    out["mp04_points_file"] = pts
+    ok &= chk("IC-G mp04 polyMesh points readable for the cross-cell identity check",
+              h is not None, "md5=%s from %s" % (h, pts))
 
     inst = parse_instances(text)
     if not inst:

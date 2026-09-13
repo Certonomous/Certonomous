@@ -262,7 +262,106 @@ block would both under-relax **and** keep the clamp.
 
 ## 10. AMENDMENT RECORD
 
-None. Amendments before first compute must state the condition and how it was checked, by naming
+~~None.~~ **STRUCK 2026-09-13T21:10Z — superseded by ADDENDUM 1 at the foot of this file.**
+Amendments before first compute must state the condition and how it was checked, by naming
 the run directory that does not yet exist. After first compute this document is closed; changes
 land only as dated addenda that cannot alter a gate, threshold, cap or label, and originals are
 struck, never rewritten.
+
+---
+
+# ADDENDUM 1 — 2026-09-13T21:10Z — TWO REPAIRS, AND A DISCLOSED LAUNCH DEFECT THAT COST FOUR CELLS
+
+**Version 1.1. Lines whose number changed above this section: 0.**
+(The single line struck in §10 is struck in place and adds no line.)
+
+**This addendum alters NO gate, NO threshold, NO cap and NO label.** §1–§9 stand as frozen at
+`c527036b8b4f777bb5a9d468c62049d6b15c2ae4`. The five cells, the five gates, their thresholds,
+the 28-core ceiling and the cost envelope are exactly as registered.
+
+## A1.1 THE LAUNCH DEFECT — measured, self-stopped, and it cost four cells
+
+`DECOMP_N28` launched at `2026-09-13T21:02:42Z` and is the first compute under this
+registration. Within two minutes the ledger showed **five** cells up, not one.
+
+**Cause, and it is a shell bug rather than a judgement:** `d6r3_decomp_sweep.sh` obtained each
+cell's pid with `P=$(start 28 "")`. **Command substitution runs `start()` in a subshell**, so the
+backgrounded arm is a **grandchild** of the driver, and `wait "$P"` is therefore not waiting on a
+child at all. Driven directly, it prints `bash: wait: pid N is not a child of this shell` **and
+returns 0** — a wait that is not a wait, failing silently in the permissive direction. Every
+batch opened immediately.
+
+**Measured consequence:** five cells claimed **56 distinct cores** against this registration's
+**28-core ceiling** (§7), with `DECOMP_N20`'s cpuset nested inside `DECOMP_N28`'s and
+`DECOMP_N08`'s inside `DECOMP_N16`'s. That reaches into the reserved **48-core propeller** and
+**20-core DrivAer** lanes, which this lane may never borrow from, and it contradicts §7 of this
+document.
+
+**Correction.** `DECOMP_N20`, `DECOMP_N16`, `DECOMP_N12` and `DECOMP_N08` were **stopped** and
+their arm directories **removed**. Their logs are retained, renamed
+`*_ABORTED_LAUNCH_DEFECT_NOT_A_RESULT.log`. **They are `NOT A RESULT` and nothing from them is
+cited anywhere.** `DECOMP_N28` — which is *exactly* registered batch 1, alone, at 28 cores, the
+ceiling — **continued uninterrupted**, arm-shell pid `1725442`, container pid `1725971`, cpuset
+`1,3,4,5,7,9,10,11,13,15,17,19,20,21,23,24,25,27,28,29,32,34,35,37,39,42,43,44`.
+
+**Stopped for a disclosed launch defect, never for a cap. Directive #17 is untouched.**
+
+**Waste, named separately and never absorbed into any `actual/predicted` ratio**
+(`COMPUTE_BUDGET_CHARTER` §6): 4 cells × ~1.6 min × (20+16+12+8 = 56 ranks) =
+**89.6 core-min GROSS WASTE.** Reported, not absorbed. The four cells will be re-run from cold
+and their costs counted afresh.
+
+**Disclosed honestly: `DECOMP_N28` shared 20 of its 28 cores with `DECOMP_N20` for ~96 s before
+the correction.** That is **contention** and it inflates `DECOMP_N28`'s wall time only. It cannot
+touch its numbers: the rank count is fixed at 28, the decomposition is read back by **IC-A**, and
+nothing in the solve depends on wall-clock. `DECOMP_N28`'s `actual/predicted` ratio is reported
+with this contention **named beside it**, never folded into it.
+
+## A1.2 REPAIR 1 — IC-G's reader was BLIND. `VERIFICATION_CHARTER` §2d.1, all four conditions
+
+**(1) A demonstrable error, not a preference.** The launcher's `STAGE_HASH` ledger line printed
+`mp04_points=` **empty**, and the grader's IC-G returned `md5=None`. Both read
+`mp04/constant/polyMesh/points`. **The mesh is stored gzipped**: `ls` of that directory shows
+`points.gz` (13 565 959 bytes) and **no** `points`. The control read nothing.
+
+**(2) Established by an instrument independent of the hypothesis, one that grades nothing.** The
+`STAGE_HASH` ledger line is a **recorder**: it prints a hash and decides nothing, and it cannot
+know which direction any verdict wants. It is what showed the empty field. The disk listing
+corroborates it.
+
+**(3) Disclosed, the instrument named, and what moved QUANTIFIED.**
+- **Pre-repair:** `mp04_points_md5 = None`, ledger field `mp04_points=` (empty), IC-G **FAIL** on
+  every cell.
+- **Post-repair, read off the live `DECOMP_N28` arm directory:**
+  `mp04_points_md5 = f958f3e9cd01fa6179b360c464e91663`, from
+  `DECOMP_N28/mp04/constant/polyMesh/points.gz`, IC-G **ok**.
+- **No verdict moves toward a pass.** The blindness failed **CLOSED**: `md5=None` makes IC-G
+  fail, which makes the cell `NOT A RESULT`, and the rollup's `IC-G-cross` `GATE FAIL`. The
+  repair can only turn a `NOT A RESULT` into a readable cell — it can never rescue a `GATE FAIL`
+  into a `PASS`. **Nothing a verdict depends on is repaired on the authority of the verdict it
+  produces.**
+
+**(4) Pre-repair values recorded beside the repaired ones.** Done, immediately above.
+
+**The repair, and it is an accept-either, never a widening:** both instruments now try `points`
+then `points.gz`, **name the file they hashed** so a future silence is attributable, and the
+launcher **REFUSES (exit 9)** if neither exists. Driven to both sides before being believed
+(L-570): on the live `DECOMP_N28` arm directory it reports the md5 above; on a directory with an
+empty `polyMesh/` it reports `md5=None` and grades `NOT A RESULT`.
+
+## A1.3 REPAIR 2 — the driver
+
+`d6r3_decomp_sweep.sh` now backgrounds each cell **inline** and captures `$!` in the driver's own
+shell, and additionally **refuses to open a batch while any `d6r3_DECOMP_*` container is still
+up**, so the 28-core ceiling is **enforced by the driver rather than merely intended by it**. It
+takes an optional `FIRST_BATCH` argument so batches 2 and 3 can be resumed without disturbing the
+`DECOMP_N28` cell that is already running. **This repair is not on the grading path at all** —
+it is launch mechanics — so §2d does not reach it; it is disclosed here regardless.
+
+## A1.4 WHAT IS UNCHANGED
+
+The frozen producer is not edited (md5 `efc3e62699690edd32e4ee910aad09c8`).
+`primalMinResTol`, `primalMinResTolDiff` and `endTime` are untouched.
+No gradient work exists anywhere in this sweep: every cell is `run_model`, never `compute_totals`
+and never `check_totals`.
+**SUBMISSIONS PARKED.** Nothing is sent, filed, uploaded, registered or posted.

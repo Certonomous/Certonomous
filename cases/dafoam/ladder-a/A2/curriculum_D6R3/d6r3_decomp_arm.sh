@@ -136,8 +136,12 @@ done
 H4=$(cd "$ARMDIR/mp04" && find 0 constant system -type f | sort | xargs md5sum | md5sum | cut -d' ' -f1)
 H5=$(cd "$ARMDIR/mp05" && find 0 constant system -type f | sort | xargs md5sum | md5sum | cut -d' ' -f1)
 H6=$(cd "$ARMDIR/mp06" && find 0 constant system -type f | sort | xargs md5sum | md5sum | cut -d' ' -f1)
-PTS=$(md5sum "$ARMDIR/mp04/constant/polyMesh/points" | cut -d' ' -f1)
-say STAGE_HASH "arm=$ARM mp04=$H4 mp05=$H5 mp06=$H6 mp04_points=$PTS"
+# REPAIR 1 (ADDENDUM 1): this recorder looked only for polyMesh/points and the mesh is GZIPPED,
+# so it printed mp04_points= EMPTY.  It now names the file it hashed and REFUSES on neither.
+PTSF=""; for c in points points.gz; do [ -f "$ARMDIR/mp04/constant/polyMesh/$c" ] && PTSF="$ARMDIR/mp04/constant/polyMesh/$c" && break; done
+[ -n "$PTSF" ] || { say REFUSE "G-STAGE: neither polyMesh/points nor points.gz present in mp04"; exit 9; }
+PTS=$(md5sum "$PTSF" | cut -d' ' -f1)
+say STAGE_HASH "arm=$ARM mp04=$H4 mp05=$H5 mp06=$H6 mp04_points=$PTS from $(basename "$PTSF")"
 [ "$H4" = "$H5" ] && [ "$H5" = "$H6" ] || { say REFUSE "G-STAGE: the three condition dirs are NOT identical"; exit 9; }
 
 GINPUTS_MISSING=""
