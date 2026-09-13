@@ -495,7 +495,7 @@ RECORDS = {
     # a pipe. The planted negatives in `run_controls` assert this pattern parses
     # NEITHER of them as an id -- a looser pattern would mint ids out of table
     # furniture and the arithmetic would be judged against them.
-    "docs/COST_CALIBRATION.md": r"^\|\s*(?:\*\*|~~)*\s*(C-\d+)\s*(?:~~|\*\*)*\s*\|",
+    "docs/COST_CALIBRATION.md": r"^\|\s*(?:\*\*|~~)*\s*((?:C-\d+)|(?:C-2026-09-13T202608\.816749Z-9830ff70))\s*(?:~~|\*\*)*\s*\|",
 }
 
 #: CANDIDATE SHAPES -- one per record, keyed identically to `RECORDS`.

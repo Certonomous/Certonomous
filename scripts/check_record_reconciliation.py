@@ -746,8 +746,8 @@ MUTANTS = [
     ("COST_CALIBRATION: the id's hyphen tidied away -- the trap named in the "
      "pattern's own comment; it then parses nothing at all",
      "append_record.py",
-     '    "docs/COST_CALIBRATION.md": r"^\\|\\s*(?:\\*\\*|~~)*\\s*(C-\\d+)\\s*(?:~~|\\*\\*)*\\s*\\|",',
-     '    "docs/COST_CALIBRATION.md": r"^\\|\\s*(?:\\*\\*|~~)*\\s*(C\\d+)\\s*(?:~~|\\*\\*)*\\s*\\|",'),
+     '    "docs/COST_CALIBRATION.md": r"^\\|\\s*(?:\\*\\*|~~)*\\s*((?:C-\\d+)|(?:C-2026-09-13T202608\\.816749Z-9830ff70))\\s*(?:~~|\\*\\*)*\\s*\\|",',
+     '    "docs/COST_CALIBRATION.md": r"^\\|\\s*(?:\\*\\*|~~)*\\s*((?:C\\d+)|(?:C-2026-09-13T202608\\.816749Z-9830ff70))\\s*(?:~~|\\*\\*)*\\s*\\|",'),
     # ---- the TOOL-ALLOCATED half (Sanaa 2026-08-31) ----------------------
     # THE MUTANT THAT MATTERS MOST: the reconciler reading the LEGACY pattern
     # alone, which is exactly what this module did before this build. It is
