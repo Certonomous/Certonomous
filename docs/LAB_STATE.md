@@ -46890,6 +46890,213 @@ which does not exist yet.
    tonight, the twelve-clause one included.
 
 **SUBMISSIONS PARKED.**
+
+### Block 206 — Wolf Dynamics COARSE is `PASS` **and cannot corroborate the number it matched**; FINE is LIVE at 4 ranks against their 40; R5 `PENDING` by Sanaa's ruling; 2026-09-13T20:45Z
+
+**LAST COMMIT:** `8ffa0faa` — the FINE launch record. Readings below are this lane's own,
+read from the artifact, unless marked **VERIFY**.
+
+### 🔴🔴 THE ONE INSTRUCTION THAT MUST SURVIVE A SESSION KILL — READ THIS BEFORE ANYTHING ELSE
+
+**`verification/campaign/WOLFDYNAMICS_DRIVAER_FINE_LAUNCH_RECORD.md` §5 — THE CONTAINER IS
+THE RUN AND IT OUTLIVES THE AGENT.**
+
+> `docker ps --filter name=wd_drivaer_fine_R1` — the container is the run; it **does not die
+> with the agent**. `RUN_RC.txt` appears **only at the end**, written from inside the
+> container. **DO NOT RESTART IT. Reattach.**
+
+**~38 hours of compute must not be thrown away because a watcher went quiet.** A quiet
+watcher is the *watcher* dying, not the run dying. Confirmed alive by this lane at
+20:43:42Z: `wd_drivaer_fine_R1`, `Up 5 minutes`, four `simpleFoam -parallel` ranks.
+**The absence of `RUN_RC.txt` is the EXPECTED mid-run state, not a failure signal.**
+
+### 🔴 WOLF DYNAMICS DrivAer COARSE — `PASS`, AND THE DISCLOSURE IS THE MOST IMPORTANT LINE HERE
+`verification/campaign/WOLFDYNAMICS_DRIVAER_COARSE_RESULTS.md` (`95408812`), graded against
+the freeze `f8a9c8a7` (blob `970d40a8…`; `git hash-object` of the live file returns the same
+sha — the frozen file **is** the file that graded the run; freeze 18:46:37Z, launch
+18:48:04Z, so **the freeze precedes compute by 1 min 27 s**).
+
+| gate | frozen threshold | measured | verdict |
+|---|---|---|---|
+| **G1** endpoint | \|Cd(1000) − 0.291163\|/0.291163 ≤ **2.0 %** | **0.291162651767**, rel **0.000120 %** (16,700× margin) | **`PASS`** |
+| **G2** window mean 200→1000 | \|mean − 0.283631\|/0.283631 ≤ **2.0 %** | **0.283631445567** over **801** rows, rel **0.000157 %** | **`PASS`** |
+| **G3** mesh identity | `checkMesh` reports **669,416** cells | **669,416** — `log.checkmesh:45` | **`PASS`** |
+| **G4** completion | every clause of the strict rule | `RC=0`; one `End`; last `Time 1000` == `endTime`; 1000 == round(1000/1); `U p k omega nut phi` present; **age guard: every field 36 min 33 s newer than `LAUNCH_STAMP.txt`** | **holds in every clause** |
+
+**Bookkeeping note on the wording:** the commit subject reads *"PASS on all three gates"*
+and the record's §2.4 closes *"All four gates are discharged"*. **Both are true and they are
+not in conflict** — three *scored* gates (G1–G3) plus G4, the completion rule, which is a
+precondition rather than a scored band. The record's own line is the one to quote.
+
+> ### 🔴 THE DISCLOSURE THAT TRAVELS WITH EVERY NUMBER ABOVE
+> **Our `postProcessing/all/0/forceCoeffs.dat` is BYTE-IDENTICAL to their shipped file —
+> 119,158 bytes, ZERO differing lines** — and the comparator was proven able to see a
+> difference by **planting a one-byte perturbation and confirming it was caught** (rule 3).
+>
+> **THAT IS EXPECTED, NOT AN ERROR.** Route A ran **their binaries** in a Foundation
+> OpenFOAM 9 container on **their mesh** at **their 4 ranks** with deterministic `scotch`.
+> Identical operation order on IEEE-754 doubles gives bit-identical output.
+>
+> **BUT: BIT-IDENTITY PROVES THE CASE WAS RUN VERBATIM AND CANNOT CORROBORATE THEIR NUMBER.**
+> We reproduced their **COMPUTATION**. We did **not** independently confirm their **RESULT**.
+> **ANYONE CITING THIS AS INDEPENDENT AGREEMENT IS WRONG**, and G1's 0.000120 % is a measure
+> of determinism, not of accuracy.
+>
+> **`G3` IS THE ONE GATE THIS DOES NOT WEAKEN.** A different mesh yields a different integer
+> however faithfully the solver runs — and **669,416 was a prediction written into the
+> registration before any mesh was converted on this box**, derived by counting their shipped
+> `.msh` rather than trusting their prose (*"approximately 660000"*). A pre-registered
+> integer landing exactly is a real prediction discharged.
+
+**AGAINST EXPERIMENT: +17.88 % on EXP TUM ASME 0.247, +19.82 % on EXP TUM SA 0.243. THIS IS
+NOT A VALIDATION FAILURE**, because this rung was never registered as validation: **their own
+document nominates the coarse mesh "to obtain fast outcomes"**, and **`SIMPLE solution
+converged` occurs ZERO times in the 1000 iterations**. **A REPRODUCTION result, not a
+VALIDATION result** — the distinction is the verdict, not a caveat on it.
+
+### WOLF DYNAMICS DrivAer FINE — LIVE, NO VERDICT, AND THAT IS DELIBERATE
+| item | reading | source |
+|---|---|---|
+| Launched | **2026-09-13T20:37:42Z** | `LAUNCH_STAMP.txt` (the brief said 20:37:54Z; **the artifact says :42** — artifact wins) |
+| Container | **`wd_drivaer_fine_R1`**, alive at 20:43:42Z | `docker ps` |
+| Ranks | **4** — **theirs**, unmodified | `system/decomposeParDict numberOfSubdomains 4`; **`nProcs : 4` in our `log.solver`** |
+| Cells | **4,048,483** | `log.checkmesh` — **EXACTLY the integer predicted from their `.msh` header before the run. P4 DISCHARGED.** |
+| Progress | `Time = 17` at 20:44Z | `log.solver` |
+| `SIMPLE solution converged` | **0 so far, as predicted** | `log.solver` |
+| ETA | **~36–40 h** | **VERIFY** — projected, not measured |
+
+**NO VERDICT IS CLAIMED AND NONE MAY BE INFERRED.** **F4 gates everything**: a run failing
+completion is **`NOT A RESULT`** whatever its numbers say. Current status is **`PENDING`**.
+
+> ### 🔴 THE FINDING THAT MAKES THIS RUNG STRONGER THAN THE COARSE — VERIFIED ON DISK BY THIS LANE
+> **Their fine `decomposeParDict` says `numberOfSubdomains 4`. Their shipped
+> `sol_logs/fine/log.solver:52` says `nProcs : 40`.** Both read directly, this invocation.
+>
+> **For the COARSE, all three sources agreed at 4 — which is WHY it came out bit-identical.**
+> Here they do not. **A 4-rank solve landing on a 40-rank published result would be PARTIAL
+> INDEPENDENT CORROBORATION**, because the decomposition changes operation order and destroys
+> bit-determinism while leaving the physics alone.
+>
+> **PREDICTION P1, ON THE RECORD BEFORE THE ANSWER: the force file will NOT be byte-identical.
+> IF IT IS, THIS READING IS WRONG AND §2 OF THE REGISTRATION MUST BE RETRACTED.** Registered
+> as falsifiable, and the retraction clause is the point.
+
+### DRIVAER R5 — `PENDING`: NOT GRADED, BY SANAA'S RULING, AND **NOTHING FAILED**
+`4912d417`, `verification/campaign/DRIVAER_R5_WALLFUNCTION_STORED_POINTER.md`. Sanaa ruled R5
+*"gets stored and set aside till we look at it and grade it later since wolf dynamics case is
+provenly good."* That commit discharges **STORED and nothing else**: **no solve ran, no gate
+was evaluated, no verdict was written.** `PENDING` here is a queue state with a reason, **not
+a softened `GATE FAIL`**.
+
+**Cells 17,473,596** (`log.checkMeshFull`).
+
+**🔴 M1 IS INSIDE BY LUCK, NOT BY DESIGN.** The builder's sizing model assumed **80,974**
+extrudable faces; the mesh measured **219,926** — **wrong by 2.716×**, and the error ran in
+the direction that happened to help. **Corrected model: layer gain scales with WALL FACES, and
+volume refinement over a wall patch CREATES wall faces** — `floorNoSlip` went **5,505 →
+155,318** with `refinementSurfaces` **byte-identical**. Cells added by layers: **583,013
+predicted vs 1,042,078 measured.**
+
+**POPULATIONS ARE SEPARATE AND THERE IS NO BLENDED FIGURE ANYWHERE IN THE RECORD** — a mean
+across these three would be meaningless:
+
+| population | cell size | patches | faces | achieved layers | coverage |
+|---|---|---:|---:|---:|---:|
+| surface **level 4** | 25.0 mm | 37 | **54,439** | **2.271** of 8 | **45.34 %** |
+| surface **level 5** | 12.5 mm | 12 | **10,169** | **2.238** of 8 | **45.53 %** |
+| **`floorNoSlip`** — **OUTSIDE EVERY GATE**, on its own line | — | 1 | **155,318** | **5.77** of 8 | **74.6 %** |
+
+**`floorNoSlip` carries 155,318 of 219,926 extrudable faces = 70.6 % of them.** It is
+reported on its own line precisely because folding it in would flatter the gated populations.
+
+**`checkMesh`: max skewness 4.4868345 (S1's threshold is `< 4.0`), `Failed 4 mesh checks.`
+NO GATE OUTCOME IS DECLARED** — grading is deferred by Sanaa's ruling and §7 of the
+registration attaches a claim cap a grader must apply in full.
+
+**A THIRD INDEPENDENT READING RECONCILES:** the achievement table's `faces × achieved layers`
+sums to **1,042,577** against the measured cell delta **1,042,078** — **0.048 %**. The layers
+in this mesh are the layers the table describes.
+
+### COMMITS RECORDED HERE — all six read from `git log`, subjects confirmed
+| sha | what |
+|---|---|
+| `4912d417` | **R5 stored and set aside**, `PENDING`, not graded by Sanaa's ruling, **nothing failed** |
+| `f8a9c8a7` | **WD COARSE FROZEN** — Route A, and the translation table is empty *(not previously on this board)* |
+| `95408812` | **WD DrivAer COARSE GRADED** — `PASS`, and the result cannot corroborate the number it matched |
+| `29e9be0c` | **WD FINE registered** (drafted, not frozen) — their shipped fine ran at **40** ranks |
+| `58d24721` | **WD FINE FROZEN** by the supervisor |
+| `541a04cb` | **FINE correction 1** — a stale `NOT FROZEN` footer struck |
+| `8ffa0faa` | **FINE LAUNCH RECORD** — freeze re-verified **by hash**, and correction 1 **read as a diff, not taken as described** |
+| `ed2ced52` | **DrivAer WRITER PIN** — two frozen registrations pin a live path *(not previously on this board)* |
+
+**ALREADY ON THIS BOARD, confirmed present by grep and NOT repeated:** `ef98fc88` / `b3deca9b`
+(PRISM-A2 amendments 1–2), `627eb624` / `ad2c64be` / `99d8480d` / `7691d971` (R5 addendum A1
+and its three corrections), `03ccc628` (MESH_STANDARD §17 v1.12), `b6a93367` (§18 v1.13).
+
+### 🔴 MESH_STANDARD §18 (v1.13, `b6a93367`) — §16 AND §17 RESTED ON TWO "MEASURED POINTS" AND **BOTH WERE WRONG**
+Verified in `docs/standards/MESH_STANDARD.md` §18.2/§18.4 by this lane.
+
+1. **"1.6808 collapses" — IT DOES NOT COLLAPSE. IT PARTIALLY EXTRUDES.**
+   `r2_medium/log.snappyHexMesh`: **`Extruding 64470 out of 80974 faces (79.618149%)`**, at
+   **2.895 of 5** layers. `r2_coarse`: **`Extruding 16887 out of 23365 faces (72.27477%)`**,
+   at **2.503 of 5**. **The zero that was being attributed to a thick stack belongs to PPTC
+   and to a POISONED LENGTH — `getLevel0EdgeLength()` returning a 2 mm axis rod's azimuthal
+   chord, 95.53×** — not to stack thickness at all.
+2. **"Our 0.480" IS NOT OURS AND WAS NEVER BUILT HERE.** It is **DrivAerML's 12 mm stack
+   expressed on our 25 mm cell** — a conversion, not a measurement.
+
+**CORRECTED EMPIRICAL BASIS: this lab has ONE measured stack-versus-coverage point —
+1.6808 → 72–80 % coverage.** Not two, and not a bracket. **No gate, threshold, cap or label
+moved**; what moved is what the lab is entitled to claim it knows.
+
+### 🔴 A STALE "NOT FROZEN" FOOTER IN A FROZEN DOCUMENT — THE **SECOND** TIME TODAY
+`541a04cb` (FINE correction 1), after `99d8480d` (R5 correction 2) earlier. **Caught because a
+whole-document `grep` returned 2 occurrences where the replacement accounted for 1.**
+
+> **THE COUNT THAT DOES NOT RECONCILE IS THE FINDING.** A freeze check that inspects only the
+> header cannot see a footer still saying the opposite. **Grep the whole document and make the
+> arithmetic close** — twice today this is the thing that caught it, and neither time did
+> anything else.
+
+### RUNNING — read at 20:44Z
+| item | state | source |
+|---|---|---|
+| **WD DrivAer FINE** | **LIVE**, container `wd_drivaer_fine_R1`, **4 ranks**, `Time = 17`, ETA **~36–40 h** — **VERIFY** on the ETA | `docker ps`, `log.solver` |
+| **PPTC `F360_coarse_shaft4`** | pid `1589816`, **`snappyHexMesh` SERIAL**, **Morph iteration 14 of `nSolveIter 50`**, **99.5 % CPU**, **3 h 18 m** elapsed | `/proc/1589816`, `log.snappyHexMesh` |
+| **SUBOFF `L1M_SWEEP`** | seven points alive, ETA **~01:04Z 14 Sep** — **VERIFY** | `pgrep` |
+| **M6J L1** | **ENDED** — `Time 8000`, `End`, `RC=0`. **GRADING IN PROGRESS** with the pinned instrument | **VERIFY** (relayed; pid `1591159` is gone, consistent with ended) |
+| **DrivAer R5** | **not running** — stored and set aside; pid `1626223` gone, consistent | `/proc` |
+
+**🔴 PPTC IS NOT STALLED, AND THE REASON MATTERS.** Its log is **block-buffered (L-581)**, so
+**a file that is not growing proves nothing**. Judge it on **CPU occupancy and the iteration
+counter**, **never on file growth**. ETA to mesh **~21:15–21:45Z** — **VERIFY** — then layers,
+then the SPD gate.
+
+### RANK ALLOCATION — SANAA'S ORDER, NOT THIS LANE'S SCHEDULING CHOICE
+**Propeller 48 and DrivAer 20 are RESERVED. IDLE RANKS STAY IDLE. NOBODY BORROWS.** The
+finalization work fits inside what those lanes are not using, and it yields first. **This is
+not a heuristic to be optimised away by a later session that sees idle cores.**
+
+### NOT CFD'S TO TOUCH
+**Four unpaired poisoned `y+` logs remain routed to HEAT-TRANSFER** (block 205 named them:
+`K0cT_runs/T_hi_f/log.yPlus` and the three `T23G_runs/*/log.yPlus.fluid`). **cfd has not
+touched them and must not.** Still open on the chief's desk for the heat-transfer supervisor.
+
+### NEXT ACTIONS
+1. **FINE: reattach, never restart.** `docker ps --filter name=wd_drivaer_fine_R1`; wait for
+   `RUN_RC.txt`; then grade against the frozen registration **after** re-verifying the freeze
+   by hash. **Test P1 first** — byte-identity would retract §2, so that comparison is run
+   before any coefficient is quoted.
+2. **PPTC:** when `snappyHexMesh` lands, layers, then the SPD gate; land the owed gate row.
+3. **M6J L1:** finish grading; **read `RANKS_BY_SEGMENT.tsv` BEFORE `RANKS.txt`** (block 205's
+   factor-of-four trap) and keep contention on its own line.
+4. **Cost calibration owed** (rule 12): WD COARSE actual-vs-predicted, and R5's mesh row —
+   both still `PENDING` **with reasons**, which is a complete answer; a blank is not.
+5. **Carried from block 205:** arm the PPTC hub/root `w_f` instrument on the inverted two-cell
+   mesh and on `F360_coarse` and show it **FAIL** on both; pairwise mutation (L-604 rule 3)
+   owed on every gate built tonight.
+
+**SUBMISSIONS PARKED.**
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
