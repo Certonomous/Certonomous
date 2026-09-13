@@ -1939,3 +1939,81 @@ singularity` — under `sensibleEnthalpy` the energy variable is **`h`** and its
 `relaxationFactors` named only **`e`**, so that matrix had no diagonal boost. **Same stack,
 different disease** (`MONITOR_STANDARD` v1.14 member 12). **Nothing in this document rests on
 that relay.**
+
+---
+
+# ADDENDUM 15 — 2026-09-13. **THE FREEZE-TIME SEPARATION CHECK, APPLIED TO THIS REGISTRATION WHILE L1 IS IN FLIGHT. IT PASSES, AND THE REASON IT PASSES IS NOT A DESIGN CHOICE.**
+
+**v1.14 → v1.15. Lines whose number changed above this section: 0.** No band, threshold, cap or
+label moves. **This addendum changes nothing and gates nothing; it records a check and its
+result.**
+
+The cfd supervisor made two questions binding for this team at freeze time
+(`MONITOR_STANDARD.md` v1.15): **can any threshold be MET BY ARITHMETIC IDENTITY rather than
+exceeded by construction, and can any registered guard FIRE DURING CORRECT ROUTINE USE?**
+This registration is in the bounded **live set** — L1 is running and its shock rows are
+pending — so it is checked now rather than swept later.
+
+## A15.1 — QUESTION 1, AND IT HAD A REAL CANDIDATE
+
+🔴 **B2 looked like a textbook instance and had to be measured, not waved through.** The band is
+`|x_shock_cfd − x_shock_exp| ≤ Δ_local`, and **both sides are built from the same orifice
+positions**: D1 puts `x_shock` at the **midpoint** of an orifice interval, and `Δ_local` **is
+that interval's width**. **So if the CFD shock lands one interval away from the experiment's,
+the difference is the adjacent-midpoint spacing — and on a UNIFORM grid that equals the
+interval width EXACTLY**, landing on a `≤` boundary and passing **by arithmetic identity rather
+than by measurement.**
+
+**And the frozen document describes η = 0.90's spacing as `0.0400 c, uniform across
+0.34→0.90`.**
+
+**Measured from the reference file itself, upper surface, aft of x/c = 0.20:**
+
+| station | orifices | distinct interval widths (first six) | midpoint-steps **exactly** equal to an adjoining width |
+|---|---|---|---|
+| η = 0.65 | 15 | 0.04955, 0.04973, 0.04984, 0.04995, 0.05013, 0.05014 | **0 of 13** |
+| η = 0.90 | 20 | 0.03779, 0.03963, 0.03970, 0.03973, 0.03977, 0.03981 | **0 of 18** |
+
+**QUESTION 1: CLEAN. B2 cannot be met by arithmetic identity.**
+
+🔴 **But the reason is an empirical accident, not a design decision, and that distinction is
+the whole value of having asked.** The grid is **nominally** uniform and **not exactly** so —
+the widths differ in the fourth decimal, and **that irregularity is the only thing breaking the
+identity.** Had ONERA drilled its orifices on an exact 0.0400 pitch, **this band would have had
+a boundary reachable by construction**, and nobody would have noticed because the gate would
+have read `PASS`.
+
+**A second, smaller thing falls out and is recorded rather than filed as alarm:** the frozen
+prose *"0.0400 c, uniform"* is a **rounding** — the true widths span **0.03779 to ≈0.0398**.
+**No gate moves**: `grade_m6_agard_cp.py` measures Δ from the file at run time and asserts it
+against the registered table to **±0.0125**, which contains the spread with two orders of room.
+The prose is imprecise; **the instrument is not.**
+
+## A15.2 — QUESTION 2: CAN ANY REGISTERED GUARD FIRE DURING CORRECT ROUTINE USE?
+
+| guard | threshold | observed on healthy runs | separation |
+|---|---|---|---|
+| **LC-1** | `CellsPercent > 2.0` for 20 consecutive reported lines | **0.00 %** on L3, L3_NORAMP, L3_TVD, L2-TVD and L1 | **complete — it has never fired on a healthy run** |
+| **LC-2** | `bounding nuTilda` max > **1e6** | **0.021 – 0.073** | **~7 orders of magnitude** |
+| **C2 / S1** | rise ≥ 0.212 (η 0.65), ≥ 0.320 (η 0.90) | 0.069 – 0.103 | far from the boundary; no identity risk |
+| 🔴 **IC-4** | y⁺ max **≤ 2.0 on L1**, ≤ 5.0 on L2/L3 | L3 **2.55**, L2 **1.21**, **L1 UNMEASURED** | **the tightest limb in the document** |
+
+**QUESTION 2: CLEAN, with one limb named.** **IC-4's L1 threshold of 2.0 is the only registered
+number in this document whose margin is not yet demonstrated.** The family halves y⁺ per
+refinement (measured: L3 2.5455 → L2 1.2144, ratio 2.096), so L1 is expected near **0.6** — but
+**expected is not measured, and this addendum does not pretend otherwise.** **The threshold is
+NOT changed**: it was registered before compute and it stays, and if L1 lands above 2.0 the
+level is `NOT A RESULT` on IC-4 exactly as written.
+
+## A15.3 — WHY A CLEAN RESULT IS WORTH A RECORD
+
+**Both questions were answerable by reading the document and one measurement of the reference
+file. Neither cost compute.** That is the supervisor's point: **this is discoverable at freeze
+time, where it is free** — and the retrospective sweep it replaces is the kind of verification
+that earns an objection.
+
+**And the null result is the informative one here.** B2 was a genuine candidate — same orifice
+grid on both sides of the inequality, a `≤` comparison, and a frozen description saying
+*uniform*. **It passes only because the real hardware is irregular.** A check that only ever
+reports problems teaches nothing about the cases it clears; **this one names exactly how close
+this band came.**
