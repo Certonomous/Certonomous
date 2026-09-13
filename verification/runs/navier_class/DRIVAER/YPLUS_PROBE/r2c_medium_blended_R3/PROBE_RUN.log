@@ -1,0 +1,10 @@
+=== ARM 1 (NEGATIVE CONTROL): generic postProcess -- expected BLIND ===
+generic rc=0
+=== ARM 2 (SOLVER SPELLING): simpleFoam -postProcess ===
+solver rc=0
+=== CRM POSITIVE CONTROL, re-driven 2026-09-13T16:37:55Z ===
+crm rc=0
+=== GRADED-TREE CENSUS ===
+before=b85623dfc54fb42e92feb344b6535227
+after =b85623dfc54fb42e92feb344b6535227
+IDENTICAL -- graded tree not touched

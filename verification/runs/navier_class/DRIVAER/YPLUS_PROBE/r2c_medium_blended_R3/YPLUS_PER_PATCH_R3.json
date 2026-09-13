@@ -1,0 +1,446 @@
+{
+ "instrument": "cases/navier_class/DRIVAER/read_yplus_per_patch.py",
+ "guard": "scripts/yplus_reader_guard.py",
+ "not_wired_into": [
+  "cases/navier_class/DRIVAER/grade_drivaer.py",
+  "SUBOFF pinned comparator"
+ ],
+ "control_Z_allzero_limb": {
+  "passed": true,
+  "limb": "ALL-ZERO",
+  "binary_in_log": "simpleFoam",
+  "n_readings": 3,
+  "refusal": "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/yplus/ctrl/SYNTHETIC_allzero_solver_spelling.log: y+ max == 0 on ALL 3 patch readings",
+  "artifact": "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/yplus/ctrl/SYNTHETIC_allzero_solver_spelling.log"
+ },
+ "cases": [
+  {
+   "case": "R3_medium_blended_t10000",
+   "solver_arm": {
+    "artifact": "verification/runs/navier_class/DRIVAER/YPLUS_PROBE/r2c_medium_blended_R3/log.yPlus2",
+    "binary": "simpleFoam",
+    "n_patches": 52,
+    "n_zero_max": 0,
+    "patches": [
+     {
+      "patch": "floorSlip",
+      "min": 8118.292775,
+      "max": 17545.65517,
+      "avg": 16592.71205
+     },
+     {
+      "patch": "floorNoSlip",
+      "min": 14.18221171,
+      "max": 3694.164943,
+      "avg": 858.0944208
+     },
+     {
+      "patch": "top",
+      "min": 12342.05937,
+      "max": 17545.71062,
+      "avg": 15842.79606
+     },
+     {
+      "patch": "sideMinus",
+      "min": 2840.50615,
+      "max": 17545.70226,
+      "avg": 16087.98135
+     },
+     {
+      "patch": "sidePlus",
+      "min": 2839.658477,
+      "max": 17545.70678,
+      "avg": 16087.20138
+     },
+     {
+      "patch": "BodyA_Pillar",
+      "min": 18.68602659,
+      "max": 2096.193991,
+      "avg": 587.3160672
+     },
+     {
+      "patch": "BodyDoorhandles",
+      "min": 13.5406168,
+      "max": 1136.383637,
+      "avg": 342.9321204
+     },
+     {
+      "patch": "BodyFasciafront1",
+      "min": 6.37369123,
+      "max": 2101.578166,
+      "avg": 312.2675554
+     },
+     {
+      "patch": "BodyFasciafront2",
+      "min": 40.38441908,
+      "max": 1536.541491,
+      "avg": 422.751841
+     },
+     {
+      "patch": "BodyFender",
+      "min": 11.64223891,
+      "max": 2110.358851,
+      "avg": 322.4628919
+     },
+     {
+      "patch": "BodyHeadlamps",
+      "min": 63.20531556,
+      "max": 858.9555394,
+      "avg": 299.2196626
+     },
+     {
+      "patch": "BodyHood",
+      "min": 32.28533348,
+      "max": 2079.131508,
+      "avg": 254.1342331
+     },
+     {
+      "patch": "BodyRear",
+      "min": 5.208669313,
+      "max": 1840.253952,
+      "avg": 152.8942408
+     },
+     {
+      "patch": "BodyRearAccess",
+      "min": 7.166863312,
+      "max": 152.8954529,
+      "avg": 40.06597463
+     },
+     {
+      "patch": "BodyRocker",
+      "min": 8.146851668,
+      "max": 363.9343558,
+      "avg": 82.53277747
+     },
+     {
+      "patch": "BodyRoof",
+      "min": 190.4474012,
+      "max": 1982.169637,
+      "avg": 365.7738337
+     },
+     {
+      "patch": "BodySide",
+      "min": 2.868468588,
+      "max": 1474.966504,
+      "avg": 197.6923302
+     },
+     {
+      "patch": "BodyWindowfront",
+      "min": 12.48293054,
+      "max": 1989.081361,
+      "avg": 310.499118
+     },
+     {
+      "patch": "BodyWindowfrontframe",
+      "min": 14.46799466,
+      "max": 1921.429215,
+      "avg": 327.9587508
+     },
+     {
+      "patch": "BodyWindowSide",
+      "min": 13.72025348,
+      "max": 1169.842502,
+      "avg": 266.4017404
+     },
+     {
+      "patch": "BodyWindowsideframe",
+      "min": 9.116569404,
+      "max": 1712.582753,
+      "avg": 306.5771104
+     },
+     {
+      "patch": "BrakeDiscfront",
+      "min": 5.865348678,
+      "max": 930.6552194,
+      "avg": 181.2382088
+     },
+     {
+      "patch": "BrakeDiscrear",
+      "min": 9.894649867,
+      "max": 655.2098429,
+      "avg": 179.7288733
+     },
+     {
+      "patch": "ClosedGrillLowerInsert",
+      "min": 7.116524758,
+      "max": 510.1925291,
+      "avg": 67.93859205
+     },
+     {
+      "patch": "ClosedGrillUpperInsert",
+      "min": 16.74377253,
+      "max": 1008.831144,
+      "avg": 135.0182588
+     },
+     {
+      "patch": "CTRL_SURFACE_Outlet",
+      "min": 1.347269315,
+      "max": 283.8455847,
+      "avg": 47.4707238
+     },
+     {
+      "patch": "CTRL_SURFACE_Wheelhouse_LHS",
+      "min": 6.520778982,
+      "max": 109.8718728,
+      "avg": 46.44851966
+     },
+     {
+      "patch": "CTRL_SURFACE_Wheelshouse_RHS",
+      "min": 41.38881506,
+      "max": 84.7971835,
+      "avg": 55.27499521
+     },
+     {
+      "patch": "EngineUndershield",
+      "min": 10.13308242,
+      "max": 1970.441843,
+      "avg": 98.39124846
+     },
+     {
+      "patch": "ExhaustSystem1",
+      "min": 8.624637853,
+      "max": 172.0771528,
+      "avg": 52.89939767
+     },
+     {
+      "patch": "ExhaustSystem2",
+      "min": 3.784074021,
+      "max": 1120.063226,
+      "avg": 105.8220862
+     },
+     {
+      "patch": "ExhaustSystem3",
+      "min": 4.429532881,
+      "max": 322.4883457,
+      "avg": 68.5782527
+     },
+     {
+      "patch": "Mirrors1",
+      "min": 9.965764739,
+      "max": 1431.604256,
+      "avg": 349.9485702
+     },
+     {
+      "patch": "Mirrors2",
+      "min": 13.64603945,
+      "max": 281.1055529,
+      "avg": 83.68644019
+     },
+     {
+      "patch": "NotchbackB_Pillar",
+      "min": 26.00389258,
+      "max": 1906.851742,
+      "avg": 503.835538
+     },
+     {
+      "patch": "NotchbackBodyside",
+      "min": 36.68498772,
+      "max": 1081.878066,
+      "avg": 237.3278515
+     },
+     {
+      "patch": "NotchbackC_Pillar",
+      "min": 15.42668071,
+      "max": 1773.446229,
+      "avg": 295.4605636
+     },
+     {
+      "patch": "NotchbackRoof",
+      "min": 87.31140884,
+      "max": 1522.29648,
+      "avg": 278.4611609
+     },
+     {
+      "patch": "NotchbackTrunk",
+      "min": 14.77492493,
+      "max": 968.8969882,
+      "avg": 134.7322377
+     },
+     {
+      "patch": "NotchbackWindowrear",
+      "min": 7.183902223,
+      "max": 1173.577391,
+      "avg": 133.0915228
+     },
+     {
+      "patch": "NotchbackWindowrearframe",
+      "min": 77.63284946,
+      "max": 1884.077236,
+      "avg": 706.3814175
+     },
+     {
+      "patch": "NotchbackWindowside",
+      "min": 55.99368167,
+      "max": 2017.193515,
+      "avg": 368.9666299
+     },
+     {
+      "patch": "NotchbackWindowsideframe",
+      "min": 19.16747986,
+      "max": 1995.896006,
+      "avg": 420.6199687
+     },
+     {
+      "patch": "OCDADetailedUnderbody",
+      "min": 2.822919578,
+      "max": 1735.956283,
+      "avg": 147.713053
+     },
+     {
+      "patch": "Powertrain",
+      "min": 1.705438356,
+      "max": 1008.93994,
+      "avg": 120.4335648
+     },
+     {
+      "patch": "Rimsfront",
+      "min": 10.65455999,
+      "max": 1713.125224,
+      "avg": 314.0219808
+     },
+     {
+      "patch": "Rimsrear",
+      "min": 6.963430458,
+      "max": 1300.193821,
+      "avg": 267.3763628
+     },
+     {
+      "patch": "Tiresfront",
+      "min": 4.142105641,
+      "max": 2210.652791,
+      "avg": 281.871406
+     },
+     {
+      "patch": "Tiresrear",
+      "min": 5.003297265,
+      "max": 1427.840166,
+      "avg": 237.2272772
+     },
+     {
+      "patch": "WheelSupportfront1",
+      "min": 23.06225204,
+      "max": 1567.858991,
+      "avg": 334.6784509
+     },
+     {
+      "patch": "WheelSupportfront2",
+      "min": 4.518392976,
+      "max": 669.0586397,
+      "avg": 194.0520063
+     },
+     {
+      "patch": "WheelSupportrear",
+      "min": 14.76137053,
+      "max": 1379.908713,
+      "avg": 242.5789952
+     }
+    ]
+   },
+   "generic_arm": {
+    "artifact": "verification/runs/navier_class/DRIVAER/YPLUS_PROBE/r2c_medium_blended_R3/log.yPlus",
+    "binary": "postProcess",
+    "n_patches": 52,
+    "n_zero_max": 52,
+    "guard": "REFUSED: verification/runs/navier_class/DRIVAER/YPLUS_PROBE/r2c_medium_blended_R3/log.yPlus: produced by the GENERIC 'postProcess -func yPlus -time 10000'"
+   },
+   "control_P_plant": {
+    "passed": true,
+    "patch": "CTRL_SURFACE_Wheelhouse_LHS",
+    "n_patches": 52,
+    "planted": [
+     0.001234,
+     765.4321,
+     42.42424
+    ],
+    "read_back": [
+     0.001234,
+     765.4321,
+     42.42424
+    ],
+    "other_patches_moved": 0,
+    "planted_artifact": "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/yplus/ctrl/PLANTED_log.yPlus2"
+   },
+   "forces": {
+    "artifact": "verification/runs/navier_class/DRIVAER/r2c_medium_blended_R3/postProcessing/forceCoeffs1/0/coefficient.dat",
+    "header_read_by_name": [
+     "Time",
+     "Cd",
+     "Cd(f)",
+     "Cd(r)",
+     "Cl",
+     "Cl(f)",
+     "Cl(r)",
+     "CmPitch",
+     "CmRoll",
+     "CmYaw",
+     "Cs",
+     "Cs(f)",
+     "Cs(r)"
+    ],
+    "positional_trap_col3_is": "Cd(f)",
+    "n_rows": 10000,
+    "last_time": "10000",
+    "identity_control": {
+     "passed": true,
+     "per_coeff": {
+      "Cd": {
+       "worst_abs_residual": 1.000000082740371e-10,
+       "at_time": "1"
+      },
+      "Cl": {
+       "worst_abs_residual": 5.000000413701855e-11,
+       "at_time": "1"
+      },
+      "Cs": {
+       "worst_abs_residual": 1.0000056338554941e-12,
+       "at_time": "4708"
+      }
+     }
+    },
+    "Cd": 0.31496232237,
+    "Cl": 0.023291750055
+   }
+  },
+  {
+   "case": "CRM_POSITIVE_CONTROL_redriven",
+   "solver_arm": {
+    "artifact": "verification/runs/navier_class/DRIVAER/YPLUS_PROBE/CRM_POSITIVE_CONTROL/log.yPlus2.REDRIVEN_2026-09-13",
+    "binary": "rhoSimpleFoam",
+    "n_patches": 1,
+    "n_zero_max": 0,
+    "patches": [
+     {
+      "patch": "wing",
+      "min": 3.1146113,
+      "max": 44.370385,
+      "avg": 18.416405
+     }
+    ]
+   },
+   "generic_arm": {
+    "artifact": "verification/runs/navier_class/DRIVAER/YPLUS_PROBE/CRM_POSITIVE_CONTROL/log.yPlus",
+    "binary": "postProcess",
+    "n_patches": 1,
+    "n_zero_max": 1,
+    "guard": "REFUSED: verification/runs/navier_class/DRIVAER/YPLUS_PROBE/CRM_POSITIVE_CONTROL/log.yPlus: produced by the GENERIC 'postProcess -func yPlus -time 4000'"
+   },
+   "control_P_plant": {
+    "passed": true,
+    "patch": "wing",
+    "n_patches": 1,
+    "planted": [
+     0.001234,
+     765.4321,
+     42.42424
+    ],
+    "read_back": [
+     0.001234,
+     765.4321,
+     42.42424
+    ],
+    "other_patches_moved": 0,
+    "planted_artifact": "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/yplus/ctrl/PLANTED_log.yPlus2.REDRIVEN_2026-09-13"
+   }
+  }
+ ]
+}

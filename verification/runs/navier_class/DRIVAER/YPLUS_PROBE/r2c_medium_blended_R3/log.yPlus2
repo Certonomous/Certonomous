@@ -1,0 +1,127 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2606                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _481094f-20260618 OPENFOAM=2606 version=2606
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam -postProcess -func yPlus -time 10000
+Date   : Sep 13 2026
+Time   : 16:37:43
+Host   : ip-172-31-43-247
+PID    : 1549180
+I/O    : uncollated
+Case   : /home/ubuntu/Certonomous/verification/runs/navier_class/DRIVAER/YPLUS_PROBE/r2c_medium_blended_R3
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+
+--> FOAM Warning : allowSystemOperations : Allowing user-supplied system call operations.
+                   This can be a security risk if running untrusted cases
+                   through e.g. 'coded' on-the-fly-compilation functionality.
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 10000
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 10000 steps.
+
+Time = 10000
+Reading field p
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+Selecting incompressible transport model Newtonian
+Selecting turbulence model type RAS
+Selecting RAS turbulence model kOmegaSST
+Selecting patchDistMethod meshWave
+RAS
+{
+    RASModel        kOmegaSST;
+    turbulence      on;
+    printCoeffs     on;
+    alphaK1         0.85;
+    alphaK2         1;
+    alphaOmega1     0.5;
+    alphaOmega2     0.856;
+    gamma1          0.5555555556;
+    gamma2          0.44;
+    beta1           0.075;
+    beta2           0.0828;
+    betaStar        0.09;
+    a1              0.31;
+    b1              1;
+    c1              10;
+    F3              false;
+    decayControl    false;
+    kInf            0;
+    omegaInf        0;
+}
+
+No MRF models present
+
+No finite volume options present
+yPlus yPlus write:
+    writing field yPlus
+    patch floorSlip y+ : min = 8118.292775, max = 17545.65517, average = 16592.71205
+    patch floorNoSlip y+ : min = 14.18221171, max = 3694.164943, average = 858.0944208
+    patch top y+ : min = 12342.05937, max = 17545.71062, average = 15842.79606
+    patch sideMinus y+ : min = 2840.50615, max = 17545.70226, average = 16087.98135
+    patch sidePlus y+ : min = 2839.658477, max = 17545.70678, average = 16087.20138
+    patch BodyA_Pillar y+ : min = 18.68602659, max = 2096.193991, average = 587.3160672
+    patch BodyDoorhandles y+ : min = 13.5406168, max = 1136.383637, average = 342.9321204
+    patch BodyFasciafront1 y+ : min = 6.37369123, max = 2101.578166, average = 312.2675554
+    patch BodyFasciafront2 y+ : min = 40.38441908, max = 1536.541491, average = 422.751841
+    patch BodyFender y+ : min = 11.64223891, max = 2110.358851, average = 322.4628919
+    patch BodyHeadlamps y+ : min = 63.20531556, max = 858.9555394, average = 299.2196626
+    patch BodyHood y+ : min = 32.28533348, max = 2079.131508, average = 254.1342331
+    patch BodyRear y+ : min = 5.208669313, max = 1840.253952, average = 152.8942408
+    patch BodyRearAccess y+ : min = 7.166863312, max = 152.8954529, average = 40.06597463
+    patch BodyRocker y+ : min = 8.146851668, max = 363.9343558, average = 82.53277747
+    patch BodyRoof y+ : min = 190.4474012, max = 1982.169637, average = 365.7738337
+    patch BodySide y+ : min = 2.868468588, max = 1474.966504, average = 197.6923302
+    patch BodyWindowfront y+ : min = 12.48293054, max = 1989.081361, average = 310.499118
+    patch BodyWindowfrontframe y+ : min = 14.46799466, max = 1921.429215, average = 327.9587508
+    patch BodyWindowSide y+ : min = 13.72025348, max = 1169.842502, average = 266.4017404
+    patch BodyWindowsideframe y+ : min = 9.116569404, max = 1712.582753, average = 306.5771104
+    patch BrakeDiscfront y+ : min = 5.865348678, max = 930.6552194, average = 181.2382088
+    patch BrakeDiscrear y+ : min = 9.894649867, max = 655.2098429, average = 179.7288733
+    patch ClosedGrillLowerInsert y+ : min = 7.116524758, max = 510.1925291, average = 67.93859205
+    patch ClosedGrillUpperInsert y+ : min = 16.74377253, max = 1008.831144, average = 135.0182588
+    patch CTRL_SURFACE_Outlet y+ : min = 1.347269315, max = 283.8455847, average = 47.4707238
+    patch CTRL_SURFACE_Wheelhouse_LHS y+ : min = 6.520778982, max = 109.8718728, average = 46.44851966
+    patch CTRL_SURFACE_Wheelshouse_RHS y+ : min = 41.38881506, max = 84.7971835, average = 55.27499521
+    patch EngineUndershield y+ : min = 10.13308242, max = 1970.441843, average = 98.39124846
+    patch ExhaustSystem1 y+ : min = 8.624637853, max = 172.0771528, average = 52.89939767
+    patch ExhaustSystem2 y+ : min = 3.784074021, max = 1120.063226, average = 105.8220862
+    patch ExhaustSystem3 y+ : min = 4.429532881, max = 322.4883457, average = 68.5782527
+    patch Mirrors1 y+ : min = 9.965764739, max = 1431.604256, average = 349.9485702
+    patch Mirrors2 y+ : min = 13.64603945, max = 281.1055529, average = 83.68644019
+    patch NotchbackB_Pillar y+ : min = 26.00389258, max = 1906.851742, average = 503.835538
+    patch NotchbackBodyside y+ : min = 36.68498772, max = 1081.878066, average = 237.3278515
+    patch NotchbackC_Pillar y+ : min = 15.42668071, max = 1773.446229, average = 295.4605636
+    patch NotchbackRoof y+ : min = 87.31140884, max = 1522.29648, average = 278.4611609
+    patch NotchbackTrunk y+ : min = 14.77492493, max = 968.8969882, average = 134.7322377
+    patch NotchbackWindowrear y+ : min = 7.183902223, max = 1173.577391, average = 133.0915228
+    patch NotchbackWindowrearframe y+ : min = 77.63284946, max = 1884.077236, average = 706.3814175
+    patch NotchbackWindowside y+ : min = 55.99368167, max = 2017.193515, average = 368.9666299
+    patch NotchbackWindowsideframe y+ : min = 19.16747986, max = 1995.896006, average = 420.6199687
+    patch OCDADetailedUnderbody y+ : min = 2.822919578, max = 1735.956283, average = 147.713053
+    patch Powertrain y+ : min = 1.705438356, max = 1008.93994, average = 120.4335648
+    patch Rimsfront y+ : min = 10.65455999, max = 1713.125224, average = 314.0219808
+    patch Rimsrear y+ : min = 6.963430458, max = 1300.193821, average = 267.3763628
+    patch Tiresfront y+ : min = 4.142105641, max = 2210.652791, average = 281.871406
+    patch Tiresrear y+ : min = 5.003297265, max = 1427.840166, average = 237.2272772
+    patch WheelSupportfront1 y+ : min = 23.06225204, max = 1567.858991, average = 334.6784509
+    patch WheelSupportfront2 y+ : min = 4.518392976, max = 669.0586397, average = 194.0520063
+    patch WheelSupportrear y+ : min = 14.76137053, max = 1379.908713, average = 242.5789952
+
+End
+
