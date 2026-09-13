@@ -1810,3 +1810,280 @@ disk read. But **the repair needs no tooling change, because the conflict is sel
 > want different semantics — a registration asks "did this text exist at this commit", a
 > comparator asks "is the file about to run byte-identical to the frozen one" — and conflating
 > them put a deliberately growing document under a byte-identity rule.**
+
+---
+
+# ADDENDUM 15 — 2026-09-13, PREDICTION D FIRES, THE CLOSURE IS ELIMINATED, AND THE PSEUDO-TRANSIENT (LTS) RUNG IS REGISTERED ON A FIRED PREDICTION. Version 1.14.
+
+**lines whose number changed above this section: 0**
+
+*(Numbering: ADDENDUM 13 was drafted at
+`verification/campaign/CRM_WB_D8G_ADDENDUM_13_LTS_RUNG_DRAFT.md` and deliberately held OUT of
+this file while R1 was live, for the reason A14.8 gives. ADDENDUM 14 took the next slot. This
+addendum lands that draft's content, corrected against the solver source, as **15**. The draft
+file stays on disk as the provenance record and is marked LANDED. **There is no ADDENDUM 13 in
+this document and there never will be**, so that a later reader who finds the gap is not left
+hunting for a lost registration.)*
+
+## A15.1 SST's RESULT — `GATE FAIL`, AND THE RUN DIED OF SIGFPE AT ITERATION 22
+
+`CRM-WB-D8G-SOLVE-T-SST` launched 2026-09-13T07:30:09Z (32 ranks, `CLOSURE=kOmegaSST` asserted by
+the A14.3-repaired guard against `constant/turbulenceProperties`, logged into `LAUNCH.log`).
+**STAGE 1 rc=136 — 128+8, SIGFPE.** Stage 2 was never entered; the registered dictionaries were
+restored md5-identically; the graded schemes never ran. Artifacts:
+`/home/ubuntu/certonomous-runs/CRM_WB_D8G/SOLVE_T_SST/{RC.txt,LAUNCH.log,log.rhoSimpleFoam}`.
+
+| | A14.6 registered | measured | |
+|---|---|---|---|
+| **S1** | `h` initial residual **< 0.99 by it 20** | **exactly 1 at EVERY iteration, 1 through 21 without exception** | **FAIL** |
+| **S2** | clamped fraction **< 1 % at it 50** | **iteration 50 does not exist — the run died at 22** | **FAIL** (the condition cannot be cleared) |
+| **S3** | Cd ∈ [0, 0.2], Cl ∈ [0, 1.0] | **Cd −4.414127765770e+88, Cl −2.256398405310e+89** at it 21 | **FAIL** |
+| **S4** | `\|p\|` < 2 p₀ = 12,854 Pa, `max\|U\|` < 2 U∞ | **`pressureControl: p max 3.86761822375e+129`, `p min −2.72678815685e+113`** | **FAIL** |
+
+**The clamped figure must be quoted with its branch, and this addendum will not quote the
+headline number loosely.** At iteration 21 — the last iteration that completed — `limitTemperature`
+reported **Lower 15.56 % (3,215,144 cells) and Upper 45.31 % (9,359,377 cells), total 60.87 %**.
+**45.31 % is the UPPER branch alone, not the total.** The upper branch rose monotonically over the
+seven iterations on record — 36.10, 37.98, 38.02, 39.95, 41.14, 42.99, **45.31** — and was still
+rising when the run died.
+
+## A15.2 🔴 HOW PREDICTION D SCORES — AND THE ONE CLAUSE THAT IS `NOT A RESULT`
+
+A14.4 registered: *"if the diagnosis is right, SST pins the same way — S1 and S2 below both fail,
+with a clamped fraction above 90 % by time step 50."*
+
+- **The operative clause FIRED.** S1 failed on a measurement, S2 cannot be cleared, and the
+  consequence A14.6 attaches to "S1 and S2 both fail" — eliminate the closure, proceed to the LTS
+  rung — **is triggered.**
+- **The quantitative sub-clause is `NOT A RESULT`, and is recorded as such rather than waved
+  through.** "Above 90 % by time step 50" was **never measured**: the run crashed 28 iterations
+  short of the reading point. The lab does not get to claim a number it did not read, least of all
+  in the prediction it wrote to test itself. **The last measured total was 60.87 %, rising.**
+- **SST did NOT pin "the same way" in the literal sense, and a reader must not be told it did.**
+  R1 survived to iteration 102 at 99.84 % clamped; **SST died at 22 at 60.87 %.** Same *kind* of
+  failure — `h` immovable, clamping rising, forces garbage — but a **faster and harder** one. The
+  second turbulence transport equation did not rescue the startup; it did not obviously worsen the
+  thermodynamics either, and the act should not pretend to know which.
+
+**What this licenses and what it does not.** It licenses: the closure is eliminated as the cause,
+which is the twenty-second elimination this act has performed, and **A14.6's prohibition on any
+further steady-`rhoSimpleFoam` variant is now in force** — of any closure, relaxation, clamp,
+linear solver or initialisation. It does not license: any claim about the mesh (rung 1 untouched),
+nor a claim that the diagnosis is *proved*. **A prediction that fires is evidence for a diagnosis,
+never a demonstration of it**, and this act has already been walked into treating a satisfied
+predictor as corroboration once (A14.2b, P5).
+
+## A15.3 THE MECHANISM, NOW MEASURED END TO END — AND IT NAMES ITS OWN CURE
+
+R1 left the chain inferred. SST's log closes it, in one iteration, at iteration 21:
+
+1. `Solving for h, Initial residual = 1` — **every iteration.** The energy equation's starting
+   guess never approaches its own solution, because
+2. `limitTemperature` fires **between the h solve and the p solve** and overwrites T on 60.87 % of
+   cells. The pressure equation is handed a thermodynamic state **the energy equation did not
+   produce**. That is the segregated-steady startup failure stated in one line.
+3. `Solving for p, Initial residual = 0.567694837243, **Final residual = 9.56550443186e+82, No
+   Iterations 1000**` — the pressure linear solve **hits its iteration cap and diverges by 82
+   orders of magnitude**. This is a *linear solver* divergence read from the solver's own final
+   residual, not a normalisation artefact.
+4. `p max 3.87e+129` → ρ = p/(RT) diverges → μ_eff = μ + ρν_t diverges → the **viscous** force
+   integral reaches **1e+94 while the PRESSURE force integral is still finite and ordinary**
+   (Cd pressure **0.00912114085539**, Cd viscous **−4.41e+88**; sum of pressure forces
+   (1234.6, −1.42e6, 4.82e4) N against viscous (−1.29e94, 1.14e94, −8.85e94) N).
+5. Iteration 22: **SIGFPE inside `Foam::DILUPreconditioner::calcReciprocalD`, reached from
+   `fvMesh::solve(fvMatrix<Vector>)`** — the **momentum** matrix diagonal has gone non-finite and
+   the preconditioner divides by it. Signal 8 on rank 31; rc 136.
+
+> 🔴 **A15.3a — THE INSTRUMENT FINDING, AND IT VINDICATES A14.2a ON ITS FIRST USE.** In that same
+> iteration 21, **`omega`'s initial residual read 5.62236183662e-05 and `k`'s read
+> 3.34633396886e-05** — five decimal places of apparent convergence — while p stood at 1e+129 and
+> the forces at 1e+94. **The turbulence residuals reported health on a field that was already
+> destroyed.** A14.2a required successor rungs to gate on the FIELD and never on the normalised
+> residual; **S4 is the channel that caught this run**, and it caught it in the same iteration the
+> residual channels were calling it converged. The rule is not theoretical any more.
+
+> 🔴 **A15.3b — THE MECHANISM NAMES THE NEXT RUNG, WHICH IS WHY THIS IS NOT ATTEMPT TWENTY-THREE.**
+> The proximate kill was **a non-finite diagonal in the momentum matrix**. A steady segregated
+> solve has **no `ddt` term at all** — `UEqn` is `fvm::div(phi,U) − laplacian(...)`, and the
+> diagonal carries nothing but convection, diffusion and relaxation. **Local time stepping adds
+> `fvm::ddt(rho,U)` — a term whose entire contribution is `rho*V/Δt_local` ON THE DIAGONAL**, sized
+> per cell so that the local Courant number stays at `maxCo`. **The LTS rung is therefore not "the
+> next thing to try": it is the one registered change that acts directly on the quantity this run
+> died of.** That reasoning is written here **before** the run, and it is falsifiable — L4 below
+> refutes it.
+
+## A15.4 🔴 THREE CORRECTIONS TO THE ADDENDUM 13 DRAFT — ITS VERIFICATION METHOD WAS UNSOUND
+
+The draft registered facts about `rhoPimpleFoam` by running `strings` over the **application
+binary**. **That method is wrong in both directions and this addendum does not carry its
+conclusions.** It reports a key absent that the application demonstrably uses (the key is read by
+a class in `libfiniteVolume.so`, not by the app), and a key present that proves nothing about
+whether the app's dictionary path reads it. The facts below are taken from **the solver source on
+this box**, by path and line, and they **reverse two claims the draft called settled**.
+
+| claim as drafted | status | evidence on this box |
+|---|---|---|
+| "`transonic` does not exist in PIMPLE, so the A10.4 transonic question is **moot**" | 🔴 **FALSE. The question is CARRIED, not moot.** | `applications/solvers/compressible/rhoPimpleFoam/pEqn.H:32` and `pcEqn.H:39` both open `if (pimple.transonic())` and both build `surfaceScalarField phid` and `fvm::div(phid, p)` — **the identical formulation `rhoSimpleFoam` uses.** `solutionControl.C:50` reads `transonic_ = solutionDict.getOrDefault("transonic", false);` and `pimpleControl : public solutionControl` (`pimpleControl.H:56-58`). |
+| "`consistent` does not exist in PIMPLE, so ADDENDUM 12's change is **superseded**" | 🔴 **FALSE. A12's change is CARRIED ACROSS EXACTLY.** | `solutionControl.C:51` reads `consistent_ = solutionDict.getOrDefault("consistent", false);`, and `rhoPimpleFoam.C:175-181` branches on it: `if (pimple.consistent()) #include "pcEqn.H" else #include "pEqn.H"`. **`consistent no` is both A12's registered setting and the PIMPLE default**, so the R1 baseline is preserved rather than lost. |
+| "`pMinFactor`/`pMaxFactor` confirmed present in this build's **strings**" | conclusion right, **method wrong** | They are **absent** from the `rhoPimpleFoam` binary and present in `libfiniteVolume.so`, because `createFields.H:43` constructs `pressureControl pressureControl(p, rho, pimple.dict(), false)` and `pressureControl.C:116,171` read them from **the PIMPLE dict**. `rhoMin`/`rhoMax` likewise (`createFields.H:65-66`, read from `pimple.dict()`). **A9's registered values carry into the PIMPLE block unchanged.** |
+
+**The consequence is that the LTS rung is a CLEANER change than the draft described, not a murkier
+one.** `transonic yes`, `consistent no`, `pMinFactor 0.1`, `pMaxFactor 2.0`, `rhoMin 0.005`,
+`rhoMax 1.0` and `div(phid,p) Gauss upwind` **all carry across with their registered values**. The
+act keeps its A9, A10.4 and A12 settings and does not silently start a new physics baseline.
+
+## A15.5 THE ONE REGISTERED CHANGE
+
+**Baseline:** the SST case exactly as staged — same mesh (`mesh_T`, 20,657,615 cells), same BCs,
+same freestream, same `limitTemperature` bounds, same `forces` dict, same 32 ranks. **Closure
+reverts to the PRIMARY, `SpalartAllmaras`** (§C.6), because SST is now eliminated and carrying it
+would confound two changes in one run.
+
+| file | key | baseline | LTS rung |
+|---|---|---|---|
+| `system/controlDict` | `application` | `rhoSimpleFoam` | **`rhoPimpleFoam`** |
+| `system/fvSchemes` | `ddtSchemes/default` | `steadyState` | **`localEuler`** |
+| `system/fvSolution` | control block | `SIMPLE { … }` | **`PIMPLE { … }`**, same keys carried |
+
+**PIMPLE block, registered — keys taken from `setRDeltaT.H` and the shipped LTS tutorial, not from
+recall.** `momentumPredictor yes; nOuterCorrectors 1; nCorrectors 1; nNonOrthogonalCorrectors 1;`
+(A9's non-orthogonal count, carried) `transonic yes; consistent no;` (A10.4 and A12, carried)
+`pMinFactor 0.1; pMaxFactor 2.0; rhoMin 0.005; rhoMax 1.0;` (A9, carried)
+`maxCo 0.2; maxDeltaT 1; rDeltaTSmoothingCoeff 0.1; rDeltaTDampingCoeff 1;`
+Defaults confirmed at `setRDeltaT.H:6-24` (`maxCo` 0.8, `rDeltaTSmoothingCoeff` 0.02,
+`rDeltaTDampingCoeff` 1.0, `maxDeltaT` GREAT) — **every one of the four is registered explicitly so
+that none is inherited by accident.**
+
+> **`nOuterCorrectors 1` IS PART OF THE REGISTRATION, NOT A TUNING CHOICE.** `EEqn.H:30` calls
+> `fvOptions.constrain(EEqn)` **once per outer corrector**. At `nOuterCorrectors 1` the clamp
+> therefore fires **exactly once per time step — the same cadence as SIMPLE's once per
+> iteration — and the clamped percentage IS directly comparable to R1's and SST's.** At
+> `nOuterCorrectors > 1` it is not. **Raising it would silently destroy the comparison this act's
+> whole clamp history rests on, and is forbidden to this rung.**
+
+## A15.6 🔴 REGISTERED PRECONDITIONS — TWO INSTRUMENTS THAT DO NOT SURVIVE THE APPLICATION CHANGE
+
+**Neither is a nicety. The rung does not run until both are discharged, and both were found by
+simulating the launch rather than by attempting it.**
+
+**(a) THE CASE ABORTS ON TIME STEP 1 AS CURRENTLY DICTIONED — PROVEN, NOT PREDICTED.** At
+`nOuterCorrectors 1` PIMPLE flags every iteration as the final one, and every field is then solved
+under the name `<field>Final`. The staged `system/fvSolution` `solvers` block carries
+`p { … }`, `"(U|e|h|nuTilda|k|omega)" { … }` and `rho { solver diagonal; }` — **and an OpenFOAM
+regex key must match the WHOLE name, so not one of them matches `pFinal`, `UFinal` or `rhoFinal`.**
+
+> **Planted control, run on this box (standing rule 3 — a refusal from a reader not shown able to
+> accept is not evidence either).** The shipped tutorial
+> `tutorials/compressible/rhoPimpleFoam/RAS/angledDuctLTS` — **which carries explicit `pFinal` and
+> `"(rho|U|h|k|epsilon)Final"` blocks at `nOuterCorrectors 1`** — runs to `End` with rc=0. The
+> **same case with only those two Final blocks deleted** exits **rc=1** with
+> `--> FOAM FATAL IO ERROR: Entry 'rhoFinal' not found in dictionary "system/fvSolution/solvers"`.
+> **The control passes, the mutation fails, and the mutation is the exact shape of this act's
+> dictionary.**
+
+**REGISTERED REPAIR:** append `Final` coverage to the `solvers` block **by addition only**, leaving
+every existing entry byte-identical so the graded linear solvers are provably unchanged —
+`pFinal { $p; }`, `"(U|e|h|nuTilda|k|omega)Final" { $U; }`, `rhoFinal { $rho; }`, the idiom the
+shipped tutorial uses. **`nOuterCorrectors` is NOT raised to 2 to dodge this**, for the reason
+A15.5 gives.
+
+**(b) `launch_crm_wb_v2.sh` CANNOT LAUNCH THIS RUNG, AND ITS WORST FAILURE IS THE SILENT ONE.**
+Every `fail()` in the launcher was simulated against the staged case. Results:
+
+| launcher line | assert | under LTS |
+|---|---|---|
+| `:71` | `^application +rhoSimpleFoam;` | **REFUSES.** Loud, and the easy one. |
+| `:141-142` | ``mpirun -np $RANKS **rhoSimpleFoam** -parallel``, and `>> log.rhoSimpleFoam` | 🔴 **THE DANGEROUS ONE. The application is HARD-CODED in the run line and in the log name.** Neutralise `:71` and the launcher runs **the steady solver on the LTS case**, writing its output into a log named for it. `rhoSimpleFoam` has no `localEuler` (absent from its binary) and no `ddt` term in `UEqn`, so **`ddtSchemes localEuler` would be silently ignored** — and A14.6's prohibition on a further steady-`rhoSimpleFoam` variant would be violated **by the launcher, under the name of the rung that was registered to replace it.** |
+| `:67` | `command -v rhoSimpleFoam` | passes, and **checks the wrong binary**: `rhoPimpleFoam` is never probed. |
+| `:103-111` | `transonic yes` in `fvSolution` | **passes, and is CORRECT to keep** (A15.4). |
+| `:113` | `div(phid,p) Gauss upwind` | **passes, and is CORRECT to keep** — the PIMPLE transonic branch uses `phid`. |
+| `:94-97` | CLOSURE closed set + `RASModel` assert | passes (A14.3 repair). |
+| `:79-83`, `:123` | purgeWrite, `#include`, endTime | pass. |
+| `:114-117` | `forceCoeffs` keys `rhoInf Aref lRef CofR magUInf` | pass — but see (c). |
+
+**REGISTERED REPAIR, and it takes the shape A14.3 already set for the closure guard:** an `APP`
+variable, **defaulted to `rhoSimpleFoam` so existing runs are byte-unchanged**, checked against the
+closed registered set `{rhoSimpleFoam, rhoPimpleFoam}`, **asserted against `system/controlDict`'s
+own `application` line** rather than trusted from argv, used in the `mpirun` line **and** in the log
+name, and **echoed into `LAUNCH.log`** so the log names the application it ran. The lesson A14.3
+paid for was *a guard that names one model by literal refuses the other*; **this is the same defect
+one field over, and it was found the same way — by simulation, not by a refusal.**
+
+**(c) `forces` / `forceCoeffs` MUST BE RE-CONTROLLED UNDER THE NEW APPLICATION.** The object is
+unchanged but the reader is not: it now writes per **time step** with the corrector loop inside.
+`cases/CRM_wingbody/tools/planted_force_check.py` **must be re-run under `rhoPimpleFoam` and must
+detect its planted perturbation there.** Standing rule 3 — the reader has changed, so the control
+must be re-run; a force that looks right under a reader never shown able to be wrong is not
+evidence. **This is a precondition, and it is the one that A15.3's finding makes urgent**: SST's
+pressure-force integral stayed finite and ordinary while the field was at 1e+129, so *plausible*
+force numbers are exactly what this case produces while failing.
+
+**(d) The energy variable is unchanged** — `hePsiThermo`/`sensibleEnthalpy`, `EEqn.H:2`
+`thermo.he()`, so `h` remains the variable and the `h` relaxation entry stays load-bearing. **But
+`residualControl` has outer-loop semantics under PIMPLE and is NOT carried across as a convergence
+gate**; the SIMPLE block's `residualControl` is dropped, and **convergence is judged by L1–L4
+below, never by a residual control the run could satisfy while diverging (A14.2a, A15.3a).**
+
+## A15.7 REFUTATION CONDITIONS — NUMERIC, WRITTEN BEFORE THE RUN
+
+| # | channel | threshold |
+|---|---|---|
+| **L1** | `h` initial residual, **the `hFinal` solve of the time step** | **falls below 0.99 by time step 20** |
+| **L2** | `limitTemperature` clamped fraction, **BOTH branches summed, at the single constrain call of the time step** (`nOuterCorrectors 1`, A15.5) | **total below 1 % at time step 50** |
+| **L3** | forces | Cd ∈ [0, 0.2] and Cl ∈ [0, 1.0] through time step 300, **and only after the planted-force control of A15.6(c) has passed** |
+| **L4** | **the LTS field itself, and it refutes A15.3b directly** | `rDeltaT` finite everywhere and the reported Courant number at or below `maxCo 0.2`. **A run whose local time step collapses toward zero is marching nowhere: that is `NOT A RESULT`, not a slow success** — and it is the specific outcome that would show the diagonal reasoning of A15.3b to be wrong. |
+| **L5** | **field gate, carried from A14.6's S4** | `p` **absolute** max < 2 p₀ = 12,854 Pa and `max\|U\|` < 2 U∞, **read from the field, never from a normalised residual.** |
+
+> 🔴 **WHAT A RESULT HERE MEANS.** LTS changes **how the solution is marched** — not the
+> discretisation, not the closure, not the mesh. **A success is evidence about the SOLVER PATH and
+> nothing else**, and in particular it does **not** retire the A10.4 transonic question, which
+> A15.4 shows is carried across intact rather than made moot. **If L1 and L2 both fail, the
+> NUMERICS rung is CLOSED for this act at 2a and 2b both, no third numerics variant may be
+> registered, and the only rungs left are MODEL (exhausted) and MESH (never stood on).** The act
+> then parks with its action history, and rung 1 is handed to a mesh-treatment registration — not
+> to a twenty-third solver variant.
+
+## A15.8 COST — A RATE PROBE FIRST, BECAUSE NO MEASURED `rhoPimpleFoam` RATE EXISTS
+
+**There is no measured `rhoPimpleFoam` rate on this mesh and this document will not invent one.**
+Projecting from `rhoSimpleFoam` is the error A12.8 had to strike and A14.2b had to strike again.
+For the record, the rates this act *has* measured on this mesh at 32 ranks are **280.7 s/it**
+(`rhoSimpleFoam`, the slow branch), **10.81 s/it** (R1) and **24.73 s/it** (SST — `ExecutionTime
+519.35 s` over 21 iterations, from its own log). **None of the three is the application about to
+run**, and the spread between them — a factor of 26 — is itself the argument against projection.
+
+**REGISTERED PROCEDURE: the rung's first act is a 20-time-step rate probe on the staged case**, and
+**the production run is not enqueued until the probe has reported.** The production estimate is then
+computed **from that measurement** and written into the production entry.
+
+**Cap, from the WORST CASE and not from a prediction** — the habit that absorbed M6I's ×2.65 against
+a ×1.6 estimate. Worst case remains the slowest rate this act has measured on this mesh,
+**280.7 s/it**:
+
+- Probe, worst case: 20 × 280.7 × 32 / 60 = **2,994 core-min**.
+- Production to the §6 length of 6,000 steps, worst case: 6,000 × 280.7 × 32 / 60 = **898,240
+  core-min**; **cap registered at 3× = 2,694,720 core-min.**
+
+`cost_basis`: wall from the solver's own `ExecutionTime`; **$0.0513/core-h is REPORTED-BY-OWNER,
+NOT MEASURED** (`COMPUTE_BUDGET_CHARTER` §5) and any dollar figure derived from it is **derived, not
+measured**. Directive #17: **no cap stops the run**; a run that crosses it is `NOT A RESULT` and the
+cap is never raised. An estimate-versus-actual row is owed to `docs/COST_CALIBRATION.md` at
+completion — **and it must score SST as a CRASHED run at 22 iterations**, not as a ratio against a
+length never attempted.
+
+## A15.9 HOW THIS RUNG IS PINNED, AND WHAT REMAINS OF THE LADDER
+
+**A14.8 is obeyed: this pre-registration is NOT named in `grading_freeze`.** It is pinned by
+`prereg_commit` + `prereg_path`, the pure commit pin, which `check_prereg_at_commit` resolves with
+`git cat-file` and never reads from disk — so this addendum, and every addendum after it, cannot
+flip a live run's freeze. `grading_freeze` names comparators only.
+
+| # | rung | status after this addendum |
+|---|---|---|
+| 1 | **MESH** | **never stood on.** `Mesh OK = false` at all three levels; max non-orthogonality 89.4641°, 740,519 faces > 70°, min cell determinant 0. Candidate treatment: `nNonOrthogonalCorrectors` and a limited-gradient/non-orthogonal treatment matched to an 89.5° face. |
+| 2a | **NUMERICS — coupling algorithm** | **CLOSED.** A12/A14: `consistent yes → no` moved nothing. |
+| 2b | **NUMERICS — solver path** | **THIS RUNG.** The last numerics variant this act may register. |
+| 3 | **MODEL** | **CLOSED.** A14/A15: SST pinned and crashed at 22. |
+| — | **PARK** | If 2b fails, the act parks with its action history and rung 1 is handed to a mesh registration. |
+
+**Two rungs remain and they are named. That is the whole of it.**
