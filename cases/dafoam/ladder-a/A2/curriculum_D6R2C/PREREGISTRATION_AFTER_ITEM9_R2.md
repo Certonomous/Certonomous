@@ -585,3 +585,170 @@ be told apart from a sweep that was never run.
 the instruments and stated **nowhere** in the text, so a reader could not have checked those literals
 against anything. They are now in §3b1, §3c and §2c. **That is the fourth time this check has paid for
 itself in this item**, and it is the reason it is standing rather than optional.
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — `FM6` DIED ON A DEPENDENCY ITS LAUNCHER DID NOT STAGE, AND THE PIN DID NOT COVER IT
+
+**This addendum carries the document to version 1.1.** The version line above still reads `Version 1.0`
+and is **deliberately not edited**: editing it would falsify this section's own append-only assertion.
+The version of record is the one stated here.
+
+**Lines whose number changed above this section: 0.** Proof in §A1.7, derived from the committed blob.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `I1`, `H1`–`H4`,
+`SHAPE_MATCH_TOL`, `FM_BAND_ABS`, `GENWINGMESH_MD5`, `BASE_POINTS_MD5`, `CL_FINDING_TRIGGER`,
+`PLANT`, `FM5_FLOOR`, `FLOOR_SAME_REL`, `PRIMAL_MIN_RES_TOL`, the weights, and the cap of §8 stand
+exactly as frozen at `e52e09316844f92ee683ec200a047a59e2a44b75`.
+**THE GRADING PATH `d6r2c_fm6_grade.py` IS NOT TOUCHED BY THIS ADDENDUM AND ITS md5 IS UNCHANGED.**
+
+### A1.0 WHAT HAPPENED
+
+Arm `FM6` was launched 2026-09-13T08:00:57Z under the frozen launcher, container
+`d6r2c_fm6_FM6_20260913T080057Z_1427681`, 4 ranks, uid 1000:1000+1002, cpuset 2,3,4,5. **All five launch
+guards passed** — `G_ROOT`, `G_BOX` (`load1=38.19 nproc=96 solver_swap_offenders=0 avail_gb=556`),
+`G_FREEZE`, the cap read from the grader at `47.211`, and `G_COLD` (age datum `1789286457`).
+
+**It died after 23 s wall, rc = 1, 1.533 core-min, before one primal and before any phase completed.**
+All four ranks raised the identical error:
+
+```
+File "/mnt/FM6/d6r2c_freshmesh.py", line 67, in <module>
+    from d6r2c_decomp import (Refusal, load_frozen_model, read_final_dv, ...)
+ModuleNotFoundError: No module named 'd6r2c_decomp'
+```
+
+**The arm is graded `NOT A RESULT`** — `d6r2c_fm6_grade.py` refused with
+`REFUSE_MISSING_FRESHMESH_RECORD`, which is §11a's registered contingency operating exactly as
+registered. That row is closed, is never re-graded and is never overwritten. Its evidence —
+`FM6/`, `FM6_20260913T080057Z_1427681.log` and the ledger row — stays on disk.
+
+### A1.1 THE DEFECT — A PIN PROVES WHAT A FILE **IS**, NOT WHAT IT **NEEDS**
+
+`d6r2c_freshmesh.py` — the producer this document **reuses unchanged**, and whose pin §11 calls *"itself
+the evidence that nothing else moved"* — **imports `d6r2c_decomp` as a library** at its line 67. The
+parent launcher both **pins** it (`d6r2c_after_run_arm.sh:128`) and **stages** it (`:219`), which is why
+`FM5` reached a stalled primal and `FM6` reached no phase at all.
+
+This launcher's `seed_arm` staged **three** files where **four** are needed:
+
+```
+cp "$SRC/d6r2c_opt_runScript.py" "$SRC/d6r2c_freshmesh.py" "$SRC/d6r2c_fm6_init.py" "$WORK/"
+```
+
+`d6r2c_decomp.py` was dropped **deliberately**, on the reasoning that item 8 is not registered by this
+document. **That reasoning was about the DOCUMENT, and the dependency is about the CODE.** Those are
+different questions and only one of them is answerable by reading a registration.
+
+> **THE PIN WAS HONEST ABOUT THE BYTES AND SILENT ABOUT THE ENVIRONMENT THOSE BYTES REQUIRE.**
+> `d6r2c_freshmesh.py` was staged at exactly its frozen md5 `1d15ce361673ca600d565280441b67e0`,
+> `G-FREEZE` passed on it, and the arm was unrunnable. **A hash proves identity, not sufficiency.**
+
+**It is a LAUNCHER defect: a defect in how a number would have been made.** It is repairable with
+disclosure under `VERIFICATION_CHARTER` §2d.1. **A grader changed after seeing data is not**, and the
+grader is not changed.
+
+### A1.2 THE REPAIR
+
+1. **`d6r2c_decomp.py` is STAGED and PINNED** at `42ec0dd582584812a69129a474b2783e` — the md5 the
+   parent launcher pins and the **exact bytes `FM5` ran with**, verified on disk. **Staging an unpinned
+   file into a frozen arm would be worse than the defect it repairs.** It is a **library dependency of a
+   reused producer, not a new instrument**: it introduces no gate, no threshold, no cap and no label.
+2. **The staged list has ONE source**, the shell variable `STAGED_PY`, read by **both** `seed_arm` and
+   the new `G-DEPS`. The canonical list is referenced, never re-spelled (L-221/L-222).
+3. **`G-DEPS` — NEW, and it is the part that outlasts this item.** Every local module imported by a
+   staged `.py` must itself be staged. It parses the real files with `ast`, treats a module as *local*
+   only if a file of that name sits in `SRC` (an image module is not this launcher's to vouch for), and
+   **refuses (exit 4) naming the file and the module it needs.**
+
+### A1.3 THE FAILING CONTROL, WHICH IS WHAT MAKES `G-DEPS` A CHECK
+
+`guard_deps` takes the staged list **as arguments**, so the selftest drives it with
+`d6r2c_decomp.py` removed — **the exact set that killed `FM6`** — and **requires it to FAIL**, and
+requires it to **name** the missing module rather than merely return non-zero. **A check that cannot be
+seen to fail is not a check** — the lesson this item's cap controls taught at
+`PREREGISTRATION_AFTER_ITEM8_R2.md` §8a, applied to a new clause.
+
+**A defect was found in that control by driving it, and is recorded rather than quietly fixed.** The
+first draft piped `guard_deps` into `grep -q`. `set -o pipefail` is active, so a pipeline ending in a
+successful `grep` still returns the **deliberately failing** command's non-zero status, and the control
+reported a failure that had not happened. The output is now **captured first and matched after**.
+
+### A1.4 `FM7` — THE RE-RUN ID, CARRYING THE IDENTICAL REGISTERED CAP
+
+**`FM7` carries the IDENTICAL registered figure of `47.211` core-min** — the same number looked up
+under another key. **No threshold is invented, raised or reduced.**
+
+**And the cap still has ONE source.** The grader is **not** edited to learn a new arm id — its pin must
+not move — so `cap_core_min()` asks it for the **item's** cap under the canonical key `FM6` and applies
+it to whichever registered arm runs. **The cap is a property of the item, not of the arm id.** The
+launcher's selftest asserts `cap_core_min FM7 == cap_core_min FM6 == 47.211`, because a lesson is not
+applied until every call site asserts it.
+
+**`FM6` keeps its directory and its `NOT A RESULT` row, is never re-seeded (`G-COLD` refuses a case
+where `0` or a time directory already exists) and is never re-graded.**
+
+### A1.5 A CONSEQUENCE OF THE FROZEN GRADER, DISCLOSED RATHER THAN REPAIRED
+
+`d6r2c_fm6_grade.py` writes `"arm": "FM6"` as a **literal**. Grading the `FM7` arm will therefore
+produce a record whose `arm` field reads `FM6`. **The grader is NOT edited to fix this**, because its
+pin must not move and a cosmetic field is not worth reopening a grading path for.
+**The authoritative arm identity is the ledger row and the arm directory path**, both of which carry
+`FM7`. Disclosed here so no later reader mistakes the literal for the arm that ran.
+
+### A1.6 SPEND — DEFECT-ATTRIBUTABLE WASTE, NAMED SEPARATELY AND NEVER ABSORBED
+
+| category | core-min | note |
+|---|---|---|
+| `FM6` | **1.533** | `NOT A RESULT`. **DEFECT-ATTRIBUTABLE WASTE** — a launcher defect, not a falsified assumption |
+
+**It is NOT in the same class as `DEC3`'s 63.000 or `FM5`'s 7.600**, both of which bought measurements:
+`DEC3` falsified §1a's shape-only trimmability assumption, and `FM5` produced the residual floor that
+§3e's discriminator is built on. **`FM6` bought nothing but the knowledge that I mis-staged a file.**
+`1.533 core-min = /bin/bash.0013`, **derived, not measured**; `cost_basis` class **reported-by-owner**.
+
+**The §8 prediction of 15.737 core-min and the cap of 47.211 are UNCHANGED** and are not adjusted to
+absorb this. **No calibration row is owed: no arm has completed.**
+
+### A1.7 THE APPEND-ONLY PROOF
+
+- Pre-append state, read from the **committed blob** at `e52e09316844f92ee683ec200a047a59e2a44b75`, in
+  the same shell invocation as the append: md5 **`cf8ded9648795176ec5729fc899f5ecf`**, **587 lines**.
+- The working-tree file was **byte-identical to that blob** before this section was appended — asserted
+  in that same invocation, so the append is provably the first change since the freeze.
+- `git diff --numstat` on this path must show **insertions only and `0` deletions**.
+- **Lines whose number changed above this section: 0.**
+- This is `ADDENDUM 1`, the number derived from the maximum existing heading, never a count.
+
+### A1.8 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not re-grade `FM6`.** `NOT A RESULT`, closed, never re-seeded.
+- **It does not touch the grading path.** `d6r2c_fm6_grade.py` is unchanged and its pin is unmoved.
+- **It does not alter a gate, a threshold, a cap or a label**, and it does not move the §8 prediction.
+- **It does not claim `FM7` will pass.** §3e's discriminator stands exactly as frozen, and the
+  expectation on the record — that a converged initial field may not move a residual floor — is unchanged.
+- **It does not touch `primalMinResTol`.**
+- **It does not register the layer-growth candidate.** That stays a finding note.
+
+### A1.9 SECTION 11 — THE INSTRUMENT TABLE, REPINNED
+
+**Only the launcher changed.** §11's table above is not edited — that would falsify §A1.7 — so the
+current state of record is here:
+
+| file | md5 now | selftest |
+|---|---|---|
+| `d6r2c_fm6_grade.py` | `1a5ca51f8dab59e3c72b9a71ce8f77e6` — **UNCHANGED SINCE THE FREEZE** | `PASS n=56` |
+| `d6r2c_fm6_init.py` | `0d335d95aa294a96fb8df106e71b8970` — **UNCHANGED SINCE THE FREEZE** | `PASS n=24` |
+| `d6r2c_fm6_run_arm.sh` | `bac46645b4b23da5eb7d8a55c70fdf1c` — repaired by this addendum | `PASS n=14` (was `n=9`) |
+| `d6r2c_freshmesh.py` | `1d15ce361673ca600d565280441b67e0` — **REUSED UNCHANGED**, the bytes `FM5` ran | — |
+| `d6r2c_decomp.py` | `42ec0dd582584812a69129a474b2783e` — **NEWLY STAGED AND PINNED** (§A1.2) | `PASS n=32` |
+
+**The launcher's five checks gained five more**, all of them driven: `G-DEPS` on the registered set;
+`G-DEPS` **failing** on the exact set that killed `FM6`; `G-DEPS` **naming** the missing module;
+`FM7` carrying the identical cap; and the staged list having one source read by both the copy and the
+check.
+
+**`d6r2c_decomp.py` IS A LIBRARY DEPENDENCY, NOT A NEW INSTRUMENT.** It is listed here because it is now
+staged and pinned and a reader is entitled to its hash, **not** because this document registers item 8.
+Its `--selftest` is driven and reported for the same reason. **It introduces no gate, no threshold, no
+cap and no label**, and `d6r2c_fm6_grade.py` neither imports it nor reads anything it writes.

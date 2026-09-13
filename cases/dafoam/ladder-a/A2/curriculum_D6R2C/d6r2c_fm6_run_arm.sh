@@ -19,6 +19,24 @@
 #   C4 -- THE CAP IS NOT CARRIED HERE.  cap_core_min() asks the grader, after
 #         G-FREEZE has pinned it (PREREGISTRATION_AFTER_ITEM8_R2.md sec 8a).
 #
+# ADDENDUM 1 (2026-09-13): FM6 died in 23 s, rc=1, 1.533 core-min, NOT A RESULT,
+# on `ModuleNotFoundError: No module named 'd6r2c_decomp'` from all four ranks.
+# d6r2c_freshmesh.py:67 imports d6r2c_decomp AS A LIBRARY and this launcher
+# staged three files where four are needed.  THE PIN WAS HONEST ABOUT THE BYTES
+# AND SILENT ABOUT THE ENVIRONMENT THOSE BYTES REQUIRE.  Repaired under 2d.1:
+#   C5 -- d6r2c_decomp.py is STAGED and PINNED at 42ec0dd582584812a69129a474b2783e
+#         -- the md5 the parent launcher pins and the exact bytes FM5 ran with.
+#         Staging an unpinned file into a frozen arm would be worse than the defect.
+#   C6 -- THE STAGED LIST HAS ONE SOURCE, $STAGED_PY, used by BOTH the copy and
+#         the new dependency check, so the two cannot drift (L-221/L-222).
+#   C7 -- G-DEPS, NEW: every local module imported by a staged .py must itself be
+#         staged.  A control drives it with one file removed and REQUIRES it to
+#         FAIL -- a check that cannot be seen to fail is not a check.
+#   C8 -- FM7 is the RE-RUN ID and carries the IDENTICAL registered cap of
+#         47.211.  NO threshold is invented, raised or reduced.  FM6 keeps its
+#         directory and its NOT A RESULT row, is never re-seeded and never
+#         re-graded.  THE GRADING PATH IS UNTOUCHED AND ITS PIN IS UNMOVED.
+#
 # DERIVED from cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_run_arm.sh.  The
 # G-ROOT.1/2/3 guards, the image digest pin, G-FREEZE, G-COLD, the age datum,
 # the delivered-core sampler, the checkpoint rotator and the ledger row are that
@@ -57,6 +75,11 @@ MD5_EVALS=2c0b8143caad198cd2e21d8047986aa3
 MD5_BASE_POINTS=0fb1935a9b8781b73ac4ccb136e3ec68
 IMG_PATCHED_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
 
+# THE CANONICAL STAGED PYTHON LIST (C6).  Referenced by seed_arm AND by G-DEPS;
+# never re-spelled in either (L-221/L-222).  d6r2c_decomp.py is here because
+# d6r2c_freshmesh.py imports it as a library -- see ADDENDUM 1.
+STAGED_PY="d6r2c_opt_runScript.py d6r2c_freshmesh.py d6r2c_fm6_init.py d6r2c_decomp.py"
+
 RANKS=4
 CPUSET=2,3,4,5
 MEM_LIMIT=20g
@@ -88,7 +111,17 @@ CKPT_INTERVAL_S=1800
 # this item they did (PREREGISTRATION_AFTER_ITEM8_R2.md section 8a).
 # NOTHING KILLS ON IT (Sanaa directive #17): a crossing is REPORTED, the row is
 # graded NOT A RESULT, and the cap is never raised.
-cap_core_min() { python3 "$SRC/d6r2c_fm6_grade.py" --print-cap "$1" 2>/dev/null; }
+# THE CAP IS A PROPERTY OF THE ITEM, NOT OF THE ARM ID.  FM7 carries the
+# IDENTICAL registered figure -- the same number looked up under another key
+# (ADDENDUM 1, C8).  The canonical key is FM6, the arm this document registered
+# first.  THE GRADER IS NOT EDITED TO LEARN A NEW ARM ID: its pin must not move,
+# and a cap that is one number in one place stays one number in one place.
+cap_core_min() {
+  case "$1" in
+    FM6|FM7) python3 "$SRC/d6r2c_fm6_grade.py" --print-cap FM6 2>/dev/null ;;
+    *) echo "" ;;
+  esac
+}
 
 # ===========================================================================
 # G-ROOT.1 -- BASE must be THIS item's registered run root, normalised
@@ -132,6 +165,52 @@ $DEC4_BASE
 md5_is() { [ "$(md5sum "$1" | cut -d' ' -f1)" = "$2" ]; }
 
 # ===========================================================================
+# G-DEPS (C7) -- EVERY LOCAL MODULE A STAGED FILE IMPORTS MUST ITSELF BE STAGED.
+#
+# A PIN PROVES WHAT A FILE IS, NOT WHAT IT NEEDS.  FM6 was launched with
+# d6r2c_freshmesh.py pinned at its exact frozen md5 and died because the module
+# it imports was not beside it.  The hash was correct and the arm was unrunnable.
+#
+# Takes the staged list as ARGUMENTS so the SELFTEST CAN DRIVE IT WITH A FILE
+# REMOVED and require it to FAIL.  A check that cannot be seen to fail is not a
+# check -- the same lesson this item's cap controls taught.
+# ===========================================================================
+guard_deps() {
+  python3 - "$SRC" "$@" <<'DEPSPY'
+import ast, os, sys
+src, staged = sys.argv[1], sys.argv[2:]
+stem = {os.path.splitext(f)[0] for f in staged}
+missing, scanned = [], 0
+for f in staged:
+    if not f.endswith(".py"):
+        continue
+    p = os.path.join(src, f)
+    if not os.path.isfile(p):
+        print("ABORT G-DEPS staged file does not exist in SRC: %s" % f)
+        sys.exit(1)
+    scanned += 1
+    tree = ast.parse(open(p).read(), p)
+    mods = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            mods.update(a.name.split(".")[0] for a in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+            mods.add(node.module.split(".")[0])
+    for m in sorted(mods):
+        # LOCAL means "a file of that name sits in SRC" -- an image module is
+        # not this launcher's to stage and is not its to vouch for.
+        if os.path.isfile(os.path.join(src, m + ".py")) and m not in stem:
+            missing.append("%s imports %s, which is NOT staged" % (f, m))
+if missing:
+    print("ABORT G-DEPS the staged set does not cover its own imports:")
+    for x in missing:
+        print("   " + x)
+    sys.exit(1)
+print("D6R2C_FM6_G_DEPS_PASS scanned=%d staged=%d" % (scanned, len(staged)))
+DEPSPY
+}
+
+# ===========================================================================
 # G-FREEZE -- the instruments that run ARE the frozen instruments.
 # A2: THE GRADER IS PINNED TOO.
 # ===========================================================================
@@ -149,7 +228,7 @@ guard_freeze() {
   md5_is "$PARENT_BASE/base/constant/polyMesh/points.gz" "$MD5_BASE_POINTS" || {
     echo "ABORT G-FREEZE the base mesh points md5 mismatch"; bad=1; }
   # the three instruments this registration froze, pinned by the PREREGISTRATION
-  for f in d6r2c_fm6_grade.py d6r2c_fm6_init.py d6r2c_freshmesh.py; do
+  for f in d6r2c_fm6_grade.py d6r2c_fm6_init.py d6r2c_freshmesh.py d6r2c_decomp.py; do
     want=$(grep -m1 "^# PIN $f " "$0" | awk '{print $4}')
     [ -n "$want" ] || { echo "ABORT G-FREEZE no pin recorded for $f"; bad=1; continue; }
     got=$(md5sum "$SRC/$f" | cut -d' ' -f1)
@@ -240,7 +319,9 @@ seed_arm() {
   # inputs, staged BEFORE the age datum so the age guard dates them as INPUTS
   cp "$PARENT_BASE/O_mp/d6r2c_evals.jsonl" "$WORK/d6r2c_evals_final.jsonl" || return 5
   cp "$PARENT_BASE/O_mp/d6r2c_x0.json"     "$WORK/d6r2c_x0_final.json"     || return 5
-  cp "$SRC/d6r2c_opt_runScript.py" "$SRC/d6r2c_freshmesh.py" "$SRC/d6r2c_fm6_init.py" "$WORK/" || return 5
+  for f in $STAGED_PY; do
+    cp "$SRC/$f" "$WORK/" || { echo "ABORT G-SEED stage $f"; return 5; }
+  done
   cp "$SURFACE_SRC" "$WORK/surfaceMesh_base.cgns" || return 5
   cp "$FAMILY_DIR/genWingMesh.py" "$WORK/genWingMesh.py" || return 5
   md5_is "$WORK/genWingMesh.py" "$MD5_GENWINGMESH" || {
@@ -303,6 +384,12 @@ if [ "$ARM" = "--selftest" ]; then
   [ -z "$(cap_core_min NOSUCHARM)" ] && [ -z "$(cap_core_min FM5)" ] \
     && echo "SELFTEST ok neither an unknown arm nor an earlier one is launchable here" \
     || { echo "SELFTEST FAIL an unregistered arm got a cap"; rc=1; }
+  # ADDENDUM 1, C8: a lesson is not applied until EVERY call site asserts it
+  # (L-221/L-222).  FM7 must carry the IDENTICAL registered figure, not merely
+  # exist -- an id that ran with a different cap would be a new threshold.
+  [ "$(cap_core_min FM7)" = "$(cap_core_min FM6)" ] && [ "$(cap_core_min FM7)" = "47.211" ] \
+    && echo "SELFTEST ok FM7 carries the IDENTICAL registered cap as FM6" \
+    || { echo "SELFTEST FAIL FM7 does not carry FM6's cap"; rc=1; }
   # THE FROZEN OPTIMISATION RUNSCRIPT IS PINNED UNCHANGED.
   [ "$MD5_RUNSCRIPT" = "2f2ae43a627146cf8e0f065b035ada4b" ] \
     && echo "SELFTEST ok the optimisation runscript pin is the O_mp bytes" \
@@ -325,17 +412,47 @@ if [ "$ARM" = "--selftest" ]; then
   [ "$PH" = "phase deform phase mesh fm6_init.py phase solve " ] \
     && echo "SELFTEST ok the container runs deform -> mesh -> init -> solve, in that order" \
     || { echo "SELFTEST FAIL the phase order is [$PH]"; rc=1; }
-  [ "$rc" -eq 0 ] && echo "D6R2C_FM6_LAUNCH SELFTEST PASS n=9" || echo "D6R2C_FM6_LAUNCH SELFTEST FAIL"
+  # ---- G-DEPS (C7), DRIVEN IN BOTH DIRECTIONS ------------------------------
+  # THE POSITIVE: the registered staged set covers its own imports.
+  guard_deps $STAGED_PY >/dev/null 2>&1 \
+    && echo "SELFTEST ok G-DEPS passes on the registered staged set" \
+    || { echo "SELFTEST FAIL G-DEPS rejected the registered staged set"; rc=1; }
+  # THE FAILING CONTROL, WHICH IS THE POINT.  Drive it with d6r2c_decomp.py
+  # REMOVED -- the exact set that launched FM6 -- and REQUIRE it to fail.  A
+  # check that cannot be seen to fail is not a check.
+  SHORT=$(echo "$STAGED_PY" | tr ' ' '\n' | grep -v '^d6r2c_decomp\.py$' | tr '\n' ' ')
+  if guard_deps $SHORT >/dev/null 2>&1; then
+    echo "SELFTEST FAIL G-DEPS PASSED the set that killed FM6"; rc=1
+  else
+    echo "SELFTEST ok G-DEPS FAILS on the exact staged set that killed FM6"
+  fi
+  # ... and it NAMES the file, rather than merely returning non-zero.
+  # The output is CAPTURED FIRST and grepped after: `set -o pipefail` is active,
+  # so piping a deliberately-failing command into grep returns the command's
+  # non-zero status even when grep matches, and the control would report a
+  # failure that did not happen.  Found by driving this control, not by reading it.
+  DEPOUT=$(guard_deps $SHORT 2>&1 || true)
+  case "$DEPOUT" in
+    *"imports d6r2c_decomp, which is NOT staged"*)
+      echo "SELFTEST ok G-DEPS names the missing module and the file that needs it" ;;
+    *) echo "SELFTEST FAIL G-DEPS did not name the missing module"; rc=1 ;;
+  esac
+  # the staged list has ONE source: seed_arm and G-DEPS both read $STAGED_PY
+  [ "$(grep -c 'for f in \$STAGED_PY' "$0")" -ge 1 ] && [ "$(grep -c 'guard_deps \$STAGED_PY' "$0")" -ge 1 ] \
+    && echo "SELFTEST ok the staged list has ONE source, read by both the copy and the check" \
+    || { echo "SELFTEST FAIL the staged list is re-spelled"; rc=1; }
+  [ "$rc" -eq 0 ] && echo "D6R2C_FM6_LAUNCH SELFTEST PASS n=14" || echo "D6R2C_FM6_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_fm6_run_arm.sh FM6 <image>  |  --selftest"; exit 64; }
-case "$ARM" in FM6) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
+test -n "$ARM" || { echo "ABORT usage: d6r2c_fm6_run_arm.sh <FM6|FM7> <image>  |  --selftest"; exit 64; }
+case "$ARM" in FM6|FM7) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
 guard_root "$BASE" || exit $?
 guard_box || exit $?
 guard_freeze || exit $?
+guard_deps $STAGED_PY || exit 4
 
 # THE CAP IS READ ONLY NOW -- AFTER G-FREEZE HAS PINNED THE GRADER'S BYTES.
 CAP=$(cap_core_min "$ARM"); test -n "$CAP" || { echo "ABORT no registered cap for arm $ARM"; exit 64; }
@@ -421,3 +538,9 @@ exit 0
 # PIN d6r2c_fm6_grade.py 1a5ca51f8dab59e3c72b9a71ce8f77e6
 # PIN d6r2c_fm6_init.py 0d335d95aa294a96fb8df106e71b8970
 # PIN d6r2c_freshmesh.py 1d15ce361673ca600d565280441b67e0
+# ADDENDUM 1: d6r2c_decomp.py is STAGED and PINNED.  d6r2c_freshmesh.py imports
+# it as a library (:67) and FM6 died without it.  This md5 is the one the parent
+# launcher pins and the exact bytes FM5 ran with.  It is a LIBRARY dependency of
+# a reused producer, NOT a new instrument: it introduces no gate, no threshold,
+# no cap and no label, and the grading path is untouched.
+# PIN d6r2c_decomp.py 42ec0dd582584812a69129a474b2783e
