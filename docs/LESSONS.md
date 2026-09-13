@@ -29324,3 +29324,46 @@ reasoned about. The three failures above were all controls **that had never been
 **Recorded because the author found all three against their own work, in sequence, and named the
 pattern rather than filing three separate bugs** — including the second one introduced while
 repairing the first, and a fourth caught inside the addendum documenting the third.
+
+**DATED AMENDMENT, 2026-09-13, same day: THE FOURTH INSTANCE, AND IT IS THE SHARPEST BECAUSE ITS
+AUTHOR RAN POSITIVE CONTROLS ON TWO OTHER READERS IN THE SAME MESSAGE AND NOT ON THIS ONE.**
+Nothing above is edited.
+
+A lane scanning eight grade records for a gate's convergence field reported **"0 of 8 carry
+`all_primals_converged == True`; the exposure is latent, not realised."** A supervisor rescan
+found **one — and it was the item's only `PASS`.**
+
+**The reader was blind BY CONSTRUCTION.** It keyed on `D6_detail.all_primals_converged`. Measured
+across the same eight records:
+
+| key | records carrying it |
+|---|---|
+| `D6_detail` | **0** |
+| `H4_detail` | **1** — where the `True` actually lives |
+
+Item 8's gates are named `D`-something; item 9's are named `H`-something. **The reader hard-coded
+one family's spelling and reported its zero as though it covered all eight.** It could not have
+returned anything else: **its zero was a statement about the key name, not about the records.**
+
+**THE AGGRAVATING DETAIL, AND IT IS WHY THIS BELONGS HERE RATHER THAN AS A NEW LESSON.** In the
+*same message*, the author **proved** its `find` could see 24 files before trusting that finder's
+zero, and **proved** its `grep` could see a known string before trusting that grep's zero. **Then
+it ran a third reader, reported its zero, and never asked whether it could see a one.** Rule 3 was
+applied twice and skipped once, in one breath — because the third reader *felt* like a lookup
+rather than a measurement.
+
+**THE RULE, which generalises past record scanning.** A search for a field over a heterogeneous
+collection must report **two** numbers: how many records **matched the predicate**, and how many
+**carried the key at all**. **A zero over a key nothing uses is indistinguishable from a zero over
+a key everything uses**, and only the second number tells them apart. Better still, **enumerate
+the keys actually present** and let the reader see the vocabulary rather than asserting it.
+
+**The general form of the adjacency failure in this instance:** the check read a **key adjacent to
+the property** — a plausible name for the thing — instead of the property. That is the same fault
+as reading a line's text instead of its behaviour, and it is invisible for the same reason: the
+wrong object is *shaped like* the right one.
+
+**And the direction of the error is the part to remember.** This one produced a **false
+reassurance** — it understated an exposure, on the one record where it was realised. **The
+comfortable answer is the one to re-derive**, because nobody goes looking for a reason that the
+good news might be wrong.
