@@ -200,3 +200,74 @@ repeated.**
 
 *Drafted by a cfd `lab-lane`, 2026-09-13. NOT FROZEN — NOT COMMITTED — NO RUN AUTHORISED.
 No agent's message is Sanaa's consent. Submissions parked.*
+
+---
+
+# ADDENDUM 1 — 2026-09-13, cfd-supervisor. THE STATUS LINE OF THIS DOCUMENT CONTRADICTS THE ACT IT AUTHORISED. MY THIRD SELF-CONTRADICTORY FREEZE. AND THE L1 CAP CLAUSE IS SUPERSEDED.
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+**No gate, threshold, band or label is altered.**
+
+## A1.1 THE STATUS LINE IS FALSE AND WAS FALSE AT THE MOMENT I COMMITTED IT
+
+This document still reads **"🔴 STATUS: DRAFT. NOT FROZEN. NO SOLVER MAY RUN UNDER THIS
+DOCUMENT"** and **"`verification/runs/M6J_runs/` does not exist"** — in the very blob committed
+at `63f5792` under the subject "M6J FROZEN", under which three solvers then ran.
+
+**The freeze is evidentially sound and that is not in question:** blob `1cdb80db` matches the
+working tree with zero diff, and the commit at **08:46:51Z preceded the first solver at
+08:49:31Z by 2 min 40 s.** Rule 2 is satisfied by the timestamps and the hash. **The text says
+the opposite of what the evidence says**, and rule 6 forbids editing it, so it is corrected
+here.
+
+**This is the third document I have frozen tonight carrying an internal contradiction** — R5's
+`endTime`, R7's line count, and now this. All three were caught by a lane, none by me. **My §3
+check reads gates, cost and the pre-compute condition; it does not read the document's own
+status line against the act it governs.** That is the gap, stated for the third time.
+
+## A1.2 THE L1 COST CAP — §7's CLAUSE IS SUPERSEDED, AND NOT BY ME
+
+§7 reads *"A crossing grades the row `NOT A RESULT`; the cap is never raised."*
+
+**M6J_L1 is measured at 1,777.6 core-min at `Time = 3412` of 8000 — 178 % of its registered
+998.8 at 42.7 % of the run — and projects to ≈3,973.6 against a cap of 2,996, crossing at
+≈21:23Z.** The projection is an extrapolation from a rate stable to 3.6 % over 3,200 iterations
+and is **labelled as a projection, not a measurement.**
+
+**§7's clause does not govern, and the ruling that supersedes it is already on record:**
+Sanaa's **directive #17** (no run stopped by time or budget cap) and her universal rule of
+2026-08-26 (**bookkeeping never voids physics**), applied by the chief earlier today in these
+terms: *"cap crossings are recorded, never a verdict input."*
+
+**So M6J_L1's crossing is RECORDED IN THE COST ROW AND IS NOT A VERDICT INPUT.** Its Cp numbers
+are graded on the physics limbs and the completion rule alone. **The run is not stopped.**
+
+## A1.3 THE COST LAW WAS BUILT ON ONE DATAPOINT AND THE PENALTY IS GRID-DEPENDENT
+
+The registered law (mean 1.27e-07 core-min/cell-iteration) came from three `transonic yes` runs
+plus **a single `transonic no` point at L3 that showed no penalty at all** (5.47 vs 5.47).
+Measured stage-2 rates under `transonic no`:
+
+| level | core-min/cell-iter | × the registered law |
+|---|---|---|
+| M6J_L3 | 1.565e-07 | **1.23×** |
+| M6J_L2 | 3.624e-07 | **3.06×** |
+| M6J_L1 | 4.909e-07 | **3.66×** |
+
+**The `transonic no` penalty grows with refinement — 1.2× coarse, 3.7× fine.** A one-point
+calibration on the coarsest grid was the wrong basis, **and that, not contention, is the
+dominant term.** Contention is named and bounded rather than absorbed: L2 ran wholly overlapped
+with L1's startup, yet **uncontended L1 measures 3.66× against contended L2's 3.06×**, so
+concurrency did not inflate L2 above what an uncontended level shows.
+
+## A1.4 THE PARKING RECORD'S BASELINES ARE UNRECONCILED — MINE, AND UNRESOLVED
+
+`M6I_PARKING_RECORD.md:24` quotes span-avg rms **0.3323 / 0.2045 / 0.1423** and biases
+0.1344 / 0.0531 / 0.0248. **Recomputing from the graded artifacts under five averaging
+conventions — arithmetic mean, rms-of-rms, station-first, `n_graded`-weighted, per-surface —
+reproduces none of them.** The arithmetic means are **0.2759 / 0.1661 / 0.1097**.
+
+**I published those figures.** Either the parking record used a convention nobody has since
+identified, or the grade JSONs were regenerated after it was written. **It is not settled and
+must not be treated as settled.** M6J's own table is internally consistent — both families
+recomputed from artifacts under one definition — and that is the table to use.
