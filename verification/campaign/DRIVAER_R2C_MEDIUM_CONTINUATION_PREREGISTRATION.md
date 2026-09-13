@@ -144,3 +144,123 @@ quieter the actual will come in under and the ratio is what the calibration row 
 Frozen at the commit adding this file, before any compute at this `endTime`. No band, threshold,
 condition, cap or label above may be altered afterwards; departures land as dated addenda at the
 foot that strike the original legibly and cannot move a gate.
+
+---
+
+## AMENDMENT 1 — 2026-09-13, v1.1, PRE-COMPUTE. **THE CONTINUATION I REGISTERED CANNOT BE GRADED BY THE PATH I PINNED. THE RUN BECOMES A FRESH SOLVE FROM 0 AND THE FROZEN COMPARATOR IS NOT TOUCHED.**
+
+**lines whose number changed above this section: 0**
+
+**Version: 1.0 → 1.1.** Appended at the foot, per standing rule 6. Nothing above is edited;
+struck text below is reproduced with its original wording so both readings stay visible.
+
+### A1.1 LEGALITY — WHY THIS IS AN AMENDMENT AND NOT AN ADDENDUM
+
+**No compute has occurred against this registration.** Standing rule 2 makes amendments legal
+before first compute and confines changes to addenda only *after* it. **The condition, and how it
+was checked:** the run directory this document governs is
+
+> `verification/runs/navier_class/DRIVAER/r2c_medium_blended_R3`
+
+and **it does not exist.** Checked at **2026-09-13T04:22:08Z** by `test -e` on that exact path
+(false) and by `ls -d` on the same path, which returned *"No such file or directory"*. The four
+sibling directories that do exist are `r2c_coarse_blended`, `r2c_coarse_blended_R2`,
+`r2c_medium_blended` and `r2c_medium_blended_R2`; `_R3` is not among them. **No solver has been
+started under this registration and no case has been staged for it.** Staging deliberately
+follows this amendment's commit rather than preceding it, so that the absence asserted here is
+still true at the moment it is frozen.
+
+### A1.2 THE DEFECT, IN THE FROZEN DOCUMENT'S OWN GRADING PATH
+
+§4 pins `cases/navier_class/DRIVAER/grade_drivaer.py`. That file, at **lines 241–244**, reads:
+
+```python
+n_exec = len(re.findall(r"ExecutionTime\s*=", logtxt))
+want = round(endT / dt)
+if n_exec != want:
+    refuse(f"{case}: ExecutionTime count {n_exec} != round(endTime/deltaT)={want}")
+```
+
+A continuation from 2000 to 10000 writes a **new** `log.simpleFoam` holding **8,000**
+`ExecutionTime` lines, against `want = round(10000/1) = 10000`. **8000 ≠ 10000, so the comparator
+REFUSES (exit 2).** The run §1 registered would have consumed its full cost and produced nothing
+gradeable. The registered launcher opens the log with `>`, not `>>`, so appending is not what
+would have happened either.
+
+**A second, independent blocker, and it is by design:** the registered launcher
+`cases/navier_class/DRIVAER/mesh/launch_r2_solve.sh` refuses a pre-existing `0/` (*"a pre-existing
+0/ defeats the age guard"*) and refuses any `[1-9]*` time directory. The continuation case holds
+`0/`, `1750/`, `2000/` and `processor*/2000`. **The launcher cannot start a continuation, and it
+is correct not to:** its `cp -r 0.orig 0` followed by `touch` is precisely what dates the rule-4
+age guard. Using a different launcher would have been a second unregistered change.
+
+### A1.3 WHAT CHANGES — ORIGINALS STRUCK, NOT REWRITTEN
+
+**§1, struck:** ~~"`endTime` moves from **2000** to **10000**"~~ and ~~"continuing rather than
+restarting also requires `startFrom` to move from `startTime` to `latestTime`"~~.
+
+**§1, as amended:** the run is a **FRESH SOLVE FROM 0 TO 10000** in a newly staged case directory
+`r2c_medium_blended_R3`. `startFrom` stays `startTime`, `startTime` stays `0`, `endTime` is
+**10000**. Then `n_exec = 10000 = want`, and **the pinned comparator is not touched.** The
+`startFrom latestTime` wrinkle §1 had to disclose **disappears entirely** — the amended shape is
+simpler than the original, not more complicated.
+
+Staging: `0.orig/`, `system/`, and `constant/` with `polyMesh`, `triSurface` and
+`extendedFeatureEdgeMesh` symlinked to `r2_medium/constant/`, exactly as `r2c_medium_blended_R2`
+was staged. **No `0/`, no `processor*`, no logs, no `postProcessing` carried over.** Ranks stay
+**4** for the reason §1 already gives.
+
+**§6, struck:** ~~"8,000 further iterations × 2.672 s × 4 ranks / 60 = **1,425 core-min**,
+**$1.22 DERIVED**... Wall ≈ 5.94 h"~~.
+
+**§6, as amended:** 10,000 iterations × 2.672 s × 4 ranks / 60 = **1,781 core-min**, **$1.52
+DERIVED, NOT MEASURED** at $0.0513/core-h owner-stated; wall ≈ **7.42 h** at 4 ranks. **The
+increase is 356 core-min and $0.30 derived, and it is the price of not editing a pinned
+comparator.** The rate basis (2.672 s/iteration, measured on `r2c_medium_blended_R2`'s own 2000
+iterations in 5344.56 s of `ExecutionTime` at 4 ranks) is unchanged.
+
+**THE STRUCK COST FIGURE IS NOT REPLACED, IT IS RETIRED.** 1,425 core-min was the prediction for a
+run that will now never happen; the entire worth of a cost prediction is that it preceded its run,
+so it may not be quietly overwritten. **The calibration row owed to `docs/COST_CALIBRATION.md`
+scores the ACTUAL against 1,781, and records that 1,425 was struck PRE-COMPUTE and why.** A reader
+must be able to see both numbers and which one was live.
+
+**UNCHANGED BY THIS AMENDMENT, and named so that is unambiguous:** `endTime` **10000**; the §2
+residual-trajectory derivation and its Uy-binds-at-8,394 arithmetic; the §0 refusal of the
+outlier-fitted 2671; the §5 falsifier; the §3 mesh non-conformance cap (max skewness 5.450 on 2
+faces against MESH_STANDARD 4.0, STATED LIMITATION, never a credential); the §4 grading path and
+its sha256. **No gate, threshold, cap or label moves.**
+
+### A1.4 THE STRUCTURAL FINDING, WHICH IS LARGER THAN THIS CASE
+
+**RULE 4's UNIT-STEP `ExecutionTime` CLAUSE MAKES ANY RESUME UNGRADEABLE BY A COMPARATOR THAT
+IMPLEMENTS IT LITERALLY — AND THIS LAB'S COMPARATORS DO NOT AGREE ON HOW TO IMPLEMENT IT.**
+Measured by reading the code, not inferred:
+
+| form | where | behaviour on a resume |
+|---|---|---|
+| **A: `n_exec == endTime`** | `cases/navier_class/DRIVAER/grade_drivaer.py:242`; `verification/runs/M6I_runs/analyse_m6i.py:234`; `cases/M6SR/analyse_m6sr.py:1810` | **REFUSES.** A resumed log holds only the segment's lines. |
+| **B: `n_exec == n_time`** | `cases/RANS_LES_closure_models/RC3_wu_ceiling_gate_validation/rc3_ceiling.py:1018`; `.../RC4_kaandorp_propagation_repair/rc4_score.py:239` | **ACCEPTS.** It tests the log's INTERNAL consistency and never compares to `endTime`. |
+
+**Standing rule 4 itself supplies two forms and selects between them on `deltaT`** — the unit-step
+form *"= endTime when deltaT=1"* and, for adaptive-`deltaT` runs, *"n_exec == steps written"*. **It
+is SILENT on resume.** So a resumed run at FIXED `deltaT` falls into the unit-step branch and is
+ungradeable by construction, in any territory using form A. That is the gap, and it is a rule
+question, not a comparator bug: form B is not a laxer reading of form A, it is a different
+quantity.
+
+**THE LAB ALREADY KNEW AND FILED IT WHERE NO REGISTRATION AUTHOR WOULD LOOK.** The queue draft
+`verification/runs/navier_class/DRIVAER/QUEUE_DRAFTS/DRIVAER-R2C-MEDIUM-BLENDED.draft.json` says,
+in its own words: *"startFrom, endTime 2000 and deltaT 1 UNTOUCHED, so rule 4's ExecutionTime
+count == 2000 is unaffected — **the very clause that makes a resume ungradeable**."* That sentence
+was on disk before §1 of this document was drafted. **A finding recorded where the next reader
+will not look is most of the way to not having been found**, and this amendment exists partly
+because of where that sentence was filed.
+
+### A1.5 WHAT THIS AMENDMENT DOES NOT CLAIM
+
+It does not rule on which form is correct — that is a rule-4 question for verification and
+ultimately for Sanaa, and a docket item is drafted separately. It does not alter any other
+registration. It does not authorise editing `grade_drivaer.py`, whose sha256 §4 pins by name:
+**retrofitting a guard or a resume branch into a pinned instrument is exactly what rule 6 exists
+to prevent**, and the $0.30 above is what the lab pays instead.
