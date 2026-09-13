@@ -1,0 +1,174 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| PPTC VP1304 -- rung CFM-1 -- cfMesh `cartesianMesh` meshDict                  |
+|                                                                              |
+| BASE, COPIED NOT RE-TYPED (Sanaa, published-setup rule §G):                   |
+|   integration-cfmesh commit 3ff8555514827646c34cacfe5f0f691e49cdbc96          |
+|   tutorials/cartesianMesh/ship5415Octree/system/meshDict                      |
+|   sha256 d09a3c61163025b80b294a8cd9826fec3b19bc1e566357713e62271b166277f2     |
+|   verbatim copy kept beside this file as meshDict.ship5415Octree.PUBLISHED    |
+|                                                                              |
+| Every departure from that file is numbered D1..D9 below and carries a one-    |
+| line reason.  Keywords not present in the base are cited to the shipped       |
+| cfMesh tutorial they are taken from.  Nothing here is invented.               |
+| Registered and frozen at verification/campaign/PPTC_CFM1_PREREGISTRATION.md   |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version   2.0;
+    format    ascii;
+    class     dictionary;
+    location  "system";
+    object    meshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// D1: the case's own admitted surface, built by the registered G0 step.  A file name,
+//     not a recipe change.  Base read "ship5415-hull-and-box.ftr".
+surfaceFile "PPTC-body-and-domain.ftr";
+
+// D2: 150 -> 0.02.  The REGISTERED background cell, 20.00 mm, in metres
+//     (log.makeSnappy:2 of F360_coarse; registered import scale 1e-3, GEOMETRY_ADMISSION
+//     _RECORD.md §2).  The base's units are its own STL's; ours are metres.
+maxCellSize 0.02;
+
+// D3: same field as the base, five entries instead of one.  The levels ARE the registered
+//     snappy refinement levels (make_snappy.py:37-43), which are exact powers of two of
+//     the 20 mm background: 2^5 -> 0.625 mm, 2^4 -> 1.25 mm, 2^3 -> 2.5 mm, 2^2 -> 5.0 mm.
+//     refinementThickness carries the BASE DICTIONARY'S OWN RATIO 50/150 = 1/3 applied to
+//     our maxCellSize: 0.02/3 = 6.6667e-3 m.  Not a new number -- the published one, scaled.
+surfaceMeshRefinement
+{
+    blades
+    {
+        additionalRefinementLevels  5;
+        surfaceFile "constant/triSurface/blades.stl";
+        refinementThickness 6.6667e-3;
+    }
+    hub
+    {
+        additionalRefinementLevels  4;
+        surfaceFile "constant/triSurface/hub.stl";
+        refinementThickness 6.6667e-3;
+    }
+    cap
+    {
+        additionalRefinementLevels  4;
+        surfaceFile "constant/triSurface/cap.stl";
+        refinementThickness 6.6667e-3;
+    }
+    shaft
+    {
+        additionalRefinementLevels  3;
+        surfaceFile "constant/triSurface/shaft.stl";
+        refinementThickness 6.6667e-3;
+    }
+    shaftExtension
+    {
+        additionalRefinementLevels  2;
+        surfaceFile "constant/triSurface/shaftExtension.stl";
+        refinementThickness 6.6667e-3;
+    }
+}
+
+// D4: the base's `anisotropicSources` Box, which squashes z by 0.3 to resolve a FREE
+//     SURFACE, is REMOVED.  An open-water propeller test has no free surface.
+
+// D5: patchBoundaryLayers -- the base's one hull patch becomes the four REGISTERED layer
+//     patches of pre-registration §6.3 (make_snappy.py:47), and nLayers 5 -> 6,
+//     thicknessRatio 1.1 -> 1.2 are the registered §6.3 values.
+// D6: `maxFirstLayerThickness` is NOT in the base.  Keyword taken from the shipped cfMesh
+//     tutorials multipleOrifices / singleOrifice / elbow_90degree.  Values are the
+//     REGISTERED §6.3 first-layer heights (final/1.2^5 at the PRISM-A2 §4 absolute finals).
+//     IT IS PREDICTED NOT TO BIND -- refineBoundaryLayersFunctions.C:688-714 caps but never
+//     thickens.  It is present so the dictionary carries the registered number.
+boundaryLayers
+{
+    patchBoundaryLayers
+    {
+        blades
+        {
+            nLayers 6;
+            thicknessRatio 1.2;
+            maxFirstLayerThickness 1.2559e-04;
+        }
+        hub
+        {
+            nLayers 6;
+            thicknessRatio 1.2;
+            maxFirstLayerThickness 2.5117e-04;
+        }
+        cap
+        {
+            nLayers 6;
+            thicknessRatio 1.2;
+            maxFirstLayerThickness 2.5117e-04;
+        }
+        shaft
+        {
+            nLayers 6;
+            thicknessRatio 1.2;
+            maxFirstLayerThickness 5.0235e-04;
+        }
+    }
+
+    // D7: ZERO DEVIATION.  optimiseLayer and every optimisationParameters value below are
+    //     the base dictionary's own, unchanged.
+    optimiseLayer 1;
+
+    optimisationParameters
+    {
+        nSmoothNormals 3;
+        maxNumIterations 2;
+        featureSizeFactor 0.4;
+        reCalculateNormals 1;
+        relThicknessTol 0.1;
+    }
+}
+
+// D8: `renameBoundary` is NOT in the base.  Keyword taken from the shipped cfMesh
+//     tutorials elbow_90degree / multipleOrifices / singleOrifice.  It is required because
+//     cfMesh names patches from the surface regions and the three flow boundaries must be
+//     type `patch`, not `wall`, or wallDist measures a distance to the farfield.
+//     The five body patch NAMES are already the registered ones (make_stl.py) and are
+//     NOT renamed.
+renameBoundary
+{
+    defaultName     domainWall;
+    defaultType     wall;
+
+    newPatchNames
+    {
+        "inlet.*"
+        {
+            type    patch;
+            newName inlet;
+        }
+
+        "outlet.*"
+        {
+            type    patch;
+            newName outlet;
+        }
+
+        "outerBoundary.*"
+        {
+            type    patch;
+            newName outerBoundary;
+        }
+    }
+}
+
+// D9: DECLINED, AND RECORDED RATHER THAN GUESSED --
+//   (a) `meshQualitySettings` is shipped by bunnyOctree and intakePortOctree, and it offers
+//       maxNonOrthogonality and minTetQuality.  MESH_STANDARD §3.2 constrains BOUNDARY
+//       SKEWNESS (snappy maxBoundarySkewness 4).  There is no published mapping between the
+//       two vocabularies, so none is invented; mesh quality is MEASURED by checkMesh after
+//       the fact and gated as G4, not constrained during meshing.
+//   (b) The registered volume-refinement regions (bladeRegion, tipVortex, the 1.3D MRF
+//       zone) are NOT translated.  cfMesh's `objectRefinements` would express them; doing
+//       so multiplies deviations in a rung whose question is layer extrusion.  CONSEQUENCE,
+//       REGISTERED: this mesh does not carry the registered volume refinement and NO KT or
+//       KQ may EVER be graded on it.
+
+// ************************************************************************* //
