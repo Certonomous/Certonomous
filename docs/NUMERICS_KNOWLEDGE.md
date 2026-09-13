@@ -7182,3 +7182,72 @@ is the specific error this entry exists to discourage.
 An imported structured or committee grid has no octree level jump, so the mechanism has
 nothing to act on. **State the scope by mesher.** A case list goes stale the moment a
 case changes its meshing path; the mechanism does not.
+
+## DAFoam-team numerics, continued — appended 2026-09-13 by the dafoam-supervisor
+
+**Placement note.** Appended at end-of-file, not inserted after the `N-D` block, for the
+reason the 2026-08-21 note gives: peers commit into this file concurrently and an in-place
+insert is not an append-only edit. Id re-derived by command at write time, never quoted from
+memory: `grep -oE '\*\*N-D[0-9]+\.' docs/NUMERICS_KNOWLEDGE.md | grep -oE '[0-9]+' | sort -n | tail -1`.
+
+**N-D48. RUN-TO-RUN REPRODUCIBILITY AND PATH-DEPENDENCE ARE TWO DIFFERENT QUANTITIES, AND
+ON THIS STACK THEY DIFFER BY EVERYTHING: repeating a run is BITWISE EXACT, while reaching the
+SAME DESIGN POINT BY A DIFFERENT PATH moves the converged objective by ~3e-5 relative.**
+
+**The measurement that separates them.** `DARhoSimpleFoam` under mphys/OpenMDAO, 38,304
+cells, 4 ranks, `primalMinResTol = 1.0e-8`, curriculum `D6R2C`.
+
+*Quantity 1 — repeat the run.* `KR_REF` and `O_mp` are two independent COLD runs from the
+same `x0`, in different containers, on different dates, at box load1 **12.93 vs 27.90**, with
+**120 GB vs 670 GB** MemAvailable, and different IPOPT `max_iter` (4 vs 25, a cap that cannot
+touch the first evaluation). At their first trimmed evaluation, record `n = 2`:
+
+| | `obj.J` |
+|---|---|
+| `KR_REF` | `3.06416314389976151e-02` |
+| `O_mp` | `3.06416314389976151e-02` |
+
+**abs diff `0.000e+00`. All 105 function components — `obj.J`, three `CL`, `thickcon`,
+`volcon` — identical, zero differing.** The cold run-to-run nondeterminism floor at `J` level
+is **exactly zero**, and it is zero across a 2.6x load difference and a 5.6x memory difference.
+
+*Quantity 2 — reach the same point by another path.* Arm `DEC3` state `B` sets the design
+point to **ten decimal places** (angle-of-attack deltas `+2.4e-10 / +4.6e-10 / -4.0e-10`
+degrees against the reference baseline), reached through its own trim rather than through the
+driver. Its converged `J_B = 3.064250791463521e-02` against `J0 = 3.064163143899762e-02`:
+**`8.765e-07` absolute, `2.860e-05` relative — about 0.009 drag counts.**
+
+**THE MECHANISM, AND IT IS THE TOLERANCE'S OWN STOPPING RULE.** `primalMinResTol` halts at the
+**first iterate under tolerance**, not at a fixed point. A different starting field walks a
+different trajectory down the convergence tail and stops at a different place on it. The
+solution is therefore reproducible to the *residual level*, not to the last bit — which the
+parent registration's section 5a already said in words (*"they agree to that residual level
+and not to the last bit"*) without anyone having measured what the gap costs in `J`.
+
+**WHY THIS MATTERS AND WHERE IT BITES.** Any gate that compares an objective reproduced by one
+path against an objective produced by another is bounded below by this ~3e-5, NOT by the
+bitwise floor of zero. A reproduction tolerance calibrated on *repeat-the-run* evidence is
+defensible on that evidence and **still structurally unpassable** by a *different-path*
+implementation. Measured consequence in `D6R2C`: a `REPRO_TOL = 1.0e-5` sits infinitely above
+the measured run-to-run floor and **a factor 2.86 BELOW the measured path-dependence**, so no
+implementation of that decomposition can pass it while reaching the baseline by any path other
+than the original, unless the primal is converged harder than `1.0e-8`.
+
+**The rule to carry.** Before registering a reproduction tolerance, state **which of the two
+quantities it bounds**, and measure THAT one. A replicate arm measures quantity 1 and tells you
+nothing about quantity 2. If the gate will be met by re-deriving a state rather than by
+re-running, the floor is the path-dependence, and it scales with `primalMinResTol`, not with
+machine noise.
+
+**Honest limit of this entry.** The `~3e-5` is **one measurement at one design point on one
+configuration**, not a characterised distribution. It is a lower bound on what to expect, not a
+bound to register against. The scaling with `primalMinResTol` is stated as the mechanism's
+prediction and is **NOT MEASURED** — no run on this stack has converged this case harder than
+`1.0e-8` to check it.
+
+**A gap in the record, named here because it is what sent this measurement looking elsewhere.**
+The parent item registered `KR_REF2` as a replicate arm existing *"to MEASURE this solver
+class's own run-to-run nondeterminism floor"*. **It never delivered one:** `rc = 137`, 388 s,
+25.867 core-min, and its `d6r2c_evals.jsonl` holds **one line, the HEADER** — no `F` record,
+no `J`. The floor above was recovered from `KR_REF` vs `O_mp` instead, which is a better
+replicate pair than the one that was registered: different dates, containers, load and memory.
