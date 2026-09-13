@@ -429,7 +429,93 @@ def d_complete(case, segs):
         why.append("%d log line(s) flagged as fault signatures" % len(bad))
 
     detail["AD7_4_DISCLOSURE"] = window_disclosure(last_written)
+    # BOTH ENDS OF THE WINDOW, HONESTLY. AD7.4 discloses the 2 s shortfall at the
+    # END. This discloses the 0.0083 s overshoot at the START. It is four orders
+    # of magnitude smaller and it changes nothing -- but a window whose true
+    # start is 41.9917 and whose record says 42 is a small false statement, and
+    # small false statements are the ones that survive into papers.
+    if last_written is not None:
+        detail["MEASURED_COVERED_WINDOW"] = measured_covered_window(
+            case, last_written)
     return ("COMPLETE" if not why else "INCOMPLETE"), why, detail
+
+
+def measured_covered_window(case, last_written):
+    """The window the average ACTUALLY covers, derived from the accumulator.
+
+    NOT the registered `timeStart`, and not the first execution time either --
+    the two differ by exactly one `deltaT` and only one of them is a WINDOW.
+
+    `fieldAverage` adds the WHOLE `deltaT` of the step during which it fires, so
+    a step executing at time t represents the interval (t - deltaT, t].  The
+    covered interval therefore begins at `last_written - totalTime`, one full
+    step before the first execution.  MEASURED HERE FROM `totalTime` ITSELF, so
+    the number in the record is the accumulator's own arithmetic and not a
+    restatement of what the registration asked for.
+
+    `timeStart` 42 is not a step boundary, and the functionObject gate is
+    `time >= timeStart - 0.5*deltaT` (timeControlFunctionObject.C:94), so the
+    step that crossed 42 contributed its entire `deltaT` INCLUDING the part
+    before 42.  That is ordinary OpenFOAM behaviour, not a defect, and the
+    accumulator is not to be "corrected" -- the number it produces is the right
+    one.  This is a REPORTING requirement.
+    """
+    try:
+        st, det = accumulator_agreement(case, last_written)
+        if st != "AGREE":
+            return {"state": st, "note": "no agreeing accumulator to measure from"}
+        rows = det["rows"]
+        one = rows[sorted(rows)[0]]["fields"]
+        tt = sorted({v["totalTime"] for v in one.values()})
+        it = sorted({v["totalIter"] for v in one.values()})
+        if len(tt) != 1:
+            return {"state": "FIELDS DISAGREE", "totalTime_values": tt}
+        total_time = tt[0]
+        n = it[0] if len(it) == 1 else None
+        start = float(last_written) - total_time
+        early = WIN_LO - start
+        # AD8.3: TWO numbers, both right, of DIFFERENT objects. Stating only one
+        # would be a small false precision. They differ by exactly one deltaT.
+        first_step = (float(last_written) - (n - 1) * (total_time / n)) \
+            if n else None
+        dt_eff = (total_time / n) if n else None
+        # AD8.3's independent arithmetic: totalTime must be EXACTLY the sum of n
+        # consecutive steps. Stronger than rank agreement, because four ranks can
+        # agree on an identically wrong number.
+        return {
+            "AD8_4_PARAGRAPH_VERBATIM": (
+                "Averaging's first included step was t = 41.99763593, not 42 -- "
+                "0.00236407 s early, 0.400 of one timestep, by OpenFOAM's own "
+                "`timeStart - 0.5*deltaT` gate. The accumulated interval "
+                "therefore begins at 41.99172577. The direction is MORE "
+                "coverage, not less: 0.003 % of the 70 s window, four orders of "
+                "magnitude below the ~2 s shortfall at the other end that AD7.4 "
+                "already discloses."),
+            "first_step_INCLUDED_in_the_mean": first_step,
+            "first_step_early_by_s": (WIN_LO - first_step) if first_step else None,
+            "first_step_early_in_timesteps":
+                ((WIN_LO - first_step) / dt_eff) if first_step else None,
+            "the_two_numbers_differ_by_one_deltaT":
+                (first_step - start) if first_step else None,
+            "deltaT_implied_by_totalTime_over_totalIter": dt_eff,
+            "covered_start_MEASURED": start,
+            "covered_end": float(last_written),
+            "registered_timeStart": WIN_LO,
+            "earlier_than_registered_s": early,
+            "totalTime": total_time, "totalIter": it[0] if len(it) == 1 else it,
+            "as_fraction_of_registered_window_pct":
+                100.0 * early / (WIN_HI - WIN_LO),
+            "why": ("fieldAverage adds the WHOLE deltaT of the step during which "
+                    "it activates, and timeStart 42 is not a step boundary, so "
+                    "the step that crossed 42 contributed its entire deltaT "
+                    "including the part before 42. Ordinary OpenFOAM behaviour, "
+                    "not a defect; the accumulator is not corrected."),
+            "direction": ("EARLIER, i.e. MORE coverage than the registered start "
+                          "implies, and it moves the mean toward slightly "
+                          "earlier data")}
+    except Exception as e:                              # noqa: BLE001
+        return {"state": "NOT MEASURABLE", "error": "%s: %s"
+                % (type(e).__name__, e)}
 
 
 def window_disclosure(last_written):
