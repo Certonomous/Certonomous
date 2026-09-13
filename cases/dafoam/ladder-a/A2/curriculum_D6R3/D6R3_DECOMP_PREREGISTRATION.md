@@ -365,3 +365,71 @@ The frozen producer is not edited (md5 `efc3e62699690edd32e4ee910aad09c8`).
 No gradient work exists anywhere in this sweep: every cell is `run_model`, never `compute_totals`
 and never `check_totals`.
 **SUBMISSIONS PARKED.** Nothing is sent, filed, uploaded, registered or posted.
+
+---
+
+# ADDENDUM 2 — 2026-09-13T21:17Z — `DECOMP_N28` IS VOID, AND THE CAUSE IS THAT I EDITED A SCRIPT WHILE IT WAS RUNNING
+
+**Version 1.2. Lines whose number changed above this section: 0.**
+**Alters NO gate, NO threshold, NO cap and NO label.**
+
+## A2.1 What happened
+
+`DECOMP_N28`'s `docker run` **executed twice from a single arm invocation.**
+
+**Evidence, not inference.** The ledger carries **exactly one** `D6R3_DEC_ARM DECOMP_N28` line and
+**one** `G-CORES` line — the script body ran once, through its guards. Yet `docker inspect` gives
+`Created = 2026-09-13T21:12:25Z`, `RestartCount = 0`, and the `docker run` process was a child of
+**the same arm shell, pid 1725442, started 21:02:41Z**.
+
+**Cause.** `d6r3_decomp_arm.sh` was rewritten at **21:07:09Z** — the Addendum 1 IC-G repair —
+**while that instance of it was parked at the `docker run` line.** `bash` reads a script
+**incrementally, by byte offset**; rewriting the file moved the offsets under the running shell,
+which resumed mid-file and re-executed the launch block.
+
+**Consequence 1: the first run's log was TRUNCATED** by the re-entered `> "$LOG"` redirect. The
+artifact that carried `G-DET PASS` **no longer exists.** *Done means the verdict cites an artifact
+and the artifact is still on disk* (§1; L-27). **That reading is therefore withdrawn as evidence.**
+The digits it gave — `nuTilda 1.194718885139746e-07`, `CD 0.02090109066417552` — are **not cited**
+from `DECOMP_N28`. They remain on the record only where a live log still carries them: `P0` and
+`P00`.
+
+**Consequence 2: the re-run started on a DIRTY arm directory** — `processor0…27/` and `mp0*/0/`
+already present — so **G-COLD, the age datum and G-PUBLISHED were all bypassed on re-entry.**
+Nothing about that run can be certified.
+
+**Verdict: `DECOMP_N28` is `NOT A RESULT`.** Arm directory removed; log renamed
+`DECOMP_N28_20260913T210242Z_TRUNCATED_BY_EDIT_WHILE_RUNNING_NOT_A_RESULT.log`. The cell is
+**re-run cold**, and its cost is counted afresh.
+
+**Waste, named separately and absorbed into nothing:** the voided `DECOMP_N28` held 28 ranks from
+21:02:47Z to 21:17Z ≈ **400 core-min GROSS WASTE**, on top of Addendum 1's 89.6 core-min. Running
+total of named waste for this sweep: **≈ 489.6 core-min.**
+
+**PREVENTION, and it is absolute: NEVER edit a shell script while an instance of it is running.**
+Every instrument edit in this sweep from here is made only with the box clear of `d6r3_DECOMP_*`
+processes, committed, and then left alone until the sweep is whole.
+
+## A2.2 A new guard, because the supervisor asked for the check to precede the launch
+
+`d6r3_decomp_sweep.sh` gains `assert_disjoint`: after **both** cells of a paired batch publish the
+cpusets they **actually took**, the driver verifies the two sets share **no core** and that their
+union is **≤ 28**, and **REFUSES the batch otherwise**. It is verified from what was published,
+never inferred from the exclusion argument having been passed. Driven to all four of its branches
+before being believed (L-570): disjoint pair → `DISJOINT_OK 3 + 3 = 6`; a shared core → `REFUSE
+shared cores: 3`; 40 cores → `REFUSE batch would hold 40 cores, ceiling 28`; an empty set →
+`REFUSE empty cpuset`.
+
+## A2.3 A correction upward on the parked cost rows
+
+`scripts/append_record.py` is **NOT** blocked. Measured here with a well-formed probe row and
+`--allocate-id --dry-run`: `VERDICT: OK`, **exit 0**. The malformed id
+`C-2026-09-13T202608.816749Z-9830ff70` was allowlisted by cfd at commit `c48528118`
+("APPEND_RECORD UNBLOCKED"). **This sweep's cost rows go through the proper channel, not into a
+parked file**, and `D6R3_FIX_COST_CALIBRATION_ROWS_PARKED.md` can be landed for the same reason.
+
+## A2.4 A precision the supervisor asked be kept in these words
+
+`P00`'s `points.gz` md5 `f958f3e9cd01fa6179b360c464e91663` is **byte-identical** to `mesh/L2`'s.
+**So `P00` corroborates the PIPELINE and not the mesh — three invocations agreeing on one mesh is
+one mesh measured three times.** Said as that, and not more.

@@ -43,6 +43,28 @@ wait_all_clear(){
   return 1
 }
 
+# DISJOINTNESS ASSERT (ADDENDUM 2, 2026-09-13).  The two cells of a batch must hold cpusets with
+# NO core in common, and it is verified from the cores they ACTUALLY published, before either is
+# believed -- not inferred from the exclusion argument having been passed.  A REFUSAL here stops
+# the batch; it never stops anything already running (directive #17).
+assert_disjoint(){
+  local a="$1" b="$2"
+  python3 - "$a" "$b" <<'PYD'
+import sys
+A=set(x for x in sys.argv[1].split(',') if x.strip())
+B=set(x for x in sys.argv[2].split(',') if x.strip())
+both=sorted(A&B, key=lambda v:int(v))
+tot=len(A|B)
+if not A or not B:
+    print("DISJOINT_REFUSE empty cpuset A=%d B=%d"%(len(A),len(B))); sys.exit(1)
+if both:
+    print("DISJOINT_REFUSE shared cores: %s"%",".join(both)); sys.exit(1)
+if tot>28:
+    print("DISJOINT_REFUSE batch would hold %d cores, ceiling 28"%tot); sys.exit(1)
+print("DISJOINT_OK %d + %d = %d distinct cores, ceiling 28"%(len(A),len(B),tot))
+PYD
+}
+
 # wait until a backgrounded cell has passed G-CORES and published the cores it took
 wait_cpuset(){
   local arm="$1" i=0
@@ -74,6 +96,8 @@ if [ "$FIRST_BATCH" -le 2 ]; then
   bash "$ARMSH" 8 "$EX" >>"$ROOT/sweep_driver.log" 2>&1 &
   PB=$!
   say BATCH2 "N08 pid=$PB excluding=[$EX]"
+  EXB=$(wait_cpuset "$(cellname 8)")
+  say BATCH2 "DISJOINT $(assert_disjoint "$EX" "$EXB")"
   wait "$PA"; RA=$?
   wait "$PB"; RB=$?
   say BATCH2_DONE "N20 rc=$RA  N08 rc=$RB"
@@ -89,6 +113,8 @@ if [ "$FIRST_BATCH" -le 3 ]; then
   bash "$ARMSH" 12 "$EX2" >>"$ROOT/sweep_driver.log" 2>&1 &
   PD=$!
   say BATCH3 "N12 pid=$PD excluding=[$EX2]"
+  EXD=$(wait_cpuset "$(cellname 12)")
+  say BATCH3 "DISJOINT $(assert_disjoint "$EX2" "$EXD")"
   wait "$PC"; RC3=$?
   wait "$PD"; RD=$?
   say BATCH3_DONE "N16 rc=$RC3  N12 rc=$RD"
