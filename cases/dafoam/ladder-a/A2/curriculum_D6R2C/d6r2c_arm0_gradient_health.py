@@ -38,6 +38,7 @@ import json
 import time
 import hashlib
 import argparse
+import re   # ADDENDUM 5 (2026-09-13): line-anchored, uniqueness-checked header split
 
 PRODUCER = "d6r2c_opt_runScript.py"
 ANCHOR = "# OpenMDAO setup"
@@ -55,15 +56,69 @@ def md5_of(path):
         return hashlib.md5(fh.read()).hexdigest()
 
 
+def _split_producer_header(src):
+    """ADDENDUM 5 (2026-09-13).  Find THE anchor line, and REFUSE if it is not
+    unique, instead of silently taking the first text that looks like it.
+
+    THE DEFECT THIS REPAIRS, MEASURED ON THE LIVE CHAIN AT 2026-09-12T23:56Z.
+    `dump()` did `i = src.index(ANCHOR)`, which returns the FIRST occurrence
+    anywhere in the file, including inside a string.  `# OpenMDAO setup` occurs
+    TWICE in d6r2c_opt_runScript.py: at line 292, where it is the real anchor,
+    and at line 21, INSIDE THE MODULE DOCSTRING, in a sentence that reads "The
+    ANCHOR line `# OpenMDAO setup` is kept so that ..." -- the prose documenting
+    the mechanism is what broke it.  `index()` took line 21, so `header` ended in
+    the middle of an unterminated triple-quoted string and `compile()` raised
+    SyntaxError: unterminated triple-quoted string literal (detected at line 21).
+    Both ARM0 arms died rc=1 in 31 s and 11 s and wrote no arm0_totals.json.
+
+    AND THE PART THAT MATTERS MORE THAN THE BUG.  This is NOT a regression: the
+    same two occurrences are present at 3ebba6ccc~1, so `--dump` HAS NEVER RUN
+    SUCCESSFULLY, NOT ONCE, since the file was written.  The freeze recorded
+    "arm-0 comparator 6 controls PASS", but --selftest drives only --compare over
+    SYNTHETIC dumps; the PRODUCER half -- the only half that ever runs on the
+    cluster -- was never executed before it was put in a production chain.  A
+    selftest that exercises the grader and not the producer is not a selftest of
+    the instrument.
+
+    THIS CHANGES NO GATE, THRESHOLD, TOLERANCE, CAP OR LABEL.  REL_TOL stays
+    1.0e-4, ABS_FLOOR/ABS_TOL stay 1.0e-12, and the comparison code is untouched.
+    It repairs a producer that could not run at all, so it cannot move a verdict
+    in a wanted direction: before this, there was no verdict to move.
+    """
+    marks = [m.start() for m in
+             re.finditer(r"(?m)^[ \t]*" + re.escape(ANCHOR) + r"[ \t]*$", src)]
+    if len(marks) != 1:
+        print("D6R2C_ARM0 REFUSE: the anchor %r occurs %d times as a whole line in %s; "
+              "it must occur exactly once. Taking the first would risk cutting the "
+              "header inside a string literal, which is precisely the defect ADDENDUM 5 "
+              "repairs. Lines: %s"
+              % (ANCHOR, len(marks), PRODUCER,
+                 [src[:m].count("\n") + 1 for m in marks]))
+        sys.exit(2)
+    header = src[:marks[0]]
+    # Compile here so a malformed split REFUSES with a named reason rather than
+    # surfacing as a raw SyntaxError from inside exec() four frames down.
+    try:
+        code = compile(header, PRODUCER, "exec")
+    except SyntaxError as e:
+        print("D6R2C_ARM0 REFUSE: the %d-line header cut at the anchor (line %d) does not "
+              "compile: %s. The anchor is in the wrong place or the producer changed."
+              % (header.count("\n") + 1, src[:marks[0]].count("\n") + 1, e))
+        sys.exit(2)
+    print("D6R2C_ARM0_HEADER anchor_line=%d header_lines=%d producer=%s"
+          % (src[:marks[0]].count("\n") + 1, header.count("\n") + 1, PRODUCER))
+    return code
+
+
 def dump(outfile):
     src = open(PRODUCER).read()
-    i = src.index(ANCHOR)
-    header = src[:i]
+    code = _split_producer_header(src)
+    header = code
     # the producer's argparse reads sys.argv; give it the registered task
     saved = sys.argv
     sys.argv = [PRODUCER, "-task", "compute_totals", "-optimizer", "IPOPT"]
     g = {"__name__": "__producer__"}
-    exec(compile(header, PRODUCER, "exec"), g)
+    exec(header, g)   # ADDENDUM 5: already compiled (and syntax-checked) above
     sys.argv = saved
 
     om = g["om"]; MPI = g["MPI"]; np = g["np"]; Top = g["Top"]; POINTS = g["POINTS"]
