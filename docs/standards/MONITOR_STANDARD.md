@@ -3022,3 +3022,40 @@ not cheaply doable.** The clause stands on the argument and on one driven demons
 | md5 of this file's HEAD blob before the append | `a8e6b97dada43e20359e484d30590848` |
 | md5 of this file's first **2965** lines after it | `a8e6b97dada43e20359e484d30590848` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 1b. THE OPERATIVE COROLLARY OF §1a — **A POSTURE, NOT A PROJECT.** Adopted for the cfd team by its supervisor, 2026-09-13.
+
+Recorded here because **a posture that lives only in a dispatch conversation is not a posture**
+(`CLAUDE.md` rule 13: the handoff channel is the record, not the traffic).
+
+> ## **A CLEAN REPORT FROM AN INSTRUMENT WHOSE CLEAN OUTCOME HAS NOT BEEN DEMONSTRATED REACHABLE IS WEAKER EVIDENCE THAN A FINDING FROM THE SAME INSTRUMENT.**
+
+**Findings are self-certifying: the instrument plainly ran and produced something.** A clean
+report is **the one output indistinguishable from the instrument being broken, skipped,
+mis-pathed or truncated** — which is **exactly how §2a's control failed**, reporting NOT FOUND
+from a sound sweep whose rows had been cut off before the control looked.
+
+**THE DISCIPLINE, and it is a reading rule rather than a work item:**
+
+- **Where a decision rests on a CLEAN report → demonstrate the second limb BEFORE the
+  decision.** One run against an input known to contain the thing.
+- **Where a decision rests on a FINDING → it is not needed.** The finding certifies the
+  instrument ran.
+
+**That is why this is not a sweep.** It costs nothing at the point of use, it is owed only when
+a clean report is actually load-bearing, and **it asks for the demonstration from the person
+about to rely on it** — who is the only one who knows what the report is being used for.
+
+**Scope, stated plainly: adopted for the cfd team by its supervisor. It is NOT a lab rule**,
+it amends no charter, and it is recorded as a team posture until somebody with the standing to
+make it more does so.
+
+| addendum to the v1.15 record | |
+|---|---|
+| sections added | **1** (§1b); prior sections and record tables unchanged |
+| clauses, members, instances or thresholds added | **0** — §1b is §1a's reading discipline, not a new finding |
+| scope | **cfd team posture**, explicitly not a lab rule |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `366362cf685bb6e1a7c2b451d4d0a845` |
+| md5 of this file's first **3024** lines after it | `366362cf685bb6e1a7c2b451d4d0a845` |
+| the two digests | **EQUAL — assertion MEASURED** |
