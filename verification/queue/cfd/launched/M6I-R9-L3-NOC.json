@@ -1,0 +1,78 @@
+{
+  "team": "cfd",
+  "case_id": "M6I-R9-L3-NOC",
+  "prereg_commit": "ed1f053ce02070e640801295e21ef7e1b13d7c79",
+  "prereg_path": "verification/campaign/M6I_R9_NONORTHCORR_PREREGISTRATION.md",
+  "launch_cmd": [
+    "bash",
+    "/home/ubuntu/Certonomous/verification/runs/M6I_runs/launch_m6i_v3.sh",
+    "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_NOC",
+    "4"
+  ],
+  "cwd": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_NOC",
+  "ranks": 4,
+  "cost_core_min_estimate": 9.4,
+  "cost_basis": "MEASURED basis: L3 cost 5.87 core-min (0.40 ramp of 200 iterations in 6 s + 5.47 for 2800 iterations in 82 s, 4 ranks) from its own CORE_MINUTES.txt and WALL_SECONDS_SOLVE.txt. nNonOrthogonalCorrectors 2 -> 5 takes pressure solves per outer iteration from 3 to 6; the pressure solve's share of the step is NOT measured on this case and the prediction is stated with that gap named. Predicted 9.4 core-min (x1.6 on 5.87). CAP 35.2 core-min = 3x a x2.0 worst case, deliberately NOT 3x the prediction, so a run that is merely slow is not graded NOT A RESULT on cost (M6I_R6 section 8). Nothing is killed on spend or clock (Sanaa directive #17, 2026-09-12). Dollars DERIVED, NOT MEASURED at the owner-stated $0.0513/core-h -> ~$0.008; the box cannot read its own billing (COMPUTE_BUDGET_CHARTER.md section 5).",
+  "memory_floor_gb": 4.0,
+  "enqueued_by": "cfd lab-lane, after cfd-supervisor froze R9 at ed1f053ce and discharged check 4",
+  "cap_core_min_registered": 35.2,
+  "cap_status": "TRANSCRIBED-FROM-REGISTRATION",
+  "cap_source": "verification/campaign/M6I_R9_NONORTHCORR_PREREGISTRATION.md section 6",
+  "_fail_closed": "The fail-closed placeholder has been replaced with the real freeze sha now that R9 is frozen at ed1f053ce02070e640801295e21ef7e1b13d7c79 (blob 6025b5ee4dd43c81549e1eafc3e378947aaf605f), verified by this lane against the on-disk file. Until this line changed, the entry could not launch.",
+  "_sequencing": "THE CASE DOES NOT EXIST YET AND MUST NOT, YET. The pre-registration's pre-compute condition is that verification/runs/M6I_runs/L3_NOC/ does NOT exist, and the supervisor verifies that at freeze. Order is therefore FIXED: (1) supervisor freezes R9 and verifies L3_NOC absent in the same shell invocation as the commit; (2) the lane stages L3_NOC from L3 and runs the section-3 pre-launch assertions; (3) the entry, with the real sha, moves to the live path. Staging before the freeze would break the condition the freeze is supposed to check.",
+  "_the_one_change": "system/fvSolution AND system/fvSolution.startup: nNonOrthogonalCorrectors 2 -> 5. Nothing else moves. Plus the verdict-inert clipCount instrument carried from R7. Expected diff against L3: 2 differing files in system/ (fvSolution, fvSolution.startup) carrying 2 changed lines, plus controlDict for the instrument include and 1 new file system/clipCount.fo -- 3 differing files, 3 changed/added lines, 1 new file. Nothing launches if the staged case does not match.",
+  "_diagnostic_limb": "RAW-TRACE steepest dCp/d(x/c) aft of x/c 0.15 on the single-row upper-surface trace at eta ~ 0.65 must reach >= +1.8328, from L3's measured +1.1222 plus twice the largest movement any prior registered change produced on L3 (L3_TVD, -0.3553, in the WRONG direction; the ramp change moved it +0.0022). KILL-ONLY, never promoting. The share-of-recompression limb is REJECTED as resolution-confounded (L3's 61.9 % already exceeds the experiment's 47.7 % with no shock present).",
+  "_ceiling": "L3 CANNOT RESOLVE A SHOCK. 4 cells over 0.481c = 0.120c spacing; even a perfect shock carrying the experiment's entire +0.4240 across one L3 cell could only read +3.53 against the experiment's +8.46. A pass on this limb means 'correctors sharpen the recompression', NEVER 'the shock is recovered'.",
+  "_comparator": "scripts/grade_m6_agard_cp.py, blob e9d5c04b420b99201ab19e694b76d1b9eda62443, frozen at commit 4c931d97ceb19aead64cf683fbe685c7d03510d2. Hash-verified against the committed blob in the same shell invocation as the run. Its planted control must print reader_saw_the_plant: true or the result is NOT A RESULT. DISCLOSURE THAT TRAVELS: this comparator's x_shock MISLOCATES -- it resamples onto experimental orifices whose intervals widen aft (0.0501c at 0.4752 vs 0.0701c at 0.8851) and its argmax picks the widest aft interval, not the steepest feature. No reader may take x_shock from it as a physical shock position (parking addendum 801391c00, Defect B).",
+  "_authorisation": "ENQUEUEING IS NOT AUTHORISATION (QUEUE_ENTRY_STANDARD.md section 1). SUPERVISION_CHARTER.md section 3 check 4 -- pre-registration committed before compute -- is the supervisor's own personal check and is NOT discharged by this file. This entry is DRAFTED BY A LANE and sits in held/. No agent's message is Sanaa's consent.",
+  "verdict_state": "PENDING -- armed, not yet graded.",
+  "_staging_discharged": "L3_NOC staged from L3 AFTER the freeze. Section 3 assertions all PASS: constant/ byte-identical; exactly 3 differing files in system/ (controlDict, fvSolution, fvSolution.startup); exactly 3 changed/added lines (two nNonOrthogonalCorrectors 2->5, one clipCount include); exactly 1 new file (system/clipCount.fo); 0.orig unchanged; limited corrected 0.33, transonic yes, div(phid,p) Gauss upwind, pMinFactor 0.2, pMaxFactor 2.0, endTime 3000, SpalartAllmaras all unchanged; forceCoeffs, residuals and yPlus byte-identical to L3 (rule 14: the instrument was INSERTED into the existing functions block, never replacing it).",
+  "memory_footprint_gb": 0.5,
+  "_memory_basis": "0.5 GB TRANSCRIBED from the FROZEN M6I_R1_SOLVE_PREREGISTRATION.md MEMORY table (line 263: L3, 15,360 cells, declared footprint 0.5 GB, memory_floor_gb 4). That table states of itself: 'DECLARED, NOT A MEASURED PEAK RSS, and said so plainly' -- envelope ~3 GB per million cells for a compressible steady case with GAMG, summed over 4 ranks. It is therefore Sanaa item 7's 'class table' limb, NOT a measured peak, and this entry does not claim otherwise. nNonOrthogonalCorrectors 2->5 adds solver ITERATIONS on the same field set and allocates no additional fields, so L3's registered footprint carries over unchanged. No /usr/bin/time -v sidecar exists in this case directory, so gate B's measured-peak limb has nothing to contradict; if a measurement later exceeds 0.5 GB the entry must be re-registered from it.",
+  "_refusal_history": "REFUSED 2026-09-13T07:00:54Z by queue_runner, GATE B MEMORY: no positive memory_footprint_gb. The refusal was CORRECT and the entry was incomplete -- the value was already sitting in the frozen R1 table and this lane failed to transcribe it. Nothing launched: L3_NOC has no LAUNCH.log and no LAUNCHED.txt. No gate, threshold, band, cap or label is altered by adding this field; the pre-registration is untouched and the freeze sha is unchanged.",
+  "_launch": {
+    "utc": "2026-09-13T07:03:00Z",
+    "pid": 1410672,
+    "sid": 1410672,
+    "status_file": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_NOC/STATUS.queue.M6I-R9-L3-NOC",
+    "wrapper_out": "/home/ubuntu/Certonomous/verification/runs/M6I_runs/L3_NOC/launcher.queue.out",
+    "started_epoch": 1789282980.483736,
+    "resumed_from": null,
+    "status_seen_utc": "2026-09-13T07:07:01Z"
+  },
+  "_field_classes": {
+    "physics_critical": [
+      "STATUS.M6I-R9-L3-NOC (rc inside the detached wrapper)",
+      "the case's own log End line, endTime fields and 0/ age guard"
+    ],
+    "infrastructure": [
+      "_launch.pid",
+      "_launch.sid",
+      "_launch.utc",
+      "_launch.started_epoch",
+      "LAUNCH_LOG.tsv row",
+      "CAP_OVERRUN.txt",
+      "ESTIMATE_OVERRUN.txt",
+      "cost_core_min_estimate",
+      "memory_floor_gb",
+      "runner.log lines"
+    ],
+    "rule": "a missing or inconsistent INFRASTRUCTURE field is a BOOKKEEPING DEFECT reported beside the verdict and voids only the cost claim; only a PHYSICS_CRITICAL field may produce NOT A RESULT (L-342)"
+  },
+  "_grading_freeze": {
+    "verdict": "UNPINNED",
+    "detail": "entry declares no 'grading_freeze': no comparator is named, so the sha of the script that will grade case M6I-R9-L3-NOC is NOT pinned to freeze ed1f053c. Nothing is predicted about this run's grading, and that absence is recorded rather than read as a pass.",
+    "field": null,
+    "paths": [],
+    "prereg_commit": "ed1f053ce02070e640801295e21ef7e1b13d7c79",
+    "refusal_eligible": true,
+    "source": "NONE",
+    "schema": "grading_freeze/2",
+    "kind": "PREDICTION",
+    "predicts": "NO_PREDICTION_NOT_PINNED",
+    "actual": null,
+    "case_id": "M6I-R9-L3-NOC",
+    "walked_commit": "ab9fdec231567eb3acfeffdac6903ae290d147cb",
+    "recorded_utc": "2026-09-13T07:03:00Z"
+  }
+}
