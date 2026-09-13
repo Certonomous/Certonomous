@@ -293,3 +293,13 @@ Immediately before, hers: "Then what was it running ? Ive asked so many times no
 > Dafoam: no lets make itmultipoint from the start, keeping everything else verbatim/ cloned from that case. Multipiint doesnt change the setup it just allows us to look at the optimization under different constraints or conditions, and its moreinteresting.
 
 **Chief's reading:** D6R3 = the DAFoam `CRM_Wing` tutorial cloned verbatim (mesh, extrusion, FFD, wall functions, solver, schemes, optimiser settings) with ONE registered deviation: the multipoint objective — three lift points per her D6R2 instruction (CL 0.4 / 0.5 / 0.6, weights 0.25 / 0.50 / 0.25, lift held at each) — plus the in-run artefact instruments (rules 6–11) as observers/stops and the fresh-mesh confirmation (rule 12) after. Nothing else deviates.
+
+---
+
+## N. DrivAer = Wolf Dynamics case verbatim — byte-exact, 2026-09-13 ~18:50Z
+
+> About the drivaer comment: yes i know the openfoam HPC committteee rep case is steady, that case should land us within 10% of the truth,later once that finishes running and completes well move to the wake resolved one. One second about the drivaer case ill tell u what to do in a sec. And yes we are gonna move to wolf dynamics since its smaller and also gets u to 10% within truth. Ill send the link in a sec
+
+> Here: https://www.wolfdynamics.com/tutorials.html?id=152 and it has both meshes (fine and coarse) and the steup and everythign https://www.wolfdynamics.com/validations/drivAer/tut_drivaer_v2.pdf so must be done verbatim
+
+**Chief's reading:** DrivAer deliverable = the Wolf Dynamics DrivAer tutorial (id=152), which ships both meshes (coarse and fine) and the full setup, plus its validation document tut_drivaer_v2.pdf; run VERBATIM on their meshes with their dictionaries; expected within 10 % of experiment. Order afterwards: the OpenFOAM HPC committee steady case (when its Zenodo mesh is reachable), then the wake-resolved case.
