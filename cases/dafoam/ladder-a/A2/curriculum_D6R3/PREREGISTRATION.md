@@ -1,7 +1,34 @@
-# Curriculum D6R3 — **REVISION R4. DRAFT, NOT FROZEN.** Reproduction of the published `CRM_Wing` case + in-run artefact instruments
+# Curriculum D6R3 — **REVISION R4. FROZEN 2026-09-13 by the dafoam-supervisor.** Reproduction of the published `CRM_Wing` case + in-run artefact instruments
 
-> **STATUS: DRAFT, REVISION R4. NOT FROZEN. NO GATE IS IN FORCE. NO COMPUTE IS AUTHORISED BY THIS
-> DOCUMENT.** Written 2026-09-13 by a dafoam `lab-lane` for `dafoam-supervisor`, who freezes it
+> **STATUS: FROZEN, REVISION R4. EVERY GATE BELOW IS IN FORCE. The freeze sha is the commit that
+> carries this line; from it, gates, thresholds, caps and labels are closed and change only as dated
+> addenda that cannot alter them (`CLAUDE.md` rule 2).**
+>
+> **THE SUPERVISOR'S FOUR PERSONAL CHECKS, DONE BY HAND BEFORE THIS LINE WAS WRITTEN, NOT RELAYED:**
+> **(1) Measurement code read as code, not as a summary.** `d6r3_mesh_read_gate.py:132-153` compares
+> `recon == generated` on the parsed values **and** `h_recon == h_gen` on their canonical bytes —
+> exact equality on both limbs, no tolerance; `d6r3_opt_runScript.py:355-381` runs it per condition
+> **before** `run_model()` and calls `MPI.COMM_WORLD.Abort(17)` on any `REFUSE`, a hard abort and not
+> a warning. It reconstructs on **rank 0 only**, reading every `processor*` tree from disk — the
+> *opposite* structure to the unguarded collective write that blocked FM12 at
+> `d6r2c_freshmesh.py:268`. `D6R3_PRODUCER_DIFF.log` shows lines 1-32, 33-102 (`daOptions` +
+> `meshOptions`) and 212-end byte-identical to the published file but for the two registered D1 edits,
+> with all **73** removed published lines printed verbatim.
+> **(2) Crash triage:** none open in this item; FM12's `BLOCKED` is triaged and carried in its own
+> record, and its cause — a producer defect, not a mesh effect — is why §8d exists here.
+> **(3) Big-claim verification:** the published band was not adopted from a page alone. `0.02090` is
+> corroborated by A6's independently measured `0.02090143421526141`, and the page's `~579K` cells by
+> this lane's own `checkMesh` count of `579,072`.
+> **(4) Pre-registration before compute, checked on the disk and not on a promise:**
+> `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/` contains **`mesh/` and nothing
+> else** — no `P0/`, no solver tree, no `ledger.txt`, no primal or adjoint output. **Zero solver
+> core-minutes have been spent by this item.**
+>
+> **ONE STATED LIMIT OF RULE 17, recorded here rather than discovered later:** the gate proves the
+> decomposed meshes reconstruct **exactly** to the mesh this arm staged. It does not instrument
+> DAFoam's own reader. It runs in the same process tree immediately before `run_model()`, on the very
+> directories the solver then opens, which is the closest this can be taken without patching the
+> toolchain — and it is what FM8 lacked when 1,486 processor meshes scanned clean.** Written 2026-09-13 by a dafoam `lab-lane` for `dafoam-supervisor`, who freezes it
 > personally and checks `DAFOAM_CHARTER.md` §22.4's three clauses before the sha.
 > **This item has burned 0 core-min of SOLVER compute and started no solver.** The only compute
 > spent is the mesh build of §5, which is registered there with its measured cost.
