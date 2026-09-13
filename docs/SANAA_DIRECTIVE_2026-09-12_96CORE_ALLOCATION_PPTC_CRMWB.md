@@ -211,3 +211,21 @@ Recorded by the chief from Sanaa's own session turns (session identity katie@cer
 > yes, so in this order: for dafoam, it immediately launches the fixed D2R.. heat transfer immediately resumes the transient rack. SUBOOF L2 immediately resumes per the allocation above. CFD immediately launches the M6 runs with their nasa commiteee mesh. THen the team proceeds to work on crm and industry propeller, with the allocation explained above, permission to spawn as many agents as needed.
 
 **Chief's reading:** launch order (1) dafoam D6R2 (after its resume-leg proof), (2) heat-transfer K2h transient resume, (3) cfd SUBOFF L2 resume on the 28-rank lane, (4) cfd M6I three levels; THEN cfd starts the CRM wing-body and PPTC propeller acts on their lanes. Lane caps lifted for these acts by her explicit words: "permission to spawn as many agents as needed".
+
+---
+
+## E. Near-gate ruling — byte-exact, ~22:35Z
+
+> 2.2e-5 vs 1e-6 is fine
+
+> ok then for me its a pass. And in general if we are very close to the gate its fine
+
+**Chief's reading:** (1) The D6R2C kill-and-resume proof is PASS on the owner's word at a design-vector difference of 2.227e-05 against a registered 1.0e-06 that was not derived from the solver's tolerance; D6R2 launches. (2) In general: a value very close to its gate does not block proceeding — launching, continuing, filming. The recorded verdict word stays what the frozen gate produces (rule 1: honesty is carried by the value and the word, not by adjectives), the number is printed beside it, and the decision to proceed on a near-miss is hers and is pre-authorised by these words. A near-miss is reported to her as "GATE FAIL by <margin>, proceeding on directive E" — never rewritten as PASS by an agent; only she converts one, as she did here.
+
+---
+
+## F. Agent allocation — byte-exact, 2026-09-13 ~16:30Z
+
+> CRM wing body: goood then it gets launched ASAP. What is the update on ONERA M6 with the nasa mesh ? PROPELLER: since this case has its own allocatedranks, the group of agents in charge of this case need to act ASAP and fix. As i said, since now we only have cfd and dafoam team, permission for cfd to spawn as many agents as needed.  I want at least three agents on propeller, at least three on crm wing body,at least three o drivaer and the other agents work on the rest. these cases must run asap
+
+**Chief's reading:** cfd runs ≥ 3 lanes each on PPTC, CRM wing-body and DrivAer, the rest on M6J/SUBOFF grading; lane cap lifted by her words. DrivAer is NOT parked: its wall-layer defect is fixed and relaunched. Earlier the same hour, hers on DrivAer: "how about the coarse?" — both coarse levels also GATE FAIL on convergence (Cd 0.355 vs 0.276).

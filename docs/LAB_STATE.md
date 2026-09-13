@@ -1577,6 +1577,12 @@ Sanaa's lane table (CRM wing-body 32, SUBOFF sweep 28, propeller reserve 16 now 
 
 *Recorded by a records lane on the chief's instruction; built from the HEAD blob; zero compute.*
 
+### CHIEF ADDENDUM — 2026-09-13T16:58Z — OWNER DIRECTIVES #22–#24: NEAR-GATE RULING (§E), AGENT ALLOCATION ≥3 PER ACT (§F), STANDING RULES FOR SHAPE OPTIMIZATION (`docs/dafoam/SHAPE_OPTIMIZATION_STANDING_RULES.md`); D6R2's 24.7 % WITHDRAWN FROM DEMO CLAIMS PENDING FM11
+
+D6R2 FM10 (launched by Sanaa 16:35Z): the solver read a genuinely fresh mesh (rebuild-verified, 0.0 point difference), converged, and the optimised design's fresh-mesh drag is 0.036964 vs 0.023063 on the deformed mesh — fresh-mesh optimised/baseline ratio 1.206 against 0.753 deformed. NOT A RESULT; the 24.7 % is withdrawn from any claim until FM11 (baseline on the fresh mesh, like-for-like) confirms and the cause class is recorded per her rule 15. Her standing rules (16 + the dafoam supervisor's additions) bind D6R3 and every successor. Live at 16:40Z: SUBOFF 7-point L1 sweep (28 ranks, ~45 %), SUBOFF L2 corner, M6J L1 (4 ranks), CRM-WB LTS probe (32 ranks); propeller reserve idle pending the layerless smoke; DrivAer relaunch pending its wall-layer fix. K2h PASS (heat-transfer done). Verification, closure, ansys STOPPED on her word.
+
+*Recorded by a records lane on the chief's instruction; built from the HEAD blob; zero compute.*
+
 ## closure
 **Section last written:** 2026-09-12T03:35Z by closure-supervisor personally. PURE INSERTION. Zero solver core-minutes. **FACTS ONLY, per her directive.**
 
