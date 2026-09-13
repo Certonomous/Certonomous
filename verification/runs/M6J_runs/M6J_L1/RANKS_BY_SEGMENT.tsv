@@ -1,0 +1,11 @@
+# PER-SEGMENT RANK LEDGER.  RANKS.txt holds only the LATEST segment's rank count and is
+# overwritten on every launch; CORE_MINUTES.txt and WALL_SECONDS_SOLVE.txt append one row per
+# segment.  DO NOT cost an earlier row at RANKS.txt's value.  Row order matches those files.
+# row	segment	ranks	iterations	wall_s	core_min	basis
+1	stage1_first_order_ramp	4	1-200	3377	225.13	MEASURED
+2	stage2_registered_schemes	4	201-3886	26809	1787.27	MEASURED
+3	stage2_resume_16rank	16	3801-8000	10234	2729.07	MEASURED
+# TOTAL L1 (union 1-8000, distinct physics steps): 4741.47 core-min MEASURED = 225.13 + 1787.27 + 2729.07
+# Segment 3 closed 2026-09-13 at grading; 86 iterations (3801-3886) were computed in BOTH segment 2
+# and segment 3 and are ONE physics step each.  The 4-rank computation of them, 41.7 core-min, is
+# DISCARDED WORK and is named as waste in GRADING_RECORD_M6J_L1.md sec.9, never absorbed into a ratio.

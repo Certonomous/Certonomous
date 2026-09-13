@@ -1,0 +1,15 @@
+DELIBERATE STOP -- FAILURE_CONTEXT.1.txt IS NOT A CRASH. DO NOT TRIAGE IT AS ONE.
+
+utc: 2026-09-13T17:17:50Z
+who: lab-lane under cfd-supervisor, on Sanaa's directive to re-rank M6J_L1 from 4 to 16.
+what: SIGTERM was sent to mpirun pid 1489103 BY EXPLICIT PID (no pkill), at Time = 3886,
+      to free the run for re-decomposition at 16 ranks.  The launcher wrapper writes
+      FAILURE_CONTEXT.<n>.txt on ANY non-zero stage rc; a SIGTERM is a non-zero rc; so the
+      file exists because the stop worked, not because anything failed.
+      RC.txt = 1 is likewise the SIGTERM, not a solver fault.
+evidence it was clean:
+  - log.rhoSimpleFoam.stderr is EMPTY (0 bytes): no MPI message, no FOAM FATAL, no signal report.
+  - the checkpoint at t=3800 is intact on all four ranks, 10 entries each, mtimes unchanged
+    at 2026-09-13 17:07:54 -- written 10 minutes BEFORE the stop and not touched by it.
+  - the next scheduled write was t=4000, ~116 iterations away; no write was in progress.
+physics lost: iterations 3801..3886 only (86 steps), which the resume recomputes.

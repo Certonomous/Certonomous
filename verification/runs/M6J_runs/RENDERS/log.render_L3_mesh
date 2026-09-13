@@ -1,0 +1,11 @@
+dimensionality: 3-D confirmed (no wedge/empty patch)
+time 3000 loaded (available: [3000.0])
+/home/ubuntu/Certonomous/scripts/render_openfoam_3d_paraview.py:1005: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  "utc": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+WROTE /home/ubuntu/Certonomous/verification/runs/M6J_runs/RENDERS/M6J_L3_mesh_surface_surface.png  (480 faces, ink 0.1124, guard PASS, graded tree untouched)
+X Error of failed request:  GLXBadContext
+  Major opcode of failed request:  150 (GLX)
+  Minor opcode of failed request:  5 (X_GLXMakeCurrent)
+  Serial number of failed request:  51
+  Current serial number in output stream:  51
+rc_mesh=1

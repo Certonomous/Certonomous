@@ -1,0 +1,67 @@
+RE-PARTITION BOUND ON Cp  --  4 ranks n(2 2 1)  vs  16 ranks n(2 2 4)
+both advanced t=3800 -> t=4200, one change: the partition
+
+   eta  n_pts         Cp range    max|dCp|     rms dCp  max|dCp|/range   gate
+   0.2     96 [-1.041, 0.850]   2.687e-04   6.983e-05       1.421e-04       
+  0.44     96 [-1.192, 0.828]   3.677e-04   1.000e-04       1.820e-04       
+  0.65     96 [-1.207, 0.819]   1.935e-04   6.040e-05       9.557e-05   GATE
+   0.8     96 [-1.197, 0.809]   8.656e-04   1.620e-04       4.316e-04       
+   0.9     96 [-1.492, 0.797]   3.831e-03   6.900e-04       1.674e-03   GATE
+  0.96     96 [-1.425, 0.759]   2.252e-03   5.171e-04       1.031e-03       
+
+  worst |dCp| over all six stations : 3.831e-03
+  worst |dCp| at the GATE stations  : 3.831e-03  (eta 0.65, 0.90)
+
+  This is the re-partition's effect on the graded read, measured, not assumed.
+  It is NOT round-off: it is round-off amplified by 400 iterations of an
+  iterative solve that has not yet converged to a fixed point.
+
+================================================================================
+IS THE PERTURBATION GROWING?  MEASURED FREE, FROM THE PER-ITERATION FORCE SERIES
+================================================================================
+Both runs wrote coefficient data every timestep over the whole common range
+3801..4200 (400 iterations), so the TREND cost no compute.
+
+SOURCE FILE WARNING -- A LIVE INSTANCE OF THE RESTART-RENAME TRAP:
+  M6J_L1_CP_CONTROL_4RANK/postProcessing/forceCoeffs/3800/
+      coefficient.dat        43 rows, 3801..3843   <-- the ABORTED first attempt
+      coefficient_3800.dat  400 rows, 3801..4200   <-- THE REAL CONTROL SERIES
+  On a restart at the same start time OpenFOAM renames the incumbent and gives
+  the CANONICAL NAME TO THE STALE FILE.  A reader globbing `coefficient.dat`
+  silently gets the 43-row aborted run.  The trend below uses coefficient_3800.dat.
+
+  iterations since the seam      |dCd|        |dCl|
+                          1   2.651e-08    8.233e-07
+                         10   3.370e-07    1.145e-06
+                         50   9.023e-07    5.763e-07
+                        100   7.640e-07    4.379e-06
+                        200   2.330e-06    1.508e-05
+                        300   2.741e-06    2.742e-05
+                        400   1.079e-06    1.554e-05
+
+  mean |dCd| over iterations 100-200 : 1.437e-06
+  mean |dCd| over iterations 200-300 : 2.116e-06
+  mean |dCd| over iterations 300-400 : 1.974e-06
+
+THE INTEGRAL PERTURBATION SATURATES.  It rises from 2.7e-08 at the first step
+after the seam to a plateau of roughly 2e-06 absolute (~1e-04 relative on
+Cd ~ 0.0187) by about 200 iterations, and does NOT grow thereafter.  No runaway.
+
+WHAT IS AND IS NOT MEASURED
+  MEASURED: the LOCAL Cp bound at ONE time, t=4200, 400 iterations after the seam.
+  MEASURED: the INTEGRAL perturbation saturates within ~200 iterations.
+  NOT MEASURED: whether the LOCAL Cp perturbation itself saturates.  It was taken
+    at a single time because a second point needs a second control run, and the
+    graded run's t=4000 was destroyed by purgeWrite before it could be rescued.
+    The integral trend gives NO EVIDENCE OF DIVERGENCE, and that is the strongest
+    statement the evidence supports.  It is not a proof that Cp at t=8000 is
+    perturbed by no more than 3.83e-03.
+
+CONTEXT AGAINST THE CURE GATE (sec.6, transcribed unchanged)
+  The tightest Cp-scale limb is B1 <= 0.050 on 12 rows.
+  Worst measured re-partition |dCp| = 3.831e-03 = 7.7 % of that allowance.
+  CONSEQUENCE, stated so it can be checked at grading: the re-partition CANNOT
+  flip a B1 row unless that row already sits within 3.8e-03 of 0.050.  Any B1 row
+  landing in [0.0462, 0.050] must be treated as UNRESOLVED BY THIS RUN rather
+  than as a pass.
+  The worst station, eta = 0.90, is a GATE station for the S1/S2 limbs.
