@@ -49,7 +49,12 @@ MEM_FOOTPRINT_GB=17
 RUN_UID=1000; RUN_GID=1000; EXTRA_GID=1002
 CKPT_INTERVAL_S=1800
 
-cap_core_min() { case "$1" in DEC) echo 968.1 ;; FM) echo 618.0 ;; FM_L2) echo 180.0 ;; *) echo "" ;; esac; }
+# ADDENDUM 1 (2026-09-13): DEC2 and FM2 are the RE-RUN ids after the staging
+# defect.  THEY INHERIT THE IDENTICAL REGISTERED FIGURES -- 968.1 and 618.0, the
+# same numbers looked up under another key.  NO NEW THRESHOLD IS INVENTED, none
+# is raised and none is reduced.  The crashed DEC row keeps its directory and is
+# never re-seeded (G-COLD, seed_arm) and never re-graded.
+cap_core_min() { case "$1" in DEC|DEC2) echo 968.1 ;; FM|FM2) echo 618.0 ;; FM_L2) echo 180.0 ;; *) echo "" ;; esac; }
 
 # ===========================================================================
 # G-ROOT.1 -- BASE must be THIS item's registered run root, normalised
@@ -145,17 +150,33 @@ seed_arm() {
   local ARM="$1" WORK="$BASE/$ARM"
   mkdir -p "$WORK" || return 5
   # G-COLD -- a guard refuses a case where 0 or a time dir already exists
-  for bad in "$WORK/0" "$WORK/constant" "$WORK/d6r2c_decomp.jsonl" "$WORK/d6r2c_freshmesh.json"; do
+  for bad in "$WORK/0" "$WORK/constant" "$WORK/mp04" "$WORK/d6r2c_decomp.jsonl" "$WORK/d6r2c_freshmesh.json"; do
     [ -e "$bad" ] && { echo "ABORT G-COLD $bad exists"; return 5; }
   done
   cp -a "$PARENT_BASE/base/." "$WORK/" || return 5
   md5_is "$WORK/constant/polyMesh/points.gz" "$MD5_BASE_POINTS" || {
     echo "ABORT G-SEED the seeded mesh is not the registered base mesh"; return 5; }
+  # ---- REPAIR 1 (ADDENDUM 1, 2026-09-13): THE THREE MULTIPOINT CASE COPIES ----
+  # d6r2c_opt_runScript.py lines 7-8 register mp04/mp05/mp06 as "a full copy of
+  # the case, staged by the launcher", and the parent d6r2c_run_arm.sh:195 does
+  # exactly this loop.  The A1-A4 derivation dropped it, so prob.setup() died in
+  # chdir('mp04') on all four ranks before one primal ran (arm DEC, stamp
+  # 20260913T051014Z_1341011, graded NOT A RESULT, 0.533 core-min).
+  # decomposePar is NOT run here -- THE PARENT DOES NOT RUN IT EITHER; DAFoam
+  # decomposes inside the container, and the processor* assert below is the
+  # parent's own G-COLD check that nothing pre-decomposed is staged.
+  for mp in mp04 mp05 mp06; do
+    cp -a "$PARENT_BASE/base" "$WORK/$mp" || { echo "ABORT G-SEED stage $mp"; return 5; }
+    test -z "$(ls -d "$WORK/$mp"/processor* 2>/dev/null)" || {
+      echo "ABORT G-COLD $mp processor* present"; return 5; }
+    md5_is "$WORK/$mp/constant/polyMesh/points.gz" "$MD5_BASE_POINTS" || {
+      echo "ABORT G-SEED $mp is not the registered base mesh"; return 5; }
+  done
   # inputs, staged BEFORE the age datum so the age guard dates them as INPUTS
   cp "$PARENT_BASE/O_mp/d6r2c_evals.jsonl" "$WORK/d6r2c_evals_final.jsonl" || return 5
   cp "$PARENT_BASE/O_mp/d6r2c_x0.json"     "$WORK/d6r2c_x0_final.json"     || return 5
   cp "$SRC/d6r2c_opt_runScript.py" "$SRC/d6r2c_decomp.py" "$SRC/d6r2c_freshmesh.py" "$WORK/" || return 5
-  if [ "$ARM" = "FM" ]; then
+  if [ "$ARM" = "FM" ] || [ "$ARM" = "FM2" ]; then
     cp "$SURFACE_SRC" "$WORK/surfaceMesh_base.cgns" || return 5
     cp "$FAMILY_DIR/genWingMesh.py" "$WORK/genWingMesh.py" || return 5
     md5_is "$WORK/genWingMesh.py" "$MD5_GENWINGMESH" || {
@@ -215,9 +236,9 @@ if [ "$ARM" = "--selftest" ]; then
   [ "$rc" -eq 0 ] && echo "D6R2C_AFTER_LAUNCH SELFTEST PASS n=5" || echo "D6R2C_AFTER_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_after_run_arm.sh <DEC|FM> <image>  |  --selftest"; exit 64; }
+test -n "$ARM" || { echo "ABORT usage: d6r2c_after_run_arm.sh <DEC|DEC2|FM|FM2> <image>  |  --selftest"; exit 64; }
 CAP=$(cap_core_min "$ARM"); test -n "$CAP" || { echo "ABORT unknown arm $ARM"; exit 64; }
-case "$ARM" in DEC|FM) ;; *) echo "ABORT arm $ARM is registered but NOT run by this registration"; exit 64 ;; esac
+case "$ARM" in DEC|DEC2|FM|FM2) ;; *) echo "ABORT arm $ARM is registered but NOT run by this registration"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
@@ -235,14 +256,16 @@ WORK="$BASE/$ARM"
 LOG="$BASE/${ARM}_${STAMP}.log"
 
 CMDFILE="$WORK/d6r2c_after_cmd.sh"
-if [ "$ARM" = "DEC" ]; then
+if [ "$ARM" = "DEC" ] || [ "$ARM" = "DEC2" ]; then
   cat > "$CMDFILE" <<'CMD'
 set -uo pipefail
 echo "D6R2C_AFTER_DEADLINE_IN_CONTAINER_S: NONE"
+rc=0
 mpirun -np 4 python d6r2c_decomp.py --arm-dir "$PWD" \
     --runscript d6r2c_opt_runScript.py \
-    --evals d6r2c_evals_final.jsonl --x0 d6r2c_x0_final.json
-echo "D6R2C_AFTER_RC=$?"
+    --evals d6r2c_evals_final.jsonl --x0 d6r2c_x0_final.json || rc=$?
+echo "D6R2C_AFTER_RC=$rc"
+exit $rc
 CMD
 else
   cat > "$CMDFILE" <<'CMD'
@@ -258,6 +281,7 @@ mpirun -np 4 python d6r2c_freshmesh.py --phase deform --arm-dir "$PWD" \
 [ $rc -eq 0 ] && { mpirun -np 4 python d6r2c_freshmesh.py --phase solve --arm-dir "$PWD" \
     --runscript d6r2c_opt_runScript.py --evals d6r2c_evals_final.jsonl || rc=$?; }
 echo "D6R2C_AFTER_RC=$rc"
+exit $rc
 CMD
 fi
 echo "D6R2C_AFTER_CMD arm=$ARM md5=$(md5sum "$CMDFILE" | cut -d' ' -f1)"
@@ -290,7 +314,7 @@ ROOT_OWNED=$(find "$WORK" -newermt "@$(cat "$WORK/.d6r2c_age_datum")" \( -uid 0 
 awk -v c="$CORE_MIN" -v cap="$CAP" 'BEGIN{exit !(c>cap)}' && \
   echo "D6R2C_AFTER_CAP_CROSSED arm=$ARM core_min=$CORE_MIN cap=$CAP -- the row is graded NOT A RESULT and THE CAP IS NEVER RAISED" | tee -a "$BASE/ledger.txt"
 echo "D6R2C_AFTER_DONE arm=$ARM rc=$RC core_min=$CORE_MIN cap=$CAP root_owned=$ROOT_OWNED"
-echo "NOW GRADE:  python3 $SRC/d6r2c_after_grade.py --item $([ "$ARM" = DEC ] && echo 8 || echo 9) \\"
+echo "NOW GRADE:  python3 $SRC/d6r2c_after_grade.py --item $(case "$ARM" in DEC|DEC2) echo 8 ;; *) echo 9 ;; esac) \\"
 echo "              --arm-dir $WORK --datum-file $WORK/.d6r2c_age_datum \\"
 echo "              --core-min $CORE_MIN --rc $RC"
 exit 0

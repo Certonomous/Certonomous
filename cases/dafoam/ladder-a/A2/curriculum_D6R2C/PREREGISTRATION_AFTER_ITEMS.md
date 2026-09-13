@@ -716,3 +716,194 @@ frozen at the hash below and its thresholds — `TRIM_TOL`, `REPRO_TOL`, `CLOSE_
 `SHAPE_MATCH_TOL`, `FM_BAND_ABS`, `PLANT`, and every cap in section 8 — are **copied verbatim from this
 document**, each carrying the sentence it was copied from as its comment, exactly as ADDENDUM 3 §A3.2
 records for the parent's grader. **Nothing in the grader was chosen by its author.**
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — TWO DEFECTS IN THE LAUNCHER, REPAIRED, AND THE RE-RUN IDS
+
+**This addendum carries the document to version 1.1.** Line 4 still reads `Version 1.0` and is
+**deliberately not edited**: editing it would falsify this section's own assertion below. The version
+of record is the one stated here.
+
+**Lines whose number changed above this section: 0.** Proof in §A1.8 — this section is appended at the
+foot and nothing above line 718 is touched.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `D1`–`D6`, `H1`–`H4`, `TRIM_TOL`,
+`REPRO_TOL`, `CLOSE_TOL`, `INTERACT_TOL`, `SHAPE_MATCH_TOL`, `FM_BAND_ABS`, `PLANT`, `TRIM_MAX_EVALS`
+and every cap in section 8 stand exactly as frozen at `c06df89a18bc33a93e7ebcafc8f35b73d9c48f5e`.
+**The grading path `d6r2c_after_grade.py` is NOT touched by this addendum** and its md5 is unchanged.
+
+### A1.0 WHAT HAPPENED, IN ORDER
+
+Arm `DEC` was launched 2026-09-13T05:10:14Z under the frozen launcher, container
+`d6r2c_after_DEC_20260913T051014Z_1341011`, 4 ranks, uid 1000:1000+1002, cpuset 2,3,4,5. All four
+launch guards passed (`G_ROOT`, `G_BOX`, `G_FREEZE`, `G_COLD`, age datum epoch 1789276214). **It died
+after 8 s wall, before one primal evaluation and before any `state = B` record.** All four ranks raised
+the identical `FileNotFoundError: [Errno 2] No such file or directory: 'mp04'` at
+`d6r2c_decomp.py:202 → load_frozen_model → d6r2c_opt_runScript.py:295 prob.setup(mode="rev")`.
+
+**The arm is graded `NOT A RESULT`** under section 11a, which registered exactly this contingency
+before any compute. That row is closed, is never re-graded and is never overwritten. Its evidence —
+`DEC/`, `DEC_20260913T051014Z_1341011.log` and the ledger row — stays on disk.
+
+### A1.1 DEFECT 1 — THE THREE MULTIPOINT CASE COPIES WERE NEVER STAGED
+
+`d6r2c_opt_runScript.py` lines 7-8 register `mp04/ mp05/ mp06/` as *"a full copy of the case, **staged
+by the launcher**"*. The parent `d6r2c_run_arm.sh:195` does exactly that loop. **The A1–A4 derivation
+that produced `d6r2c_after_run_arm.sh` dropped it**: `seed_arm()` copied `base/.` into `$WORK/` and
+stopped, its only `mp0*` reference being the checkpoint rotator. `d6r2c_decomp.py` does not create them
+either — the file contains no `mp0`, `makedirs`, `copytree`, `mkdir` or `decomposePar` anywhere.
+
+**Repair:** the three case copies are staged in `seed_arm()`, each asserting no `processor*` is present
+and each re-asserting `MD5_BASE_POINTS`; `$WORK/mp04` is added to the `G-COLD` refusal list so a staged
+arm can never be re-seeded over. **No `decomposePar` was added** — the parent does not run one either;
+DAFoam decomposes inside the container. Section 8's cost narrative mentions "3 `decomposePar`" and
+adding one on the strength of that prose would have been fitting the instrument to the document.
+
+**This is not a finding about the case.** No solver ran, no residual exists, no mesh was generated.
+
+### A1.2 DEFECT 2 — THE CONTAINER EXIT CODE WAS MASKED, IN BOTH ARMS
+
+The `DEC` command file ended `echo "D6R2C_AFTER_RC=$?"` and the `FM` command file ended
+`echo "D6R2C_AFTER_RC=$rc"`. **In both cases the final statement is an `echo`, so `bash -lc` exits 0
+whatever the arm did**, `docker wait` returns that 0, and the launcher wrote `rc=0` to the ledger and
+passed `--rc 0` to the grader. `D6` and `H4` read `rc == 0`. **The channel was blind in both arms.**
+
+Measured on the crashed run: the ledger row records `rc=0`; the container's true rc was **1**
+(`D6R2C_AFTER_RC=1`, container log). Reading `.State.ExitCode` instead of `docker wait` would have read
+the same masked zero — the masking is in the command string, not in how it is read.
+
+**Repair:** `DEC` takes the `rc=0` / `|| rc=$?` form, and **both** arms end `exit $rc`.
+
+### A1.2a THE `VERIFICATION_CHARTER` §2d.1 FOUR-CONDITION WALK
+
+1. **Demonstrable error, not a preference.** Two forms of the same capture existed in one file; one
+   propagates the status and one discards it. Not a matter of taste.
+2. **Established by an instrument independent of the hypothesis.** **The grader's refusal path found
+   it.** `d6r2c_after_grade.py --item 8` returned `REFUSE_MISSING_DECOMP_RECORD`, **exit 2, while being
+   handed the false `rc=0`**. A refusal path writes no verdict and cannot know which direction a verdict
+   ought to move, so it cannot have been selected to move one.
+3. **Disclosure quantifying what moved: ZERO GRADED ROWS AFFECTED.** The only arm ever run under this
+   launcher was caught by a different gate (the missing record), so nothing was ever blessed through the
+   blind channel. See §A1.3 for the same question asked of every other launcher in this item.
+4. **Pre-repair values beside published ones.** There are none — `DEC` is `NOT A RESULT` and published
+   no value.
+
+**Direction of the repair, recorded because it is the safeguard:** restoring the rc channel can only
+make `D6`/`H4` **stricter**, never looser. It can turn a `PASS` into a `NOT A RESULT` and never the
+reverse — the same asymmetry rule 5 builds into the Roache gate.
+
+### A1.3 THE AUDIT — THE MASKING IS CONFINED TO THIS LAUNCHER, AND `O_mp` IS CLEAR
+
+Asked of all four launchers in this item, because if the parent's rc had been masked the same way then
+`O_mp`'s `rc=0` was never measured and `G1` passed on an unmeasured channel.
+
+- **`d6r2c_run_arm.sh` (the parent) is clear.** Line 360 reads
+  `rc=$(docker inspect --format '{{.State.ExitCode}}' "$NAME")`, the true container exit code. Its
+  container command ends `bash /mnt/$ARM/d6r2c_cmd.sh`, and `O_mp`'s staged `d6r2c_cmd.sh` on disk is
+  **one line** — the bare `mpirun … -task run_driver -optimizer IPOPT -max_iter 25` — with no trailing
+  `echo`. The status propagates.
+- **The control is planted by history, not asserted** (rule 3: a zero from a reader not shown able to
+  see a non-zero is not evidence). The parent ledger's rc channel has carried **four distinct non-zero
+  values across seven rows**: `KR_REF2 rc=137`, `KR_KILL rc=137`, `KR_RES rc=73`, `ARM0_4R rc=1`,
+  `ARM0_2R rc=1`. A channel demonstrably able to show a failure reported zero for `O_mp`
+  (`ARM=O_mp rc=0 oom=false wall_s=10094 core_min=672.933 root_owned_new_files=0`).
+- **`d6r2c_omp_only_chain.sh` and `d6r2c_queue_chain.sh` start no containers at all** — they delegate to
+  `d6r2c_run_arm.sh` and capture `_rc=$?` immediately after the call, the correct form.
+
+**`O_mp`'s `rc=0` WAS measured. `G1` did not pass on an unmeasured channel and no reported verdict is
+withdrawn by this addendum.**
+
+### A1.4 THE RE-RUN IDS `DEC2` AND `FM2`
+
+The registration provided no re-run path: `cap_core_min()` knew only `DEC`/`FM`/`FM_L2` and the arm
+whitelist was `DEC|FM`. `DEC2` and `FM2` are added **inheriting the IDENTICAL registered figures,
+968.1 and 618.0 core-min — the same numbers looked up under another key. No threshold is invented,
+none is raised and none is reduced.**
+
+The crashed `DEC` directory is protected structurally, not by convention: `DEC/0` and `DEC/constant`
+exist, so `G-COLD` refuses to re-seed arm `DEC` at all.
+
+### A1.5 FIVE KEYING SITES, AND A NEAR-MISS FOUND DURING APPLICATION
+
+**Recorded because burying it would waste it.** The ruling that authorised the ids named the cap table.
+**The cap table is one site of five, and the id addition alone would have run the wrong producer.**
+Line 259 selected the container command with `[ "$ARM" = "DEC" ]`, so **`DEC2` would have fallen
+through to the `else` branch and executed `d6r2c_freshmesh.py` — the fresh-mesh producer — under a
+decomposition arm's name**, with line 317 then instructing the reader to grade the result as item 9.
+**A plausible-looking run of the wrong thing is the worst failure mode available here.** Found by the
+lane while applying the change, before any launch.
+
+All five sites are now keyed on both ids: the cap table (57), the `FM` surface/mesh staging in
+`seed_arm()`, the usage string (239), the arm whitelist (241), the command-file branch (259) and the
+grading hint (317).
+
+### A1.6 SPEND — DEFECT-ATTRIBUTABLE, NAMED SEPARATELY, NEVER ABSORBED
+
+The crashed arm burned **0.533 core-min** (8 s wall × 4 ranks ÷ 60) = **$0.000456 derived at
+$0.0513/core-h, DERIVED NOT MEASURED** (the box cannot read its own billing,
+`COMPUTE_BUDGET_CHARTER.md` §5). It is **0.055 % of the 968.1 cap; no cap was crossed.**
+
+**That 0.533 core-min is named here as defect-attributable spend and is NEVER absorbed into this item's
+totals** (rule 12: waste is reported, not absorbed). **The item's registered total stays exactly
+1586.1 core-min.** No calibration row is owed for it: no process completed, and an actual/predicted
+ratio of 0.533/322.7 would describe a defect rather than an estimate. The calibration rows of section 8
+remain owed at each arm's real completion.
+
+### A1.7 SECTION 11 — THE LAUNCHER ROW IS REPINNED
+
+**Section 11, line 688, `d6r2c_after_run_arm.sh`: `c83d18547353ef32e4ed960bb6783501` →
+`62ebc2a92478e0dfaeb37516a1ab7dee`.** *(The three approved repair hunks alone hashed
+`3544d3230d9c2cc9a1eb650b51fd18ed`; that intermediate value is recorded because it is the proof the
+reviewed diff landed byte-exactly before the re-run ids were added on top.)*
+
+**The other three rows of section 11 are unchanged, and the reason is that those three files are
+unchanged:** grader `6c22013af54569ae651f8f23d1088861`, `d6r2c_decomp.py`
+`3089b620587b1c20035f63dc1c8cd175`, `d6r2c_freshmesh.py` `ad2946f197fefc9cd5829deec1866a57`.
+
+**Selftests after the repair**, all four counts matching the frozen section-11 table exactly:
+`D6R2C_AFTER_LAUNCH SELFTEST PASS n=5`, `D6R2C_AFTER_GRADE SELFTEST PASS n=51`,
+`D6R2C_DECOMP SELFTEST PASS n=32`, `D6R2C_FRESHMESH SELFTEST PASS n=23`; `bash -n` on the launcher
+reported `SYNTAX OK`. **ATTRIBUTION, STATED RATHER THAN BLURRED: these were driven by
+`dafoam-supervisor` in the supervisor's own session, not by the lane that applied the repair**, because
+that lane's session denied execution on this path under its permission classifier. The lane's own
+evidence for the applied file is read-only: every edited region read back, including the region where a
+stray token was introduced and removed during editing. The supervisor's execution is what confirms the
+file parses.
+
+### A1.8 THE APPEND-ONLY PROOF
+
+- The document was **718 lines** before this addendum, whole-file md5
+  **`4a0e10548270093f4af4c0ff2ddf1073`**.
+- This section is appended at the foot. **`head -718` of the file after this addendum must still hash
+  `4a0e10548270093f4af4c0ff2ddf1073`**, and `git diff --numstat` on this path must report insertions
+  with **`0` deletions**.
+**BOTH CHECKS, MEASURED 2026-09-13 AND RECORDED HERE RATHER THAN IN AN EPHEMERAL MESSAGE:**
+
+```
+head -718 PREREGISTRATION_AFTER_ITEMS.md | md5sum
+    4a0e10548270093f4af4c0ff2ddf1073        UNCHANGED -- identical to the pre-addendum whole file
+
+git diff HEAD --numstat                     (HEAD = 452c19d4a)
+    191   0   cases/dafoam/ladder-a/A2/curriculum_D6R2C/PREREGISTRATION_AFTER_ITEMS.md
+     33   9   cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_after_run_arm.sh
+```
+
+**`191` insertions and `0` deletions on this document proves the append.** The launcher's `33/9` is the
+repair itself and is not an append — it is disclosed here, which is what §6 of the constitution requires
+of a change to a frozen file. *(The figure converges: this block occupies the same line count whichever
+value it records, so `191` is what a reader re-measuring today obtains. The `0` deletions is the
+load-bearing half and is unaffected either way.)*
+
+**If either check fails, this section's `Lines whose number changed above this section: 0` is false and
+the addendum must be struck rather than edited.**
+
+### A1.9 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not touch the grading path.** `d6r2c_after_grade.py` is unchanged, by md5. §11a's
+  distinction holds: a producer or launcher defect is a defect in how a number was made and is
+  repairable with disclosure; a grader change after seeing data is not.
+- **It does not re-grade `DEC`.** `NOT A RESULT` stands and the directory is preserved.
+- **It does not move `O_mp`.** That row is closed at `GATE FAIL` and §A1.3 confirms its rc was measured.
+- **It does not claim any result for items 8 or 9.** At the time of writing, both remain `PENDING`: no
+  decomposition table and no fresh mesh exist.
