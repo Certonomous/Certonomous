@@ -78,6 +78,13 @@ def main():
     ap.add_argument("--Tinf", type=float, required=True)
     ap.add_argument("--pinf", type=float, required=True)
     ap.add_argument("--Minf", type=float, required=True)
+    ap.add_argument("--Mmax", type=float, default=1.5,
+                    help="DOCUMENTED clamp on the initial local Mach number. Incompressible "
+                         "potential flow is SINGULAR at sharp edges: on a cold start it produced "
+                         "a local M near 74 (T = 0.325 K, p ~ 0 Pa) on the CRM trailing edge and "
+                         "tip. That is an artefact of the incompressible model, not a flow "
+                         "feature, and an initial state containing it is unusable. Clamped, "
+                         "counted and REPORTED -- never silently.")
     a = ap.parse_args()
 
     T0 = a.Tinf * (1.0 + 0.5 * (G - 1.0) * a.Minf ** 2)
@@ -98,6 +105,7 @@ def main():
     if not procs:
         procs = [a.case]
     tot = 0
+    nclamp = [0]
     Tlo = Thi = plo = phi_ = None
     for d in procs:
         up = os.path.join(d, "0", "U")
@@ -108,6 +116,9 @@ def main():
         mag = np.linalg.norm(U, axis=1)
         x = mag ** 2 / (G * R * T0 - 0.5 * (G - 1.0) * mag ** 2)
         x = np.clip(x, 0.0, None)
+        nclamp_local = int((x > a.Mmax ** 2).sum())
+        nclamp[0] += nclamp_local
+        x = np.minimum(x, a.Mmax ** 2)
         T = T0 / (1.0 + 0.5 * (G - 1.0) * x)
         p = a.pinf * (T / a.Tinf) ** (G / (G - 1.0))
         rho = p / (R * T)
@@ -122,6 +133,9 @@ def main():
         plo = p.min() if plo is None else min(plo, p.min())
         phi_ = p.max() if phi_ is None else max(phi_, p.max())
     print(f"  wrote T, p, rho over {tot:,} cells in {len(procs)} tree(s)")
+    print(f"  CLAMPED to M <= {a.Mmax}: {nclamp[0]:,} cells "
+          f"({100.0*nclamp[0]/max(tot,1):.4f} %) -- potential-flow singularities at sharp edges, "
+          f"an artefact of the INCOMPRESSIBLE model, clamped and counted rather than hidden")
     print(f"  T range [{Tlo:.3f}, {Thi:.3f}] K      (T_inf {a.Tinf}, T0 {T0:.3f})")
     print(f"  p range [{plo:.3f}, {phi_:.3f}] Pa    (p_inf {a.pinf})")
     return 0
