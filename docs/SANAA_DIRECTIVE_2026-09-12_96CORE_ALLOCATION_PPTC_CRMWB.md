@@ -344,3 +344,11 @@ Earlier the same exchange, hers: "the in house is the one we built us ? not the 
 > nah thats fine, we just let it run till it reachesthe experiment's number or close to it, unless one other thing we can do now to save time, since we knwo that one will reach the drag within 10ù we can just cite that as th number and have that in the plots and free the ranks it was using for dafoam to take
 
 **Chief's reading:** the Wolf Dynamics fine case runs on at its published 4 ranks toward its 10,000-iteration endpoint (~37 h); the demo plots carry Wolf Dynamics' PUBLISHED fine Cd, labelled as their published value, beside the TUM experiment, with our fine curve marked in progress until it lands. Freeing its 4 ranks gains dafoam nothing: D6R3 converges only at exactly 20 ranks (8 and 28 fail its own check), so no rank transfer is made.
+
+---
+
+## S. DrivAer plots: published fine numbers appear as the fine's numbers — byte-exact, 2026-09-13 ~23:15Z
+
+> for the plotting: no do not say its the reference, just have that number appear with the fine, and all their numbers be associated with the fine. Dont argue.
+
+**Chief's reading:** on the DrivAer demo images, Wolf Dynamics' published fine-case values appear as the fine level's values with no "reference"/"published" wording on the image; provenance is recorded in the folder's sidecar and README only; our fine curve replaces them when it lands.
