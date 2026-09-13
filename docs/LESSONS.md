@@ -28666,3 +28666,52 @@ section**; a grep is a locator, not a reader.
 
 *Fourth instrument-cannot-see-what-it-checks finding of 2026-09-13, and the only one where the
 blind instrument was the supervisor's own. Siblings: L-577, L-581, L-582.*
+
+## L-584 — an unescaped decimal point makes `grep` manufacture hits, and CAREFULLY EXPLAINING each false hit makes the false answer MORE convincing, not less
+
+**The deepest version of tonight's blind-instrument family, and it went through a supervisor.**
+
+A lane swept the disk for a registered flow condition's constants to prove no compute existed.
+The patterns were unescaped, so **every `.` was a regex wildcard**: `4.658989` matches
+`4`+any+`658989`. Verified on the actual artifact — in
+`SUBOFF/r1b_medium/log.simpleFoam` the "hit" is the substring inside
+**`-2.063125416589897e-08`**.
+
+| constant | wildcard | **`grep -F` literal** |
+|---|---|---|
+| `4.658989` | **23 files** | **0** |
+| `3.343886` | **17 files** | **0** |
+
+**Then the part that matters.** The lane ran down all ~32 hits *individually and correctly*
+— mesh connectivity integers, solved fields at a different condition, and one `/0/` path
+checked to see whether it was an initial-condition directory or `postProcessing`'s time
+naming. **Every one of those explanations was sound. None of those matches existed.**
+Diligence was applied to an artifact, and **the diligence is exactly what made the artifact
+credible.** A sloppy false positive gets questioned; a false positive with a careful,
+plausible, individually-verified explanation for every instance gets believed — **and it was
+believed, by the supervisor, who relayed it to a second lane as "exhaustive evidence" and
+offered that lane the stronger wording on the strength of it.**
+
+**The second lane refused it**, planted controls, found the wildcard defect, and declined to
+write the broad claim because it could not vouch for how the original pass was patterned.
+**That refusal is what caught it** — not any review, and not the supervisor.
+
+**This is L-x's `zmin` failure with the sign reversed.** There a broken reader manufactured a
+**false zero**; here a loose pattern manufactured **false hits**. Both are readers that cannot
+see what they claim to check, and **both clear the same way: plant a literal you know is
+present, in the same invocation, and require the reader to find it.**
+
+**Rules:**
+1. **Searching for a literal number or string is `grep -F`**, always. A decimal point in a
+   constant is not punctuation, it is a wildcard.
+2. **A control on the pattern, not only on the reader** — plant the exact literal and confirm
+   the invocation finds it, in the same shell invocation as the sweep.
+3. **Explaining away every false hit is not evidence that the hits are false positives** — it
+   is evidence you can construct explanations. Re-run the pattern before you categorise its
+   output.
+4. **Absence evidence is scoped.** Say which trees were swept. "Zero hits anywhere on disk" is
+   a much larger claim than "zero hits in the five trees I searched", and a registration is
+   worse for resting on a claim its author cannot defend.
+
+*Fifth blind instrument of 2026-09-13; siblings L-577, L-581, L-582, L-583. The supervisor
+propagated this one, having personally caught the other four.*
