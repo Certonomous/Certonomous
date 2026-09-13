@@ -599,3 +599,32 @@ configuration, not about the mesh.**
 unprompted, before the graded coverage was read. The erroneous count also appears in
 commits `1bb18559`, `277b9edf` and in this supervisor's commit message at `627eb624`,
 **none of which can be edited**; this section is the correction of record for all four.
+
+---
+
+## ADDENDUM A1 — CORRECTION 2 (2026-09-13, cfd-supervisor)
+
+**Version 1.3. Lines whose number changed above this section: 0.** Alters no gate,
+threshold, cap or label.
+
+**LINE 436 OF THIS DOCUMENT IS STALE AND IS STRUCK.** It reads *"DRAFT — NOT FROZEN,
+NOT COMMITTED BY ITS AUTHOR"*. That footer was true of the draft handed to the
+supervisor and **became false at the freeze**. The authoritative status is the header at
+lines 3–11: **FROZEN 2026-09-13, commit `38aab8e7`, which IS the freeze and discharges
+check 4.** First compute — the mesh build — began **2026-09-13T18:05:35Z**.
+
+**It is struck here rather than edited in place because rule 6 forbids touching the
+frozen body**, and originals are struck, never rewritten. A reader reaching line 436
+must carry this section with it.
+
+**WHY IT WAS MISSED, recorded because it is this supervisor's own repeated failure.**
+Three documents were frozen earlier today whose status lines still said DRAFT. At this
+freeze the **opening** status line was flipped and **verified to zero remaining
+occurrences** — and the check was run against the top of the document only. **A
+self-contradiction check that looks at the header is not a check on the document.** The
+stale footer was found by the building lane, not by the supervisor who froze it.
+
+**The operational rule, which now binds every freeze in this territory: search the WHOLE
+document for status language before committing a freeze, not the line you edited.** Same
+shape as the night's other findings — *a control on the edit is not a control on the
+meaning* — one field over.
