@@ -321,3 +321,18 @@ Earlier the same exchange, hers: "the in house is the one we built us ? not the 
 > yes multipt launches
 
 **Chief's reading (the question she answered, verbatim from the chief's message to her):** "raise DAFoam's abort ratio to 7700 (abort bar 7.7e-05), demoted to job control only, with drag stability, a relative spread under 3e-5 over the last 500 iterations, as the real convergence gate. Hard ceiling registered, never lifted after launch; if the rank sweep shows the floor moves, that is disclosed, not used to lift it." Authorised by Sanaa in her own words. D6R3 multipoint launches at 28 ranks; a forced rank drop is a disclosed discontinuity with no gain claimed across the join.
+
+---
+
+## Q. Figure review before the shoot; plot library v2; residual evolution — byte-exact, 2026-09-13 ~22:55Z
+
+> Plotting agent: for all these three cases, since we have the residuals saved, i want to see these residuals plotted that way we can see them go down in the demo. So the plotting agent needs to make sure that we these residual curves are plotted at different iterations so we can see their evolution. More comments for that plotting agent: Figure review: what to fix before the shoot
+>
+> The pushed folders are wired into the acts and render in the room. Six things to change, all on the lab's side:
+>
+> No "recommended" or "allowable" anywhere, and no 32 °C. k2_inlet_profiles.png, k2t_ride_through.png and the K2 sidecars label two limits; the act carries one limit, 27 °C, and it is the user's, labelled "limit 27 °C". Regenerate those two figures with the single line.
+> ParaView panels: white background, no axes triad, one legible colour bar, no caption baked into the image. The captions live in the act; the image is the field. Colour bars are currently a few pixels tall; make them one quarter of the frame height with a title in the quantity's unit.
+> M6 mesh figure: the 480-face coarse wall patch reads as a toy. For structured families the fine wall mesh is legible; show the fine-level wall patch plus a cut through 65% span showing the cells across the nose and the wall layers (m6_mesh.png), and keep the coarse level only where a snappy mesh is genuinely illegible.
+> K2 field panels show one rack cabinet. The act is the four-rack row. If the K2f/K2g/K2h module is a single rack pitch, say so in one line so the act can be worded to match; if it is the four-rack row, re-render the planes over the whole row. and i copied the new plotting code pipeline with a readme and example int here ssh ubuntu@3.15.64.234 "cd ~ && unzip -o plot_library_v2.zip && cp plot_library_v2/act_plots_lib.py Certonomous/sdk/workflows/act_plots_lib.py && cp plot_library_v2/README_PLOT_LIBRARY_V2.md Certonomous/docs/plot_orders/ && cp -r plot_library_v2/examples_real_data Certonomous/docs/plot_orders/" that way the plotting agent can regenerate the plots for DriVaer, M6 and K2f and K2h accoridngly  for dafoam: It's fine just launch the multipt optimization now. Propeller: OK let me know if the gate passes or not and ill tell cfd what to do instead.
+
+**Chief's reading:** the plot library v2 she installed (sdk/workflows/act_plots_lib.py, docs/plot_orders/README_PLOT_LIBRARY_V2.md, examples_real_data/) supersedes the earlier plot orders where they differ; all four demo folders (M6J, K2 steady, K2 transient, DrivAer) are regenerated under it with the six fixes and a residual-evolution frame series per case; the ParaView rule from 2026-09-11 (coarse mesh shown) yields to her fix 3 for structured families (fine wall patch + 65 % span cut). D6R3 keeps running with its registered contingency applied without triage delay. The propeller gate result goes to her and she rules the next step.
