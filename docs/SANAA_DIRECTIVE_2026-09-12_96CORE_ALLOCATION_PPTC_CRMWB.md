@@ -352,3 +352,11 @@ Earlier the same exchange, hers: "the in house is the one we built us ? not the 
 > for the plotting: no do not say its the reference, just have that number appear with the fine, and all their numbers be associated with the fine. Dont argue.
 
 **Chief's reading:** on the DrivAer demo images, Wolf Dynamics' published fine-case values appear as the fine level's values with no "reference"/"published" wording on the image; provenance is recorded in the folder's sidecar and README only; our fine curve replaces them when it lands.
+
+---
+
+## T. Mesh panels coarse or medium, every case; SUBOFF plot list requested — byte-exact, 2026-09-13 ~23:50Z
+
+> ok thats good. plotting agent: for the mesh paraview view lets make sure to plot the coarse one or medium one else its hard to see . And in general for all the cases we should plot the coarse of medium mesh (but show the fine meshs result) so if you didnt plot the paraview of coarse/ medium make sure to have that too. Which plots are you going to provide/ make for suboff once its done ? surely some plot of quantity A vs angle of attack; some pressure plots and whatever else ? iw ant a list so i can add to it or disapprove. And good for dafoam.
+
+**Chief's reading:** every demo folder carries a coarse-or-medium mesh panel (the M6 fine-wall + 65 % cut from fix 3 stays as well); fields always from the finest completed level. The SUBOFF plot list goes to her for approval before the final SUBOFF plots are made.
