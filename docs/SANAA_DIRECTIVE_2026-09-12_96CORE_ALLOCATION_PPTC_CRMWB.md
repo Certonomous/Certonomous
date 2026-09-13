@@ -259,3 +259,21 @@ Recorded by the chief from Sanaa's own session turns (session identity katie@cer
 > Also in the file: the OpenFOAM-wiki M6 case with downloadable files (rhoSimpleFoam + snappy, the Alletto setup), SUBOFF in OpenFOAM v7 with snappy layers (the Type 209 paper) and Robertson's validation, the PPTC OpenFOAM set from last night with the "full 360° in a Cartesian box" consensus, and what to adopt per case.
 
 **Chief's reading:** "the file" is the lab's published-setup research file for these cases (located by grep below, or named by her). cfd adopts per case: DrivAer → the 22 M snappy mesh with window averaging as the published practice, the occDrivAer HPC-Challenge dictionaries and the Wolf Dynamics OpenFOAM 9 case as case files on disk; M6 → the OpenFOAM-wiki Alletto rhoSimpleFoam + snappy case files; SUBOFF → the OpenFOAM v7 snappy-layer setup (Type 209 paper) and Robertson's validation; PPTC → the full-360° Cartesian-box consensus set.
+
+---
+
+## J. Case-file URLs — byte-exact, 2026-09-13 ~17:55Z
+
+> CFD : openfoam hpf files https://develop.openfoam.com/committees/hpc this is openfaom driver https://www.wolfdynamics.com/tutorials.html?id=152 propeller: https://www.cfdsupport.com/potsdam-propeller-benchmark/ but propeller doesn thave a file to download
+
+Immediately before, hers: "Then what was it running ? Ive asked so many times now not to start from scratch and use the public openfoam setups for pptc and drivaer and dafoam. So what was it using if not the publically available openfoam setups ? I KEEP saying i am on a time constraint so we need to use other ppls files"
+
+**Chief's reading:** DrivAer case files come from the OpenFOAM HPC committee repository (develop.openfoam.com/committees/hpc — the occDrivAer case) and the Wolf Dynamics tutorial id=152; retrieved into the box, verified, hashed, and used as the registered setup verbatim. PPTC: the CFD Support Potsdam propeller benchmark page documents a setup but offers no downloadable case; its published settings are read and adopted alongside Sikirica 2019's; the mesh is still built here to those published settings, with the paper-value | our-value table.
+
+---
+
+## K. Per-case ruling — byte-exact, 2026-09-13 ~18:00Z
+
+> so for drivaer, there is file to download, for pptc there is openfoam recipe, for M6 what we were doing is fine and we used nasa mehs, fpor dafoam: mach 0.85 you must use dafoam setup and file if available , and make sure the mesh is checke dduring optimization so we avoid mesh artefacts.
+
+**Chief's reading:** DrivAer = downloaded case files (occDrivAer / Wolf Dynamics), verbatim. PPTC = the published OpenFOAM recipe (CFD Support page + Sikirica 2019), mesh built here to it. M6 = the current route stands: NASA-generator mesh, lab solve, M6J family continues to its fine-level grade. dafoam D6R3 = Mach 0.85, the published DAFoam transonic setup and its case files if available, in-run mesh checks (her rules 6–11) mandatory.
