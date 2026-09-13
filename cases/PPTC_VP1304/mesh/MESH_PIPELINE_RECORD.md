@@ -916,3 +916,267 @@ and no later reader may read it as PASS. **`c1` CANNOT serve medium or fine** �
 99.7 % of blade area oversized — and is **not offered for them**. The fine-capable production
 tessellation (`prod7`, the registered 0.20/0.40 radial field) and the medium-capable `cm1`
 were still running when this was written.
+
+---
+
+## CORRECTION 1 — ADDENDUM I, 2026-09-13. THE LEADING-EDGE RADIUS FALLS FROM 1.91 mm TO 0.06 mm ACROSS THE SPAN AND HAS NOT CONVERGED; §6.3's 8-CELL CLAUSE HAS NO ESTABLISHED SATISFYING CELL SIZE, AND THE ONE IT WOULD NEED AT r/R 0.90 IS NOT BUILDABLE ON THIS BOX
+
+*lines whose number changed above this section: 0*
+
+**No gate, threshold, cap or label is altered by anything below.** No solver has run in this
+act. Addendum F's three-station figure of R_LE ≈ 1.44–1.82 mm is **withdrawn**, for a reason
+that also applies to the first form of this addendum's own instrument.
+
+### I.1 UNITS, ASSERTED BEFORE ANY DIMENSIONAL SELECTOR
+
+`prod7.stl`, maximum radius about x = **124.990477** in file units. Against the known VP1304
+diameter D = 0.250 m (Report 3752 Table 1):
+
+| reading | implied D | ratio to known |
+|---|---|---|
+| **millimetres** | **0.249981 m** | **0.999924** |
+| centimetres | 2.499810 m | 9.999238 |
+| metres | 249.980953 m | 999.923812 |
+| inches | 6.349516 m | 25.398065 |
+
+**The file is in MILLIMETRES**, to 76 ppm. Every selector below is mm. The instrument
+**refuses to run** unless millimetres is the reading that agrees — this lab has already applied
+a metres selector to a millimetre STL and selected **1 facet out of 7,230,286**.
+
+### I.2 THE INSTRUMENT, AND THE TWO FORMS OF IT THAT WERE WRONG FIRST
+
+`cases/PPTC_VP1304/mesh/measure_le_curvature.py`. A **discrete curvature** read off the
+tessellation itself: R_LE = 1/κ_max. It replaces `measure_le_radius.py` because that
+instrument reads R = N·h/(2π) off gmsh's **curvature-driven** sizing, and **every production
+tessellation on disk — `prod7`, `cm1`, `c1` — sets `Mesh.MeshSizeFromCurvature = 0`**. Applied
+to `prod7` it would report the radial MathEval background field as a radius.
+
+Two forms were built and both were killed by their own controls, which is the point of having
+them:
+
+1. **Facet normals, κ = angle(n₁,n₂)/|c₁−c₂| across a shared edge.** Recovered **0.6639 mm for
+   a cylinder of radius 1.000 mm** — not scattered, *tight*, and biased by exactly **3/2** in
+   curvature. A flat facet's normal belongs at the MIDPOINT OF THE ARC IT SPANS, not at its
+   centroid; on a structured quad-split cylinder the centroids sit 2/3 of an arc apart while
+   the normals sit a full arc apart. The error depends on the **triangulation pattern**, which
+   is why it read 2 mm and above correctly and everything below it wrongly.
+2. **Vertex normals, κ = max over incident edges.** Removed the 3/2 bias and still read
+   **1.1501 mm for 1.000 mm, +15.0 %** — an edge leaving a vertex at angle α from the direction
+   of maximum curvature sees only κ·cos α, so a max over the six directions a triangulation
+   happens to offer is a maximum over a **sample**. Biased LOW in curvature, i.e. **HIGH in
+   radius — the flattering direction.**
+
+**The form that stands** fits the **shape operator** by least squares over every incident edge
+at each vertex (2 × valence equations, three unknowns), takes the principal curvatures as its
+eigenvalues, and gives a facet the median of its three vertices.
+
+### I.3 THREE CONTROLS, TWO OF WHICH COULD HAVE FAILED AND ARE REPORTED EITHER WAY
+
+**(a) IN-FILE CONTROL — the shaft.** A cylinder of registered radius **20.000 mm**
+(`make_stl.py:R_SHAFT`, measured in `GEOMETRY_ADMISSION_RECORD.md` §3), read from the SAME
+file through the SAME reader and the SAME classifier as the blade: **398,380 wall facets,
+R recovered 20.0001 mm, error 0.00 %.** A reader that cannot see a known radius in the file it
+is grading is not evidence about an unknown one.
+
+**(b) SYNTHETIC LADDERS — and the second one governs.** Cylinders at the blade facet size
+h = 0.19 mm are recovered to ≤ 1.2 % from R = 0.125 to 8 mm. **But a cylinder is not a leading
+edge.** A nose is a semicylinder of radius R closing a nearly flat slab, and the vertex normals
+at the apex average the flank in. The **nose ladder**:
+
+| R true | R/h | R recovered | error |
+|---|---|---|---|
+| 0.125 | 0.66 | 0.1573 | **+25.9 %** OUTSIDE WINDOW |
+| 0.250 | 1.32 | 0.2717 | +8.7 % MARGINAL |
+| 0.500 | 2.63 | 0.5040 | +0.8 % OK |
+| 1.000 | 5.26 | 1.0000 | 0.0 % OK |
+| 2.000 | 10.53 | 2.0000 | 0.0 % OK |
+
+> **The resolvable window is MEASURED, not asserted: R/h ≥ 2.6 for ≤ 1 %, R/h ≥ 1.3 for
+> ≤ 10 %, and the error is always in the BLUNT direction.** A station below R/h = 1.5 is
+> **REFUSED**; between 1.5 and 3.0 it is reported with the facet count across the nose stated
+> on its face. **Every marginal reading in §I.5 is therefore an UPPER BOUND on R_LE.**
+
+**(c) PUBLISHED-GEOMETRY CONTROL — the section extraction, against SVA's own table.** Three
+independent published quantities, reproduced by the same section machinery that locates the
+edge:
+
+| quantity | SVA `sva_2011_smp11_case2_pptc_geometry_table` | measured | error |
+|---|---|---|---|
+| C0.70 | 104.1670 mm | 104.258 mm | **+0.09 %** |
+| C0.75 | 106.3476 mm | 106.754 mm | **+0.38 %** |
+| t0.75 | 3.7916 mm | 3.817 mm | **+0.67 %** |
+
+### I.4 THE LEADING EDGE IS LOCATED BY SECTION GEOMETRY — AND A PERCENTILE SELECTOR IS WHY ADDENDUM F WAS WRONG
+
+The first form of this instrument took the **top decile of curvature** in a radial band as "the
+leading edge". It reported **R_LE = 24.4 mm at r/R = 0.50 on a section 8.2 mm thick** — an
+impossible answer, **tight to 1.0 % across five blades.** The nose carries a few hundred facets
+out of ~21,000 in the band, so a decile is ~90 % ordinary surface and its MEDIAN is the
+surface. **Five blades agreeing is not correctness: all five were diluted identically.**
+
+> **ADDENDUM F's INSTRUMENT CARRIES THE SAME DEFECT.** `measure_le_radius.py:~150` selects the
+> leading edge as `thr = np.percentile(h[idx], 10); le = idx[h[idx] <= thr]` — the smallest
+> DECILE of facets in the band. Same dilution, same direction: non-nose facets are larger, so
+> R = N·h/(2π) comes out **blunter**. F's 1.8233 / 1.7322 / 1.4380 mm at r/R 0.40 / 0.50 / 0.60
+> are **1.7× / 2.4× / 4.2×** the values measured here. **F's R/t = 0.197 ± 0.020 "consistent
+> across three independent stations" was the consistency of a shared defect**, which is exactly
+> the argument F used to call the numbers believable. Those three figures are **withdrawn**.
+
+The form that stands extracts the **section** — a ±0.25 mm radial shell, one blade, unrolled to
+(r·Δθ, x) — takes the chord as its principal axis, measures **both** ends, and identifies the
+leading edge by **CAD provenance** (the trailing edge IS a CAD curve; the leading edge has none
+— addendum D), with the **point of maximum thickness** reported beside it as an independent
+check. **Addendum D's structural finding is CONFIRMED, not assumed:** at every station where
+the thickness test decides, it names the same end as the CAD test. Where they disagree
+(r/R 0.30, in the hub-gap region) the station is **REFUSED**, and where the thickness profile
+ties at x_t = 0.50 the tie is printed as `undecided` rather than silently broken — an earlier
+form broke it silently, picked the TRAILING edge on two blades of five at r/R 0.80 and 0.90,
+and averaged the two edges into one number.
+
+### I.5 THE MEASURED SPAN DISTRIBUTION — `prod7`, five blades per station
+
+| r/R | chord mm | R_LE mm | sd over 5 blades | facets across nose | cell for R/8 |
+|---|---|---|---|---|---|
+| 0.30 | — | **REFUSED** — CAD and thickness name different ends | | | |
+| 0.35 | 56.639 | **1.9068** | 0.0032 | 27.7 | 0.2384 |
+| 0.40 | 65.705 | **1.0728** | 0.0191 | 14.8 | 0.1341 |
+| 0.45 | 73.917 | **0.9366** | 0.0328 | 13.9 | 0.1171 |
+| 0.50 | 81.328 | **0.7162** | 0.0411 | 10.4 | 0.0895 |
+| 0.55 | 88.014 | **0.4733** | 0.0377 | 9.1 | 0.0592 |
+| 0.60 | 94.148 | **0.3408** | 0.0244 | 9.0 | 0.0426 |
+| 0.65 | 99.758 | **0.2542** | 0.0053 | 10.6 | 0.0318 |
+| **0.70** | **104.258** | **0.1938** | **0.0168** | **8.4** | **0.0242** |
+| 0.75 | 106.754 | **0.1446** | 0.0060 | 6.8 | 0.0181 |
+| 0.80 | 107.333 | **0.1062** | 0.0090 | 9.1 | 0.0133 |
+| 0.85 | 106.929 | **0.0836** | 0.0031 | 5.7 | 0.0104 |
+| 0.90 | 104.632 | **0.0562** | 0.0064 | 5.3 | 0.0070 |
+| 0.95 | 94.931 | **0.0723** | 0.0034 | 5.9 | 0.0090 |
+| 0.98 | 75.585 | **REFUSED** — R/h = 0.83, below the measured window | | | |
+
+**The leading edge is not one radius. It falls by a factor of 34 across the span**, from
+1.91 mm at r/R 0.35 to 0.056 mm at r/R 0.90 — consistent with a propeller SVA states "was
+designed to generate a tip vortex". Artifact: `certonomous-runs/PPTC_VP1304/le_band/LE_SPAN_prod7.txt`.
+
+### I.6 AND IT HAS NOT CONVERGED — THE TESSELLATION-REFINEMENT STUDY THAT SETTLES IT
+
+The same instrument on the three tessellations already on disk, which differ only in blade
+facet size:
+
+| r/R | `c1` 0.55 mm | `cm1` 0.35 mm | `prod7` 0.20 mm | cm1 / prod7 |
+|---|---|---|---|---|
+| 0.35 | REFUSED | 1.8665 | 1.9068 | 0.98 |
+| 0.40 | REFUSED | 1.3459 | 1.0728 | **1.25** |
+| 0.50 | REFUSED | 0.9610 | 0.7162 | **1.34** |
+| 0.60 | REFUSED | 0.5038 | 0.3408 | **1.48** |
+| 0.70 | REFUSED | 0.2875 | 0.1938 | **1.48** |
+| 0.80, 0.90 | REFUSED | REFUSED | 0.1062, 0.0562 | — |
+
+**`c1` cannot see the leading edge at any station on any blade.** `cm1` sees it only inboard.
+And where both see it, **the measured radius FALLS as the tessellation is refined, at every
+station outboard of r/R 0.35, and it has not stopped falling.** At r/R 0.35 — the one station
+where `prod7` spans the nose with 27.7 facets, comfortably inside the measured window — the two
+tessellations agree to **2.1 %**, which shows the instrument IS convergent where the geometry is
+resolved.
+
+> **THEREFORE: every R_LE outboard of r/R 0.35 in §I.5 is an UPPER BOUND, from two independent
+> directions — the nose ladder over-reports a nose it cannot span, and refinement is still
+> reducing the value. §6.3's required cell, R_LE/8, is correspondingly an upper bound.
+> THE CLAUSE HAS NO ESTABLISHED SATISFYING CELL SIZE, because the quantity it is written in
+> terms of has not converged on this geometry.**
+
+### I.7 THE TESSELLATION CANNOT CARRY THE BAND — AND THIS HAS NOTHING TO DO WITH THE MESH
+
+`snappyHexMesh` snaps to the STL, so **below the facet size the surface IS flat** and
+refinement past it resolves a polyhedron rather than a propeller — with no residual signature
+and nothing for `checkMesh` to report. Against `prod7`'s own facets at the leading edge:
+
+| r/R | cell the clause demands | `prod7` facet at the LE | facet ÷ cell |
+|---|---|---|---|
+| 0.35 | 0.2384 | 0.2163 | **1.6×** |
+| 0.50 | 0.0895 | 0.2101 | **3.0×** |
+| **0.70** | **0.0242** | **0.0722** | **4.2×** |
+| 0.85 | 0.0104 | 0.0451 | **5.2×** |
+| 0.90 | 0.0070 | 0.0374 | **8.6×** |
+
+> **AT ALL THIRTEEN MEASURED STATIONS THE PRODUCTION TRIANGULATION IS COARSER THAN THE CELL
+> §6.3 DEMANDS — by 1.6× to 8.6×. The 8-cell clause is unsatisfiable on this geometry file for
+> a reason that is not about the mesh at all.** No refinement level fixes it; only a new
+> tessellation can, and §I.8 prices one.
+
+Recorded because it inverts an assumption: the leading-edge facets are **not** the coarse
+0.19 mm background. `prod7` already carries **674,295 blade facets below its own
+`MeshSizeMin` of 0.08 mm** — genuinely isotropic (aspect ratio p50 **1.31–1.39**, longest edge
+0.019–0.063 mm), **not slivers** — concentrated at r/R 0.82–0.92. They are **11.34 % of blade
+facet COUNT but 0.759 % of blade AREA**, which is `docs/NUMERICS_KNOWLEDGE.md` N-X5 again: a
+count is a locator, never a magnitude.
+
+### I.8 THE BAND AS A BUILDABLE SPECIFICATION, AND WHERE IT STOPS BEING ONE
+
+**The specification.** Surface/region name **`leadingEdgeBand`**, a `triSurfaceMesh` tube of
+radius **1.0 mm** about the leading-edge path, entered in `snappyHexMeshDict` under
+`refinementRegions` as `{ mode inside; levels ((1e15 N)); }`. The path is **measured, not
+assumed: 131.389 mm per blade**, from the leading-edge facets across 70 stations from r/R 0.30
+to 0.99 with the blade pinned by angle (the CAD trailing-edge curve is 114.465 mm, for scale).
+1.0 mm is not cosmetic: `nCellsBetweenLevels 3` down from level N to the registered blade
+level 5 needs ≈ 0.8 mm of buffer, so a tighter tube would be widened by snappy anyway.
+
+**The cost, on rates measured on this case, this CAD, this box.** Meshing **10.61 core-min per
+million cells** (F360_coarse: 19,700,035 cells, 12,538.33 s, 1 rank). Tessellation **1.582 ms
+per facet** (prod7: 7,230,286 facets, gmsh CPU 11,439.9 s). Storage **217 bytes per cell**
+(F360_coarse polyMesh, 4,275,145,191 bytes ÷ 19,700,035 cells).
+
+| level | cell mm | clause met out to | band cells/blade | passage total | mesh core-min | STL facets needed | tess core-min | polyMesh |
+|---|---|---|---|---|---|---|---|---|
+| 6 | 0.139 | r/R 0.35 | 0.20 M | 9.20 M | 98 | 0.2 M | 195 | 2.0 GB |
+| 7 | 0.070 | r/R 0.50 | 1.44 M | 10.44 M | 111 | 0.6 M | 207 | 2.3 GB |
+| 8 | 0.035 | r/R 0.60 | 10.64 M | 19.64 M | 208 | 2.5 M | 257 | 4.3 GB |
+| **9** | **0.0174** | **r/R 0.75** | **81.63 M** | **90.63 M** | **961** | **10.0 M** | **455** | **19.7 GB** |
+| 10 | 0.0087 | r/R 0.95 | 640.28 M | 649.28 M | 6,887 | 40.2 M | 1,250 | 141 GB |
+| 11 | 0.0044 | every station | 5,074.64 M | 5,083.64 M | 53,926 | 160.7 M | 4,428 | **1,103 GB** |
+
+**BUILDABLE: level 9.** It is the rung that reaches **the reference radius r/R = 0.70**, at
+**90.63 M cells per 72° passage, 961 core-min of meshing plus 455 core-min of tessellation =
+1,416 core-min**, $1.21 **derived, not measured**, at the reported-by-owner $0.0513/core-h. It
+needs a new tessellation carrying ~0.017 mm facets in the leading-edge band — **a `Distance` +
+`Threshold` field on the measured leading-edge polyline, with curvature OFF**, which is the
+configuration with a 3-of-3 completion record on this CAD; addendum C records **4 of 5
+curvature-driven runs KILLED**, so curvature-driven sizing is not proposed.
+
+**NOT BUILDABLE: full compliance.** Level 11 is what the measured radius at r/R 0.90 demands.
+**5,083.64 M cells in one 72° passage is 1,103 GB of polyMesh alone — against 268 GB free on
+this filesystem and 739 GB of RAM in the whole box.** It is not a budget number and no ruling
+about caps reaches it: **it does not fit.** And because §I.6 shows R_LE still falling with
+tessellation refinement, **level 11 is itself a floor, not a sufficient level.**
+
+Both rates are **FLOORS**: snappyHexMesh cost per cell rises with refinement depth, and 90.63 M
+cells is **10× the registered fine target** of ~9 M per passage, so level 9 changes a
+registered cell target and is **not this lane's to adopt.**
+
+### I.9 WHAT IS RAISED, AND WHAT IS NOT DECIDED HERE
+
+1. **§6.3's leading-edge clause is unsatisfiable as written at every level of the registered
+   family, and unsatisfiable at ANY level on the present tessellation.** Route 2 of addendum
+   D.5 — build as registered and disclose — is now supported by a converged-where-resolved,
+   controlled measurement instead of by a withdrawn one.
+2. **The disclosure figure the birth certificate should carry.** `birth_certificate.py`
+   currently prints `cells across LE radius 2.301` from addendum F's withdrawn R_LE = 1.438 mm
+   at r/R 0.60. On the measurement here, at r/R 0.60 R_LE = **0.3408 mm**, so the coarse
+   level's 0.6250 mm cell spans **0.55 cells** across the radius, and at r/R 0.70 it spans
+   **0.31**. **The shortfall is 14.7× at r/R 0.60 and 25.8× at r/R 0.70, not 3.48×** — and both
+   are LOWER bounds. Changing that printed figure touches a certificate and is the cfd
+   supervisor's call, not this lane's.
+3. **Whether the act proceeds on a leading edge whose radius is not converged.** Nothing here
+   rules on it.
+
+### I.10 COST OF THIS ADDENDUM
+
+| item | core-min | basis |
+|---|---|---|
+| `gmsh -1` CAD curve extraction | 0.05 | MEASURED, CPU 3.02 s |
+| curvature on `prod7`, brute-force provenance test | **3.2 WASTE** | abandoned at 3 m 13 s, 1 core; 1.7e10 distance evaluations with a 7.7 GB temporary per chunk. Replaced by a KD-tree. **Named, not absorbed.** |
+| curvature on `prod7`, KD-tree | 1.26 | MEASURED, CPU 75.57 s |
+| ladder controls (both) | 1.19 | MEASURED, CPU 71.50 s |
+| span sweeps (`prod7` ×3, `cm1`, `c1`), section diagnostics, band spec | ~14 | ESTIMATED from wall clock at 1 rank; not separately instrumented |
+| **total** | **≈ 20 core-min**, of which **3.2 waste** | $0.017 derived, not measured |
+
+**No solver ran. No mesh was built. No queue was touched.**
