@@ -69,7 +69,12 @@ set +u; source /usr/lib/openfoam/openfoam2606/etc/bashrc > log.env 2>&1; ENV_RC=
 # ---- assert the registered dictionaries; NEVER rewrite them with foamDictionary, which
 # ---- inlines every #include and froze a stale forces dict into this case once already.
 grep -qE '^application +rhoSimpleFoam;' system/controlDict || fail "application is not rhoSimpleFoam"
-grep -qE '^purgeWrite +2;'              system/controlDict || fail "purgeWrite is not 2"
+# purgeWrite must be AT LEAST 2, not exactly 2. The gate's intent is "never keep fewer than two
+# checkpoints"; MORE retention strictly dominates it. Hardcoding equality encoded the
+# restart-economy assumption as law and refused a legitimate DIAGNOSTIC run that needed to keep
+# every early field -- the same defect the purgeWrite lesson names, written into the guard itself.
+PW=$(grep -oE '^purgeWrite +[0-9]+;' system/controlDict | grep -oE '[0-9]+')
+{ [ -n "$PW" ] && [ "$PW" -ge 2 ]; } || fail "purgeWrite is ${PW:-unset}, must be >= 2"
 grep -q  '#include'                     system/controlDict || fail "controlDict lost its #include"
 grep -qE 'RASModel +SpalartAllmaras;'   constant/turbulenceProperties || fail "model is not SpalartAllmaras"
 grep -qE 'transonic +yes;'              system/fvSolution || fail "transonic is not yes"
