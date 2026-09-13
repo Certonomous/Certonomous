@@ -1473,3 +1473,129 @@ cheap-and-disposable design is holding; the expensive resource has been turnarou
 - `git diff --numstat` on this path must show **insertions only and `0` deletions**.
 - **Lines whose number changed above this section: 0.**
 - This is `ADDENDUM 4`, the number derived from the maximum existing heading, never a count.
+
+---
+
+## ADDENDUM 5 — 2026-09-13 — `G-BOX`'s SWAP LIMB MEASURED A QUANTITY SANAA'S ITEM 18 DOES NOT NAME
+
+**This addendum carries the document to version 1.5.** Line 4 still reads `Version 1.0` and is
+**deliberately not edited**, for the reason ADDENDUM 1 gives.
+
+**Lines whose number changed above this section: 0.** Proof in §A5.6.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** In particular **the swap threshold
+is UNCHANGED AT `> 0`.** What changed is **the quantity measured**, aligned to the instrument that
+already implements Sanaa's sentence. Every gate `D1`–`D6`, `H1`–`H4` and every cap in section 8 stand
+as frozen at `c06df89a18bc33a93e7ebcafc8f35b73d9c48f5e`.
+
+### A5.0 WHAT HAPPENED
+
+Arm `FM5` was refused at launch:
+
+```
+ABORT G-BOX swap in use (8 kB) -- launch precondition, nothing is stopped
+```
+
+`guard_box` runs **before** `seed_arm` and **before** the ledger write, so **no `FM5` directory was
+created, no ledger row was written, and the id stayed clean.** **`FM5` is `PENDING` — it never started
+and therefore carries no verdict.** It is not `NOT A RESULT`; nothing ran.
+
+### A5.1 THE MEASUREMENT — DERIVED TWICE, INDEPENDENTLY
+
+| quantity | value |
+|---|---|
+| `SwapTotal − SwapFree` | **8 kB** — the quantity `guard_box` was reading |
+| `SwapCached` | **8 kB** — *the whole of it* |
+| processes reporting `VmSwap` | **131** |
+| **total `VmSwap` across all processes** | **0 kB** |
+| processes with `VmSwap > 0` | **NONE** |
+| `MemAvailable` | 551 GB |
+| load1 / nproc | 43 / 96 |
+
+**Nothing was swapped out.** `SwapCached` counts slots that were allocated, read back into RAM, and not
+yet released: the page is in memory and the slot is stale. `SwapTotal − SwapFree` counts that stale
+slot as "used". **The guard was reading a quantity that is not the quantity it was pointed at** — the
+same class of defect as everything else in this item's night: an instrument faithfully measuring the
+thing it was aimed at rather than the thing intended.
+
+**Recorded because it bears on the shape of the problem:** a `SwapCached` slot is freed when the page is
+written to or its owner exits. **There is no mechanism that guarantees it decays on its own**, so
+"wait for it to clear" was potentially not a waiting game but a permanent block.
+
+### A5.2 THE PRECEDENT — THE LAB ALREADY IMPLEMENTS HER SENTENCE, BY FILE AND LINE
+
+Sanaa's directive item 18, verbatim: *"Load above core count is a defect; **swap use above zero for
+solver jobs** is a defect. Both stop new launches until cleared."*
+
+The lab's canonical implementation of that sentence is **`scripts/queue_runner.py`**:
+
+- **`swap_offenders()`, lines 915–943** — reads `^VmSwap:` from `/proc/<pid>/status` and collects
+  **solver processes only**. Its docstring quotes her item 18 and then states: *"SOLVER jobs only — a
+  swapping editor or agent is not this gate's business, and counting one would stop the queue for a
+  condition her item does not name."*
+- **Gate E, line 102** — *"no new launch while … any solver process has `VmSwap` > 0"*.
+- Solver classification, lines 429–431: basename matching `(?:Foam|foam)$`, plus
+  `{snappyHexMesh, blockMesh, refineMesh}`, plus the MPI launchers.
+
+**`guard_box` was the outlier.** It counted exactly what her own words exclude — non-solver processes,
+and a cached slot no process holds at all. **This is conformance to her text, not a reinterpretation of
+it**, and the repair was authorised only after that precedent was verified by file and line. The other
+half of her rule was satisfied throughout: load 43 against 96 cores.
+
+### A5.3 THE REPAIR — THE CANONICAL FUNCTION IS **CALLED**, NOT RE-SPELLED
+
+`guard_box`'s swap limb now imports and calls **`swap_offenders()` from `scripts/queue_runner.py`**.
+It is not copied. **A second spelling is a second thing that can drift (L-221/L-222), and this item has
+already paid for that lesson twice tonight** — the scaler divisor and the `_flat` contract were both
+second spellings of something stated correctly elsewhere.
+
+- **Threshold unchanged: `VmSwap > 0`, solver processes only.**
+- **The offenders are NAMED** — pid, basename and kB — because *"swap in use"* without saying whose is
+  exactly what produced this stall.
+- **A guard that cannot measure REFUSES.** If the canonical module cannot be imported, `guard_box`
+  aborts rather than passing quietly — the same discipline as `dv_divisor_for()`.
+
+**PLANTED CONTROL (rule 3), driven on a synthetic `/proc`:** a solver at `VmSwap = 4096 kB` **is seen**;
+a **non-solver at 99 999 kB is ignored**, which is her sentence and not a convenience; a solver at
+`VmSwap = 0` is ignored; a clean `/proc` returns empty. **A reader not shown able to see a non-zero is
+not evidence**, and this one is shown.
+
+### A5.4 A SECOND MISALIGNMENT, RAISED AND DELIBERATELY **NOT** ACTED ON
+
+`queue_runner.py` splits *"a PERMANENT property of the entry or of the case REFUSES; a TRANSIENT
+property of the box HOLDS"*, and its gate E **HOLDS** on swap. This launcher's `guard_box` **ABORTS**.
+A transient box condition aborting a launch is arguably the wrong side of that split.
+
+**It is left unchanged, and the reason is scope.** The ruling that authorised this repair is about
+*what is measured*. Abort-versus-hold is about *what the launcher does about it*, and **this launcher
+has no hold machinery at all** — no retry loop, no queue, no tick. Adding one would be new behaviour
+with new failure modes (an unbounded wait inside a detached wrapper), not a measurement fix, and it
+would need its own registration. **Recorded here so it is not lost, and explicitly deferred.**
+
+### A5.5 SECTION 11 — THE INSTRUMENT TABLE
+
+| file | md5 | selftest |
+|---|---|---|
+| `d6r2c_after_grade.py` | `6c22013af54569ae651f8f23d1088861` — **UNCHANGED SINCE THE FREEZE** | `PASS n=51` |
+| `d6r2c_decomp.py` | `42ec0dd582584812a69129a474b2783e` | `PASS n=32` |
+| `d6r2c_freshmesh.py` | `1d15ce361673ca600d565280441b67e0` | `PASS n=23` |
+| `d6r2c_after_run_arm.sh` | `c4433db6b60f9c695d785a871a6d3c7d` | `PASS n=6` |
+
+**The grader is untouched and its pin is unchanged.** The launcher changed only `guard_box`'s swap limb
+and, earlier in this session, its `# PIN` lines and arm-id sites.
+
+### A5.6 THE APPEND-ONLY PROOF
+
+- Pre-append head-md5: **`848ef562d417b2e26a7133be86229f80`**, **1475 lines**.
+- `git diff --numstat` on this path must show **insertions only and `0` deletions**.
+- **Lines whose number changed above this section: 0.**
+- This is `ADDENDUM 5`, the number derived from the maximum existing heading, never a count.
+
+### A5.7 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not move the swap threshold.** It stays at `> 0`. Only the measured quantity moved.
+- **It does not reinterpret Sanaa's directive.** It conforms `guard_box` to the lab's existing
+  implementation of her words; reinterpreting her text to unblock this item was refused.
+- **It does not relabel `FM5`.** `FM5` is `PENDING`: it never started, has no directory and no ledger
+  row. Nothing ran, so there is nothing to grade and nothing to preserve.
+- **It does not change abort-to-hold** (§A5.4), and it claims no verdict for item 9.

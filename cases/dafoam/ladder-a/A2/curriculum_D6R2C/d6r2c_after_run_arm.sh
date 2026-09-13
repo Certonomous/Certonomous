@@ -141,17 +141,46 @@ guard_freeze() {
 # anything running (Sanaa item 18 read with her directive #17).
 # ===========================================================================
 guard_box() {
-  local load1 nproc swap avail_gb
+  local load1 nproc avail_gb swapoff
   load1=$(awk '{print $1}' /proc/loadavg); nproc=$(nproc)
-  swap=$(awk '/SwapTotal/{t=$2}/SwapFree/{f=$2}END{print t-f}' /proc/meminfo)
   avail_gb=$(awk '/MemAvailable/{printf "%d", $2/1048576}' /proc/meminfo)
   awk -v l="$load1" -v n="$nproc" 'BEGIN{exit !(l>n)}' && {
     echo "ABORT G-BOX load1=$load1 > nproc=$nproc -- launch precondition, nothing is stopped"; return 3; }
-  [ "${swap:-0}" -gt 0 ] && {
-    echo "ABORT G-BOX swap in use (${swap} kB) -- launch precondition, nothing is stopped"; return 3; }
+  # ---- ADDENDUM 5 (2026-09-13): THE SWAP LIMB MEASURES WHAT HER ITEM 18 NAMES.
+  # Sanaa's item 18: "swap use above zero FOR SOLVER JOBS is a defect."  The lab's
+  # canonical implementation of that sentence is scripts/queue_runner.py
+  # `swap_offenders()` (lines 915-943), which reads per-process VmSwap from
+  # /proc/<pid>/status and counts SOLVER PROCESSES ONLY; gate E is defined at
+  # line 102 as "any solver process has VmSwap > 0".
+  #
+  # THIS GUARD PREVIOUSLY READ `SwapTotal - SwapFree`, WHICH IS NOT THAT QUANTITY.
+  # It counts a SwapCached slot that no process holds.  Measured 2026-09-13:
+  # SwapTotal-SwapFree = 8 kB, SwapCached = 8 kB, 131 processes reporting VmSwap,
+  # TOTAL 0 kB, NONE above zero, 551 GB available, load 43 of 96 -- and this guard
+  # refused arm FM5 on it.
+  #
+  # THE THRESHOLD IS UNCHANGED AT > 0.  ONLY THE MEASURED QUANTITY MOVED.
+  # The canonical function is CALLED, never re-spelled (L-221/L-222), so the two
+  # cannot drift; and a guard that CANNOT MEASURE REFUSES rather than passing
+  # quietly, which is the same discipline as dv_divisor_for().
+  swapoff=$(python3 -c "
+import sys
+sys.path.insert(0, '/home/ubuntu/Certonomous/scripts')
+from queue_runner import swap_offenders
+for o in swap_offenders():
+    print('%(pid)d %(name)s %(vmswap_kb)d' % o)
+") || {
+    echo "ABORT G-BOX cannot read the canonical swap gate (scripts/queue_runner.py"
+    echo "  swap_offenders) -- a guard that cannot measure REFUSES rather than passes"; return 3; }
+  if [ -n "$swapoff" ]; then
+    echo "ABORT G-BOX solver processes holding swap (Sanaa item 18) -- launch precondition,"
+    echo "  nothing is stopped.  THE OFFENDERS, NAMED:"
+    echo "$swapoff" | while read -r p n k; do echo "    pid=$p name=$n VmSwap=${k} kB"; done
+    return 3
+  fi
   [ "$avail_gb" -lt "$MEM_FOOTPRINT_GB" ] && {
     echo "ABORT G-MEM MemAvailable=${avail_gb}G < declared footprint ${MEM_FOOTPRINT_GB}G"; return 3; }
-  echo "D6R2C_AFTER_G_BOX_PASS load1=$load1 nproc=$nproc swap_kB=$swap avail_gb=$avail_gb"
+  echo "D6R2C_AFTER_G_BOX_PASS load1=$load1 nproc=$nproc solver_swap_offenders=0 avail_gb=$avail_gb"
   return 0
 }
 
