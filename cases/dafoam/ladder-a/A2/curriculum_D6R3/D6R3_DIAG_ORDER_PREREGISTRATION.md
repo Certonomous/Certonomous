@@ -99,3 +99,46 @@ H-POINT), or `NOT A RESULT` (H-NOISE, or the run does not complete).
 ```
 
 Nothing else. No threshold, no tolerance, no `endTime`, no mesh, no boundary condition.
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — RESULT. `GATE REACHED`: H-ORDINAL, with H-POINT, H-NOISE and
+## H-MUTATION all dead. No gate, threshold, cap or label above is altered by this addendum.
+
+Arm `DIAG_ORDER1`: `rc=1`, wall 546 s, 28 ranks, **254.800 core-min**
+[`ledger.txt`, `D6R3_DIAG_ROW arm=DIAG_ORDER1 rc=1 wall_s=546 ranks=28 core_min=254.800`],
+log `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/DIAG_ORDER1_20260913T195136Z.log`.
+
+**The result, stronger than the prediction asked for.** The 189 printed residual / `CD` / `CL` /
+`yPlus` lines of all 21 printed steps were extracted per instance from both arms and diffed:
+
+- **position 1**: `P0`'s `cl04` and `DIAG_ORDER1`'s `cl05` — **BIT-IDENTICAL, all 189 lines.**
+- **position 2**: `P0`'s `cl05` and `DIAG_ORDER1`'s `cl04` — **BIT-IDENTICAL, all 189 lines.**
+- planted control: a one-character edit to one extracted file is reported by the same `diff`
+  reader, so the silence above is a reader that was shown able to speak.
+
+The entire 2000-step trajectory is a function of the **position in the process** and of nothing
+else. The point, its `CL_TARGETS` entry, its run directory and its files do not enter.
+
+**What actually fails, corrected.** The failing field is **`p`, not `nuTilda`**. At `Time = 2000`:
+position 1 max residual `nuTilda 1.194718885139746e-07` = 11.95x tol -> pass; position 2 max
+residual `p 1.757696578179007e-06` = **175.8x** tol -> fail, the criterion being
+`primalMaxRes / primalMinResTol > primalMinResTolDiff` with the published default 100
+(`repos/dafoam/src/adjoint/DASolver/DASolver.C:2743-2753`). The same log line appears verbatim in
+both arms: `Primal min residual 1.757696578179007e-06 did not satisfy the prescribed tolerance 1e-08`.
+Position 2 also needs `p nIters: 7` at `Time = 2000` where position 1 needs `2`.
+**`CD` and `CL` still agree to 5-6 figures between the two positions**
+(`0.02090262569125358` vs `0.02090109066417552`; `0.5000149858695342` vs `0.5000136952243076`) —
+this is a residual-FLOOR difference set by the pressure linear solve, not a different answer.
+
+**H-MUTATION dead, with a live plant.** `daOptions` md5 `f129ca31c6f85a782192ec0a8d505a46` before
+AND after every builder's `initialize()`, all three builders, one shared object id
+`129049504701248`; each `meshOptions` md5 unchanged before/after; `plant_visible: true` on every
+line. The shallow `dict()` copy in `mesh_options_for()` is not mutated and neither is the shared
+`daOptions`.
+
+**Cost calibration (rule 12).** Predicted 299 core-min, actual 254.800 core-min,
+**ratio 0.852**. Gap attribution: the run aborted after the second primal as predicted, and the
+wall per primal came in under the P0-based estimate because the box was less contended than when
+`P0` ran — misprediction in the conservative direction, no waste. Derived dollars 4.24667 core-h
+x $0.0513/core-h = **$0.2179, derived not measured**. Row owed to `docs/COST_CALIBRATION.md`.
