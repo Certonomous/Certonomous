@@ -14,7 +14,11 @@ solvers
     // cannot solve, first stalling and now overflowing.
     // PBiCGStab/DIC removes the coarse hierarchy from the problem entirely, so it is the
     // DEFINITIVE test of whether agglomeration is the cause rather than a tuning of it.
-    p       { solver PBiCGStab; preconditioner DIC; tolerance 1e-10; relTol 0.01; }
+    // DILU, not DIC: the TRANSONIC pressure matrix is ASYMMETRIC because of div(phid,p), and DIC
+    // is a symmetric-matrix preconditioner -- "Unknown asymmetric matrix preconditioner type DIC".
+    // The V10 stack said so already: GAMG's coarsest level was solved with PBiCGStab, not PCG,
+    // which it would use on a symmetric system.
+    p       { solver PBiCGStab; preconditioner DILU; tolerance 1e-10; relTol 0.01; }
     "(U|e|h|nuTilda)" { solver PBiCGStab; preconditioner DILU; tolerance 1e-11; relTol 0.01; }
     rho     { solver diagonal; }
 }
