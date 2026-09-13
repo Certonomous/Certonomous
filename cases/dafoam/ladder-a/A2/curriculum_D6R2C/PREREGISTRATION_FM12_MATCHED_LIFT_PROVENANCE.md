@@ -428,3 +428,152 @@ here.
   is graded `NOT A RESULT`, and the cap is never raised.
 
 **SUBMISSIONS PARKED (rule 7).**
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — **THE OUTCOME: `BLOCKED` AT `Zo`'s DEFORM PHASE, CAUSE CLASS `PRODUCER`; `Zb` IS COMPLETE, CLEAN, AND ITS NUMBERS STAND**
+
+**This addendum alters NO gate, threshold, cap or label of the registration above** (CLAUDE.md rule 6).
+It records what the run did. Lines whose number changed above this section: **0**. The label below is
+`dafoam-supervisor`'s, assigned from a personal crash triage (`SUPERVISION_CHARTER.md` §3, non-delegable);
+this lane implemented it and verified its load-bearing measurements independently, and reports that every
+one of them reproduced.
+
+**SUBMISSIONS PARKED (rule 7).** Nothing here is sent, filed, uploaded or registered anywhere. The defect
+below is **OUR defect in OUR script**, a FIX and not a filing; it is not an upstream DAFoam defect and the
+four upstream defect classes remain **`NOT FILED`**.
+
+### A1.1 THE VERDICT
+
+> **`BLOCKED`** — at the `Zo` sub-arm's `--phase deform`. **Cause class `PRODUCER`**
+> (`DAFOAM_CHARTER.md` §22.3, the fifth class).
+
+`rc = 1`, wall **269 s**, **17.933 core-min** (`ledger.txt`, `D6R2C_FM12_ROW`). Rank **1** exited 1
+(`Process name: [[52239,1],1]`, arm log line 6235). The immediately preceding three lines of the same log
+(6227–6229) are:
+
+```
+cgio_create_node:ADF  5: String is not an ASCII-HEX string.
+```
+
+`Zo` produced **no** state record, **no** solve and **no** graded quantity. **Nothing about the optimum
+was measured by this arm, in either direction.**
+
+### A1.2 THE DEFECT, MEASURED IN THE FILE AND IN THE ARTIFACT
+
+`d6r2c_freshmesh.py` — the **inherited frozen** producer, md5 `1d15ce361673ca600d565280441b67e0`, and the
+byte-identical copy staged into `FM12/Zo/` — computes
+
+```
+213:    rank0 = MPI.COMM_WORLD.rank == 0
+```
+
+and first **uses** it at
+
+```
+301:    if rank0:
+```
+
+**88 lines after**
+
+```
+268:    grid.writeToCGNS(surface_out)
+```
+
+That write is therefore executed by **all four MPI ranks onto one path**. `cgnsutilities`/ADF is not a
+parallel writer and has no file lock: four ranks open, truncate and write the same CGNS file
+concurrently. The measured consequence is the three `cgio_create_node` lines, rank 1's exit 1, and an
+output of
+
+| file | bytes |
+|---|---|
+| `FM12/Zo/surfaceMesh_final.cgns` | **8,192** |
+| `FM10/surfaceMesh_final.cgns` | 114,688 |
+| `FM8/surfaceMesh_final.cgns` | 114,688 |
+| `FM7/surfaceMesh_final.cgns` | 114,688 |
+| `FM5/surfaceMesh_final.cgns` | 114,688 |
+
+— **truncated to a 7 % stub.** `FM10` ran the **byte-identical** `mpirun -np 4 … --phase deform` command
+and its log carries **zero** `cgio` lines: **it won the race.**
+
+**The corrupt artifact is PRESERVED, deliberately, at**
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-FM12-a2-wing-matched-lift-provenance/FM12/Zo/surfaceMesh_final.cgns`.
+**It is the evidence and the known-bad control for the fix. It is not to be deleted.**
+
+### A1.3 THE IMPLICATION, STATED WITHOUT SOFTENING
+
+**EVERY FRESH-MESH ARM THIS FAMILY HAS EVER RUN WAS ROLLING THIS DICE.** A silent win looks exactly like
+a correct run. Swept for the signature across every fresh-mesh arm log on disk — `FM3`, `FM4`, `FM5`,
+`FM6`, `FM7`, `FM8`, `FM9`, `FM10`, and the `DEC`/`DEC2`/`DEC3` logs — the `cgio` count is **0 in every
+one of them**. That is **not** reassurance that the write was correct in those arms; it is the
+observation that **the failure mode is silent when it does not crash**, and that no arm before `FM12`
+carried any instrument capable of telling a won race from a correct write. No prior arm's label is
+changed by this addendum and none is re-graded (`FM10` stays `NOT A RESULT`, `FM11` stays `BLOCKED`,
+`O_mp` stays `GATE FAIL`); what is recorded is that **their fresh-surface provenance was never
+evidenced**, and the instrument that would have evidenced it is registered in `FM13`.
+
+**This is the SECOND independent `PRODUCER` defect in this one file.** The first was the double design
+variable application at `d6r2c_freshmesh.py:423-425`, which made `FM10` `NOT A RESULT` and which
+`DAFOAM_CHARTER.md` §22.3 was written from. **The fifth cause class is now earned twice over, in the same
+623-line file.**
+
+### A1.4 `Zb` IS COMPLETE AND CLEAN, AND ITS NUMBERS STAND AS MEASURED
+
+`Zb` ran to `rc = 0` and wrote its `STATE` and `FOOTER` records
+(`FM12/Zb/d6r2c_fm12.jsonl`). It is untouched by the `Zo` refusal: the two sub-arms are separate
+processes on separate meshes, and `Zb` never calls `--phase deform`.
+
+| quantity | measured | registered comparator | margin |
+|---|---|---|---|
+| `J_base_fresh` | **0.030642507915** | optimiser's own `J0` **0.030641631439** | diff **8.765e-07** = **0.0029 %** |
+| that difference against `FM_BAND_ABS` (`= 0.01 × J0` = 3.064163e-04) | | | **349.6× inside the band** |
+| max \|`CL` − target\| | **5.643e-07** (`cl06`) | `TRIM_TOL` = **1.0e-3** | 1772× inside; closed in **2** trim evaluations |
+| `M0b.5` read-back | **pass** | the mesh the solver read | **0.0 m exactly** on all three conditions, 4 processors each |
+| as-run `checkMesh` max non-orthogonality | **66.965** | DAFoam's declared **70.0** | **INSIDE** — unlike the optimisation mesh at **71.24** and `FM10` at **79.21**, which both breach it |
+| `R1` mesher determinism | **0.0 m exactly**, **40209 / 40209** points identical, md5 identical, gzip header `MTIME` = **0 on both files** | | across **47.743 days** |
+| `G-WALL` | **pass**, all three conditions | max displacement 1.000e-13 m | tol 9.157e-13 m, DERIVED in the producer's own invocation |
+
+`Zb` wall **163.413 s**, **10.894 core-min**, **0** continuation steps, **2** primal evaluations.
+
+### A1.5 WHAT `Zb` MEANS, AND WHAT IT DOES NOT
+
+> **`Zb` shows the BASELINE reproduces on a freshly generated mesh to 0.0029 %. It says NOTHING about
+> whether the optimum reproduces. The 24.7 % remains untested in both directions, and no reading of `Zb`
+> supports it.**
+
+`Zb` is a control on the *pipeline*, not on the *answer*. It establishes that mesh generation, staging,
+decomposition, the trim and the objective assembly can be driven end to end on a mesh built today and
+land on the optimiser's own starting objective. The arm's actual question — whether `J_opt` computed on a
+mesh extruded around the deformed surface reproduces the 24.732273 % gain — is carried entirely by `Zo`,
+and `Zo` did not run.
+
+### A1.6 THE COST — ESTIMATE VERSUS ACTUAL (CLAUDE.md rule 12)
+
+| | core-min | $ (DERIVED, **not measured**) |
+|---|---|---|
+| `FM12` predicted | 222.853 | 0.1905 |
+| `FM12` cap (×3.00) | 668.559 | 0.5716 |
+| **`FM12` actual** | **17.933** | **0.0153** |
+| ratio actual / predicted | **0.080470** | |
+
+**The cap was not crossed.** Dollars are DERIVED at the owner-stated $0.0513/core-h and are **NOT
+MEASURED** — the box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5).
+
+**ATTRIBUTION: the `Zo` refusal, not misprediction.** `Zo` carried **2400.3 s** of the predicted
+**3342.8 s** — 72 % of the whole prediction — and it never reached a solve, so its terms are neither
+confirmed nor falsified and are carried forward **labelled untested**. The 204.920 core-min not spent is
+**not waste**: it is compute the arm correctly declined to start once its input was corrupt.
+
+**Named SEPARATELY, and NOT folded into the ratio above, because it is genuine calibration information:**
+`Zb`'s registered term was **676.8 s** (574.5 s DEC7 `STATE B` trim + 88.2 s mesh/deform/stage + 14.1 s
+model load) and it ran in **163.413 s** — **4.14× faster**. The cause is measured, not guessed: the trim
+closed in **2** evaluations where DEC7 `STATE B` needed **6**, because `Zb` starts from `x0` on a mesh
+generated at zero shape. `FM13` re-anchors `ZB_TRIM_WALL_S` on this measurement.
+
+### A1.7 WHAT THIS ADDENDUM DOES NOT DO
+
+- It does not change `FM12`'s gates, thresholds, caps or label; the registration above is closed.
+- It does not grade `Zb` as a `PASS` of any `FM12` gate. `G1` is a `Zo` gate and `Zo` did not run;
+  the `Zb` figures are reported as **measured**, under the arm's `BLOCKED` label.
+- It does not re-grade `FM10`, `FM11` or `O_mp`.
+- It authorises no send. **SUBMISSIONS PARKED.**
