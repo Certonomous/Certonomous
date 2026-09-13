@@ -1,0 +1,776 @@
+                                                                                                                                                        Proceedings of the OMAE 2024
+                                                                                                                  43rd International Conference on Ocean, Offshore & Arctic Engineering
+                                                                                                                                                                             OMAE2024
+                                                                                                                                                            June 9–14, 2024, Singapore
+
+
+
+                                                                                                                                                              OMAE2024-125991
+
+
+                                                            MODELING OF HYDROACOUSTIC NOISE FROM MARINE PROPELLERS WITH TIP VORTEX CAVITATION
+arXiv:2405.15133v1 [physics.flu-dyn] 24 May 2024
+
+
+
+
+                                                                           Zhi Cheng1, ∗ , Suraj Kashyap1 , Brendan Smoker2 , Giorgio Burella2 , Rajeev Jaiman1, ∗
+
+                                                        1
+                                                         Mechanical Engineering, The University of British Columbia, 2329 West Mall, Vancouver, British Columbia, V6T 1Z4, CANADA.
+                                                    2
+                                                        Robert Allan Ltd. - Naval Architects and Marine Engineers, 250 Howe St #400, Vancouver, British Columbia, V6C 3R8, CANADA.
+
+
+
+
+                                               ABSTRACT                                                                      lent Wake, Tip Vortex Cavitation, Hydroacoustics
+
+                                                    Due to growing marine ecological concerns, there is an acute
+                                               industrial need to significantly reduce the underwater radiated               1. INTRODUCTION
+                                               noise (URN) from marine propellers during ship operations. In                      The generation and propagation of underwater radiated noise
+                                               this regard, high-fidelity fluid flow and hydroacoustic models are            (URN) generated from marine propellers [1] is one long-term in-
+                                               required for understanding the propeller noise generation and                 dustrial and environmental issue, that negatively affects the safety
+                                               propagation in the ocean environment. Using high-fidelity CFD                 and health of ship crew, passengers as well as marine mammals
+                                               modeling, the present work aims to study the cavitating turbulent             [2–4]. URN substantially includes machinery noise, propeller
+                                               flow of a full-scale marine propeller and explore the physical                noise, and hydrodynamic flow noise. The hydrodynamic flow
+                                               mechanism underpinning the underwater radiated noise. We                      noise, caused by the mutual motion of the ship hull and the sur-
+                                               employ the standard dynamic large eddy simulation for the tur-                rounding water, is generally weak and also usually covered by
+                                               bulent wake flow and the Schnerr-Sauer cavitation model, while                other noises [5]. Regarding the hydrodynamic noise induced by
+                                               the Ffowcs-Williams-Hawkings acoustic analogy is considered                   operating propellers, it is usually characterized by tonal noise
+                                               for the hydroacoustic modeling. For the current investigation, we             at different blade pass frequencies, as well as broadband noise
+                                               consider a well-known Potsdam Propeller Test Case to analyze                  originating from various wake vortexes, cavitation structures,
+                                               the turbulent cavitating flow and the associated hydroacoustic                and bursting bubbles. In addition, modern propeller designs
+                                               emissions. To begin, the modeling framework is validated using                often purposefully allow certain non-erosive cavitation to occur
+                                               the available experimental data, and distinctive double-helical               to achieve higher efficiencies, which will exacerbate the energy
+                                               tip vortex cavitation and its qualitative patterns along the vortex           of radiated noise [6]. The dramatic noise increases caught by
+                                               trajectory are captured. In comparison to the non-cavitating con-             propeller cavitation will cover mechanical noise and dominate
+                                               dition, the pressure distribution on the propeller surface is more            URN propagation [7]. Therefore, it is extremely significant to
+                                               disordered for the cavitating condition, which is further reflected           predict and analyze the noise-radiating behaviors accompanying
+                                               by a relatively stronger power of both low-frequency tonal peaks              the operation of cavitating propellers.
+                                               and high-frequency broadband components in the spectrum of                         The rapid development of computational resources makes it
+                                               thrust generation. Specifically, the generation of cavitation leads           possible to numerically predict the turbulence field, cavitation
+                                               to the enhancement of the monopole noise source and the break-                development, and noise propagation of the full-scale marine pro-
+                                               down of cavitation bubbles as well as vortex structures in the                peller. Hybrid methodology of acoustics calculation reduces the
+                                               turbulent wake. Furthermore, the tonal noise with the frequency               computational effort while guaranteeing predictive accuracy and,
+                                               corresponding to the harmonics of blade passing frequency is                  as a consequence, is more amenable to the calculation of noise
+                                               also enhanced. Generally speaking, the generation of cavita-                  propagation, especially in applications addressing engineering
+                                               tion structures enhances the hydroacoustics energy of URN at all              and real-world industrial problems. For the prediction of sound
+                                               orientations, especially in the downstream direction with sound               radiation in the hybrid method, the commonly used methodology
+                                               pressure level increasing up to 20 dB.                                        is based on the Ffowcs-Williams-Hawkings (FW-H) equations [8–
+                                                                                                                             10]. Posa et al. [11] investigated the flow dynamics and acoustics
+                                               Keywords: Marine Propeller, Large-Eddy Simulation, Turbu-
+                                                                                                                             propagation of marine propellers via the database (consisting of
+                                                   ∗ Corresponding author: rjaiman@mech.ubc.ca                               840 million points) generated by large-eddy simulations (LES)
+                                                    Documentation for asmeconf.cls: Version 1.35, May 27, 2024.              and FW-H method. Cavitation is not considered in this work.
+
+
+                                                                                                                         1                                        Copyright © 2024 by ASME
+Posa et al. [11] observed that the tonal components of acoustic            merical and analytical methods listed above. Section 3 describes
+signature mainly appear in the near field and dissipate rapidly            the present concerned problem. The accuracy of the implemented
+when extending to the far field. The energy of tonal noise is              models used herein is also validated in Section 3. In Section 4, the
+transferred into that of broadband components because the noise            flow dynamics of the propeller with cavitating and non-cavitating
+sources underpinning tonal components develop instability at a             conditions are analyzed. Section 5 further explores the hydroa-
+faster rate. Similar work was also conducted by Ahmed [12].                coustics performance. In Section 6, the key results of this study
+      Posa et al. [13] further considered the interaction of the           are summarized.
+upstream propeller and downstream hydrofoil and state that dom-
+inant noise sources are located at the leading edge of the hydrofoil       2. METHODOLOGY
+because of the impingement by the propeller wake. Yangzhou et              2.1 Fluid dynamics and solid body motion
+al. [14] investigated a similar configuration and proposed two                  The fluid domain consists of liquid and vapor phases which
+different noise source-identifying approaches. Compared to the             are assumed to exist as a continuous homogeneous mixture. The
+open propellers introduced above, the nozzle surrounding rotors            phase indicator 𝛼𝑙 (𝒙,𝑡) represents the phase fraction of the liquid
+in the ducted condition will have an impact on both the flow dy-           phase in the fluid mixture, where 𝒙 and 𝑡 are spatial and temporal
+namics and acoustics generation. As introduced in the works of             coordinates. The density 𝜌 and dynamic viscosity 𝜇 of the fluid
+Zhang & Jaiman [15], the flow through the tip-leakage ( between            are obtained as a linear weighted combination of the liquid and
+the nozzle and the blade tip) will generate the tip leakage vortex,        vapor phases:
+which will interact with the trailing edge wake and tip vortices                                𝜌 = 𝜌𝑙 𝛼𝑙 + 𝜌𝑣 (1 − 𝛼𝑙 ) ,                  (1)
+shed from the blades. This phenomenon will pose some poten-
+                                                                                                    𝜇 = 𝜇𝑙 𝛼𝑙 + 𝜇𝑣 (1 − 𝛼𝑙 ) ,                          (2)
+tial implications for the noise sources generated during propeller
+operation. Hieke et al.[16] and Chen et al. [17] both experimen-           where 𝜌𝑙 and 𝜌𝑣 are the densities of the pure liquid and vapor
+tally and numerically investigated the noise characteristics of the        phases respectively, and 𝜇𝑙 and 𝜇𝑣 are the corresponding dynamic
+ducted marine propeller, but did not involve cavitation modeling           viscosities.
+in the calculations.                                                            We model the unsteady, incompressible Newtonian flow of
+      In terms of the potential effects of cavitation generation on        the fluid in the present work. The standard dynamic large eddy
+flow dynamics and noise sources for full propellers, Potsdam               simulation (LES) model [23] is applied here, and the unsteady
+Propeller Test Case (PPTC) of smp workshop [18] published one              Navier–Stokes equations (subjected to Favre filtering operation)
+propeller model (termed as VP 1304) and conducted a series of              describing the conservation of momentum and mass are expressed
+measurements on the cavitating formulation. There are some                 as
+                                                                                                    𝜕 𝑢˜𝑗
+                                                                                                                (︃         )︃
+                                                                                                                   1     1
+subsequent computational works such as Geese & Kimmerl [19],                                                  =       −       ̇
+                                                                                                                              𝑚,                         (3)
+Viitanen et al. [20], Cianferra & Petronio [21], in which their                                     𝜕𝑥𝑗            𝜌𝑙 𝜌 𝑣
+simulation results were compared with the experimental data. For                  𝜕 (𝜌 𝑢˜ 𝑖 ) 𝜕 𝜌 𝑢˜ 𝑖 𝑢˜𝑗          𝜕 𝑝˜             𝜕 𝑢˜ 𝑖
+                                                                                               (︁          )︁                   (︃          )︃
+                                                                                                                            𝜕                    𝜕𝜏𝑖 𝑗
+the numerical works on the full propeller cavitation, Kimmerl et                             +                 =−        +         𝜇           −       , (4)
+                                                                                     𝜕𝑡           𝜕𝑥𝑗               𝜕𝑥𝑖 𝜕𝑥𝑖          𝜕𝑥𝑗         𝜕𝑥𝑗
+al. [6] included the cavitation processing in consideration and
+also investigated the effect of the shock of propeller wake on the         where the over-bar ‘∼’ denote filtered quantities. 𝑥 𝑖 is the 𝑖-th
+hull surface. The cavitation process is also considered in the com-        component of a Cartesian coordinate vector 𝒙 with 𝑖, 𝑗 ≡ 1, 2, 3
+putational work of Lidtke et al. [22] and the difference in noise          corresponding to the 𝑥-, 𝑦- and 𝑧-directions, respectively; 𝑝 is the
+characteristics between the ducted and non-ducted conditions is            pressure; and, 𝑢 𝑖 represents the 𝑖-th component of fluid velocity.
+compared. The computational results implied that the addition              Although the pure liquid and pure vapour phases are considered
+of a nozzle effectively suppresses the tonal components of the             incompressible, the density of the mixture varies with the volume
+noise spectrum. However, this work does not obtain a sufficient            fraction of the immiscible phases, and thus the local divergence
+and accurate prediction of cavitation structures while predicting          of velocity is non-zero as seen in the continuity equation (Eq. 3).
+hydroacoustic emission.                                                    𝑚̇ is the mass transfer rate between the phases due to cavitation
+      In view of the aforementioned literature, it is important            and has been elaborated further in Section 2.2. 𝜏𝑖 𝑗 in Eq. 4 are
+to investigate the hydro-acoustic noise generated by a three-              the Sub-Grid Scale (SGS) stresses defined as
+dimensional turbulent and cavitating wake behind the marine
+                                                                                                                 𝑖 𝑢𝑗 − 𝑢˜ 𝑖 𝑢˜ 𝑗 ,
+                                                                                                        𝜏𝑖 𝑗 = 𝑢˜︃                                      (5)
+propellers and compare the discrepancies between cavitating and
+non-cavitating configurations. In the present work, two scenarios,         the Boussinesq hypothesis is used to model the SGS stresses
+in detail, VP 1304 propellers without cavitation model and with
+cavitation model are considered with cross-comparison with re-                                           1
+                                                                                                   𝜏𝑖 𝑗 − 𝜏𝑘𝑘 𝛿𝑖 𝑗 = −2𝜇𝑡 𝑆˜︂
+                                                                                                                            𝑖𝑗,                         (6)
+spect to the propeller performance, the cavitation structures, and                                       3
+the noise generation. More specifically, the emphasis will be              where 𝜏𝑘𝑘 is the isotropic part of the SGS stresses and 𝜇𝑡 is the
+placed on the surface pressure distribution, the specific pattern of       SGS turbulence viscosity. 𝑆˜︂𝑖 𝑗 is the rate-of-strain tensor for the
+cavitation, and the detailed variation/transfer of the shedding tip        resolved scale defined by
+vortex. Moreover, this study further explores their implication on
+noise characteristics and power requirements.                                                          1 𝜕 𝑢˜ 𝑖 𝜕 𝑢˜𝑗
+                                                                                                          (︃           )︃
+      The paper is structured as follows: Section 2 details the nu-                             𝑆˜︂
+                                                                                                  𝑖𝑗 =           +        .                  (7)
+                                                                                                       2 𝜕𝑥𝑗 𝜕𝑥 𝑖
+
+
+                                                                       2                                                  Copyright © 2024 by ASME
+2.2 Cavitation modelling                                                             within the control surface [29, 30], and the detailed information
+     We model the effect of cavitation using a transport equation                    refers to our previous work [27]. This study applies the Farassat
+for the liquid phase fraction 𝛼𝑙                                                     1A formulas [31–33] proposed by Farassat et al. to solve FW-H
+                                                                                     equations. For the noise generated by the moving source, the
+               𝜕 (𝜌𝑙 𝛼𝑙 ) 𝜕 (𝜌𝑙 𝛼𝑙 𝑢 𝑖 )                                                               ′
+                         +               = 𝑚̇ = 𝑚̇ 𝑐 + 𝑚̇ 𝑣 ,            (8)         sound pressure 𝑝 at the monitor location 𝒙 and recording time 𝑡
+                  𝜕𝑡         𝜕𝑥𝑖                                                     in Farassat’s formulation 1A is [27]:
+The source terms 𝑚̇ 𝑐 and 𝑚̇ 𝑣 model the mass transfer rates during                                           ′            ′               ′
+
+the condensation and vaporization processes respectively as a                                             𝑝 (𝒙, 𝑡) = 𝑝 𝑇 (𝒙, 𝑡) + 𝑝 𝐿 (𝒙, 𝑡)                    (13)
+result of cavitation. 𝑚̇ 𝑐 and 𝑚̇ 𝑣 in the present work are based on
+                                                                                     where the index 𝑇 and 𝐿 correspond to the thickness and loading
+the original work by Schnerr and Sauer (Schnerr-Sauer cavitation
+                                                                                     terms, which are expressed as:
+model) [24]. The Schnerr-Sauer cavitation model is derived from
+a simplification of the Rayleigh-Plesset equation for spherical                                                      ∫ [︃ ̇                ]︃
+                                                                                                        ′                    𝑄 𝑛 + 𝑄𝑛̇
+bubble dynamics and has been used extensively in literature for a                                  4𝜋 𝑝 𝑇 (𝒙, 𝑡) =                       2
+                                                                                                                                                  𝑑𝑆
+                                                                                                                      𝑓 =0 𝑟 (1 − 𝑀𝑟 ) 𝑟 𝑒𝑡
+variety of cavitating flow configurations [25, 26]. 𝑚̇ 𝑐 and 𝑚̇ 𝑣 are                                                                                 (14)
+                                                                                                          𝑄 𝑛 𝑟 𝑀̇ 𝑟 + 𝑐 0 𝑀𝑟 − 𝑀 2
+                                                                                                  ∫ [︄        (︁          (︁        )︁ )︁ ]︄
+thus expressed as
+                                                                                                +                                                 𝑑𝑆,
+                                √︄                                                                 𝑓 =0          𝑟 2 (1 − 𝑀𝑟 ) 3             𝑟 𝑒𝑡
+                         3𝜌𝑣 𝜌𝑙          2
+  𝑚̇ 𝑐 = 𝐶𝑐 𝛼𝑙 (1 − 𝛼𝑙 )                       max ( 𝑝 − 𝑝 𝑣 , 0) , (9)
+                          𝜌𝑅𝐵 3𝜌𝑙 | 𝑝 − 𝑝 𝑣 |
+                                                                                                                                   𝐿̇ 𝑟
+                                                                                                                      ∫ [︃                      ]︃
+                                                                                                          ′       1
+                                                                                                    4𝜋 𝑝 𝐿 (𝒙, 𝑡) =                                    𝑑𝑆
+                                         √︄                                                                       𝑐 0 𝑓 =0 𝑟 (1 − 𝑀𝑟 ) 2 𝑟 𝑒𝑡
+                                3𝜌𝑣 𝜌𝑙           2
+                                                                                                                     ∫ [︃                       ]︃
+𝑚̇ 𝑣 = 𝐶𝑣 𝛼𝑙 (1 + 𝛼 𝑁 𝑢𝑐 − 𝛼𝑙 )                           min ( 𝑝 − 𝑝 𝑣 , 0) ,                                                 𝐿𝑟 − 𝐿𝑀
+                                                                                                                  +                                    𝑑𝑆       (15)
+                                 𝜌𝑅𝐵      3𝜌𝑙 | 𝑝 − 𝑝 𝑣 |                                                                                    2
+                                                                                                                       𝑓 =0 𝑟 2 (1 − 𝑀𝑟 ) 𝑟 𝑒𝑡
+                                                                       (10)                           ∫ [︄ (︁ ̇                         )︁ )︁ ]︄
+                                                                                                            𝐿 𝑟 𝑟 𝑀𝑟 + 𝑐 0 𝑀𝑟 − 𝑀 2
+                                                                                                                            (︁
+where 𝐶𝑐 and 𝐶𝑣 are the condensation and vaporization model                                        1
+                                                                                                 +                                                    𝑑𝑆.
+coefficients respectively, and 𝑝 𝑣 is the vapor pressure of the fluid                              𝑐 0 𝑓 =0        𝑟 2 (1 − 𝑀𝑟 ) 3               𝑟 𝑒𝑡
+at saturation conditions. 𝛼 𝑁 𝑢𝑐 and 𝑅𝐵 are the volume fraction
+and radius of the bubble nuclei in the fluid and are given as                        Here, 𝑀𝑖 = 𝑣𝑖 /𝑐 0 with 𝑖 = 1, 2, 3 are the components of the Mach
+                      (︄            )︄ (︄                  )︄                        vector where 𝑐 0 is the speed of sound; 𝑀 is the length (magnitude)
+                            𝑑 3𝑁 𝑢𝑐                𝑑 3𝑁 𝑢𝑐                           of the Mach vector, and · above a parameter represents the time
+              𝛼 𝑁 𝑢𝑐 = 𝑛0 𝜋           / 1 + 𝑛0 𝜋              ,        (11)          derivative. Other terms in the above equation are represented as:
+                               6                      6
+                            √︄
+                                  3 1 + 𝛼 𝑁 𝑢𝑐 − 𝛼𝑙                                                           𝑀𝑟 = 𝑀𝑖 𝑟ˆ𝑖 , 𝑀̇ 𝑟 = 𝜕𝑀 𝜕𝜏 𝑟ˆ𝑖 ,
+                                                                                                                                           𝑖
+                     𝑅𝐵 = 3                         ,                   (12)
+                                 4𝜋𝑛0     𝛼𝑙                                                                          ̇
+                                                                                                 𝑄 𝑛 = 𝑄 𝑖 𝑛ˆ 𝑖 , 𝑄 𝑛 = 𝜕𝜏 𝑛ˆ 𝑖 , 𝑄𝑛̇ = 𝑄 𝑖 𝜕𝜕𝜏
+                                                                                                                             𝜕𝑄𝑖                   𝑛ˆ 𝑖
+                                                                                                                                                        ,       (16)
+where 𝑛0 is the number of nuclei per unit volume and 𝑑 𝑁 𝑢𝑐 is the                          𝐿 𝑖 = 𝐿 𝑖 𝑗 𝑛ˆ 𝑖 , 𝐿̇ 𝑟 = 𝜕𝜏 𝑟ˆ𝑖 , 𝐿 𝑟 = 𝐿 𝑖 𝑟ˆ𝑖 , 𝐿 𝑀 = 𝐿 𝑖 𝑀𝑖 .
+                                                                                                                      𝜕𝐿𝑖
+
+
+corresponding diameter of the nuclei. 𝐶𝑐 , 𝐶𝑣 , 𝛼 𝑁 𝑢𝑐 and 𝑑 𝑁 𝑢𝑐 are
+                                                                                     in which 𝑄 𝑛 and 𝐿 𝑖 are defined as
+user-inputs to the cavitation model. In the present study, these
+inputs have been set to 𝐶𝑐 = 1.0, 𝐶𝑣 = 1.0, 𝛼 𝑁 𝑢𝑐 = 1.6 × 1013                                      𝑄 𝑛 = 𝑄 𝑛 𝑛ˆ 𝑖 =[︁[𝜌0 𝑣𝑖 + 𝜌 (𝑢
+and 𝑑 𝑁 𝑢𝑐 = 6 × 10−5 𝑚.                                                                                                                      )︁ ]︁ 𝑛ˆ 𝑖 ,
+                                                                                                                                    (︁ 𝑖 − 𝑣𝑖 )]                (17)
+                                                                                                     𝐿 𝑖 = 𝐿 𝑖 𝑗 𝑛ˆ 𝑖 = 𝑃𝑖 𝑗 + 𝜌𝑢 𝑖 𝑢𝑗 − 𝑣𝑗 𝑛ˆ 𝑗 ,
+2.3 Acoustic modelling                                                               here, 𝑣𝑖 is the surface ( 𝑓 ) moving velocities, and the summation
+     The FW-H method could be used to predict the noise gen-                         convention is used for repeated index. The moving surface is
+erated by the solid surface with arbitrary motion. Accompa-                          described by 𝑓 (𝒙, 𝑡) = 0 such that 𝑛ˆ = ∇ 𝑓 is the unit outward
+nying FW-H method gradually regarded as a theoretical basis                          normal to the surface. 𝑃𝑖 𝑗 = ( 𝑝 − 𝑝 0 ) 𝛿𝑖 𝑗 −𝜏𝑖 𝑗 is the compressible
+for industrial sound prediction, many methods for solving the                        stress tensor, and 𝛿𝑖 𝑗 is the Kronecker delta. In general, the
+FW-H equations have been proposed. The noise sources of the                          viscous term in 𝑃𝑖 𝑗 could be seen as negligible. Then, the stress
+wave equation in the FW-H method contain three terms, namely,                        tensor is 𝑃𝑖 𝑗 = ( 𝑝 − 𝑝 0 ) 𝛿𝑖𝑎𝑗 . Additionally, in the region away
+quadrupole source (noise due to turbulent shear stress), dipole                      from the source area, the perturbation of density is also small,
+                                                                                                                                                  ′
+source, and monopole source [27].                                                    and 𝑐2 (𝜌 − 𝜌0 ) is replaced by the sound pressure 𝑝 . The index
+     The turbulence term (quadrupole source) requires volume                         𝑟𝑒𝑡 represents the integrand at the time of emission:
+integration in the FW-H equations, which will make it challeng-
+                                                                                                                                       𝑟
+ing to determine the integration area and to integrate in the flow                                                 𝑔 = 𝜏𝑟 𝑒𝑡 − 𝑡 +        ,                     (18)
+surrounding the structure [28]. The FW-H method with a perme-                                                                          𝑐0
+able control surface is an improved acoustic radiation model that                    in which, 𝑟 = |𝒙 − 𝒚 (𝜏𝑟 𝑒𝑡 )| represents the space distance from
+builds permeable surfaces and adds some reasonable assumptions                       the sound source to the monitor location. Epikhin et al. [34]
+so that the combination of loading and thickness terms on perme-                     implemented the Farassat 1A formulas in OpenFOAM [35] and
+able surfaces will cover the sources brought by quadrupole terms                     we have developed a customized solver for the present study.
+
+
+                                                                                 3                                                  Copyright © 2024 by ASME
+                                (a)
+
+
+
+                                                                            FIGURE 2: Diagram of geometry and computational domain.
+
+
+                                                                          ation we use the SnappyHexMesh utility implemented in Open-
+                                                                          FOAM. SnappyHexMesh generates high quality hexahedral or
+                                                                          split-hexahedral meshes from triangulated surface geometries.
+                                                                          This will enable template-based shape optimization studies which
+                                                                          is of interest to the authors in future work. For mesh 3 applied
+                                                                          in this paper, it takes about 4.5 hours with 4×40 G computing
+                                                                          resources to generate the mesh with cell numbers of about 40.4
+                                (b)
+                                                                          million.
+FIGURE 1: (a) PPTC experimental configuration [18], (b) 3-D com-
+putational domain with propeller (accompanied by rod) surface and         TABLE 1: Geometric parameters of VP1304 propeller and relevant
+sliding interface annotated by blue and green colors, respectively.       operating conditions.
+
+                                                                                                Properties             Value
+3. DESCRIPTION OF THE PROBLEM                                                            Pitch ratio at 𝑟/𝑅 = 0.7      1.635
+     Following the works of Geese & Kimmerl [19] and Cianferra                             Chord at 𝑟/𝑅 = 0.7          0.417
+& Petronio [21], we choose the standard Potsdam Propeller Test                                   Skew (◦ )             18.837
+Case (PPTC) for which experimental data was made available                                      Hub ratio              0.300
+during the SMP workshop [18]. We select a particular case of                                Number of blades              5
+the five-bladed controllable pitch marine propeller VP1304. The                         Propeller diameter 𝐷 (m)        0.25
+salient features of the propeller geometry and operating condi-                           Advance coefficient 𝐽        1.019
+tions are summarized in Table 1.                                                         Rotational speed 𝑛 (1/s)       25.0
+     Figures 1a and 1b exhibit the experimental propeller geome-                          Cavitation number 𝜎𝑛         2.024
+try and the corresponding numerical configuration. The propeller
+is mounted on a cylindrical shaft and submerged in water. As in-
+dicated in Figure 2, the position of the propeller hub center is at            For the propeller analysis, key non-dimensional operational
+the centerline of both transverse (cross-stream) directions (i.e.,        parameters are the advance coefficient and cavitation number
+𝑧 = 𝑦 = 0), and located at a distance 2𝐷 downstream of the inlet          defined as
+boundary in the 𝑥−direction. The streamwise (𝑥−) length and
+                                                                                              𝑈0                   𝑝 − 𝑝𝑣
+two cross-stream (𝑦−, 𝑧−) lengths of the computational domain                            𝐽=       , and 𝜎𝑛 =                 ,        (19)
+are 10𝐷, 2.4𝐷, and 2.4𝐷. A Dirichlet boundary condition was                                   𝑛𝐷                0.5𝜌𝑙 (𝑛𝐷) 2
+prescribed for the incident flow velocity 𝑢⃗ = (𝑈0 , 0, 0) on the         where 𝑈0 is the incoming flow velocity (m/s), 𝑛 is propeller
+inlet face (i.e., single upstream patch) in Fig. 1b. A Neumann            rotating rate (1/s), 𝐷 is propeller diameter (m), and 𝑝 𝑣 is the
+boundary condition is imposed on the velocity at the outflow (out-        vapor pressure (Pa). We monitor the propeller performance in
+let) boundaries, i.e., the single downstream patch of the domain,         the form of thrust and torque coefficients defined as
+symmetrical boundary conditions are applied to four side patches
+                                                                                                      𝑇              𝑄
+to avoid blockage effects.                                                                 𝐾𝑇 =       2  4
+                                                                                                           , 𝐾𝑄 =           ,         (20)
+                                                                                                  𝜌𝑙 𝑛 𝐷          𝜌𝑙 𝑛2 𝐷 5
+3.1 Mesh generation and model validation                                  where 𝑇 and 𝑄 are the propeller thrust and torque respectively.
+   Spatial discretization of the resulting highly complex fluid           The operating conditions for all the configurations considered in
+domain requires careful consideration. For efficient mesh gener-          the present work are indicated in Table 1.
+
+
+                                                                      4                                        Copyright © 2024 by ASME
+                                                                        (a)
+
+
+
+
+                                                                        (b)
+
+FIGURE 3: Mesh setup (mesh 3) used in the present simulation. (a) Domain showing the overall mesh in one streamwise orthogonal x − y
+plane (which is consistent with the mesh in the other streamwise orthogonal x − z plane), and (b) expanded view of the immediate vicinity of
+the propeller surface and inplane mesh distribution (last panel iv) at x /D = 0.25, the rot line represents the cavitation contour with a volume
+fraction of 0.5.
+
+
+
+     The mesh dependency study is conducted via the 3-D sim-
+ulation of the VP 1304 propeller without the surrounding duct.
+The corresponding thrust and torque coefficients at different mesh
+qualities are calculated and the associated results are summarized
+in Table 2. It could be observed that the relative differences of
+each parameter between mesh 1 to mesh 2 are considerable, but
+all decrease to a value smaller as the mesh is refined to mesh
+2 (fine) and mesh 3 (very fine). To follow up, we use mesh 3
+to calculate the present configuration and compare the dynamics
+coefficients between present results and other accessible exper-
+imental and numerical works [36, 37]. The results for thrust
+and torque coefficients summarized in Table 2 also indicate high
+conformance between this study and other results. As a con-                                  (a)                              (b)
+sequence, the strategy applied by mesh 3 is adopted in all the
+configurations of the present work to achieve the best balance
+of calculation time and accuracy. Total cavitation volume is not
+compared herein because hub downstream cavitation is not con-
+sidered and captured numerically herein owing to the meshing
+strategy. Fig. 3a displays the overview of the mesh domain used
+in the present study, with the expanded/close-up views of mesh
+in the immediate vicinity of the propeller (and duct) shown in
+Fig. 3b. Additionally, an intuitive diagram of the normalized cell
+size applied for the resolution of the tip vortex region, i.e., 𝑥ˆ 𝑡𝑣
+in Table 2, is shown in panel (iv) of Figure 3b. 𝑥ˆ 𝑡𝑣 (=𝑥 𝑡𝑣 /𝑆)                                            (c)
+represents the normalized cell size, where 𝑥 𝑡𝑣 is the maximum
+cell size in the tip vortex region.                                           FIGURE 4: (a) Present numerical results obtained with DES model,
+                                                                              (b) present numerical results obtained with LES model, and (c) ex-
+                                                                              perimental results [18].
+    The resolution tip vortex cavitation, the key factor that affects
+
+
+                                                                        5                                          Copyright © 2024 by ASME
+TABLE 2: Thrust and torque coefficients for different mesh conditions. The overall mesh refinement level is adjusted by changing the base
+cell scale on the input/output patches. x̂ tv (=x tv /S ) means the normalized cell size for the tip vortex region, where x tv is the maximum cell
+size in the tip vortex region.
+
+                                      Total cells number      Rotor region     Stator region    𝐾𝑇 ,𝑟 𝑚𝑠   10𝐾𝑄,𝑟 𝑚𝑠     y+     𝑥ˆ 𝑡𝑣
+                                          (millions)           (millions)       (millions)
+             Experiments [18]                                                                   0.374       0.9698
+            Other simulation [37]                                                               0.380       0.9680
+                   Mesh 1                     18.0                15.0              3.0         0.361       1.0398       92   0.004
+                   Mesh 2                     26.9                22.5              4.5         0.375       0.9710       40   0.006
+                   Mesh 3                     40.4                33.7              6.7         0.378       0.9648       19   0.009
+
+
+
+
+FIGURE 5: Vorticity contour accompanied by streamlines in y −
+z plane at x = 0.4D downstream for (a) cavitating and (b) non-
+cavitating conditions.
+
+
+
+the hydroacoustics generation, is highly sensitive to the applied
+numerical model, so we also compare the performance of 𝑘 − 𝜔
+SST Detached eddy simulation (DES) and LES models regarding
+the cavitation generation. The cavitation contour with the volume
+fraction of 0.5 for DES and LES models are displayed in Fig. 4a
+and b, respectively. In terms of the cavitation, it is apparent that
+the LES model exhibits better agreement with the experimental
+observation than the DES model and is thereby applied in present
+study.
+
+4. FLOW DYNAMICS
+     In this section we focus on the hydrodynamic performance
+of the VP1304 propeller under cavitating and non-cavitating con-
+ditions. To achieve non-cavitating conditions we increase the far-
+field pressure thereby increasing the cavitation number, which is
+consistent with the experimental practices. Figure 5 shows the
+vorticity contour and velocity streamlines in the 𝑦 − 𝑧 plane at
+𝑥 = 0.4𝐷 downstream of the propeller. The length and direction
+of the small arrows represent the magnitude and direction of the
+flow velocity, respectively. Cavitating conditions result in local-
+ized complex patterns in the vortex distribution surrounding the
+tip vortices trajectory, which are caused by the cavity structure’s          FIGURE 6: Contour of pressure coefficients Cp on the propeller
+                                                                             surfaces and downstream y − z planes (at x = 0.4D ) for (a) cavi-
+effect on the flow field. This influences the flow direction in the
+                                                                             tating, and (b) non-cavitating conditions.
+surrounding fluid and may result in changes in the characteristics
+of noise sources.
+     Figure 6 displays the distribution of the pressure coefficient
+𝐶𝑃 on the propeller surfaces and the 𝑦 − 𝑧 plane (at 𝑥 = 0.4𝐷).
+
+
+                                                                         6                                        Copyright © 2024 by ASME
+𝐶 𝑝 = ( 𝑝 − 𝑝 𝑟 𝑒 𝑓 )/(0.5𝜌𝑙 (𝑛𝜋𝐷) 2 ), and 𝑝 𝑟 𝑒 𝑓 is the reference
+pressure equal to 1 × 105 Pa. The three panels on the left (Figure
+6a) demonstrate flow characteristics for cavitating conditions. On
+the pressure side of the blades, there is a high-pressure region at
+the leading edge of the blade. Additionally, low-pressure zones
+are observed at the root and tip locations. This is consistent with
+the locations where cavities are observed in the experiments.
+Further, as seen in the 𝑦 − 𝑧 planar section the pressure value
+along the tip vortex trajectory is small and corresponds to regions
+of tip vortex cavitation.
+      The three panels on the right (Figure 6b) demonstrate corre-
+sponding flow characteristics for non-cavitating conditions. The
+cavitation number for the non-cavitating case is set to a high value,
+and the resulting pressure coefficient is lower on both the suction
+and pressure sides when compared to the cavitating case. A pe-                             (a)                                (b)
+rusal of the suction side of the propeller shows that the pressure
+distribution on the blade surface is less uniform for the cavitating
+case as compared to the non-cavitation scenario, especially close
+to the tip of the blade (identified by the yellow box). This is
+expected to be associated with the sliding trajectory of the cavi-
+tation structure on the blade. This pressure disturbance enhances
+the energy of the noise source and affects the noise propagation.
+      Figure 7 compares the wake structures of the VP1304 pro-
+peller in non-cavitating (top panels) and cavitating (bottom pan-
+els) conditions. Panel (a) shows the isosurface of vorticity (with
+value of 1500 1/s) colored by the pressure coefficient. Clear tip
+vortices could be observed shedding from the tips of the rotat-
+ing blades and extending farther downstream. Consistent with
+experimental measurements, the cavitation number 𝜎𝑛 here is
+                                                                                           (c)                                (d)
+2.024 leading to the saturation pressure 𝑝 𝑣 of 60,548 Pa (with a
+far-field pressure 𝑝∞ of 100,000 Pa). In this case, we extract the          FIGURE 7: (a) vorticity isosurface colored by pressure coefficients,
+iso-contour of pressure 𝑝 = 60, 548𝑃𝑎. The obtained pressure                and (b)pressure isosurface colored by vorticity for non-cavitating
+contour colored by the vorticity is shown in panel (b) of Fig. 7.           condition; (c) Vorticity isosurface colored by pressure coefficients,
+Pressure profiles are shed regularly from the blade tips and, in            and (d) cavitation contours (with volume fraction of 0.5) colored by
+addition, the regions of low-pressure appear at the roots of the            vorticity for cavitating condition.
+blades. This is consistent with experimental observations [18].
+In our further work, present numerically-obtained non-cavitating
+vortex behaviors will be compared with the available experimen-             the difference between rotation rate and strain rate, and its pos-
+tal results.                                                                itive value indicates that the vortex structure is rapidly forming
+      Figure 7 (Panel c) shows the propeller wake in the cavitating         at a correlated location. There are a large number of regions
+condition. Initially, the vortices display a well-organized struc-          with positive and negative values of 𝑄 on the pressure side of
+ture, maintaining distinct characteristics in the wake. However,            the blade (marked by white-color number #1), indicating abun-
+the filaments gradually destabilize as they progress downstream.            dant vortex structures herein. In addition, it could be found that
+The tip vortices exhibit a dominant vortex and a secondary vortex,          there is a clear vortex shedding behind the blade tip (as marked
+the latter dissipating swiftly along the extension. This observed           by white-color number #2). Moreover, a clear torsional vortex
+behavior aligns with previous observations in both full propeller           feature caused by the double-helical cavitation structure could be
+[15, 38] and also hydrofoil [39]. The cavitation contour with a             observed at location #4. It is expected that the tip vortex (cav-
+volume fraction of 0.5 is shown in panel (d) of Fig. 7. By com-             itation) and the surface sheeting vortex correspond to tonal and
+paring panels (b) and (d), it can be expected that the intervention         broadband components in the correlated noise source. Further-
+of the cavitation model allows the tip vortex to encompass the              more, as demonstrated by the extension of the 𝑄 contour trajectory
+torsional mode and indicates a double-helical cavitation pattern            from location #2 to #3, the tip vortices lose their coherence and
+[39], which is consistent with the experimental shot as shown in            start to break up into smaller structures. More specifically, the
+Fig. 4(c).                                                                  short-wave instability [40] generates inside the vortex cores, and
+      To further analyze the transition behavior, an instantaneous          vortex oscillation is also observed to induce the second vortex
+visualization using isosurfaces of 𝑄 is illustrated in Fig. 8, where        structures. Further destabilization of those vortices leads to tur-
+𝑄 is the second invariant of the velocity gradient tensor under             bulence with small structures, bringing turbulence-induced noise
+a Galilean transformation. It should be noted that 𝑄 represents             sources and exhibiting broadband features in the spectrum.
+
+
+                                                                        7                                         Copyright © 2024 by ASME
+                                                                            TABLE 3: Comparison for KT ,r ms and 10K Q ,r ms between cavitat-
+                                                                            ing and non-cavitating conditions.
+
+                                                                                                             𝐾𝑇 ,𝑟 𝑚𝑠    10𝐾𝑄,𝑟 𝑚𝑠
+                                                                                          Non-cavitating     0.542        1.2421
+                                                                                           Cavitating        0.378        0.9648
+
+
+                                                                            by a careful comparison of the time-histories of 𝐾𝑇 and 𝐾𝑄 . In
+                                                                            this case, we further extracted the fluctuating components in the
+                                                                            variation of 𝐾𝑇 (omitting the 𝐾𝑇 ,𝑟 𝑚𝑠 ) for the non-cavitating and
+                                                                            cavitating cases, and plotted their spectrum in Fig. 11. The
+                                                                            data in one full rotation cycle (i.e., 4 seconds) with the non-
+                                                                            dimensional time step (𝑡𝑈0 /𝐷) of 2.55×10−5 are obtained herein
+                                                                            for spectrum analysis. The frequency is normalized by the blade
+                                                                            passing frequency 𝑓𝑏 𝑝 .
+                                                                                  As displayed in Fig. 10, although the mean value of 𝐾𝑇
+                                                                            is higher for the non-cavitation case, the energy of its fluctua-
+                                                                            tion components 𝐾ˆ 𝑇 is weaker. This is also implied in Fig. 11
+                                                                            where the variation in the power spectrum for the cavitating case
+                                                                            is stronger than that of the non-cavitating case concerning the in-
+                                                                            tensity of peaks at low frequencies and broadband components at
+                                                                            high frequencies. This suggests that the generation of cavitation
+                                                                            enhances the pressure fluctuations on the propeller surface as a
+                                                                            whole. In addition, the occurrence of peaks in the low-frequency
+                                                                            range increase in the cavitating case, which is expected to be cor-
+                                                                            related to the generation of cavitation structures at the tip of the
+FIGURE 8: Instantaneous isopleths of the second invariant Q in
+                                                                            blade and their detachment/shedding from the tip. Specifically,
+the vicinity of the propeller for cavitating condition.
+                                                                            the appearance of tip vortex cavitation leads to the amplification
+                                                                            of the loading (or monopole) component underlying the noise
+      Figure 9 exhibits instantaneous contour of normalized mag-            mechanism. In addition, the enhancement of broadband fre-
+nitude velocity mag(𝑈/𝑈0 ), pressure coefficients 𝐶 𝑝 , cavitation          quencies under the cavitating condition is associated with more
+number 𝜎𝑛 , and magnitude vorticity. Panel (a) indicates that the           complex flow field chaos at the surface and also the generation of
+serrated high-speed flow pattern is generated after the rotating            abundant tiny bubbles.
+blades, accompanied by the low-pressure area formed at the tip
+vortex region (panel (b)). This is also indicated by panel (c)              5. HYDROACOUSTICS
+which shows the distribution of cavitation number. In panel (d),                  The following discussion on aeroacoustics will be presented
+the vortex is presented to shed from the blade tip and hub center in        based on the configuration displayed in Figure 12. Five acoustics
+the near wake region, and the thin trailing edges wake generated            pressure monitors are located in the angular 𝜃 of 0◦ , 45◦ , 90◦ ,
+by the rotating blades. Consistent with previous observations, the          135◦ , and 180◦ with distance 𝐿 of 100 m and 1000 m from the
+tip vortex becomes unstable on extending further downstream.                rotor center. One permeable FW-H control surface is applied to
+      Table 3 compares the Root Mean Square (rms) value of                  record the real-time fluctuation of acoustics pressure in the near-
+the thrust and torque coefficients (i.e., 𝐾𝑇 and 10𝐾𝑄 ) between             and far-fields.
+cavitating and non-cavitating conditions for the VP1304 propeller                 The value of Sound pressure level (SPL) on a circumfer-
+at specified operation conditions. We find that both 𝐾𝑇 ,𝑟 𝑚𝑠 and           ence (with a radius of 100 𝑚 from the propeller center) at angles
+10𝐾𝑄,𝑟 𝑚𝑠 decrease in the cavitating scenario, owing to change in           ranging from 0◦ and 180◦ are identified in Fig. 13a, in which cav-
+the pressure distribution on the blade surfaces. Figure 10 displays         itating and non-cavitating conditions are compared. SPL (dB)
+the time histories of the propeller thrust coefficients 𝐾𝑇 and torque       = 20log(𝑝 𝑟′ 𝑚𝑠 /𝑝 ℎ,𝑟 𝑒 𝑓 ), where 𝑝 ′ is the acoustics pressure fluc-
+coefficients 𝐾𝑄 for cavitating and non-cavitating conditions, in            tuation and 𝑝 ℎ,𝑟 𝑒 𝑓 is the hydroacoustics reference pressure of
+which the top and bottom panels show the cavitating and non-                1 × 10−6 Pa. In terms of the SPL directivity with a radius of
+cavitating cases, respectively. We note that the time variations of         100 m for the cavitating case (cf. with panel (a)), the acoustics
+𝐾𝑇 and 𝐾𝑄 reach periodic equilibrium in both the cavitating and             energy is highest in the downstream direction (180◦ ), where it
+non-cavitating cases.                                                       could reach 150 dB, and lowest at the side direction (90◦ ), where
+                                                                            it is about 125 dB. This phenomenon is also observed in the non-
+                                                                            cavitating case. It is expected that this behavior is correlated to
+     Since the time variations in both 𝐾𝑇 and 𝐾𝑄 are subject to             the extension of the propeller wake in the streamlined direction.
+the total pressure fluctuations on the propeller surface, the fluctu-             Overall, as the distance increases from 100 m to 1000 m, the
+ations in both thereby remain consistent. This is also confirmed            SPLs of cavitating and non-cavitating cases decrease by about
+
+
+                                                                        8                                          Copyright © 2024 by ASME
+FIGURE 9: Propeller surface accompanied by the x −y planes, on which (a) normalized velocity magnitude magU /U 0 , (b) pressure coefficients
+Cp , (c) cavitation number σn , and (d) vorticity magnitude are depicted.
+
+
+25dB and 20dB, respectively, on average. This is owing to that             intense peaks are located at 𝑓 / 𝑓𝑏 𝑝 = 1, 2, and 3, meaning that
+the fluctuating energy of sound pressure is gradually dissipated by        blade passing behaviors and accompanied shedding behaviors of
+the medium viscosity while propagating to the far field. Further-          tip vortex (cavitation) are closely correlated to the tonal noise
+more, it is obvious from both panels (a) and (b) that the generation       components. According to the FW-H theory, noise sources of
+of cavitating structures will significantly increase the URN power.        monopoles (or loading component), dipoles (thickness compo-
+In more detail, a perusal of the figures indicates that when cavi-         nent), and quadrupoles (turbulence-induced component) together
+tation is generated, the increment/increase of SPL is essentially          constitute the propagation of hydrodynamic noise. Furthermore,
+equal in all directions, indicating that the noise source induced          the turbulence-induced noise sources are due to wake dynamics
+by cavitation has an omnidirectional pattern and demonstrates              unsteadiness, which is related to the complicated vortex patterns.
+a monopole source mechanism. However, the SPL increase is                  This is qualitatively shown in Figs. 7 and 8. Furthermore, the rea-
+slightly larger in the downstream direction compared to those of           son for thickness noise is the displacement of the fluid pushed by
+the upstream and side directions. Based on the analysis of Figs.           the rotating of the propeller body. Regarding the noise sources,
+5 and 8, cavitation generation leads to a more irregular vortex            the loading noise exhibiting monopole feature originates from
+structure in the wake region and those vortices are more prone to          the accelerating force distribution on the propeller surface and in
+fragment, which nevertheless brings about noise enhancement in             particular from the influence of the load distribution. The cavi-
+the downstream direction.                                                  tation structure and associated pressure distribution variation on
+     Figure 14 depicts the spectrum of SPL obtained at the mon-            the blade surface will therefore be primarily responsible for the
+itor with directivity angles of 90◦ and a distance of 1000 m, and          enhancement of this component.
+the cavitating and non-cavitating conditions are compared. The
+acoustics energy exhibited by the data for the cavitating condition        6. CONCLUSION
+is generally stronger across the overall frequency range than that              This study presented a comprehensive numerical investiga-
+of the non-cavitation condition. This implies that the acoustics           tion into the flow dynamics, cavitation patterns, and hydroacous-
+pressure obtained with cavitation generation is more energetic             tic propagation associated with a five-blade full propeller and
+regarding no matter the low-frequency tonal or high-frequency              further explored the potential mechanism underlying the pro-
+broadband components. This is consistent with the features ex-             peller noise radiation. Our methodology includes a standard dy-
+hibited by the thrust spectrum in Fig. 11. Specifically, several           namic Large Eddy Simulation (LES) model, the Schnerr-Sauer
+
+
+                                                                       9                                       Copyright © 2024 by ASME
+                                 0.6
+
+                        KT       0.5                                                                                           L              y
+                                                                                                                                                  x     far-field
+                                 0.4                                                                       1         Inflow
+                                                                                                                                𝜃                                     5
+                                                                                                                                      z
+                                       0.36        0.37       0.38        0.39                                        2                                   4
+                                                                                                                                          3
+                                 1.4
+                        10 K Q
+
+
+
+
+                                 1.2
+                                  1
+                                 0.8                                                                            FIGURE 12: The location of the microphones.
+                                       0.36        0.37       0.38        0.39
+                                                          tU 0/D
+                                                          (a)
+                                 0.6
+
+                                 0.5
+                        KT
+
+
+
+
+                                 0.4
+
+                                   0.51       0.52         0.53      0.54        0.55                                              90(°)
+                                                                                                                                              150 dB
+                                                                                                                   60(°)                               120(°)
+                                 1.4                                                                                                      130 dB
+                        10 K Q
+
+
+
+
+                                 1.2
+                                                                                                                                          110 dB
+                                   1                                                                  30(°)                                                         150(°)
+                                                                                                                                      90 dB
+                                 0.8
+                                   0.51       0.52         0.53      0.54        0.55
+                                                          tU 0/D                                                                     70 dB
+
+                                                           (b)
+                                                                                                   0(°)                                                                    180(°)
+                                                                                                                                   cavitating
+FIGURE 10: Time histories of the propeller thrust coefficients
+                                                                                                                                   non-cavitating
+KT and torque coefficients 10K Q for (a) cavitating and (b) non-
+cavitating conditions.
+                                                                                                                                      (a)
+
+                                                                                                          330                       90(°)                            210
+                                                                                                                                              130 dB
+                                                                                                                    60(°)                              120(°)
+                                                                                                                                          110 dB
+              10-2                                                                                                   300                                240
+                                                                                                       30(°)                        27090 dB                        150(°)
+         ^T
+
+
+
+
+              10-4                                                                                                                    70 dB
+Power of K
+
+
+
+
+                                                                                                    0(°)                                                                   180(°)
+              10-6                                                                                                                 cavitating
+                                 non-cavitating                                                                                    non-cavitating
+                                 cavitating
+                                                                                                                                      (b)
+              10-8
+                 10-1                         10  0
+                                                                     101
+                                                                                        102
+                                                                                                   FIGURE 13: SPL directivity at orientations θ of 0◦ , 45◦ , 90◦ , 135◦ ,
+                                                           f/fbp                                   and 180◦ with distances L of (a) 100 m and (b) 1000 m for cavitating
+                                                                                                   and non-cavitating conditions.
+FIGURE 11: Power spectrum of fluctuating component K̂T of the
+thrust coefficient KT for cavitating and non-cavitating conditions.
+
+
+
+
+                                                                                              10                                               Copyright © 2024 by ASME
+           140                                                                REFERENCES
+                    non-cavitating                                             [1] Smith, T. A. and Rigby, J. “Underwater radiated noise
+           120      cavitating
+                                                                                   from marine vessels: A review of noise reduction methods
+                                                                                   and technology.” Ocean Engineering Vol. 266 (2022): p.
+SPL (dB)
+
+
+
+           100
+                                                                                   112863.
+                                                                               [2] S. Sezen, M. Atlar and Fitzsimmons, P. “Prediction of cav-
+            80                                                                     itating propeller underwater radiated noise using RANS &
+                                                                                   DES-based hybrid method.” Ships and Offshore Structures
+                                                                                   Vol. 16 No. sup1 (2021): pp. 93–105.
+            60                                                                 [3] Asnaghi, A., Svennberg, U., Gustafsson, R. and Bensow,
+             10-2             10-1           100           101                     R. E. “Investigations of tip vortex mitigation by using
+                                     f/fbp                                         roughness.” Physics of Fluids Vol. 32 No. 6 (2020): p.
+                                                                                   065111.
+FIGURE 14: The comparison of SPL spectrum between cavitating                   [4] Zhang, A.-M., Li, S.-M., Cui, P., Li, S. and Liu, Y.-L.
+and non-cavitating conditions at directivity angles of 90◦ with a dis-             “A unified theory for bubble dynamics.” Physics of Fluids
+tance of 1000 m.                                                                   Vol. 35 No. 3 (2023): p. 033323.
+                                                                               [5] Arveson, P. and Vendittis, D. J. “Radiated noise characteris-
+                                                                                   tics of a modern cargo ship.” The Journal of the Acoustical
+model for cavitation, and the Ffowcs-Williams-Hawkings (FW-                        Society of America Vol. 107 (2000): pp. 118–29.
+H) method. Both cavitating and non-cavitating conditions are                   [6] Kimmerl, J., Mertes, P. and Abdel-Maksoud, M. “Applica-
+considered in the present work. Our modeling results, when com-                    tion of Large Eddy Simulation to Predict Underwater Noise
+pared to experimental data, validate the accuracy and reliability of               of Marine Propulsors. Part 2: Noise Generation.” Journal
+our computational approach. In the cavitating configuration, the                   of Marine Science and Engineering Vol. 9 No. 7 (2021): p.
+formation of cavitation occurs at the root and tip of the propeller                778.
+blades, with the observation of a distinct double-helical pattern in           [7] Seol, H., Jung, B., Suh, J.-C. and Lee, S. “Prediction
+the tip vortex cavitation. The trajectory analysis of the tip vortex               of non-cavitating underwater propeller noise.” Journal of
+showcases its evolution from discernible filaments to destabi-                     sound and Vibration Vol. 257 No. 1 (2002): pp. 131–156.
+lization and eventual vortex breakdown. Notably, the pressure                  [8] Spalart, P. and Shur, M. “Variants of the Ffowcs Williams-
+fluctuations experienced on the propeller surface during cavitat-                  Hawkings equation and their coupling with simulations of
+ing conditions exhibit more pronounced variability compared to                     hot jets.” International Journal of Aeroacoustics Vol. 8
+non-cavitating conditions. This intensified fluctuation amplifies                  (2009): pp. 477–491.
+the energy emitted by the noise source. Our comparative assess-                [9] Mendez, S., Shoeybi, M., Lele, S. and Moin, P. “On the use
+ment of the sound pressure level (SPL) directionality confirms                     of the Ffowcs Williams-Hawkings equation to predict far-
+that the hydroacoustic power generated during cavitating scenar-                   field jet noise from large-eddy simulations.” International
+ios surpasses that of non-cavitating instances in all directions,                  Journal of Aeroacoustics Vol. 12 (2013): pp. 1–20.
+particularly evident in the downstream direction with an increase
+                                                                              [10] Filios, A. E., Tachos, N. S., Fragias, A. P. and Margaris, D. P.
+in SPL of up to 20 dB. The generation of sheet cavitation and tip
+                                                                                   “Broadband noise radiation analysis for an HAWT rotor.”
+vortex cavitation leads to the enhancement of monopole (load-
+                                                                                   Renewable Energy Vol. 32 No. 9 (2007): pp. 1497–1510.
+ing) noise source, and the associated collapsing of vortices and
+                                                                              [11] Posa, A., Broglia, R., Felli, M., Cianferra, M. and Armenio,
+bubbles in the wake contributes to broadband noise components.
+                                                                                   V. “Hydroacoustic analysis of a marine propeller using
+Additionally, the tonal components, at frequencies corresponding
+                                                                                   large-eddy simulation and acoustic analogy.” Journal of
+to harmonics of blade passing frequency, intensify owing to the
+                                                                                   Fluid Mechanics Vol. 947 (2022): p. A46.
+close correlation between the structure of tip vortex cavitation
+                                                                              [12] Ahmed, Shakeel. “On the Noise Generated by a Ship Pro-
+and the blade passing. The interaction of the cavitating wake
+                                                                                   peller.” Ph.D. Thesis, University of New South Wales. 2020.
+with the propeller nozzle and/or ship hull will be considered in
+                                                                              [13] Posa, A., Broglia, R. and Felli, M. “Acoustic signature of
+future work.
+                                                                                   a propeller operating upstream of a hydrofoil.” Physics of
+                                                                                   Fluids Vol. 34 No. 6 (2022): p. 065132.
+ACKNOWLEDGMENT                                                                [14] Yangzhou, J., Wu, J., Ma, Z. and Huang, X. “Aeroacoustic
+     The present study is supported by Mitacs, Transport Canada                    sources analysis of wake-ingesting propeller noise.” Journal
+and Clear Seas through a Quiet-Vessel Initiative (QVI) program.                    of Fluid Mechanics Vol. 962 (2023): p. A29.
+The current study was partly supported by Robert Allan Ltd.                   [15] Zhang, Q. and Jaiman, R. K. “Numerical analysis on the
+through an Innovative Solutions Canada Phase 2 grant from                          wake dynamics of a ducted propeller.” Ocean Engineering
+Transport Canada’s Innovation Centre. We also acknowledge the                      Vol. 171 (2019): pp. 202–224.
+computing facilities of Advanced Research Computing (ARC)                     [16] Hieke, M., Sultani, H., Witte, M., von Estorff, O. and Wurm,
+at the University of British Columbia, Shared Hierarchical Aca-                    F.-H. “A workflow for hydroacoustic source analyses based
+demic Research Computing (SHARCNET), and Compute/Calcul                            on a scale-resolving flow simulation of a hubless propeller.”
+Canada.                                                                            Ocean Engineering Vol. 261 (2022): p. 112131.
+
+
+                                                                         11                                         Copyright © 2024 by ASME
+[17] Chen, M., Liu, J., Si, Q., Liang, Y., Jin, Z. and Yuan, J.                Journal of the American Helicopter Society Vol. 33 No. 1
+     “Investigation into the Hydrodynamic Noise Characteristics                (1988): pp. 29–36.
+     of Electric Ducted Propeller.” Journal of Marine Science             [29] Wang, M., Freund, J. B. and Lele, S. K. “Computational
+     and Engineering Vol. 10 No. 3 (2022).                                     prediction of flow-generated sound.” Annual Review of
+[18] “PPTC smp’11 Workshop. [Online]. Available:                               Fluid Mechanics Vol. 38 (2006): pp. 483–512.
+     https://www.sva-potsdam.de/en/pptc-smp11-workshop/.” .               [30] Farassat, F. “Derivation of Formulations 1 and 1A of Faras-
+[19] J. Geese, M. Nadler M. A.-Maksoud, J. Kimmerl. “Acoustic                  sat.” NASA/TM-2007–214853, (2007) .
+     Emissions and Cavitation Effects on Model Scale Propellers
+                                                                          [31] Farassat, F. “Linear acoustic formulas for calculation of
+     Using a Transition Model.” Seventh International Sympo-
+                                                                               rotating blade noise.” AIAA Journal Vol. 19 No. 9 (1981):
+     sium on Marine Propulsors smp’22, Wuxi, China, October
+                                                                               pp. 1122–1130.
+     2022: pp. 4–1–3. 2022.
+[20] Viitanen, V., Sipilä, T., Sánchez-Caja, A. and Siikonen,             [32] Farassat, F. Theory of Noise Generation From Moving Bod-
+     T. “CFD predictions of unsteady cavitation for a marine                   ies With an Application to Helicopter Rotors. NASA Lang-
+     propeller in oblique inflow.” Ocean Engineering Vol. 266                  ley Technical Report Server (1975).
+     (2022): p. 112596.                                                   [33] Farassat, F. and Brentner, K. S. “The acoustic analogy and
+[21] M. Cianferra, V. Armenio, A. Petronio. “Numerical predic-                 the prediction of the noise of rotating blades.” Theoretical
+     tion of ship propeller noise through acoustic analogy.” Sixth             and Computational Fluid Dynamics Vol. 10 No. 1-4 (1998):
+     International Symposium on Marine Propulsors smp’19,                      pp. 155–170.
+     Rome, Italy, May 2019: pp. WB3–3. 2019.                              [34] Andrey, E., Ilya, E., Matvey, K., Michael, K. and Sergei,
+[22] Artur, K. L., Lloyd, T., Lafeber, F. H. and Bosschers, J.                 S. “Development of a Dynamic Library for Computational
+     “Predicting cavitating propeller noise in off-design condi-               Aeroacoustics Applications Using the OpenFOAM Open
+     tions using scale-resolving CFD simulations.” Ocean En-                   Source Package.” Procedia Computer Science Vol. 66
+     gineering Vol. 254 (2022): p. 111176.                                     (2015): pp. 150–157. 4th International Young Scientist
+[23] Kim, W.-W. and Menon, S. “A new dynamic one-equation                      Conference on Computational Science.
+     subgrid-scale model for large eddy simulations.” 33rd                [35] “OpenCFD            Ltd.,          OpenFOAM:           User
+     Aerospace Sciences Meeting and Exhibit 09 January 1995                    Guide       v2006,        2019.     [Online].     Available:
+     - 12 January 1995, Reno, NV, U.S.A.                                       https://www.openfoam.com/documentation/guides/latest/doc/.”
+[24] Sauer, J. “Development of a new cavitation model based on                 .
+     bubble dynamics.” ZAMM-Journal of Applied Mathematics                [36] Heinke, H. J. “Potsdam Propeller Test Case (PPTC). Cavita-
+     and Mechanics/Zeitschrift für Angewandte Mathematik und                   tion Tests with the Model Propeller VP1304.” SVA Potsdam
+     Mechanik Vol. 81 No. S3 S3 (2001): pp. 561–562.                           Model Basin Report No.3753.
+[25] Asnaghi, A, Feymark, A and Bensow, RE. “Improvement of
+                                                                          [37] Viitanen, V., Siikonen, T. and Sánchez-Caja, A. “Numerical
+     cavitation mass transfer modeling based on local flow prop-
+                                                                               Viscous Flow Simulations of Cavitating Propeller Flows at
+     erties.” International Journal of Multiphase Flow Vol. 93
+                                                                               Different Reynolds Numbers.” Proceedings of the Sixth In-
+     (2017): pp. 142–157.
+                                                                               ternational Symposium on Marine Propulsors, Rome, Italy:
+[26] Kashyap, Suraj R and Jaiman, Rajeev K. “Unsteady cavi-
+                                                                               pp. 26–30. 2019.
+     tation dynamics and frequency lock-in of a freely vibrating
+     hydrofoil at high Reynolds number.” International Journal            [38] Muscari, R., Di Mascio, A. and Verzicco, R. “Modeling
+     of Multiphase Flow Vol. 158 (2023): p. 104276.                            of vortex dynamics in the wake of a marine propeller.”
+[27] Cheng, Z., McConkey, R., Yee, E. and Lien, F.-S. “Numer-                  Computers & Fluids Vol. 73 (2013): pp. 65–79.
+     ical investigation of noise suppression and amplification in         [39] Ye, Q., Wang, Y. and Shao, X. “Dynamics of cavitating tip
+     forced oscillations of single and tandem cylinders in high                vortex.” Journal of Fluid Mechanics Vol. 967 (2023): p.
+     Reynolds number turbulent flows.” Applied Mathematical                    A30.
+     Modelling Vol. 117 (2023): pp. 652–686.                              [40] Widnall, S. E. “The stability of a helical vortex filament.”
+[28] Farassat, F. and Brentner, K. S. “The uses and abuses of                  Journal of Fluid Mechanics Vol. 54 No. 4 (1972): p.
+     the acoustic analogy in helicopter rotor noise prediction.”               641–663.
+
+
+
+
+                                                                     12                                    Copyright © 2024 by ASME
+
