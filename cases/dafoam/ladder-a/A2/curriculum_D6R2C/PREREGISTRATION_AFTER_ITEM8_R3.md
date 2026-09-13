@@ -198,13 +198,42 @@ is **not** a GCI, **not** an observed order, and **not** a grid-convergence clai
 
 ---
 
-## 3b. `M3` — THE WIDE SANITY GATE THAT RESTORES WHAT `D2` WAS ACTUALLY DEFENDING
+## 3a.1 A CORRECTION TO §3a ABOVE — `D2` IS NOT STRUCK WHOLE. ITS SHARPEST LIMB IS MESH-INDEPENDENT AND IS KEPT AT FULL TIGHTNESS
 
-**`D2`'s real job was never precision. It was the only clause that caught the scaler defect**, when the
-producers installed `shape` **ten times too large** (±2.786 against its own registered bounds of ±1).
-Striking it (§3a) removes that protection, and **the three replacements named there do not restore it**:
-two check the *mesh*, and `D1`'s CL targets can be satisfied by a trim that drives `CL` onto target **on
-the wrong geometry**. A scaler-class defect would pass every one of them.
+**§3a said "`D2` is struck". That was too broad, and reading the instrument rather than the registration
+is what corrected it.** `D2` is a conjunction of five limbs, and **they do not all depend on the mesh**:
+
+| limb | quantity | mesh-dependent? |
+|---|---|---|
+| `rel_B` | `\|J_B − J0\|/J0` | **YES** — a CFD output |
+| `rel_O` | `\|J_opt − Jf\|/Jf` | **YES** — a CFD output |
+| `B_CL`, `O_CL` | the inherited `CL`s at `n = 2` and `n = 88` | **YES** — CFD outputs |
+| **`D2GEO`** | **`thickcon` and `volcon` at both anchored states, against the inherited md5-pinned records, at `GEO_TOL = 1.0e-12`** | **NO** |
+
+**`thickcon` and `volcon` are pyGeo outputs.** `d6r2c_dec4_grade.py:252` says so in its own words —
+*"thickcon and volcon are pyGeo outputs — pure"* — they are computed by `DVCon` from the **FFD-deformed
+surface**, and **the CFD volume mesh is not an input to them.** Changing `N` from 39 to 62 changes the
+volume mesh and **cannot change them at all.**
+
+> **`D2GEO` IS THEREFORE CARRIED FORWARD UNCHANGED, AT `GEO_TOL = 1.0e-12`, AND IT IS THE REAL
+> REPLACEMENT FOR WHAT `D2` WAS DEFENDING.** It is anchored to the inherited, md5-pinned
+> `d6r2c_evals.jsonl` — outside this run — and it is the **sharpest scaler-class defect detector in the
+> instrument: `thickcon` and `volcon` are normalised to ≈ 1.0, so a `shape` installed ten times too
+> large moves them by order 100 %, which is TWELVE DECADES outside `GEO_TOL`.** No widening, no
+> re-derivation, no sanity band — the tight gate survives the mesh change intact because the quantity it
+> reads does.
+
+**WHAT IS STRUCK IS NARROWER THAN §3a CLAIMED:** the two `J` limbs and the two `CL` limbs, all four of
+them CFD outputs that the mesh change moves by construction. **§3a's reasoning stands for those four and
+is wrong for `D2GEO`; the original text is left above, struck here rather than rewritten** (rule 2).
+
+---
+
+## 3b. `M3` — THE WIDE SANITY NET OVER THE FOUR MESH-DEPENDENT LIMBS
+
+**`M3` is `D2`'s two `J` limbs re-banded, not a new gate** — and it is the SECOND line of defence, not
+the first. **`D2GEO` (§3a.1) is the first.** `M3` exists because a defect that somehow left the pyGeo
+constraints intact would still have to produce a plausible drag.
 
 ### 3b.1 WHICH END CARRIES THE DISCRIMINATING POWER — AND IT IS NOT `J_B`
 
@@ -214,7 +243,8 @@ identical blindness the runscript's own ADDENDUM 1 records for the `KR_RES` guar
 components, 103 are EXACTLY ZERO at x0 … all of the discriminating power lived in the 6 non-zero
 components"* — and the identical blindness that let the scaler defect through `H1` in item 9.
 
-**`M3` is therefore registered at BOTH ends, and the `J_opt` end is the one that does the work:**
+**`D2` already had both ends** (`rel_B` and `rel_O`, `d6r2c_dec4_grade.py:505-506`); a replacement
+specified at the `J_B` end alone would have **dropped the discriminating one.** `M3` keeps both:
 
 - **`M3a`** — `|J_B − J0| / J0 ≤ SANITY_BAND`. Both DV vectors are zero here; this end tests the
   **mesh**, not the design.
@@ -423,9 +453,32 @@ this document must say so before freeze.~~* It proved to be inline. §7a is what
 
 ## 8. THE PLANTED CONTROL (rule 3) AND THE §8c STANDING CHECK
 
-`d6r2c_dec5_grade.py` plants **`PLANT = 1.234e-03`** into values it **read back from disk** and
-**REFUSES (exit 2)** if any plant leaves the verdict at `PASS` — into `J_B`, `J_T`, `J_F`, `J_opt`, into
-one `CL` of one matched-lift state, and **into the measured growth ratio feeding `M1`**.
+`d6r2c_dec5_grade.py` plants into values it **read back from disk** and **REFUSES (exit 2)** if any
+plant leaves the verdict at `PASS` — into `J_B`, `J_T`, `J_F`, `J_opt`, into one `CL` of one
+matched-lift state, into `thickcon`, and **into the measured growth ratio feeding `M1`**.
+
+### 8a. `PLANT_SANITY = 1.234e-02` — THE REGISTERED PLANT CANNOT TEST THE WIDENED LIMB, AND THAT IS A FINDING
+
+**Driving the plant control during the build surfaced this, and it is registered rather than worked
+around.** `PLANT = 1.234e-03` into one condition's `CD` moves `J` by `PLANT × 0.50 = 6.170e-04`, which
+is **2.0136 % of `J0`**. **`SANITY_BAND` is 12.3661 %.** So **the registered plant is INVISIBLE to
+`M3`** — and a plant smaller than the band it is meant to test is not a test of that band. Left alone,
+rule 3 would have this grader refuse forever, correctly.
+
+```
+smallest CD perturbation that can flip M3 = SANITY_BAND × J0 / 0.50 = 7.578372e-03
+PLANT_SANITY = 10 × PLANT = 1.234e-02  →  20.1360 % of J0   →  flips it
+```
+
+**`PLANT_SANITY` is used for the `CD` plants only.** The `CL` and `GEO` plants keep `PLANT`, which
+`TRIM_TOL = 1.0e-6` and `GEO_TOL = 1.0e-12` see by three and nine decades. **The decade multiple is
+DECLARED, NOT MEASURED**; `7.578372e-03` is the measured floor it had to clear.
+
+**AND THE CONSEQUENCE IS STATED RATHER THAN HIDDEN: on this arm the two `J` limbs cannot see a
+perturbation below ~12.4 %.** That blindness is the price of changing the mesh. **Input faults are
+still covered — by `D2GEO` at `1.0e-12` (§3a.1), which the mesh change does not touch.** What is
+uncovered is a pure CFD-output corruption between 0 and 12.4 %, and **no clause in this registration
+claims otherwise.**
 
 **§8c's STANDING CHECK, AND THE PART OF IT ALREADY DONE.** Every constant of the `f23bab95` instruments
 was compared against that document's stated value **and the comparison is reported in full including the
@@ -457,17 +510,41 @@ one ulp outside the band), a `J` perturbed by `1e-14` absolute (`D3`), `I` at `0
 
 ## 9. THE INSTRUMENTS — AND WHAT IS NOT YET RESOLVED
 
-| file | role | status at draft |
-|---|---|---|
-| `d6r2c_dec5_grade.py` | **THE GRADING PATH** — `M1`, `M2`, `D1`, `D3`, `D4`, `D6`, the table, the plants | **NOT WRITTEN** |
-| `d6r2c_dec5_decomp.py` | producer: six states, trims, `d6r2c_dec5.jsonl` | **NOT WRITTEN** — derived from `d6r2c_dec4_decomp.py` at `a5f6023d5eec9b1315ef7f34e635bb29` |
-| `d6r2c_dec5_genwingmesh.py` | the family script + the one `N` line | **NOT WRITTEN** |
-| `d6r2c_dec5_run_arm.sh` | launcher: guards, digest pin, age datum, ledger, the `diff` assertion of `M2` | **NOT WRITTEN** |
+| file | role | md5 | selftest |
+|---|---|---|---|
+| `d6r2c_dec5_grade.py` | **THE GRADING PATH** — `M1`, `M2`, `M3`, `D1`, `D2GEO`, `D3`, `D4`, `D6`, the table, the plants | `434dfbd6b45e7b6e31792fc37cc2db00` | **`PASS n=89`** |
+| `d6r2c_dec5_decomp.py` | producer: six states, trims, `d6r2c_dec5.jsonl` | `fb19791784ebb73747c2f6c466a0d174` | **`PASS n=56`** |
+| `d6r2c_dec5_genwingmesh.py` | the family script + the one `N` line | `554b6bba6bbcc90d7d00cb39c17d635d` | **no selftest — proved by `diff`, §1** |
+| `d6r2c_dec5_run_arm.sh` | launcher: guards, digest pin, age datum, ledger, the mesh phase, the `diff` assertion of `M2` | `dbf2567cbbc323d8edc6aa93669f928b` | **`PASS n=9`** |
+| `d6r2c_guard_deps.sh` | the extracted dependency-closure guard (§7a) | `1de7fcd349b7227a49a008f180f909cc` | driven against the `FM6` killer set |
 
-**THE HONEST GAPS, NAMED BEFORE THEY ARE DISCOVERED:**
+**The producer differs from `d6r2c_dec4_decomp.py` in SIX lines — the record constant, its selftest
+assertion and the selftest banner, all the same `dec4`→`dec5` rename.** The mesh script differs from the
+family script in **exactly one line**, proved by `diff` and refused on at launch by `G-ONECHANGE`.
+**Nothing frozen was touched**: `d6r2c_dec4_*`, `d6r2c_fm6_run_arm.sh`,
+`PREREGISTRATION_AFTER_ITEM8_R2.md` and the family `genWingMesh.py` are all byte-identical to `HEAD`.
 
-1. **No instrument exists yet**, so §8c's constant comparison on *this item's* instruments is **owed and
-   not done**. It must run, in full, before the freeze commit.
+**§8c ON THIS ITEM'S OWN CONSTANTS — DRIVEN, AND REPORTED IN FULL INCLUDING THE MATCHES:**
+
+```
+AOA_LOWER_DEG -4.9570114 MATCH     AOA_STEP_MAX_DEG 0.987284431 MATCH   AOA_UPPER_DEG 10.0 MATCH
+CAP_FACTOR 3.00 MATCH              CLOSE_TOL 8.423462e-15 MATCH         CONT_MAX_STEPS 12 MATCH
+FINAL_RECORD_N 88 MATCH            GEO_TOL 1.0e-12 MATCH                GROWTH_TARGET 1.20 MATCH
+INTERACT_TOL 0.10 MATCH            J0_INHERITED 0.0306416314389976151 MATCH
+JF_INHERITED 0.0230632595286777639 MATCH   MESH_N_LAYERS 62 MATCH       MESH_WALL_FACES 1008 MATCH
+PLANT 1.234e-03 MATCH              PLANT_SANITY 1.234e-02 MATCH (added to §8a BY this check)
+PREDICTION_CORE_MIN 360.7 MATCH    REPRO_TOL 1.7162447e-04 MATCH (struck, retained for the record)
+SANITY_BAND 0.123661365 MATCH      TRIM_MAX_EVALS 15 MATCH              TRIM_TOL 1.0e-6 MATCH
+```
+
+**21 of 21 present, 0 mismatches — after the check found one.** On its first run it reported
+**`PLANT_SANITY = 1.234e-02` present in the instrument and ABSENT from this document**: a constant
+derived during the build and never written into the registration. **That is precisely the defect class
+§8c exists for, caught on this item's own work, and §8a is the paragraph it forced.**
+
+**THE HONEST GAPS THAT REMAIN:**
+
+1. ~~No instrument exists yet~~ **RESOLVED.** All four exist, all selftests pass, §8c is driven above.
 2. ~~**The dependency-closure guard's callability is UNVERIFIED.**~~ **RESOLVED — §7a.** It was inline
    in the frozen `d6r2c_fm6_run_arm.sh`; it is now extracted verbatim into `d6r2c_guard_deps.sh`
    (md5 `1de7fcd349b7227a49a008f180f909cc`), proved byte-identical to lines 189–222 of its origin, and
