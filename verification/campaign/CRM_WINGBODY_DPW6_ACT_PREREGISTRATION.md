@@ -1423,3 +1423,217 @@ refused until an hour ago**, which is now the second time that one number has co
 early evidence.
 
 **The partition run therefore uses `purgeWrite 0`, `writeInterval 1`, three to five iterations.**
+
+---
+
+# ADDENDUM 12 — 2026-09-13, A11.5 IS ANSWERED FROM THE LOGS, AND THE ALGORITHM CHANGES. Version 1.12.
+
+**lines whose number changed above this section: 0**
+
+This addendum registers **one change to the solution algorithm** and the run that carries it,
+`CRM-WB-D8G-SOLVE-T-R1`. **It alters no gate, no threshold, no band, no cap and no label.**
+Sections 0–10 above stand unamended. No solver has run under this addendum at the moment of
+the freeze.
+
+## A12.1 🔴 A11.5's REGISTERED CRITERION IS ANSWERED — AND IT DID NOT NEED THE PARTITION RUN
+
+A11.5 registered: *"whichever field leaves its physical range first is upstream of the rest."*
+`PARTITION_T` was built to answer it and SIGFPE'd at iteration 1 before writing a field.
+**The answer was already in the logs of runs 15 and 16.** Reading them in the order A11.5
+prescribes — each field against its own physical scale, no mechanism named in advance:
+
+| iteration | what the logs show | source |
+|---|---|---|
+| **1** | `h` initial residual **0.999999999656**; `T` still inside its own initialised range (`UnlimitedTmin 244.686`, `UnlimitedTmax 354.795` — the isentropic initialiser's own bounds); `p` corrector solve healthy at **6** linear iterations | `DIAG_EARLY_T/log.rhoSimpleFoam` |
+| **2** | `T` **leaves its physical range first** — 145 cells below 100 K and 388 above 1000 K (0.003 %); `p` corrector solve rises to **79** | same |
+| **3** | `p` corrector solve **760** linear iterations; ExecutionTime for one outer iteration **11.62 s → 106.92 s** | same |
+| **49** | **12,410,571 cells (60.08 %) at Tmin = 100 K and 6,632,438 (32.11 %) at Tmax = 1000 K — 92.19 % of 20,657,615 cells pinned at BOTH clamps at once**; 97.2 % by iteration 197 | `PROBE_NOTRANSONIC_T/log.rhoSimpleFoam` |
+
+**REGISTERED FINDING, under A11.5's own criterion: the ENERGY channel is upstream.** `h`'s initial
+residual is pinned at ~1 from iteration 1 and never falls one digit in 200 iterations (still
+**0.999578** at iteration 100) while `Ux` falls 0.281 → 0.0257 and `nuTilda` 0.257 → 0.0443 over
+the same span — the solver is not globally stalled; only the energy equation is. The pressure
+solve's collapse follows the temperature excursion by one iteration; it does not lead it.
+
+**And the destruction is BIMODAL, which is the discriminating fact.** A mesh defect, a shock or a
+bad patch drives a *one-sided* excursion outward from a local seed. Both bounds saturated across
+92 % of the domain is a source term that is wrong by a large factor with a sign that varies
+cell to cell — not a geometric fault.
+
+## A12.2 🔴 TWENTY ATTEMPTS, ONE CAUSE, AND THE ALGORITHM WAS NEVER TOUCHED
+
+Every surviving attempt dictionary was read and diffed (twelve trees carrying a complete
+`system/fvSolution`; ~24 attempts once the in-tree probes of `SMOKE_T` and the four
+`PROBE_NOTRANSONIC` launch rounds are counted).
+
+| rung | attempts | what was varied |
+|---|---|---|
+| **MESH** | **0** | nothing: no level, no family, no mesh treatment |
+| **NUMERICS** | ~24 | initialisation route (V2–V7); linear solver / preconditioner / maxIter (`SMOKE_T` tune1, P3, V10–V12); clamp factors (V8, P4, `test.norho`, `test.rhoInf`); relaxation **values** (V2, V3); `bounded`→unbounded `div(phid,p)` (A2/A3); `transonic no` in a **non-graded** diagnostic stage only (NOTRANSONIC R1–R4); decomposition (PARTITION) |
+| **MODEL** | 1, unregistered | `SMOKE_T/log.test.sst`, an in-tree probe, never a registered run |
+
+**Identical in all twelve dictionaries, first attempt to last:** `consistent yes`,
+`transonic yes`, `nNonOrthogonalCorrectors 1`, and `div(phi,U) bounded Gauss linearUpwind grad(U)`.
+**`SMOKE_T` (attempt 1) and `PARTITION_T` (attempt 20) carry byte-equivalent registered
+configurations** — `consistent yes, transonic yes, nNonOrth 1, p 0.3, rho 0.05, U 0.5,
+pMinFactor 0.1, pMaxFactor 2.0, rhoMin 0.005, rhoMax 1.0, GAMG, linearUpwind`. Twenty attempts and
+the registered state is back where it started.
+
+The act recorded this about itself and then did not act on it. `system/fvSolution.startup`
+line 3, verbatim: *"the ALGORITHM is unchanged (consistent yes, transonic yes) because changing
+it is a different registered change."*
+
+**Sanaa's rule 13 — *never the same action twice on the same state; two stops on the same cause →
+climb the ladder*.** Counted honestly: ~20 stops, one cause, and **zero distinct actions on the
+pressure–velocity coupling algorithm.** Twenty repetitions of one state do not earn a climb.
+This addendum takes the numerics action that has never been taken, with a refutation condition
+(A12.6) so it cannot become variant 22.
+
+## A12.3 🔴 THE ONE REGISTERED CHANGE
+
+| dictionary | key | old | new |
+|---|---|---|---|
+| `system/fvSolution` (graded) **and** `system/fvSolution.startup` (ramp) | `SIMPLE/consistent` | `yes` | `no` |
+
+SIMPLEC → SIMPLE. **The graded dictionary's diff against its pre-registration baseline is this
+one key and nothing else** (baselines retained as `system/*.PREREG_BASELINE` in the run tree).
+
+**Mechanism, stated so it can be attacked.** SIMPLEC's momentum corrector
+`U = HbyA − rAtU·grad(p)` with `rAtU = 1/(1/rAU − UEqn.H1())` presumes the **full** pressure
+update. Every prior attempt ran it against a pressure field explicitly under-relaxed to 0.1–0.3,
+so the velocity correction was 3–10× larger than the pressure change that justified it. The
+surplus reaches the energy equation through its `Ekp = ½|U|² + p/ρ` source, where `ρ` is relaxed
+**10× slower still** (0.01–0.05) and therefore lags the pressure it is divided into. A11.2's
+unexplained 34.6× belongs here: at `p max` = 358,971.90 Pa against ρ held near ρ∞ = 0.04503,
+`p/ρ` is ~90× its correct value, and `T` — the slave of that source — saturates at 1000 K where
+the pressure runs ahead and at 100 K where it lags. **That is the bimodal signature of A12.1,
+predicted by the mechanism rather than fitted to it.**
+
+**Chosen over** the first-order-upwind startup leg (already present since V2 — the ramp *is*
+first-order and dies the same way), over the SA→SST swap (that is the MODEL rung, not available
+while the numerics rung has had zero distinct actions), and over the initialisation route (four
+attempts already spent: freestream, potentialFoam, isentropic, ramp).
+
+## A12.4 DISCLOSED DEFECT REPAIR — NOT A SECOND REGISTERED CHANGE
+
+`system/fvSolution.startup` carried `rhoMin 0.02 / rhoMax 0.12`, a **stale copy** from before
+**A9** widened the graded clamps to `0.005 / 1.0`. The isentropic initialiser's own minimum
+density — its M = 1.5 cap — is ≈ **0.0108 kg/m³**, **below the stale `rhoMin`**. The ramp
+therefore began every prior run with its initial field already outside the clamp: precisely the
+defect A9 names for pressure, left standing in the ramp for ten rungs. Restored to the values
+A9 already registered. **Restoring a stale copy to the registered value is a repair, not a new
+change** (standing rule 2, §2d.1).
+
+**Checkpoint policy, not a gate** (Sanaa run-rules 1–3): `endTime 5 → 6000` (§6's cap),
+`writeInterval 1 → 6`, `purgeWrite 0 → 2` (last two kept — A11.6's reading applied:
+`purgeWrite N` keeps the most recent N, and this is a production run, not a beginning-capture
+run). **`writeInterval 6` is bound by the SLOW rate, not the fast one**, for the reason A12.8
+gives: 1800 s / 280.7 s = 6.4, so 6 holds the loss under 30 minutes at any rate up to 300
+s/iteration. A first draft of this run used `writeInterval 150`, which is inside the 30-minute
+rule only at 9.25 s/iteration — a rate measured on a branch this run does not use. **Corrected
+before the freeze; recorded because the error is instructive: a checkpoint interval inherits the
+honesty of the rate it was divided by.**
+
+## A12.5 A11.3's EXCLUSION LIST — THE MESH ENTRY IS NARROWED, NOT WITHDRAWN
+
+A11.3 lists **mesh** under MEASURED CLEAN on the evidence of trailing-edge base resolution
+(13–22 cells across η 0.58–0.88). That measurement stands and is not disturbed. **The entry is
+narrowed to what it measured**: TE base resolution is clean; the mesh as a whole is not.
+`mesh_T/log.checkMesh` reports **`Mesh OK = false`** — max non-orthogonality **89.4641°**
+(average 22.80) with **740,519 faces above 70°**; max skewness **7.9622**; max aspect ratio
+**4436.7**; minimum cell determinant **0**, with **5,896,299 cells (28.5 %) below 0.001**.
+Coarse reads 88.768 / 6.223 and Medium 89.870 / 12.542 — **identical in kind at every level**,
+so this is a property of the VGRID/AFLR3 committee grid as OpenFOAM measures it, not of
+resolution. Under §5's two-tier standard it is **disclosed, not gated**, and these numbers are
+carried onto the certificate beside the bands as §5 requires.
+
+**It is not the first-failing channel** (A12.1): the `snGrad` and `laplacian` schemes already run
+`limited corrected 0.33`, bounding the explicit non-orthogonal correction to 0.49× the orthogonal
+part, and the corrector solve is healthy at 6 linear iterations at iteration 1. **The mesh sets
+the stiffness; it did not fire the first shot.** If A12.6 refutes the algorithm hypothesis, the
+mesh's `nNonOrthogonalCorrectors 1` becomes the next registered candidate.
+
+## A12.6 🔴 PREDICTIONS — REFUTABLE, FROZEN BEFORE THE SOLVER STARTS
+
+| # | channel | twenty prior attempts, measured | R1 predicts |
+|---|---|---|---|
+| **P1** | `h` initial residual | 0.999999999656 at it 1; **0.999578** at it 100; never fell one digit in 200 iterations | **below 0.99 by iteration 20** |
+| **P2** | `limitTemperature` clamped fraction | **92.19 %** at it 49 (60.08 % low + 32.11 % high) | **below 1 % at iteration 50** |
+| **P3** | forces | Cd swung −1.77 … **+2.92**; Cl **5.27** at it 198 | Cd in [0, 0.2] and Cl in [0, 1.0] through iteration 300 |
+| **P4** | Sanaa §C.7.2 smoke gate | never reached in twenty attempts | CL rising toward 0.45–0.55, CD falling toward 0.02–0.03, no negative density |
+
+> **🔴 REGISTERED EXHAUSTION CLAUSE. If P1 AND P2 both fail, the NUMERICS rung is EXHAUSTED.**
+> The ladder then climbs to **MODEL** — §6's registered second closure, k-ω SST — and **no
+> further variant of relaxation, clamp, linear solver or initialisation may be registered on
+> this act.** Written here so that nobody starts variant 22.
+
+**Advancement is asserted from the force and pressure channels only.** A run that iterates
+quickly on a uniform-freestream pressure field is not advancing (the block-195 reading: a
+13× speed-up at doing nothing). The first artifacts to read are `limitTemperature` at iteration
+50 and `postProcessing/forceCoeffs/0/coefficient.dat`, never ExecutionTime.
+
+## A12.7 RANKS, AND A GRID-FAMILY FINDING FOR SANAA'S DESK
+
+**Verified from the files on disk, against §5's `[verify from the grid page]` flag.** §5 estimated
+the committee Tiny/Coarse/Medium at *"about 2 M, 6 M, 16 M cells for the half model"*. The
+Boeing/Babcock cell-centred family actually holds:
+
+| level | cells | ratio to previous | linear *r* |
+|---|---|---|---|
+| Tiny | **20,657,615** | — | — |
+| Coarse | **26,271,819** | 1.272 | **1.084** |
+| Medium | **33,683,206** | 1.282 | **1.086** |
+
+**Tiny is 10× the §5 estimate**, and **a Roache triple at r ≈ 1.08 cannot carry a defensible
+GCI** — §8's family band is at risk on this family, and §7's 8/16/32 rank ladder was sized for a
+grid 10× smaller. **Recorded as a finding for Sanaa's desk; the levels are NOT re-labelled and no
+gate is altered here.** Retrieval is not a blocker: both committee families are on disk
+(`/home/ubuntu/crm-data/grids/DPW6_Boeing_Babcock_WB_ae2.75_CC/*.b8.ugrid`, T/C/M/F, and the NASA
+GeoLab VGRID set), and the cell-centred family is the correct one for a cell-centred solver.
+
+**R1 therefore runs on the 32 ranks §A allocates to this lane, not §7's 8.** Stated as a
+deviation with its reason, not taken quietly. It is a resource decision and changes no gate.
+
+## A12.8 🔴 COST — AND A CORRECTION TO WHICH RATE MAY BE QUOTED (standing rule 12)
+
+**This act holds two measured iteration rates and they differ by 30×. Only one of them belongs
+to the registered physics, and it is the slow one.**
+
+| rate | where it was measured | what was running |
+|---|---|---|
+| **9.25 s/it** | `PROBE_NOTRANSONIC_T` stage 1, board 200 | `transonic no`, symmetric `DICPCG` pressure matrix — **the A10.4 diagnostic branch, which §C.6 does not register and which produces no graded answer** |
+| **280.7 s/it** | the `CRM-WB-D8G-PARTITION` cost basis | the **registered** branch: `transonic yes`, uncapped GAMG — but measured **while the pressure equation was diverging** (760 linear iterations by outer iteration 3, `DIAG_EARLY_T`) |
+
+**A first draft of this addendum costed R1 at 9.25 s/it. That was wrong and is struck
+pre-compute**: it quoted the rate of a branch this run does not use. The correction is recorded
+rather than silently swapped, because it is the same class of error as A11.6's — a number
+carried across from a run that was not the run.
+
+**Registered basis: the SLOW rate, deliberately**, exactly as `PARTITION` reasoned. 6,000 × 280.7
+× 32 / 60 = **898,240 core-minutes** = 14,971 core-h = **$768 derived**; ramp 200 iterations =
+**29,941 core-min**. Cap registered at **3× = 2,694,720 core-minutes.**
+
+> **P5, a REGISTERED RATE PREDICTION and a second refutation channel.** 280.7 s/iteration is the
+> rate of a *sick* pressure equation — a healthy compressible SIMPLE solve on this grid should
+> need tens of linear iterations per solve, not 760. **R1 predicts the rate falls below
+> 30 s/iteration by iteration 100.** If it is still above 100 s/iteration at iteration 100, the
+> pressure equation is still ill-conditioned, which is independent evidence against A12.3's
+> mechanism and counts alongside P1/P2 toward the A12.6 exhaustion clause. **The cost band is
+> therefore itself a measurement, not an allowance** — and the true spend is expected near the
+> 29,600 core-minute (9.25 s/it) end, which is why the pessimistic figure is registered and the
+> optimistic one is not.
+
+`cost_basis`: wall time from the solver's own `ExecutionTime`; the $0.0513/core-h rate is
+**reported-by-owner, not measured** — the box cannot read its own billing
+(`COMPUTE_BUDGET_CHARTER` §5). Directive #17: **no cap kills this run**; the cap is registered,
+and a run that crosses it is graded `NOT A RESULT` and the cap is never raised. The
+estimate-versus-actual row is owed to `docs/COST_CALIBRATION.md` at completion, and must score
+the actual against **898,240** while recording that **29,600 was struck pre-compute and why**.
+
+## A12.9 THE RUN THIS ADDENDUM REGISTERS
+
+**`CRM-WB-D8G-SOLVE-T-R1`**, case `/home/ubuntu/certonomous-runs/CRM_WB_D8G/SOLVE_T_R1`,
+32 ranks, `rhoSimpleFoam`, Spalart–Allmaras, `transonic yes`, launched by the runner and by
+nothing else (Sanaa item 19), as `ubuntu`, `STARTUP_ITERS=200`, from the `potentialFoam` +
+isentropic initialisation of §C.6. **This addendum is the registration of record**; the
+case-local `REGISTRATION_R1.md` is a working copy and is not authoritative where the two differ.
