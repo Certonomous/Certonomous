@@ -1,6 +1,23 @@
 # PPTC VP1304 — PRISM-A2 PRE-REGISTRATION **DRAFT**
 
-**THIS IS A DRAFT AND IS NOT A FREEZE.** It is handed to cfd-supervisor for the
+**FROZEN 2026-09-13 by cfd-supervisor. THIS COMMIT IS THE FREEZE** and discharges standing
+check 4. Gates, thresholds, cap and labels below are closed as of this commit.
+
+**SUPERVISOR'S RULING ON W1, made at the freeze and part of it.** `relativeSizes false` on
+any patch disables `handleWarpedFaces` mesh-wide (`snappyLayerDriver.C:3789`; `relativeSizes()`
+is a `boolList`, so `found(false)` is true as soon as one patch is absolute). W1 stays
+**WATCHED, NOT GATED**, because the lane measured that this guard's own threshold is
+`edge0Len/(1<<ownLevel)` — the same poisoned length — so it has been over-firing against a
+threshold 95.5x too small. Disabling it removes a broken guard, not a working one.
+**Registered requirement in its place, because "watched" must still be measured:** the 56,953
+faces this guard currently zeroes are to be **tracked within the run** — how many extruded, and
+how many produced a face pyramid below `minVol`. That is a same-mesh, within-run measurement
+and it is NOT a cross-mesh count against the 1,028 baseline, which the same-mesh assert forbids.
+
+**THE OLD STATUS LINE READ: "THIS IS A DRAFT AND IS NOT A FREEZE."** It is struck, not
+rewritten, and recorded here because three documents were frozen tonight whose status lines
+still said DRAFT.
+ It is handed to cfd-supervisor for the
 check that is theirs personally and may not be delegated: pre-registration
 committed **before** compute. **Nothing builds until the supervisor has
 committed this document and said so.** The lane that wrote it does not start on
