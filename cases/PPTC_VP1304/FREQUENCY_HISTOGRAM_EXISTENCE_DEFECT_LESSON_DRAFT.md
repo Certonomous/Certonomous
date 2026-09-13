@@ -71,7 +71,7 @@ matching `faces with face pyramid volume`, 64 distinct values):
 | *what is worst?* | `sort -n \| tail -1` | **rank 1 of 64** — the file's **maximum**, first and only line |
 
 `672` — the benign value — appears **31 times** and takes rank 1 by frequency. `5,613,625` sits at
-`F360_coarse/log.snappyHexMesh:3252`, four lines under the `Checking mesh with layer ...` header at
+`F360_coarse/log.snappyHexMesh:3252`, three lines below the `Checking mesh with layer ...` header at
 :3249.
 
 **THE MECHANISM, WHICH IS THE POINT — AND IT IS NOT THE TRUNCATION.** On iteration-structured
