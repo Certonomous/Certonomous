@@ -46182,6 +46182,86 @@ DrivAer R3's falsifier **with the bounding rates beside the residual verdict** (
 requires it: k clipped on **0.999** of R3's iterations and **1.000** of graded R2's).
 **SUBMISSIONS PARKED.**
 
+<!-- BOARD-BLOCK-ID: 200-M6I-PARKED-ON-A-MEASURED-ELIMINATION-PPTC-NOT-ADMISSIBLE-AND-TEN-LESSONS-THAT-ARE-ONE-LESSON -->
+### Block 200 — M6I PARKED with the ladder exhausted on measurements; PPTC mesh NOT ADMISSIBLE; 31 commits, 10 lessons, 2026-09-13T06:18Z
+
+**LAST COMMIT:** `3d18b4454` — L-590 extended. **31 this session**, all private-index with
+post-commit verify. **The shared index still stages DELETIONS including live registrations.**
+
+### RUNNING — from `/proc/*/cwd`, never a pid list (L-585)
+| item | ranks | state |
+|---|---|---|
+| **MRF R4 fine** | 6 | **Time 6905 / 8000**, ETA ~07:40Z. **Already entitled to `NOT A RESULT`** (IC-1: four bounding events after warm-up, pinned left edge) |
+| **SUBOFF SOLVE_L2** | 4 | Time 1382 / 3000, ~15:22Z. A **resume** — sits in D631's hole |
+| **DrivAer r2c_medium_blended_R3** | 4 | Time 4107 / 10000, wrapper **570689**, ~11:55Z |
+| **PPTC L2_prod7s (medium)** | 1 | mid-snap. **A DETACHED SCRIPT IS ARMED** to checkMesh + certificate it whichever way layers go |
+| **SUBOFF A1H_DRIFT** | — | tree created; mirror build dispatched onto Sanaa's idle 28-rank lane |
+
+### 🔴 M6I IS PARKED — LADDER EXHAUSTED, RULE 13
+**R8 (SST) COMPLETED** — first strict-completion PASS of the investigation. rc=0, `End`, 5000==endTime,
+**age guard PASS**, residuals Ux 1.2e-07 / ω 1.9e-09, `clipCount` **zero on both limiters every
+iteration**. Graded `GATE FAIL`, **0/12 rows in band**, plant fired 0.0917 vs 0.0617.
+**All three D-limbs failed: D1 0.1211 vs ≥0.1401 · D2 0.0170 vs ≥0.0880 · D3 moved AFT to 0.9531
+where it had to move FORWARD.** Frozen §7 spends the rung.
+
+**THE FINDING IS POSITIVE AND SURVIVES THE AVERAGING CHOICE:**
+| | model change (SA→SST) | one grid level, same model |
+|---|---|---|
+| span-avg RMS | **−1.5 %** weighted / **−2.0 %** unweighted (mine) | **−30 %** |
+| suction peak | +1.4 % | **+32 %** |
+| D2 shock rise | **−3.4 %, WRONG WAY** | **+50 %** |
+**A COMPLETE CHANGE OF TURBULENCE MODEL IS WORTH ~1 %. ONE GRID LEVEL IS WORTH ~30 %.**
+**The missing shock is NOT a closure failure.**
+
+**Eliminated with measurements:** resolution · reference pressure · shock-window mesh (0 >70° faces
+at all six stations) · tip cap (**anti-correlated**, 27.63 % vs 4.96 %, ρ = −0.800) · pressure
+discretisation · pressure floor · closure. **Cost 121.94 core-min = 11.1 % of one graded level**,
+of which 42.54 (3.9 %) produced no result and is named waste.
+**Three live leads, live BECAUSE everything cheaper was ruled out:** aspect ratio never examined
+(**1,578.6 on L1**) · freestream eddy viscosity never varied · **the blunt-TE base flow under a
+steady solver — the only lead questioning the SOLVER rather than its inputs.** Parked ≠ cancelled.
+Record: `verification/campaign/M6I_PARKING_RECORD.md`, drafted to §9 **before** the run that
+triggered it.
+
+### 🔴 PPTC — `NOT ADMISSIBLE`. SMOKE DID NOT LAUNCH. NO PID.
+`max nonOrtho 169.475` (<70) · `max skewness 305.39` (<4) · `max vol ratio 801.98` (≤1.25) ·
+`min cell volume −5.65e-10`, **78 negative-volume cells**. **Zero prism layers exist** — `Extruding
+0 out of 76465 faces`, cell delta zero — **behind a table saying "6 layers" and rc=0.**
+**The lane cleared its own two changes by measurement:** 436 vertices from `zeroVolumeCells` —
+**none at the slip cylinder, none within 0.05° of either periodic plane.**
+**Banked:** production tessellation exists and passes at every level (worst 0.7 %) after six prior
+kills · comparator calibrated both ways · **family scaling MEASURED**: 3,939,801 × 3.375 =
+13,296,829 vs 13,103,467, **agreeing to 1.5 %**.
+
+### 🔴 TEN LESSONS, ONE FAMILY: A READER THAT CANNOT SEE WHAT IT CLAIMS TO CHECK
+**577** bashrc executes argv[1] · **581** buffered log ≠ stalled run · **582** parallel snappy
+rebalances every iteration · **583** hyphen grep vs en dash, **835 of our own registrations** ·
+**584** unescaped `.` → 40 false hits, each then *carefully explained* · **585** `Cd(f)` read as
+`Cd`, **control `Cd(f)+Cd(r)=Cd` was in the row I misread** · **587** script carries on to its next
+stage · **590** layer table is the REQUEST not the achievement — **nine planted controls all passed
+because every one asked whether the GATE FIRED, none whether the NUMBER WAS REAL** · **590 clause**
+an instrument that parses only the PASSING form is silent exactly where it was built to speak.
+**FOUR WERE MINE**, including quoting a mid-snap count as a finished mesh.
+
+### ON SANAA'S DESK — FIVE
+1. **CRM launch permission-denied**, twice. Staged at `certonomous-runs/CRM_WB_D8G/SOLVE_T_R1`. **32 ranks idle.**
+2. **Her §5 CRM family**: 20.66 / 26.27 / 33.68 M against an expected 2/6/16 M; **r = 1.084, 1.086** — no defensible GCI.
+3. **Rule 4's resume hole — LANDED as D631.** Verification's to propose, hers to rule.
+4. **A cost cap grading a sound run `NOT A RESULT` is bookkeeping voiding physics** — against directive #17 and her 2026-08-26 rule.
+5. **NEW — PPTC's registered COARSE level may not be buildable as registered.** §6.3 says ~0.8 M
+   cells; measured 3.94 M at a **0.625 mm blade cell that cannot snap SVA's trailing edge** (78
+   negative volumes). **2.301 cells across the LE radius against a required 8, at every level.**
+   Every route out either refines the surface (= the medium level renamed) or accepts negative
+   volumes. **A question about her specification, not the pipeline.**
+
+### BLOCKED
+**CRM** on the permission denial. **PPTC smoke** on an inadmissible mesh.
+
+**VERIFY next session:** MRF R4's landing verdict (~07:40Z) · PPTC medium's certificate (armed,
+self-running) · DrivAer R3's falsifier **with bounding rates beside the residual verdict** —
+amendment 2 requires it; k clipped on **0.999** of R3 and **1.000** of graded R2 · A1h's M-1…M-7,
+**M-7 being the gate the act exists to pass**. Disk **79 %, 212 GB**. **SUBMISSIONS PARKED.**
+
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
