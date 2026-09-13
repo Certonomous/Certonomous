@@ -1950,3 +1950,42 @@ latter is meaningless to predict — §A8.1 showed it is the dictionary's own bo
 **Exists:** the corrected fin geometry (§A7.4, 0.960 × the cell), the corrected builder (§A9.3,
 §A9.4), L1 with its three measured limitations, and the ring-wing/strut generator (Addendum 2).
 **Does not exist:** the rebuilt mesh, any `Config 1` mesh, any queue entry, any solve.
+
+### A9.7 HOW P3 MUST BE REPORTED — FIXED **BEFORE** THE REBUILD'S NUMBERS EXIST
+
+**P3 CAN PASS WHILE A READER THINKS IT FAILED, AND THE REPORTING RULE IS WRITTEN NOW SO IT
+CANNOT BE ARRANGED AFTERWARDS.**
+
+Adding layers does not delete concave cells. It **INTERPOSES a prism between the wall and
+whatever was there before.** The concave cells sitting at the fins' refinement transitions do
+not disappear — **they stop being the OWNER of a wall face.** Therefore:
+
+> **`Q1` CAN FALL BELOW 3.0 % WHILE THE TOTAL CONCAVE POPULATION IS UNCHANGED OR HIGHER.**
+> Anyone reading "262,976 concave cells, still 2.5 % of the mesh" beside a passing P3 would
+> think the two contradict each other. **They do not: they move independently, because one
+> counts what touches the wall and the other counts what is in the mesh.**
+
+**BOTH ARE REPORTED, LABELLED:**
+
+| metric | what it is | what it governs |
+|---|---|---|
+| **`Q1`** — concave AREA share on each graded wall | the **graded-surface** metric | A1b's 1.0 % / 3.0 % bands, i.e. whether the forces are graded |
+| **total concave cell count and share** | the **bulk** metric | mesh quality at refinement transitions; N-X5's mechanism |
+
+**THIS SHARPENS WHAT P3 ACTUALLY TESTS: it is a prediction about the WALL, not about the mesh.**
+And it sharpens the failure branch already registered in §A9.5: **if `Q1` does not fall, the
+concave cells are sitting where a layer cannot displace them**, which is precisely the reading
+that branch commits to.
+
+### A9.8 THE TRADE BEING BOUGHT — **ASPECT RATIO, PREDICTED NOTHING, REPORTED BESIDE COVERAGE**
+
+L1's maximum aspect ratio was **12.3194**, comfortable against the advisory 1000. Pushing
+coverage from 87 % to ≥ 95 % with `maxThicknessToMedialRatio` **doubled** and `minThickness`
+**halved** means more cells taking thinner first layers inside a constrained junction.
+
+> **ASPECT RATIO WILL RISE, AND IT SHOULD. That is the COST OF THE LAYERS, not a defect.**
+
+**No prediction is registered for it** — a number bought deliberately is not a number to
+forecast. It is **reported beside the coverage it paid for, with L1's 12.3194 printed next to it
+for scale**, so a reader comparing the two meshes is given the trade rather than left to
+discover it.
