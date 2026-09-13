@@ -152,8 +152,53 @@ def main() -> int:
         caveat=("y+ ~ t1 holds at fixed u_tau; the registration itself flags "
                 "that u_tau can move under an 18x cell-count increase"))
 
+    # ---- THE TWO POPULATIONS, REPORTED SEPARATELY (addendum A1.2) -----------
+    # A vehicle face at surface level 5 sits on a 12.5 mm cell, where the
+    # registered 11.859 mm stack is 0.949 local cells -- double the 0.48
+    # ceiling section 4.2 declares necessary.  A face at level 4 sits on a
+    # 25.0 mm cell at 0.474 c and satisfies it.  These are two different
+    # geometric situations and their blend is an artefact; the blended figure
+    # is reported above only because the frozen gate is defined on it.
+    import re as _re
+    dct = case / "system" / "snappyHexMeshDict"
+    lvl = {}
+    if dct.exists():
+        txt = dct.read_text()
+        rs = txt[txt.index("refinementSurfaces"):]
+        lvl = {m.group(1): int(m.group(2)) for m in
+               _re.finditer(r"(\w+)\s*\{\s*level\s*\((\d+)\s+\d+\)\s*;\s*\}", rs)}
+    h0 = 0.4
+    pops = {}
+    for k, v in veh.items():
+        L = lvl.get(k)
+        if L is None:
+            continue
+        pops.setdefault(L, {"faces": 0, "wsum": 0.0, "patches": []})
+        pops[L]["faces"] += v["faces"]
+        pops[L]["wsum"] += v["faces"] * v["layers_mesh"]
+        pops[L]["patches"].append(k)
+    out["two_populations"] = {}
+    for L in sorted(pops):
+        c = h0 / 2 ** L
+        p = pops[L]
+        out["two_populations"][f"surface_level_{L}"] = dict(
+            cell_mm=round(1000 * c, 3),
+            stack_in_local_cells=round(STACK_M / c, 4),
+            satisfies_0p48_ceiling=bool(STACK_M / c <= 0.48),
+            faces=p["faces"],
+            frac_of_vehicle_faces=round(p["faces"] / vfaces, 4) if vfaces else None,
+            layers_achieved=round(p["wsum"] / p["faces"], 4) if p["faces"] else None,
+            of=N_REQ,
+            patches=sorted(p["patches"]))
+    out["two_populations"]["_note"] = (
+        "THESE TWO NUMBERS ARE THE RESULT. The blended L1 figure mixes two "
+        "different geometric situations and is an artefact; a P1 PASS near "
+        "5.0 is UNINFORMATIVE and must not be reported as confirming the "
+        "section 2.2 mechanism (addendum A1.2).")
+
     out["per_vehicle_patch"] = {
         k: dict(faces=v["faces"], layers_achieved=v["layers_mesh"],
+                surface_level=lvl.get(k),
                 thickness_m=v["thickness_m"], thickness_pct=v["thickness_pct"])
         for k, v in sorted(veh.items(), key=lambda kv: -kv[1]["faces"])}
 

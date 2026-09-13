@@ -31,15 +31,26 @@ something it is not.
 
 ---
 
-## A1.1 — THIRTEEN VEHICLE PATCHES ARE ALREADY AT SURFACE LEVEL 5 = 12.5 mm
+## A1.1 — TWELVE VEHICLE PATCHES ARE ALREADY AT SURFACE LEVEL 5 = 12.5 mm, TEN OF THEM CARRYING FACES
+
+**CORRECTION OF THIS LANE'S OWN FIRST FIGURE, MADE BEFORE THE MESH LANDED.**
+This lane first reported "thirteen patches" in its message to the drafting lane
+and in commits `1bb18559` and `277b9edf`. **The count is TWELVE configured, of
+which TEN carry faces.** `TirePlinthfront` and `TirePlinthrear` are configured
+at level 5 but have **zero faces** in the mesh and cannot affect any coverage
+figure. **The 10,162-face and 15.7 % figures below were measured and are
+unchanged by this correction** — only the patch count was wrong, and it was
+wrong because it was counted by eye from a dictionary rather than derived, which
+is the error this laboratory exists to catch.
 
 The dictionary R5 inherits — `r2_medium/system/snappyHexMeshDict`, whose
-`refinementSurfaces` block R5 leaves **byte-identical** — sets thirteen vehicle
+`refinementSurfaces` block R5 leaves **byte-identical** — sets twelve vehicle
 patches to `level (5 5)`:
 
 `BodyDoorhandles`, `BodyHeadlamps`, `BodyRocker`, `ClosedGrillLowerInsert`,
 `ClosedGrillUpperInsert`, `ExhaustSystem1`, `ExhaustSystem2`, `ExhaustSystem3`,
-`Mirrors1`, `Mirrors2`, `TirePlinthfront`, `TirePlinthrear`.
+`Mirrors1`, `Mirrors2` **(these ten carry faces)**, plus `TirePlinthfront` and
+`TirePlinthrear` **(zero faces; they carry no weight in any gate)**.
 
 At the R5 background of `h0 = 0.4 m`, level 5 is a **12.5 mm** surface cell.
 
