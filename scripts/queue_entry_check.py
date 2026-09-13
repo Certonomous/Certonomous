@@ -967,8 +967,184 @@ def grading_freeze_note(entry: dict, root: Path) -> list[str]:
     return out
 
 
+# ===========================================================================
+# THE DAEMON'S OWN GATES, RUN HERE BY CALLING THE DAEMON'S OWN FUNCTIONS
+# ---------------------------------------------------------------------------
+# WHY THIS BLOCK EXISTS (2026-09-13). verification/queue/cfd/README.md tells a
+# lane this instrument is "the same validator the daemon runs". IT WAS NOT.
+# queue_runner.tick() refuses an entry on FOUR entry-level gates -- A CHECKPOINT,
+# B MEMORY (registration limb), D NO-ROOT and G RESUME -- and this file ran only
+# G. `memory_footprint_gb`, the field gate B refuses an entry for not carrying,
+# appeared ZERO times in this file; it knew `memory_floor_gb` and nothing else.
+# So a lane could run the pre-flight, read ACCEPTED, drop the entry in the queue
+# and have the daemon move it into refused/ minutes later -- and a REFUSAL
+# CONSUMES a frozen, costed registration. A pre-flight that disagrees with the
+# thing it is a pre-flight FOR is worse than no pre-flight: it spends the lane's
+# trust to produce the wrong answer.
+#
+# THE GATES ARE NOT REIMPLEMENTED HERE, AND THAT IS THE WHOLE DESIGN. Each check
+# below imports queue_runner and calls the SAME FUNCTION OBJECT tick() calls, and
+# returns the daemon's own refusal text under the daemon's own label. A second
+# implementation would agree on the day it was written and drift afterwards,
+# which is the defect this block closes, re-created one level down.
+#
+# WHAT IS **NOT** A PRE-FLIGHT REFUSAL, stated because the distinction is the
+# runner's central rule -- A RESOURCE-BUSY CONDITION IS A WAIT, NEVER A
+# CONSUMPTION. Gates C CORE, E HYGIENE, E LOAD and gate B's FIT limb are
+# TRANSIENT properties of the box: the daemon HOLDS on them and touches nothing.
+# Refusing an entry here because the box was full ten minutes before it was
+# queued would invent a verdict the daemon never gives. They are REPORTED
+# instead, as notes, from the same functions -- so the pre-flight shows the
+# daemon's whole decision and fails only where the daemon would refuse.
+# GATE F DETACHMENT is verified AFTER a launch and has no pre-flight reading at
+# all; it is classified here rather than silently omitted.
+#
+# queue_runner is imported LAZILY, never at module scope: queue_runner imports
+# THIS module at ITS module scope, so a module-scope import back would be a
+# cycle. Same pattern control C9 has used since 2026-09-03.
+# ===========================================================================
+_DAEMON_MODULE = None
+
+
+def daemon_module():
+    """queue_runner, imported lazily and cached. Raises rather than returning a
+    stub: a pre-flight that silently skipped the daemon's gates because an import
+    failed would print ACCEPTED for exactly the entries this block exists to catch."""
+    global _DAEMON_MODULE
+    if _DAEMON_MODULE is None:
+        here = str(Path(__file__).resolve().parent)
+        if here not in sys.path:
+            sys.path.insert(0, here)
+        import queue_runner as _qr
+        _DAEMON_MODULE = _qr
+    return _DAEMON_MODULE
+
+
+def check_gate_a_checkpoint(entry: dict, root: Path, entry_path=None) -> list[str]:
+    """GATE A -- queue_runner.checkpoint_gate(), the function tick() calls. REFUSE is a
+    permanent property of the case's controlDict or run script, so it is a pre-flight
+    refusal exactly as it is a daemon refusal."""
+    verdict, msg = daemon_module().checkpoint_gate(entry)
+    return [] if verdict == "PASS" else [f"GATE A CHECKPOINT: {msg}"]
+
+
+def check_gate_d_no_root(entry: dict, root: Path, entry_path=None) -> list[str]:
+    """GATE D -- queue_runner.root_gate(). The launch line is a permanent property of the
+    entry file and will be no less root next tick."""
+    verdict, msg = daemon_module().root_gate(entry)
+    return [] if verdict == "PASS" else [f"GATE D NO-ROOT: {msg}"]
+
+
+def check_gate_b_memory(entry: dict, root: Path, entry_path=None) -> list[str]:
+    """GATE B -- queue_runner.memory_gate(), REGISTRATION LIMB ONLY.
+
+    REFUSE (no positive `memory_footprint_gb`, or a `/usr/bin/time -v` peak in the case's
+    own directory ABOVE the registered number) is a property of the FILE and is refused
+    here. HOLD -- the footprint not fitting MemAvailable minus the fleet reserve -- is a
+    property of the BOX this minute and is REPORTED by daemon_box_gate_notes(), never
+    refused. The live MemAvailable reading is passed so the fit limb is evaluated on the
+    real box, but only the REFUSE verdicts reach this return value, and both REFUSE limbs
+    are decided before the reading is consulted."""
+    qr = daemon_module()
+    verdict, msg = qr.memory_gate(entry, qr.mem_available_gb())
+    return [f"GATE B MEMORY: {msg}"] if verdict == "REFUSE" else []
+
+
+def daemon_box_gate_notes(entry: dict, root: Path) -> list[str]:
+    """ADVISORY. The daemon's TRANSIENT gates -- B's fit limb, C CORE, E HYGIENE and E
+    LOAD -- read against the live box and printed, never turned into an exit code. A lane
+    reading `HOLD` here knows the entry is legal and the box is busy, which is a different
+    fact from `REFUSED` and must never be printed as one."""
+    try:
+        qr = daemon_module()
+        ncpu = qr.box_ncpu()
+        out: list[str] = []
+        bv, bm = qr.memory_gate(entry, qr.mem_available_gb())
+        if bv != "REFUSE":
+            out.append(f"DAEMON-GATE B MEMORY (fit, transient): {bv} -- {bm}")
+        hyg = qr.probe_hygiene()
+        hv, hm = qr.hygiene_gate(hyg, ncpu)
+        out.append(f"DAEMON-GATE E HYGIENE (transient): {hv} -- {hm}")
+        lv, lm = qr.solver_load_gate(entry, hyg, ncpu)
+        out.append(f"DAEMON-GATE E LOAD (transient): {lv} -- {lm}")
+        ranks = qr.probe_solver_ranks()
+        cv, cm = qr.core_gate(entry, int(ranks.get("ranks", 0)), ncpu)
+        out.append(f"DAEMON-GATE C CORE (transient): {cv} -- {cm} [live: {ranks.get('detail', '?')}]")
+        return out
+    except Exception as exc:                       # noqa: BLE001
+        # A reading that could not be taken is SAID, never printed as a passing box.
+        return [f"DAEMON-GATE box readings NOT TAKEN ({type(exc).__name__}: {exc}) -- "
+                f"the transient gates were not evaluated here. This is an ABSENT reading, "
+                f"not a clean one."]
+
+
+# How each gate in the DAEMON'S OWN GATE_REGISTRY is discharged by this instrument.
+# PREFLIGHT     the daemon REFUSES on it and so does this file, through the named check.
+# BOX-TRANSIENT the daemon HOLDS on it; reported by the named note function, never refused.
+# POST-LAUNCH   there is nothing to read before a launch; classified, not omitted.
+DAEMON_GATE_DISPOSITION: dict[str, tuple[str, str | None]] = {
+    "checkpoint_gate":   ("PREFLIGHT", "check_gate_a_checkpoint"),
+    "memory_gate":       ("PREFLIGHT", "check_gate_b_memory"),
+    "root_gate":         ("PREFLIGHT", "check_gate_d_no_root"),
+    "check_resume":      ("PREFLIGHT", "check_resume"),
+    "core_gate":         ("BOX-TRANSIENT", "daemon_box_gate_notes"),
+    "hygiene_gate":      ("BOX-TRANSIENT", "daemon_box_gate_notes"),
+    "solver_load_gate":  ("BOX-TRANSIENT", "daemon_box_gate_notes"),
+    "detachment_verify": ("POST-LAUNCH", None),
+}
+
+
+def daemon_gate_coverage(registry=None, checks: dict | None = None,
+                         notes_registry: dict | None = None) -> list[str]:
+    """Compare THIS instrument against the daemon's own GATE_REGISTRY and return the gaps.
+
+    This is the guard that keeps pre-flight == daemon as the daemon CHANGES. Adding the
+    three missing gates fixes today; a gate added to queue_runner tomorrow would re-open
+    exactly the same hole silently, and the README sentence would go on claiming parity.
+    So the registry is READ, not remembered, and an unclassified gate is a gap."""
+    import inspect
+    qr = daemon_module()
+    reg = qr.GATE_REGISTRY if registry is None else registry
+    active_checks = CHECKS if checks is None else checks
+    active_notes = NOTES if notes_registry is None else notes_registry
+    check_fn_names = {getattr(f, "__name__", "") for f in active_checks.values()}
+    note_fn_names = {getattr(f, "__name__", "") for f in active_notes.values()}
+    gaps: list[str] = []
+    for label, fn_name in reg:
+        disposition = DAEMON_GATE_DISPOSITION.get(fn_name)
+        if disposition is None:
+            gaps.append(
+                f"{label}: queue_runner.{fn_name}() is in the daemon's GATE_REGISTRY and this "
+                f"instrument does not classify it. An unclassified gate is one the pre-flight "
+                f"is silently not running -- the exact defect of 2026-09-13.")
+            continue
+        kind, caller = disposition
+        if kind == "PREFLIGHT":
+            if caller not in check_fn_names:
+                gaps.append(f"{label}: classified PREFLIGHT via {caller}(), which is NOT "
+                            f"registered in CHECKS, so validate() never runs it.")
+                continue
+            if caller != fn_name:
+                src = inspect.getsource(globals()[caller])
+                if f".{fn_name}(" not in src:
+                    gaps.append(f"{label}: {caller}() is registered but its source never calls "
+                                f"queue_runner.{fn_name}() -- it is a second implementation, "
+                                f"not the daemon's gate.")
+        elif kind == "BOX-TRANSIENT":
+            if caller not in note_fn_names:
+                gaps.append(f"{label}: classified BOX-TRANSIENT via {caller}(), which is NOT "
+                            f"registered in NOTES, so nothing reports it.")
+                continue
+            if f".{fn_name}(" not in inspect.getsource(globals()[caller]):
+                gaps.append(f"{label}: {caller}() does not call queue_runner.{fn_name}().")
+        elif kind != "POST-LAUNCH":
+            gaps.append(f"{label}: unknown disposition {kind!r}.")
+    return gaps
+
+
 NOTES: dict[str, object] = {
     "GRADING-FREEZE-PIN": grading_freeze_note,
+    "DAEMON-BOX-GATES": daemon_box_gate_notes,
 }
 
 
@@ -1094,6 +1270,7 @@ def check_grader_freeze(entry: dict, root: Path, entry_path=None) -> list[str]:
     return gfg.refusals(entry, root)
 
 
+
 CHECKS: dict[str, object] = {
     "SCHEMA": check_schema,
     "COMMIT-EXISTS": check_commit_exists,
@@ -1105,6 +1282,12 @@ CHECKS: dict[str, object] = {
     "TEAM-BINDING": check_team_binding,
     "GRADER-FREEZE": check_grader_freeze,
     "RESUME": check_resume,
+    # THE DAEMON'S OWN ENTRY-LEVEL GATES, run by calling the daemon's own functions.
+    # Before 2026-09-13 these three were absent and the daemon refused entries this
+    # file had just called ACCEPTED. See the block above DAEMON_GATE_DISPOSITION.
+    "GATE A CHECKPOINT": check_gate_a_checkpoint,
+    "GATE B MEMORY": check_gate_b_memory,
+    "GATE D NO-ROOT": check_gate_d_no_root,
 }
 
 
@@ -1263,6 +1446,14 @@ def _base_entry(sha: str, prereg: str, cwd: str) -> dict:
         "cost_core_min_estimate": 240.0,
         "cost_basis": "derived at $0.0513/core-h, reported-by-owner, not measured",
         "memory_floor_gb": 4.0,
+        # THE DAEMON'S GATES ARE PART OF THE VALIDATOR AS OF 2026-09-13, so the fixture
+        # for a WELL-FORMED entry must be one the DAEMON would launch. Before that date
+        # this fixture carried no `memory_footprint_gb` and no `solver_class` -- i.e. the
+        # canonical "valid entry" of this selftest was an entry queue_runner.tick() would
+        # have moved straight into refused/ on gates B and A. The fixture itself encoded
+        # the pre-flight/daemon discrepancy, which is one reason no control here saw it.
+        "memory_footprint_gb": 8.0,
+        "solver_class": "openfoam-steady",
         "enqueued_by": "selftest",
     }
 
@@ -1349,6 +1540,22 @@ def selftest() -> int:
         clean.mkdir()
         (clean / "system").mkdir()
         (clean / "constant").mkdir()
+        # GATE A reads system/controlDict (queue_runner.checkpoint_gate). A "clean case"
+        # without one is not a case the daemon would launch, so the fixture writes the
+        # checkpoint policy Sanaa's items 1-3 require: bounded writeInterval, purgeWrite
+        # >= 2, steady.
+        COMPLIANT_CONTROL_DICT = (
+            "FoamFile { version 2.0; format ascii; class dictionary; object controlDict; }\n"
+            "application     simpleFoam;\n"
+            "startFrom       latestTime;\n"
+            "stopAt          endTime;\n"
+            "endTime         2000;\n"
+            "deltaT          1;\n"
+            "writeControl    timeStep;\n"
+            "writeInterval   50;\n"
+            "purgeWrite      2;\n"
+        )
+        (clean / "system" / "controlDict").write_text(COMPLIANT_CONTROL_DICT)
 
         dirty = Path(td) / "already_answered"
         (dirty / "0").mkdir(parents=True)
@@ -1522,28 +1729,48 @@ def selftest() -> int:
             lines.append("CONTROL C FIRED (cwd exists, clean): ACCEPTED, zero refusals.")
 
         # --- planted failure 1: delete check_cwd_launchable -> A ACCEPTS ---
+        # THE PLANT TESTS ONE CLAUSE AND IS NOW READ ON THAT CLAUSE (2026-09-13). It used
+        # to require the entry to come out with NO refusal at all, which was only ever
+        # true because the validator ran LESS than the daemon: an absent cwd also fails
+        # the daemon's gate A, for a stated and correct reason, and the pre-flight now
+        # says so. The plant's question is unchanged and is asked exactly -- is EXEC the
+        # clause that catches an absent cwd? -- by reading the EXEC clause in and out.
+        # The VACUOUS arm is new and is the planted-zero discipline: a clause that
+        # disappears from a list it was never in proves nothing.
         m1 = dict(CHECKS); m1["EXEC"] = _mutant_noop
         f1 = validate(entry_a, root, None, m1)
-        if f1:
+        if "EXEC" in _clauses(f1):
             problems.append(
                 f"PLANT 1 DID NOT FLIP: with check_cwd_launchable deleted, control A "
-                f"was still refused by {f1}. A's refusal is not coming from that clause.")
+                f"was still refused under EXEC by {f1}. A's EXEC refusal is not coming "
+                f"from that clause.")
+        elif "EXEC" not in _clauses(validate(entry_a, root, None)):
+            problems.append(
+                "PLANT 1 VACUOUS: the SHIPPED validator does not refuse the absent-cwd "
+                "entry under EXEC either, so the clause disappearing proves nothing.")
         else:
             lines.append(
-                "PLANT 1 FLIPPED control A: deleting check_cwd_launchable made the "
-                "absent-cwd entry ACCEPTED, so EXEC is the clause that catches it.")
+                f"PLANT 1 FLIPPED control A: deleting check_cwd_launchable removed the "
+                f"EXEC refusal from the absent-cwd entry (the clauses left, "
+                f"{sorted(_clauses(f1))}, are the daemon's own gates refusing an absent "
+                f"cwd for their own stated reasons), so EXEC is the clause that catches it.")
 
         # --- planted failure 2: delete the time-dir scan -> B ACCEPTS ------
         m2 = dict(CHECKS); m2["AGE-GUARD"] = _mutant_age_guard_without_scan
         f2 = validate(entry_b, root, None, m2)
-        if f2:
+        if "AGE-GUARD" in _clauses(f2):
             problems.append(
                 f"PLANT 2 DID NOT FLIP: with the time-directory scan deleted, control B "
-                f"was still refused by {f2}.")
+                f"was still refused under AGE-GUARD by {f2}.")
+        elif "AGE-GUARD" not in _clauses(validate(entry_b, root, None)):
+            problems.append(
+                "PLANT 2 VACUOUS: the SHIPPED validator does not refuse the 0.1/-bearing "
+                "entry under AGE-GUARD either, so the clause disappearing proves nothing.")
         else:
             lines.append(
-                "PLANT 2 FLIPPED control B: deleting the time-directory scan made the "
-                "0.1/-bearing entry ACCEPTED, so the scan is the clause that catches it.")
+                f"PLANT 2 FLIPPED control B: deleting the time-directory scan removed the "
+                f"AGE-GUARD refusal from the 0.1/-bearing entry (clauses left: "
+                f"{sorted(_clauses(f2))}), so the scan is the clause that catches it.")
 
         # --- planted failure 3: re-point AGE-GUARD at absence -> A refuses
         #     under AGE-GUARD. This is the DEFECT R-AGE-CWD removes, shown
@@ -1874,6 +2101,12 @@ def selftest() -> int:
         # ==================================================================
         lt = Path(td) / "launch_targets"
         (lt / "sub").mkdir(parents=True)
+        # L7 validates an entry whose cwd IS this directory and expects it ACCEPTED, so
+        # the directory must satisfy the daemon's gate A as well: the pre-flight runs the
+        # daemon's gates as of 2026-09-13, and a cwd with no system/controlDict is a cwd
+        # queue_runner.tick() refuses.
+        (lt / "system").mkdir()
+        (lt / "system" / "controlDict").write_text(COMPLIANT_CONTROL_DICT)
         real_sh = lt / "real_launcher.sh"
         real_sh.write_text("#!/bin/bash\necho hi\n")
         real_sh.chmod(0o755)
@@ -2114,6 +2347,212 @@ def selftest() -> int:
                 "G4 FIRED (pin resolves): no warning, and the line states that presence "
                 "on disk is NOT rule 2's hash-against-the-blob check.")
 
+
+        # ==================================================================
+        # PRE-FLIGHT == DAEMON. The controls for the 2026-09-13 repair.
+        #
+        # THE DEFECT, stated as it was found: verification/queue/cfd/README.md
+        # calls this instrument "the same validator the daemon runs", and it was
+        # not. queue_runner.tick() refuses an entry on gates A, B, D and G; this
+        # file ran G alone. `memory_footprint_gb` -- the field gate B refuses an
+        # entry for not carrying -- occurred ZERO times in it. A lane could read
+        # ACCEPTED here and have the daemon consume its frozen, costed entry into
+        # refused/ minutes later. D1/A1/B1 are the positive-and-negative pairs;
+        # D-DISCREPANCY reproduces the exact divergence end to end and shows it
+        # closed; B-HOLD proves the repair did not over-refuse.
+        # ==================================================================
+        pf_ok = validate(base_ok, root, None)
+        if pf_ok:
+            problems.append(
+                f"PRE-FLIGHT BASELINE FAILED: the daemon-clean fixture was refused by "
+                f"{pf_ok}. Every control below reads against this baseline and would "
+                f"be measuring the baseline instead of the plant.")
+
+        # --- D1: gate D, negative and positive ----------------------------
+        d1_bad = {**base_ok, "launch_cmd": ["sudo", "simpleFoam", "-parallel"]}
+        d1_fail = validate(d1_bad, root, None)
+        if "GATE D NO-ROOT" not in _clauses(d1_fail):
+            problems.append(
+                f"D1 FAILED: a `sudo` launch line was NOT refused by the pre-flight. Got "
+                f"{d1_fail or 'NO REFUSAL'}. queue_runner.root_gate() refuses it, so the "
+                f"lane would be told ACCEPTED and the daemon would consume the entry.")
+        elif pf_ok:
+            problems.append("D1 VACUOUS: the baseline entry is refused too.")
+        else:
+            lines.append(
+                "D1 FIRED (gate D, pre-flight == daemon): `sudo` in the launch line is "
+                "REFUSED here by queue_runner.root_gate() itself, and the identical entry "
+                "without it is ACCEPTED -- the verdict flips on the launch line alone.")
+
+        # --- A1: gate A, negative and positive ----------------------------
+        a1_case = Path(td) / "gate_a_purge_one"
+        (a1_case / "system").mkdir(parents=True)
+        (a1_case / "system" / "controlDict").write_text(
+            COMPLIANT_CONTROL_DICT.replace("purgeWrite      2;", "purgeWrite      1;"))
+        a1_bad = {**base_ok, "cwd": str(a1_case)}
+        a1_fail = validate(a1_bad, root, None)
+        if "GATE A CHECKPOINT" not in _clauses(a1_fail):
+            problems.append(
+                f"A1 FAILED: a controlDict with purgeWrite 1 was NOT refused by the "
+                f"pre-flight. Got {a1_fail or 'NO REFUSAL'}. Her item 1 keeps the last TWO "
+                f"checkpoints and queue_runner.checkpoint_gate() refuses this case.")
+        elif not any("purgeWrite" in f for f in a1_fail):
+            problems.append(
+                f"A1 FAILED: gate A refused but the reason does not name purgeWrite, so "
+                f"the refusal is not the limb this control planted. Got {a1_fail}")
+        else:
+            lines.append(
+                "A1 FIRED (gate A, pre-flight == daemon): purgeWrite 1 is REFUSED here, "
+                "naming the limb and the file, while the same entry over a purgeWrite 2 "
+                "controlDict is ACCEPTED -- the verdict flips on the case file alone.")
+
+        # --- B1: gate B REGISTRATION limb, negative and positive ----------
+        b1_bad = {k: v for k, v in base_ok.items() if k != "memory_footprint_gb"}
+        b1_fail = validate(b1_bad, root, None)
+        if "GATE B MEMORY" not in _clauses(b1_fail):
+            problems.append(
+                f"B1 FAILED: an entry with NO `memory_footprint_gb` was NOT refused by the "
+                f"pre-flight. Got {b1_fail or 'NO REFUSAL'}. This is the exact field the "
+                f"instrument did not know existed before 2026-09-13.")
+        else:
+            lines.append(
+                "B1 FIRED (gate B registration limb): an entry carrying no "
+                "`memory_footprint_gb` is REFUSED here by queue_runner.memory_gate() "
+                "itself; the identical entry carrying 8.0 GB is ACCEPTED.")
+
+        # --- B-SIDECAR: gate B's other REFUSE limb is reachable too -------
+        b_side_case = Path(td) / "gate_b_sidecar"
+        (b_side_case / "system").mkdir(parents=True)
+        (b_side_case / "system" / "controlDict").write_text(COMPLIANT_CONTROL_DICT)
+        (b_side_case / "time_v.txt").write_text(
+            "\tCommand being timed: \"mpirun -np 8 simpleFoam\"\n"
+            "\tMaximum resident set size (kbytes): 20971520\n")
+        b_side_fail = validate({**base_ok, "cwd": str(b_side_case),
+                                "memory_footprint_gb": 1.0}, root, None)
+        b_side_ok = validate({**base_ok, "cwd": str(b_side_case),
+                              "memory_footprint_gb": 30.0}, root, None)
+        if "GATE B MEMORY" not in _clauses(b_side_fail) or b_side_ok:
+            problems.append(
+                f"B-SIDECAR FAILED: a MEASURED 20 GB peak on disk above a registered 1 GB "
+                f"should be REFUSED and the same sidecar under a registered 30 GB should "
+                f"be ACCEPTED. Got under={b_side_fail or 'NO REFUSAL'} over={b_side_ok}")
+        else:
+            lines.append(
+                "B-SIDECAR FIRED: a `/usr/bin/time -v` peak of 20 GB in the case's own "
+                "directory REFUSES a registered 1 GB footprint and ACCEPTS a registered "
+                "30 GB one -- the reader is shown able to return both answers.")
+
+        # --- B-HOLD: a BOX condition is NOT a pre-flight refusal ----------
+        # The repair must not over-refuse. A footprint that cannot fit MemAvailable is
+        # the daemon's HOLD -- the entry keeps its place and is retried -- and turning
+        # that into a pre-flight refusal would invent a verdict the daemon never gives
+        # (the runner's own rule: a resource-busy condition is a WAIT, never a
+        # consumption). It is REPORTED as a note instead, and the note says HOLD.
+        b_hold = {**base_ok, "memory_footprint_gb": 1_000_000.0}
+        b_hold_fail = validate(b_hold, root, None)
+        b_hold_notes = [n for n in notes(b_hold, root) if "B MEMORY" in n]
+        if b_hold_fail:
+            problems.append(
+                f"B-HOLD FAILED: a footprint the box cannot fit was REFUSED pre-flight "
+                f"({b_hold_fail}). The daemon HOLDS on it and consumes nothing; a "
+                f"pre-flight refusal here would be a verdict the daemon never gives.")
+        elif not any("HOLD" in n for n in b_hold_notes):
+            problems.append(
+                f"B-HOLD FAILED: the un-fittable footprint produced no HOLD note, so the "
+                f"transient condition is INVISIBLE rather than reported. Got "
+                f"{b_hold_notes or 'NO NOTE AT ALL'}")
+        else:
+            lines.append(
+                "B-HOLD FIRED: a 1,000,000 GB footprint is NOT refused pre-flight and is "
+                "REPORTED as the daemon's HOLD -- REFUSE and HOLD stay different verdicts.")
+
+        # --- D-DISCREPANCY: the divergence, reproduced and closed ---------
+        # The OLD registry (this file's checks minus the daemon's gates) is run beside
+        # the NEW one over ONE entry, and one real queue_runner.tick() says what the
+        # daemon does with it. Without the mutation arm this would only show the new
+        # check firing, not that the two instruments USED TO DISAGREE.
+        old_checks = {k: v for k, v in CHECKS.items() if not k.startswith("GATE ")}
+        disc_entry = {**b1_bad, "case_id": "PREFLIGHT_DAEMON_DISCREPANCY"}
+        old_verdict = validate(disc_entry, root, None, old_checks)
+        new_verdict = validate(disc_entry, root, None)
+        dd_dir = Path(td) / "discrepancy" / "verification" / "queue"
+        for _t in TEAMS:
+            (dd_dir / _t).mkdir(parents=True, exist_ok=True)
+        dd_path = _write(dd_dir / "cfd", "PREFLIGHT_DAEMON_DISCREPANCY.json", disc_entry)
+        try:
+            qr = daemon_module()
+            _dlog = qr.Log(dd_dir / "runner.log", echo=False)
+            dd_tick = qr.tick(
+                dd_dir, _dlog, 100.0, 1.0, 0.2, {}, measure=lambda: (0.0, 9_999.0),
+                ranks_probe=lambda: dict(ranks=0, detail="INJECTED: idle box"),
+                hygiene_probe=lambda: dict(
+                    load1=0.5, disks=[dict(path="/INJECTED", percent=10.0)], swap=[],
+                    ncpu=qr.box_ncpu(),
+                    solver_cpu=dict(cores=0.0, detail="INJECTED", window_s=0.5)))
+            dd_reason = dd_dir / "cfd" / "refused" / "PREFLIGHT_DAEMON_DISCREPANCY.REFUSED.txt"
+            dd_text = dd_reason.read_text() if dd_reason.exists() else ""
+            dd_launched = any((dd_dir / _t / "launched").exists() for _t in TEAMS)
+        except Exception as exc:                    # a control that cannot run is a FAIL
+            dd_tick, dd_text, dd_launched = f"RAISED {type(exc).__name__}: {exc}", "", False
+        daemon_refuses = (dd_tick == "REFUSED-ONLY" and "memory_footprint_gb" in dd_text
+                          and not dd_launched)
+        if not daemon_refuses:
+            problems.append(
+                f"D-DISCREPANCY FAILED (daemon arm): one real queue_runner.tick() over the "
+                f"entry returned {dd_tick!r}, reason text names memory_footprint_gb="
+                f"{'memory_footprint_gb' in dd_text}, launched_dir={dd_launched}. The "
+                f"control cannot show agreement with a daemon verdict it did not observe.")
+        elif old_verdict:
+            problems.append(
+                f"D-DISCREPANCY VACUOUS: the OLD check registry ALSO refused this entry "
+                f"({old_verdict}), so there was no divergence to close and this control "
+                f"is measuring something else.")
+        elif "GATE B MEMORY" not in _clauses(new_verdict):
+            problems.append(
+                f"D-DISCREPANCY FAILED (pre-flight arm): the SHIPPED registry did not "
+                f"refuse under GATE B MEMORY. Got {new_verdict or 'NO REFUSAL'}.")
+        else:
+            lines.append(
+                "D-DISCREPANCY FIRED (end to end): ONE entry, three readings -- the OLD "
+                "check registry ACCEPTED it, one real queue_runner.tick() REFUSED it into "
+                "cfd/refused/ naming `memory_footprint_gb` and launched nothing, and the "
+                "SHIPPED registry now REFUSES it under GATE B MEMORY. The divergence the "
+                "README denied is reproduced and closed in the same control.")
+
+        # --- COVERAGE: every gate in the DAEMON's registry is discharged --
+        cov_gaps = daemon_gate_coverage()
+        if cov_gaps:
+            problems.append(
+                f"COVERAGE FAILED: {len(cov_gaps)} gate(s) in queue_runner.GATE_REGISTRY "
+                f"are not discharged by this instrument: {cov_gaps}")
+        else:
+            lines.append(
+                f"COVERAGE FIRED: all {len(daemon_module().GATE_REGISTRY)} gates in the "
+                f"DAEMON'S OWN GATE_REGISTRY are discharged here -- four run as pre-flight "
+                f"refusals through the daemon's own functions, three are box-transient and "
+                f"reported as notes, one is post-launch. The registry is READ, not "
+                f"remembered, so a gate added to the daemon cannot go silently unchecked.")
+
+        # --- COVERAGE PLANT: the coverage check is shown able to see a gap
+        planted_registry = daemon_module().GATE_REGISTRY + (("Z PLANTED", "a_gate_nobody_runs"),)
+        cov_planted = daemon_gate_coverage(registry=planted_registry)
+        cov_dropped = daemon_gate_coverage(
+            checks={k: v for k, v in CHECKS.items() if k != "GATE B MEMORY"})
+        if not any("Z PLANTED" in g for g in cov_planted):
+            problems.append(
+                f"COVERAGE PLANT 1 DID NOT FLIP: a gate registered in the daemon and run "
+                f"nowhere here produced no gap. Got {cov_planted}. A coverage check that "
+                f"cannot see a missing gate is a memory of a guard, not a guard.")
+        elif not any("B MEMORY" in g for g in cov_dropped):
+            problems.append(
+                f"COVERAGE PLANT 2 DID NOT FLIP: removing GATE B MEMORY from CHECKS -- the "
+                f"exact state this file shipped in until today -- produced no gap. Got "
+                f"{cov_dropped}.")
+        else:
+            lines.append(
+                "COVERAGE PLANTS FLIPPED: a gate the daemon registers and this file does "
+                "not run is reported as a gap, and so is the file's own pre-2026-09-13 "
+                "state with GATE B MEMORY removed from CHECKS.")
 
         # A last standing check: nothing above may have reached outside td.
         if list(Path("/home/ubuntu/Certonomous/verification/queue/cfd").glob("C*_*.json")):
