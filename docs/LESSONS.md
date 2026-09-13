@@ -28426,3 +28426,45 @@ of another kind, which is what guards that assert INTENT do and guards that asse
 
 *See also: `purgeWrite N` keeps the MOST RECENT N — a run built to capture the beginning of a
 transient will not contain it. Measured: `purgeWrite 20, writeInterval 1` retained times 62–81.*
+
+## L-577 — OpenFOAM's own bashrc EXECUTES your script's first argument, and 300 of 331 shell scripts in cfd territory source it unguarded
+
+**Mechanism, read at the source and not inferred.** `openfoam2606/etc/bashrc:204` forwards
+`"$@"` to `etc/config.sh/setup`, which at :117 sets `FOAM_SETTINGS="$@"` and then at
+:121-150 **loops over those arguments and acts on each one**. Sourced from inside a script,
+`"$@"` is **the calling script's own arguments**, not the bashrc's.
+
+**Four argument shapes, measured with a planted control. Only two bite:**
+
+| argv[1] | what happens | fires? |
+|---|---|---|
+| a **directory** (what a solver launcher passes) | `[ -f ]` false → `_foamEtc -silent` | **no** |
+| a **readable file** | `. "$file"` — **SOURCED AND EXECUTED** | **YES** |
+| `name=value` | `eval "export name=value"` — **silently enters the solver's environment** | **YES** |
+| a plain number | falls through | no |
+
+The planted control: a script containing `export PLANTED_EXEC=YES` passed as argv[1] came
+back with `PLANTED_EXEC=YES` set. `./t.sh endTime=9999` came back with `endTime=9999`
+exported — **no error, no output, nothing in any log.** With `set --` before the source,
+`FOAM_SETTINGS` is empty and neither fires.
+
+**How it was found:** a PPTC build script was called with an STL path first, and bash ran the
+STL as a shell script — 140,000 lines of `vertex: command not found`. It detonated loudly
+**because the argument was a file**. The `name=value` shape would not have.
+
+**The correction to the obvious reading.** "Solver launchers pass the case directory first, so
+every launcher is exposed" is **wrong in the direction that matters**: a directory is the one
+common shape that does *not* fire. The hazard is narrow and sharp — **a file path or a
+`name=value` token in argv[1]** — and for a CFD lab the quiet one is worse, because
+`endTime=`, `deltaT=` and `nProcs=` are exactly the tokens someone would pass a launcher.
+
+**Exposure, measured:** **300 of 331** `.sh` files under `cases/`, `verification/` and
+`scripts/` source the bashrc without `set --`. That is **300 unguarded call sites, of which
+an unknown subset are reachable** — establishing which means reading each *call site*, not
+each script. It is not a claim of 300 live defects and must not be repeated as one.
+
+**The fix is one line:** `set --` immediately before sourcing the bashrc.
+
+*Generalises L-221/L-222: a lesson is not applied until every call site asserts it — and here
+31 sites already had the guard while 300 did not, so the knowledge existed and did not
+propagate.*
