@@ -865,29 +865,65 @@ def p_clause_reachable(case):
                      "the p half of L5 can fire under this dictionary")}
 
 
+def _l5_verdict_from_field(pe, ue):
+    """L5's VERDICT, computed from the FIELD READINGS AND NOTHING ELSE.
+
+    🔴 THE CONTAINMENT IS THE FUNCTION SIGNATURE.  `preclamp_pressure` is not in this
+    function's scope and cannot be, so it cannot reach an L5 verdict without an edit
+    that changes this signature -- and that edit is a named mutation site below.  See
+    the ruling quoted in `evaluate_L5`."""
+    if pe is None or ue is None:
+        return "NOT A RESULT", None, None
+    pmax = max(abs(pe["max"] or 0.0), abs(pe["min"] or 0.0))
+    umax = ue["max_magnitude"]
+    ok = (math.isfinite(pmax) and math.isfinite(umax)
+          and pmax < L5_P_ABS_MAX and umax < L5_U_MAG_MAX)
+    return ("PASS" if ok else "GATE FAIL"), pmax, umax
+
+
 def evaluate_L5(case, comp, app="rhoPimpleFoam"):
     """p absolute max < 2 p0 and max|U| < 2 U_inf, READ FROM THE FIELD FILES.
 
-    A15.7 says `read from the field, never from a normalised residual`, and the
-    solver's own `pressureControl: p max` line is a field reading -- it is reported
-    beside the field value as a cross-check, not as a substitute."""
+    A15.7 says `read from the field, never from a normalised residual`.
+
+    🔴 PROVENANCE AND CONTAINMENT OF THE `preclamp` CHANNEL -- RULING OF 2026-09-13,
+    cfd-supervisor, on discharging check 1 against commit b0fbbb837, and BINDING:
+
+        `preclamp_pressure` IS A DISCLOSURE CHANNEL, NEVER A GATE.
+
+    It was written AFTER the LTS rate probe's log existed.  A15's gates and thresholds
+    were frozen before compute and are untouched, so the freeze holds -- but a
+    comparator channel added in response to data is exactly the shape pre-registration
+    exists to prevent, and its provenance is disclosed here rather than left for a
+    reader to reconstruct.  Therefore:
+
+      * it may not change any L5 verdict, IN EITHER DIRECTION;
+      * it is reported BESIDE L5 with its basis stated, never AS L5;
+      * if a future rung wants the pre-clamp pressure to gate, that is a NEW
+        REGISTRATION WRITTEN BEFORE THAT RUN, not this channel promoted.
+
+    Enforced two ways, because a ruling nobody asserts is a ruling nobody keeps
+    (standing rule 14): the verdict is computed by `_l5_verdict_from_field`, whose
+    scope does not contain the channel; and P-M drives this function over the SAME case
+    with and without a planted pre-clamp excursion and requires byte-identical output
+    but for the disclosure itself."""
     reach = p_clause_reachable(case)          # set FIRST, so EVERY return path carries it
     reach["preclamp"] = preclamp_pressure(case, app)
+    reach["preclamp"]["status"] = ("DISCLOSURE CHANNEL, NEVER A GATE -- added after the "
+                                   "probe log existed; ruling of 2026-09-13. It changes "
+                                   "no L5 verdict in either direction.")
     tname = comp.get("endTime_dirname")
     if not tname:
         return {"verdict": "NOT A RESULT", "p_clause_reachability": reach,
                 "reason": "no endTime field directory on disk, so the field cannot be read"}
     pe = field_extrema(case, tname, "p")
     ue = field_extrema(case, tname, "U")
+    verdict, pmax, umax = _l5_verdict_from_field(pe, ue)
     if pe is None or ue is None:
-        return {"verdict": "NOT A RESULT", "p_clause_reachability": reach,
+        return {"verdict": verdict, "p_clause_reachability": reach,
                 "reason": f"p or U absent at time {tname}",
                 "p": pe, "U": ue}
-    pmax = max(abs(pe["max"] or 0.0), abs(pe["min"] or 0.0))
-    umax = ue["max_magnitude"]
-    ok = (math.isfinite(pmax) and math.isfinite(umax)
-          and pmax < L5_P_ABS_MAX and umax < L5_U_MAG_MAX)
-    return {"verdict": "PASS" if ok else "GATE FAIL",
+    return {"verdict": verdict,
             "p_clause_reachability": reach,
             "p_abs_max_Pa": pmax, "p_ceiling_Pa": L5_P_ABS_MAX,
             "U_mag_max_m_s": umax, "U_ceiling_m_s": L5_U_MAG_MAX,
@@ -1452,6 +1488,42 @@ def selftest():
               pc2["n_steps_over_clamp"] == 0 and pc2["preclamp_p_max_Pa"] is None
               and pc2["exceeds_L5_ceiling"] is False, json.dumps(pc2))
 
+        # ---------------------------------------------------------------- P-M ---
+        # THE CONTAINMENT RULING, ENFORCED.  The SAME case is graded twice: once with a
+        # planted pre-clamp excursion far over the L5 ceiling in its log, once without.
+        # The L5 verdict and EVERY numeric field must be identical; only the disclosure
+        # may differ.  A disclosure channel that can move a verdict is a gate wearing a
+        # different name, and this act's whole freeze argument would be worth nothing.
+        cm1 = _fake_case(os.path.join(td, "PM"), end_time=8, nproc=1, cd=0.024)
+        comp_m = check_completion(cm1)
+        l5_clean = evaluate_L5(cm1, comp_m)
+        logp = os.path.join(cm1, "log.rhoPimpleFoam")
+        body = open(logp).read().replace(
+            "Time = 1\n",
+            "pressureControl\n    pMax 8014.789298\n    pMin 400.7394649\n\nTime = 1\n"
+            "\npressureControl: p max 20176.5848879\n", 1)
+        open(logp, "w").write(body)
+        anchor_m2 = os.path.getmtime(comp_m["age_anchor"])
+        for f in os.listdir(os.path.join(cm1, "processor0", "8")):
+            os.utime(os.path.join(cm1, "processor0", "8", f),
+                     (anchor_m2 + 100, anchor_m2 + 100))
+        l5_dirty = evaluate_L5(cm1, check_completion(cm1))
+        check("P-M the planted excursion IS disclosed",
+              l5_dirty["p_clause_reachability"]["preclamp"]["exceeds_L5_ceiling"] is True
+              and l5_clean["p_clause_reachability"]["preclamp"]["exceeds_L5_ceiling"] is False,
+              "the fixture planted nothing the reader could see, so it proves nothing")
+        check("P-M and it does NOT move the L5 verdict",
+              l5_dirty["verdict"] == l5_clean["verdict"] == "PASS",
+              f"clean {l5_clean['verdict']!r} vs planted {l5_dirty['verdict']!r} -- the "
+              "disclosure channel moved a gate, in violation of the 2026-09-13 ruling")
+        check("P-M nor any graded NUMBER",
+              all(l5_dirty[k] == l5_clean[k] for k in
+                  ("p_abs_max_Pa", "U_mag_max_m_s", "p_ceiling_Pa", "U_ceiling_m_s")),
+              "a graded number changed when only the log's disclosure lines changed")
+        check("P-M the channel labels itself a disclosure, not a gate",
+              "NEVER A GATE" in l5_dirty["p_clause_reachability"]["preclamp"]["status"],
+              "")
+
         # ---------------------------------------------------------------- P-J ---
         # THE REACHABILITY READER.  A clause that cannot fail is not a clause, so the
         # comparator must be able to SAY SO -- and must not say so when it is wrong.
@@ -1540,17 +1612,24 @@ def selftest():
         sys.stderr.write("SELFTEST RED:\n" + "\n".join("  " + f for f in fails) + "\n")
         return 1
     sys.stdout.write(
-        "SELFTEST GREEN: P-A column-name plant (incl. shuffled header), "
-        "P-B split identity in both directions, P-C five completion clauses each shown "
-        "able to FAIL and the clean case shown able to PASS, P-D the gate driven end to "
-        "end inside and outside the band WITH THE RETURNED NUMBER CHECKED against the "
-        "planted one, P-E liveness refusing a 37-minute-dead log and a live case in "
-        "opposite directions, P-F the binary field reader with a decoy, P-K the "
-        "write-schedule pre-flight (fires on the probe shape, quiet on the production "
-        "one), P-J the L5 "
-        "p-clause reachability reader in both directions, P-G L1/L2/L4 "
-        "each PASS and FAIL plus the unreached-reading-point case, P-H closure-derived "
-        "fields, P-I q_inf against an external literal.\n")
+        "SELFTEST GREEN: 13 plant families. "
+        "P-A column-name plant (Cd(f) decoy, and a shuffled header). "
+        "P-B split identity accepted clean and caught at 1e-3. "
+        "P-C five rule-4 clauses each shown able to FAIL, the clean case shown able to "
+        "PASS, and the age guard flipped back by correcting one mtime. "
+        "P-D the gate driven end to end inside and outside the band WITH THE RETURNED "
+        "NUMBER CHECKED against the planted one. "
+        "P-E a 37-minute-dead log refused by --monitor and a live case by --grade, the "
+        "same case gradeable once quiesced. "
+        "P-F the binary field reader with a decoy, numpy cross-decoded against struct. "
+        "P-K the write-schedule pre-flight (fires on the probe shape, quiet on the "
+        "production one). "
+        "P-M THE 2026-09-13 CONTAINMENT RULING ENFORCED: a planted pre-clamp excursion "
+        "is disclosed and moves no L5 verdict and no L5 number. "
+        "P-L the pre-clamp reader seeing a planted excursion and quiet without one. "
+        "P-J the L5 p-clause reachability reader in both directions. "
+        "P-G L1/L2/L4 each PASS and FAIL, plus the unreached-reading-point case. "
+        "P-H closure-derived fields. P-I q_inf against an external literal.\n")
     return 0
 
 
@@ -1572,6 +1651,14 @@ def mutation_control():
              'live = False'),
         "the band gate":
             ('v = "PASS" if abs(dev) <= band else "GATE FAIL"', 'v = "PASS"'),
+        # THE CONTAINMENT RULING OF 2026-09-13.  Promoting the disclosure channel to a
+        # gate must go RED.  This is the mutation that matters most: it is the edit a
+        # future lane would make in good faith, believing it an improvement.
+        "the preclamp containment (promoting a disclosure channel to a gate)":
+            ('    verdict, pmax, umax = _l5_verdict_from_field(pe, ue)',
+             '    verdict, pmax, umax = _l5_verdict_from_field(pe, ue)\n'
+             '    if reach["preclamp"]["exceeds_L5_ceiling"]:\n'
+             '        verdict = "GATE FAIL"'),
     }
     rc_all = 0
     for name, (old, new) in muts.items():
