@@ -28902,6 +28902,34 @@ first compute, and writing a new clause to fit a defect already seen is the move
 pre-registration exists to prevent. It is carried to the successor item as a design
 requirement instead.
 
+**DATED AMENDMENT, 2026-09-13, same day, by the author: THE HEADLINE CLAIM IS TOO BROAD AND
+THE PRECISE VERSION IS NARROWER AND MORE USEFUL.** Nothing above this paragraph is edited;
+the overstatement is left standing because it is part of the record of how the sharper claim
+was reached.
+
+"Self-consistent, therefore blind" is **half right**. `H1` compares a CGNS surface reached
+through `DVGeo` against an OpenFOAM wall reached through IDWarp — **two different paths from
+one shared input**. The precise claim:
+
+> **`H1` is BLIND to a common-mode error in the shared INPUT** — the scaler defect moved both
+> sides identically and `H1` would have matched to machine precision. **`H1` is SENSITIVE to a
+> differential error in either PATH** — an undeformed CGNS surface against a deformed wall is
+> exactly what `H1` catches. **It discriminates PATH faults, not INPUT faults.**
+
+**What forced the correction.** Producer defect 4 in the same item: `addPointSet` embeds points
+against the FFD's *current* control points, so moving that call after `run_model()` would bake
+the deformation into the parametric coordinates and `update()` would return an **undeformed**
+surface. That is a *differential* fault, and `H1` would have caught it. A gate that catches one
+class of fault and is blind to another is not "blind" — it is **selective**, and a record that
+calls it blind will get it retired by someone who then loses the faults it did catch.
+
+**The rule, restated.** The question is still "how many clauses compare against something this
+run did not produce". But add: **for each clause, name the fault CLASS it can see.** A check
+fed by two paths from one input sees path faults and not input faults. `ARM 0`'s rank
+comparison is the stricter case — same path, same input, two rank counts — and sees neither;
+it detects only decomposition-dependent faults. **"Self-consistent" is not one property. Say
+which faults reach the comparison and which cancel in it.**
+
 ## L-589 — A CONTROL BUILT IN A SIMPLIFIED SETTING CAN EXONERATE A REAL DEFECT; build the control in the configuration under test
 
 **Measured, and it nearly ended a correct investigation.** Chasing a suspected scaler defect
