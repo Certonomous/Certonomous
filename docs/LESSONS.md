@@ -28751,7 +28751,20 @@ thirty-two carefully categorised false hits did earlier the same night.
 
 *Sixth reader-limit failure of 2026-09-13 and the second by the supervisor. Siblings: L-577,
 L-581, L-582, L-583, L-584, and the `head -10` that truncated a live run's ranks off a process
-sweep an hour earlier. **Every one is a limit the reader imposed on itself, invisible in its own
+sweep an hour earlier.
+
+**NINTH INSTANCE, SAME DATE, AND IT ADDS A FOURTH AXIS: THE WRONG UNIT.** A blade-region
+selector written in **metres** was run against an STL in the CAD's own **millimetres** — the
+registered 1e-3 import scale is applied when the OpenFOAM surfaces are written, not to the raw
+tessellation. It returned **one facet out of 7,230,286**: a near-empty set, **not an error**,
+and it surfaced only because the *next* line crashed on a zero-size array.
+
+**So the family reads: a number taken at the wrong STAGE, from the wrong FIELD, through the
+wrong LIMIT, or in the wrong UNIT — and in every case the reader returned something that looked
+like an answer.** A near-empty result is the same failure as a false zero, a false hit and a
+wrong column: plausible, silent, and nothing in the output says which one you are holding.
+**Assert the expected ORDER OF MAGNITUDE of a selection before using it** — one facet out of
+seven million is a refusal the code should have made for itself. **Every one is a limit the reader imposed on itself, invisible in its own
 output.***
 
 
