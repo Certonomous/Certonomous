@@ -29154,3 +29154,64 @@ rather than asking for compute, and **the first read contradicted its own table.
 that against itself, unprompted, and declined to merge the 52 record-level failures with the 48
 log banners because it had not established a one-to-one correspondence — reporting both numbers
 unreconciled rather than one tidy one.
+
+## L-593 — A PIN PROVES WHAT A FILE **IS**, NOT WHAT IT **NEEDS**. Reusing an instrument unchanged is evidence about its bytes and says nothing about the environment those bytes require
+
+**Measured, and the author of the defect diagnosed it against his own work before anyone asked.**
+
+A registration reused a producer **unchanged**, pinned it by md5, and wrote in its frozen-instrument
+table that reusing it at that hash *"is itself the evidence that nothing else moved"*. The launcher
+for the new arm staged **three** files. The producer's line 67 reads:
+
+```
+from d6r2c_decomp import (Refusal, load_frozen_model, read_final_dv, ...)
+```
+
+**Four files were needed.** All four MPI ranks died on `ModuleNotFoundError: No module named
+'d6r2c_decomp'` in **23 seconds**, before a single primal. The pin was **true** — the bytes were
+exactly the bytes that had run before — and it was **silent about the one thing that mattered.**
+
+**THE ROOT, stated by the lane that made the error and worth more than the fix:** *"I reasoned about
+which files the REGISTRATION needed rather than which files the CODE needed."* Item 8's producer was
+not registered in item 9's document, so it was dropped — a decision that is correct about the
+document and wrong about the import graph. **Those are different questions and only one of them is
+answerable by reading a document.**
+
+**WHY THE EXISTING GUARDS ALL PASSED.** `G-FREEZE` verified every staged file against its pin and
+was right to. The launcher selftest asserted the phase **order** and was right to. The frozen-instrument
+table listed every instrument the document names and was right to. **Not one of them asks whether the
+staged set CLOSES over the imports of what it stages**, and that question is one command:
+
+```
+parse every staged *.py -> collect local-module imports -> assert each is staged
+```
+
+Run **before** the freeze it costs nothing. Run after the crash — which is when it was run — it costs
+a launch.
+
+**THE RULE.**
+1. **A hash covers a file's contents. It covers nothing about the file's dependencies, its interpreter,
+   its libraries, or the files it imports.** State that limit wherever a pin is offered as evidence.
+2. **When you reuse an instrument unchanged, close over its imports** — transitively — and assert every
+   one is staged and pinned. **Staging an unpinned dependency into a frozen arm is worse than the
+   defect it fixes.**
+3. **Drive a control in which the dependency check FAILS**, from outside the instrument. A check that
+   has never been seen to fail is not evidence that nothing failed it.
+4. **"Nothing else moved" is a claim about a set. Say which set.** Bytes moved? Dependencies moved?
+   Environment moved? The three are independent and a pin speaks only to the first.
+
+**WHERE IT SITS IN THIS ITEM'S FAMILY**, which is the reason it is filed separately rather than folded
+into L-579: this is the **sixth** distinct way a registered clause failed to be the clause that
+executed, and each is invisible to the checks that catch the others —
+a grading instrument that **never existed**;
+a threshold whose enforcing branch was **never entered**;
+a threshold that was **a different number** in the instrument than in the document;
+a pin that was **never read**;
+a counter whose **unit** did not match the measurement it was derived from;
+and now a pin that was **true about the file and silent about its dependencies**.
+**A registration is not verified by checking that its instruments exist, or match, or run. It is
+verified by checking that the thing which will execute is the thing that was described.**
+
+**Cost of the finding: 1.533 core-min, 23 seconds.** The cheap-and-disposable first-compute design
+held even though the failure arrived earlier than the contingency written for it — the registration
+provided for *"if the arm reaches the solve phase"*, and it reached no phase at all.
