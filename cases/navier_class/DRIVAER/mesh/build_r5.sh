@@ -34,12 +34,30 @@ cd "$REPO" || exit 2
 # ---- LIVE PIN ---------------------------------------------------------------
 BLOB_FREEZE=$(git rev-parse "$FREEZE:$PREREG" 2>/dev/null) || { echo "REFUSE: cannot read the frozen registration blob"; exit 2; }
 BLOB_NOW=$(git rev-parse "HEAD:$PREREG" 2>/dev/null) || { echo "REFUSE: registration missing at HEAD"; exit 2; }
+# APPEND-ONLY, NOT BYTE-EQUALITY.  Rule 6 does not freeze the FILE, it freezes
+# the BODY: a departure is disclosed in a dated amendment APPENDED AT THE FOOT,
+# asserting `lines whose number changed above this section: 0`.  A guard that
+# demanded byte-equality would refuse every legal addendum -- it did exactly
+# that on Addendum A1 at 18:14Z -- while a guard that only compared shas would
+# accept a body rewritten to fit the answer.  So compare the PREFIX: the frozen
+# body must survive byte-for-byte, and anything after it is an append.
+APPEND_NOTE="blob unchanged since freeze"
 if [ "$BLOB_FREEZE" != "$BLOB_NOW" ]; then
-  echo "REFUSE: the registration blob has MOVED since the freeze."
-  echo "        freeze $FREEZE -> $BLOB_FREEZE"
-  echo "        HEAD    $(git rev-parse HEAD) -> $BLOB_NOW"
-  echo "        A gate that can move after compute is not a gate.  NOTHING LAUNCHED."
-  exit 2
+  FLEN=$(git cat-file -s "$BLOB_FREEZE")
+  NLEN=$(git cat-file -s "$BLOB_NOW")
+  if [ "$NLEN" -lt "$FLEN" ]; then
+    echo "REFUSE: the registration SHRANK since the freeze ($FLEN -> $NLEN bytes)."
+    echo "        That is not an append.  NOTHING LAUNCHED."; exit 2
+  fi
+  if ! cmp -s -n "$FLEN" <(git cat-file blob "$BLOB_FREEZE") <(git cat-file blob "$BLOB_NOW"); then
+    echo "REFUSE: the FROZEN BODY of the registration was MODIFIED, not appended to."
+    echo "        freeze $FREEZE -> $BLOB_FREEZE ($FLEN bytes)"
+    echo "        HEAD    $(git rev-parse HEAD) -> $BLOB_NOW ($NLEN bytes)"
+    echo "        A gate that can move after compute is not a gate.  NOTHING LAUNCHED."
+    exit 2
+  fi
+  APPEND_NOTE="APPEND-ONLY change verified: first $FLEN bytes byte-identical to the freeze, $((NLEN-FLEN)) bytes appended"
+  echo "PIN: $APPEND_NOTE"
 fi
 
 # ---- memory gate (hardware, not budget: caps were lifted, RAM was not) -------
@@ -76,6 +94,7 @@ fi
   echo "prereg_blob_LIVE_AT_LAUNCH=$BLOB_NOW";
   echo "prereg_blob_at_freeze=$BLOB_FREEZE";
   echo "blob_pin_verified_live=yes";
+  echo "prereg_change_since_freeze=$APPEND_NOTE";
   echo "snappyHexMeshDict_sha256=$(sha256sum "$R/system/snappyHexMeshDict" | cut -d' ' -f1)";
   echo "source_level=r2_medium (h0=0.4 m, surface cell 25.0 mm at level 4)";
   echo "build_procedure=PARALLEL np=$NP -- the R1/R2 family built SERIAL; disclosed, not silent";

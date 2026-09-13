@@ -1,0 +1,25 @@
+TRIAGE STOP -- 2026-09-13T18:13:53Z -- STOPPED BY THE BUILDING LANE, NOT BY A CAP.
+
+THIS IS NOT A RESULT AND MUST NEVER BE GRADED.
+
+REASON: the emitted system/snappyHexMeshDict does not implement the registered
+recipe. The registration frozen at 38aab8e78662d574d1b14b61da7efc5898be5c7e
+registers nSurfaceLayers 8. make_r5_dict.py wrote 8 at the TOP LEVEL of
+addLayersControls but left the per-patch layers{} sub-block untouched, where
+all 50 patches still request nSurfaceLayers 5. Per-patch entries are
+authoritative in snappyHexMesh, so this mesh was requesting FIVE layers while
+every record around it said eight.
+
+HOW IT GOT PAST THE GUARDS, WHICH IS THE PART WORTH KEEPING: make_r5_dict.py
+asserted that the recipe SUBSTITUTION APPLIED -- that the text it wrote was
+present. It never asserted the EFFECTIVE per-patch layer count. That is a
+control on the edit, not a control on the meaning, and it is the same shape as
+L-590: a gate correctly armed and demonstrably able to fire, reading a field
+that does not mean what its name says. It is also the same shape as the dead
+lever this lane itself reported in LAYERFIX_A1 four hours earlier.
+
+NO SPEND CAP IS ARMED AND NONE FIRED. The run was stopped for correctness.
+
+Castellation had completed at 16,431,633 cells and snapping was at Morph
+iteration 3. That castellation is sound and its cell count is the one piece of
+evidence this directory carries; the layer phase never ran.

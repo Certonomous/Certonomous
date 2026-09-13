@@ -37,6 +37,7 @@ from __future__ import annotations
 import re, sys, hashlib
 from pathlib import Path
 
+N_LAYERS = 8                                     # the registered nSurfaceLayers
 STACK_M = 0.0010 * ((1.11 ** 8 - 1) / 0.11)      # 0.0118594 m -- the registered stack
 
 LAYER_RECIPE = """    relativeSizes       false;
@@ -98,6 +99,17 @@ def main() -> int:
     if new_lay == lay:
         print("REFUSE: layer recipe substitution did not apply", file=sys.stderr)
         return 2
+
+    # THE PER-PATCH BLOCK IS AUTHORITATIVE AND MUST MOVE IN THE SAME EDIT.
+    # Writing `nSurfaceLayers 8` at the top of addLayersControls while the
+    # layers{} sub-block still says 5 on every patch produces a mesh that
+    # requests FIVE layers while every record around it says eight.  This lane
+    # shipped exactly that defect once (run r5_wallfunction, TRIAGE_STOP.txt,
+    # stopped at Morph iteration 3) because its only assertion was that the
+    # substitution TEXT had appeared -- a control on the edit, not on the
+    # meaning.  Same shape as L-590 and as the LAYERFIX_A1 dead lever.
+    n_sub = len(re.findall(r"nSurfaceLayers\s+\d+\s*;", new_lay))
+    new_lay = re.sub(r"(nSurfaceLayers\s+)\d+(\s*;)", rf"\g<1>{N_LAYERS}\g<2>", new_lay)
     t = t.replace(lay, new_lay, 1)
 
     # ---- B. volume refinement -------------------------------------------------
@@ -144,6 +156,32 @@ def main() -> int:
     if not re.search(r"relativeSizes\s+false;", t):
         print("REFUSE: relativeSizes is not false", file=sys.stderr)
         return 2
+    # A2b: THE EFFECTIVE PER-PATCH LAYER COUNT, not the text of the edit.
+    # snappyHexMesh takes nSurfaceLayers from the per-patch layers{} entry when
+    # one exists, so a dict whose top level says 8 and whose 50 patch entries
+    # say 5 BUILDS FIVE LAYERS.  Assert every count in the whole block, which
+    # is the meaning, rather than that a substitution occurred, which is not.
+    final_lay = block(t, "addLayersControls")
+    counts = [int(x) for x in re.findall(r"nSurfaceLayers\s+(\d+)\s*;", final_lay)]
+    if not counts:
+        print("REFUSE: no nSurfaceLayers entry survives in addLayersControls",
+              file=sys.stderr)
+        return 2
+    if set(counts) != {N_LAYERS}:
+        bad = sorted(set(counts) - {N_LAYERS})
+        print(f"REFUSE: addLayersControls carries nSurfaceLayers values {bad} "
+              f"alongside the registered {N_LAYERS}. The PER-PATCH entry wins in "
+              f"snappyHexMesh, so such a dict builds the per-patch number while "
+              f"every record says {N_LAYERS}.", file=sys.stderr)
+        return 2
+    if len(counts) != n_sub:
+        print(f"REFUSE: counted {n_sub} nSurfaceLayers entries before the "
+              f"rewrite and {len(counts)} after -- the block was not rewritten "
+              f"wholesale.", file=sys.stderr)
+        return 2
+    print(f"  nSurfaceLayers = {N_LAYERS} on ALL {len(counts)} entries "
+          f"(1 top-level + {len(counts)-1} per-patch); the per-patch block is "
+          f"authoritative in snappyHexMesh and was rewritten in the same edit")
     # A3: the surface refinement must be untouched -- this is the one-change proof.
     for name in ("refinementSurfaces", "features", "snapControls",
                  "meshQualityControls"):
