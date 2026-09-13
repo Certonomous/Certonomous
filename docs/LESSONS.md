@@ -29228,3 +29228,52 @@ verified by checking that the thing which will execute is the thing that was des
 **Cost of the finding: 1.533 core-min, 23 seconds.** The cheap-and-disposable first-compute design
 held even though the failure arrived earlier than the contingency written for it — the registration
 provided for *"if the arm reaches the solve phase"*, and it reached no phase at all.
+
+## L-594 — BARE `git diff` COMPARES AGAINST THE INDEX, NOT `HEAD`, AND THE INDEX IS SHARED: an append-only proof written that way answers differently depending on when a peer last staged something
+
+**Measured, twice, on an untouched file with `HEAD` unmoved.** A lane proving an addendum
+append-only ran `git diff --numstat`:
+
+| invocation | result | verdict it produced |
+|---|---|---|
+| 1 | **238 insertions / 19 deletions** | *"APPEND-ONLY VIOLATED"* |
+| 2 | **142 insertions / 0 deletions** | holds |
+
+**The file did not change between the two reads.** The first raced a supervisor's commit updating
+the **shared** index. **A proof whose answer depends on when somebody else last staged something
+is not a proof** — and the dangerous direction is not the false alarm, it is the **false
+confirmation** on a day the index happens to agree.
+
+**THE MECHANISM.** `git diff` with no commit argument compares **worktree against INDEX**.
+`git diff HEAD` compares worktree against the **commit**. In a repository where ten agents stage
+concurrently — and where the private-index protocol means your *own* staging is invisible while
+peers' is not — those are different questions, and only the second is the one an append-only
+claim is about.
+
+**THE SOUND FORM, and it needs no diff at all:**
+```
+N=$(git show HEAD:<path> | wc -l)                 # DERIVED, same invocation (L-591)
+[ "$(git show HEAD:<path> | md5sum)" = "$(head -$N <path> | md5sum)" ]
+```
+**Prefix byte-identity against the blob.** It asks exactly the question — *is everything that was
+there still there, unchanged, in order?* — and it cannot be moved by anyone else's index.
+`git diff HEAD --numstat` reading `N 0` is **corroboration**, not the proof.
+
+**THE BLAST RADIUS, DISCLOSED RATHER THAN DISCOVERED.** Five committed addenda in this item cite
+the bare form as their stated proof. **Their conclusions are sound** — each also ran the
+byte-identity check, and every commit in this family ended with `git diff HEAD~1 HEAD --stat`,
+which is commit-to-commit and therefore immune — but **the sentence they offer AS the proof is the
+weaker one.** They are **not edited**: committed records are corrected by dated disclosure, never
+rewritten. The correction lives in the successor's addendum and here.
+
+**WHY THIS IS ITS OWN LESSON.** It is the sibling of the memory note that `git status` reads stale
+under concurrency, and of L-223's stale `read-tree`, but it bites somewhere those do not: **inside
+a check written specifically to be rigorous.** The author was being careful — they wrote a
+verification instead of asserting — and the verification asked the wrong object. **Rigour applied
+to the wrong reference is not rigour**, and a check that consults shared mutable state is a
+check with a race in it.
+
+**THE RULE.** In a shared repository, **every git comparison in a proof names its reference
+explicitly** — `HEAD`, or a sha. **A bare `git diff`, `git diff --stat`, `git diff --numstat` or
+`git status` has no place in a verification**, and `git diff --cached` is the same hazard wearing
+the other face. Prefer a form with **no shared mutable state in it at all**.

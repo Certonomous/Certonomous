@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ===========================================================================
-# d6r2c_dec4_run_arm.sh -- LAUNCHER for the SUCCESSOR to D6R2C after-item 8
+# d6r2c_dec5_run_arm.sh -- LAUNCHER for the SUCCESSOR to D6R2C after-item 8
 # ===========================================================================
 #
 # Registered by PREREGISTRATION_AFTER_ITEM8_R2.md sections 5, 8, 9 and 11, and
@@ -97,7 +97,15 @@ CKPT_INTERVAL_S=1800
 # COMPARED THEM -- a cap that exists as a literal in two files is two things that
 # can drift.  The canonical value is CALLED, never re-spelled (L-221/L-222), the
 # same discipline this launcher's guard_box already applies to swap_offenders().
-cap_core_min() { python3 "$SRC/d6r2c_dec5_grade.py" --print-cap "$1" 2>/dev/null; }
+cap_core_min() {
+  # ADDENDUM 1 (2026-09-13): DEC6 is the RE-RUN id after the rc=127 launcher
+  # defect.  IT INHERITS THE IDENTICAL REGISTERED FIGURE -- it is DEC5's cap,
+  # read from the FROZEN grader under DEC5's own key.  NO NEW THRESHOLD IS
+  # INVENTED, none is raised and none is reduced, and the grader is NOT touched.
+  local a="$1"
+  case "$a" in DEC6) a=DEC5 ;; esac
+  python3 "$SRC/d6r2c_dec5_grade.py" --print-cap "$a" 2>/dev/null
+}
 
 # ===========================================================================
 # G-ROOT.1 -- BASE must be THIS item's registered run root, normalised
@@ -363,6 +371,26 @@ if [ "$ARM" = "--selftest" ]; then
   [ "$(cap_core_min DEC5)" = "$(python3 "$SRC/d6r2c_dec5_grade.py" --print-cap DEC5)" ] \
     && echo "SELFTEST ok the cap has ONE source and this launcher is not it" \
     || { echo "SELFTEST FAIL the launcher carries its own cap"; rc=1; }
+  # ---- THE CONTROL THAT WOULD HAVE CAUGHT rc=127.  The command file's name
+  # existed in TWO places -- the CMDFILE assignment and the docker line -- and
+  # the rename moved one.  The selftest never read the docker invocation, so it
+  # passed n=9 on a launcher that could not start.  ONE SOURCE now, asserted.
+  grep -q 'bash /mnt/\$ARM/\$(basename' "$0" \
+    && echo "SELFTEST ok the container command path is derived from \$CMDFILE, not a second literal" \
+    || { echo "SELFTEST FAIL the docker line carries its own copy of the command-file name"; rc=1; }
+  # L-580: this predicate is written so THIS LINE CANNOT SATISFY IT -- the file
+  # holds the bracketed form, which the regex itself does not match.  The first
+  # version of this control counted its own error message and reported FAIL on a
+  # clean launcher.
+  [ "$(grep -c 'd6r2c_de[c]4_' "$0")" -eq 0 ] \
+    && echo "SELFTEST ok no predecessor literal survives anywhere in this launcher" \
+    || { echo "SELFTEST FAIL a predecessor literal survives: $(grep -n 'd6r2c_de[c]4_' "$0" | head -3)"; rc=1; }
+  [ "$(cap_core_min DEC6)" = "$(cap_core_min DEC5)" ] \
+    && echo "SELFTEST ok DEC6 carries the IDENTICAL registered cap as DEC5" \
+    || { echo "SELFTEST FAIL DEC6 does not carry DEC5's cap"; rc=1; }
+  grep -q 'launcher_md5=\$(md5sum "\$0"' "$0" \
+    && echo "SELFTEST ok the launcher reports its OWN md5 into the ledger row" \
+    || { echo "SELFTEST FAIL the ledger row does not carry the launcher md5"; rc=1; }
   [ -z "$(cap_core_min NOSUCHARM)" ] && echo "SELFTEST ok an unknown arm has no cap" || { echo "SELFTEST FAIL unknown arm got a cap"; rc=1; }
   [ -z "$(cap_core_min DEC3)" ] && [ -z "$(cap_core_min FM5)" ] \
     && echo "SELFTEST ok the earlier arms are NOT launchable from this document" \
@@ -377,11 +405,11 @@ if [ "$ARM" = "--selftest" ]; then
     && echo "SELFTEST ok both successor instruments are pinned in this file" \
     || { echo "SELFTEST FAIL an instrument is unpinned"; rc=1; }
   # the count is the number of checks ACTUALLY DRIVEN above.
-  [ "$rc" -eq 0 ] && echo "D6R2C_DEC5_LAUNCH SELFTEST PASS n=9" || echo "D6R2C_DEC5_LAUNCH SELFTEST FAIL"
+  [ "$rc" -eq 0 ] && echo "D6R2C_DEC5_LAUNCH SELFTEST PASS n=13" || echo "D6R2C_DEC5_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_dec4_run_arm.sh DEC5 <image>  |  --selftest"; exit 64; }
-case "$ARM" in DEC5) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
+test -n "$ARM" || { echo "ABORT usage: d6r2c_dec5_run_arm.sh <DEC5|DEC6> <image>  |  --selftest"; exit 64; }
+case "$ARM" in DEC5|DEC6) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
@@ -396,13 +424,13 @@ guard_deps_called || exit $?
 # checked would be trusting bytes this launcher had not yet verified.
 CAP=$(cap_core_min "$ARM"); test -n "$CAP" || { echo "ABORT no registered cap for arm $ARM"; exit 64; }
 echo "D6R2C_DEC5_CAP arm=$ARM cap_core_min=$CAP source=d6r2c_dec5_grade.py --print-cap"
-LIVE=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6r2c_dec4_${ARM}_" 2>/dev/null | head -3 | tr '\n' ',')
+LIVE=$(sudo -n docker ps --format '{{.Names}}' --filter "name=^d6r2c_dec5_${ARM}_" 2>/dev/null | head -3 | tr '\n' ',')
 [ -n "$LIVE" ] && { echo "ABORT G-LIVE arm $ARM already running: $LIVE"; exit 3; }
 mkdir -p "$BASE" && echo "ITEM=$ITEM" >> "$BASE/ledger.txt"
 seed_arm "$ARM" || exit $?
 
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)_$$
-NAME="d6r2c_dec4_${ARM}_${STAMP}"
+NAME="d6r2c_dec5_${ARM}_${STAMP}"
 WORK="$BASE/$ARM"
 LOG="$BASE/${ARM}_${STAMP}.log"
 
@@ -457,7 +485,7 @@ sudo -n docker run -d --name "$NAME" \
     --oom-score-adj=500 \
     -v "$BASE":/mnt -v "$PARENT_BASE":/mnt/parent:ro \
     -w "/mnt/$ARM" "$IMG" bash -lc \
-    ". /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/$ARM/d6r2c_dec4_cmd.sh" \
+    ". /home/dafoamuser/dafoam/loadDAFoam.sh && bash /mnt/$ARM/$(basename \"$CMDFILE\")" \
     > /dev/null 2>&1 || { echo "ABORT docker run failed"; exit 6; }
 echo "D6R2C_DEC5_LAUNCHED name=$NAME arm=$ARM uid=${RUN_UID}:${RUN_GID}+${EXTRA_GID} ranks=$RANKS cpuset=$CPUSET"
 
@@ -473,7 +501,13 @@ CORE_MIN=$(awk -v w="$WALL" -v r="$RANKS" 'BEGIN{printf "%.3f", w*r/60}')
 ROOT_OWNED=$(find "$WORK" -newermt "@$(cat "$WORK/.d6r2c_age_datum")" \( -uid 0 -o -gid 0 \) 2>/dev/null | wc -l)
 {
   echo "ITEM=$ITEM"
-  echo "D6R2C_DEC5_ROW arm=$ARM name=$NAME rc=$RC wall_s=$WALL core_min=$CORE_MIN cap=$CAP root_owned=$ROOT_OWNED log=$LOG"
+  # ---- ADDENDUM 1: THE GUARD THAT CHECKS OTHERS DID NOT CHECK ITSELF.
+  # guard_freeze pins the grader, the producer and the mesh script and NOT this
+  # file, so this launcher could drift from section 9's table with nothing
+  # firing.  A file cannot contain its own hash, but it CAN REPORT it: the md5
+  # is computed at run time and written into the ledger row, so the registered
+  # table and the artefact that actually ran are comparable by anyone afterwards.
+  echo "D6R2C_DEC5_ROW arm=$ARM name=$NAME rc=$RC wall_s=$WALL core_min=$CORE_MIN cap=$CAP root_owned=$ROOT_OWNED launcher_md5=$(md5sum "$0" | cut -d' ' -f1) log=$LOG"
 } >> "$BASE/ledger.txt"
 awk -v c="$CORE_MIN" -v cap="$CAP" 'BEGIN{exit !(c>cap)}' && \
   echo "D6R2C_DEC5_CAP_CROSSED arm=$ARM core_min=$CORE_MIN cap=$CAP -- the row is graded NOT A RESULT and THE CAP IS NEVER RAISED" | tee -a "$BASE/ledger.txt"

@@ -570,3 +570,154 @@ derived during the build and never written into the registration. **That is prec
 - **It does not move any inherited gate.** `TRIM_TOL`, `CLOSE_TOL`, `INTERACT_TOL`, `TRIM_MAX_EVALS`,
   `PLANT`, `CAP_FACTOR` are inherited unchanged; `D2` is **struck with its reason** (§3a), not loosened.
 - **It does not satisfy Sanaa's item 10.** The report is a separate record.
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — `rc = 127`: THE COMMAND FILE'S NAME LIVED IN TWO PLACES, AND THE GUARD THAT PINS EVERY INSTRUMENT DOES NOT PIN ITSELF
+
+**This addendum carries the document to version 1.1.** Line 4 still reads `Version 1.0` and is
+**deliberately not edited**: editing it would falsify this section's own assertion below.
+
+**Lines whose number changed above this section: 0.** Proof in §A1.9.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `M1`, `M2`, `M3`, `D1`, `D2GEO`,
+`D3`, `D4`, `D6`, `GROWTH_TARGET`, `SANITY_BAND`, `PLANT`, `PLANT_SANITY`, `TRIM_TOL`,
+`TRIM_MAX_EVALS`, `CLOSE_TOL`, `INTERACT_TOL`, `GEO_TOL` and the §6 cap of `1082.100` core-min all
+stand exactly as frozen at `6f20e1394a60a507698cc155d6c5c0cb17942421`.
+**`DEC5`'s `NOT A RESULT` row stands, is never re-seeded and is never re-graded.**
+
+### A1.0 WHAT HAPPENED
+
+`DEC5` launched 2026-09-13T09:09:31Z. **Every guard passed** — `G_ROOT`, `G_BOX`
+(`solver_swap_offenders=0`), `G_FREEZE`, `G_DEPSLIB_PASS`
+(`body=e4fe26ad6e29900ce4b67255c9ddc9c1 origin=d6r2c_fm6_run_arm.sh:189-222`),
+`D6R2C_FM6_G_DEPS_PASS scanned=2 staged=2`, cap `1082.100` from the frozen grader, `G_COLD`. Then:
+
+```
+bash: /mnt/DEC5/d6r2c_dec4_cmd.sh: No such file or directory
+rc = 127, 12 s wall, 0.800 core-min
+```
+
+The frozen grader **REFUSED, exit 2, `REFUSE_MISSING_DECOMP_RECORD`** → **`NOT A RESULT`**. Cap
+untouched, hygiene clean, zero root-owned files, zero containers left.
+
+### A1.1 THE DEFECT — THE TENTH MEMBER OF THIS ITEM'S FAMILY, AND THE AUTHOR'S OWN
+
+**The command file's name existed in two places** — the `CMDFILE=` assignment and the `docker run`
+line — **and the rename moved one.** Four `d6r2c_dec4_` literals survived: the container command path,
+the container `NAME` (visible in the launch line as `d6r2c_dec4_DEC5_…`), the `G-LIVE` filter and the
+usage string.
+
+**That is the same defect as the inert `TRIM_MAX_EVALS`, the `_flat` that did not flatten, the scaler
+divisor read without its fallback, and the stale `head -1140` line count: one string, two copies, one
+updated.** §8c of the parent registration states the disease in one sentence — *a registered clause
+that is not the clause that executes* — and this document's author shipped a fresh instance of it into
+this very registration.
+
+**AND THE SELFTEST PASSED `n = 9` ON A LAUNCHER THAT COULD NOT START**, because it never read the
+`docker run` line. **A selftest that exercises everything except the invocation is a check on the parts
+nobody doubted.**
+
+### A1.2 THE REPAIR, AND THE CONTROLS THAT WOULD HAVE CAUGHT IT
+
+1. The container command path is **derived from `$CMDFILE`** — one source, no second literal.
+2. All four surviving predecessor literals removed.
+3. **Two new controls**: the `docker run` line must derive its path from `$CMDFILE`; and **no
+   predecessor literal may survive anywhere in the launcher.**
+4. **Both are DRIVEN AGAINST A DELIBERATELY BROKEN COPY and FAIL on it, naming the offending line** —
+   not assumed. On a copy with the literal reintroduced they report
+   `SELFTEST FAIL the docker line carries its own copy of the command-file name` and
+   `SELFTEST FAIL a predecessor literal survives: 474: … d6r2c_dec4_cmd.sh`.
+
+### A1.3 THE FIRST DRAFT OF THAT CONTROL WAS ITSELF L-580
+
+`grep -c 'd6r2c_dec4_' "$0"` **counted its own error message** and reported `FAIL` on a clean launcher.
+**The check matched itself** — the same shape as the process audit L-580 records. The predicate is now
+written so its own line cannot satisfy it: the file holds the bracketed form `d6r2c_de[c]4_`, which the
+regex `d6r2c_de[c]4_` does not match, and the comment at the site says why.
+**It was found by DRIVING the control, not by trusting it.**
+
+### A1.4 THE STRUCTURAL FINDING — **THE GUARD THAT CHECKS OTHERS DOES NOT CHECK ITSELF**
+
+**`guard_freeze` pins `d6r2c_dec5_grade.py`, `d6r2c_dec5_decomp.py` and `d6r2c_dec5_genwingmesh.py` —
+and NOT the launcher that contains it.** So this file could drift arbitrarily from §9's table **with
+nothing firing**: every guard would pass, the cap would resolve, and the recorded instrument table
+would simply be false. That is this night's most general defect: **a verifier that verifies everything
+except itself.**
+
+**IT IS CLOSED WITHOUT A FIXED POINT.** A file cannot contain its own hash, but it can **report** it:
+
+```
+D6R2C_DEC5_ROW arm=… rc=… core_min=… cap=… root_owned=… launcher_md5=$(md5sum "$0" …) log=…
+```
+
+**REGISTERED REQUIREMENT:** the `launcher_md5` recorded in the ledger row **must equal the launcher md5
+in §9's table as amended by §A1.6**. The grader is frozen and is **not** reopened for this; the
+comparison is made by `dafoam-supervisor` at grading, against the ledger and the table. **That converts
+an unverifiable claim into a checkable one at the cost of one line**, and it is checkable by any reader
+afterwards, not only at run time.
+
+### A1.5 `DEC6` — THE RE-RUN ID, IDENTICAL CAP, NO NEW THRESHOLD
+
+`DEC5` holds a ledger row and a directory, so `G-COLD` refuses it. **`DEC6` is the successor**, handled
+exactly as `DEC2`/`DEC3` and `FM2`–`FM5` were: **it inherits the IDENTICAL registered figure by reading
+DEC5's own cap out of the FROZEN grader** (`cap_core_min` maps `DEC6 → DEC5` before the lookup).
+**No new threshold is invented, none is raised, none is reduced, and the grader is not touched.**
+Measured: `DEC5 = 1082.100`, `DEC6 = 1082.100`, unknown arm empty — **asserted by a selftest control**,
+not by this sentence. **Every arm-id site is keyed**: the cap function, the accepted-arm `case`, and the
+usage string.
+
+### A1.6 SECTION 9 — WHAT MOVED AND, MORE IMPORTANTLY, WHAT DID NOT
+
+| file | md5 at freeze | md5 now | moved? |
+|---|---|---|---|
+| `d6r2c_dec5_grade.py` | `434dfbd6b45e7b6e31792fc37cc2db00` | `434dfbd6b45e7b6e31792fc37cc2db00` | **NO — THE GRADING PATH DID NOT MOVE AND ITS PIN DID NOT CHANGE** |
+| `d6r2c_dec5_decomp.py` | `fb19791784ebb73747c2f6c466a0d174` | `fb19791784ebb73747c2f6c466a0d174` | **NO — the producer did not move and its pin did not change** |
+| `d6r2c_dec5_genwingmesh.py` | `554b6bba6bbcc90d7d00cb39c17d635d` | unchanged | **NO** |
+| `d6r2c_guard_deps.sh` | `1de7fcd349b7227a49a008f180f909cc` | unchanged | **NO** |
+| `d6r2c_dec5_run_arm.sh` | `dbf2567cbbc323d8edc6aa93669f928b` | **`0d1d117ac90b19636152eb6999dfde5f`** | **YES — this addendum is that disclosure** |
+
+**The reader's first question is whether the grading path shifted. It did not.** `d6r2c_dec5_grade.py`
+is byte-identical to the freeze, its `# PIN` line is unchanged, and `guard_freeze` still refuses any
+difference. **Only the launcher moved, and only in the four places named in §A1.2 plus §A1.4's one
+reporting line and §A1.5's cap mapping.**
+**Selftests at the new bytes: launcher `PASS n=13`, producer `PASS n=56`, grader `PASS n=89`.**
+
+### A1.7 THE BANNER COUNT DRIFTED AGAIN, AND IT WAS THE AUTHOR'S SECOND TIME
+
+The launcher printed **`SELFTEST PASS n=9` while driving 13 checks.** This is the **same** defect the
+same author fixed in the `d6r2c_after_run_arm.sh` launcher hours earlier — *a banner whose number does
+not match its checks is a second copy of a number that can drift* — **and it was reintroduced here by
+adding controls without updating the count.** Corrected to `n=13`. **Recorded rather than quietly
+fixed, because the repetition is the finding: knowing a lesson is not applying it.**
+
+### A1.8 SPEND
+
+`DEC5`: **0.800 core-min**, cap `1082.100` untouched (0.07 % used). **Defect-attributable waste** — the
+launcher was the author's own. `= $0.00068` derived, not measured, `cost_basis` **reported-by-owner**.
+**No calibration row: no arm has completed.**
+
+### A1.9 THE APPEND-ONLY PROOF
+
+- **THE PROOF IS PREFIX BYTE-IDENTITY, AND IT IS SOUND:** `HEAD`'s blob is **572 lines**, md5
+  **`33992c44d65a99fe944a1f2a657acb2e`**, and `head -572` of the worktree hashes to **the same value**.
+  Nothing above line 572 was touched. The worktree is 714 lines; **142 appended.** The line count is
+  **DERIVED from the committed blob in the same shell invocation, never typed** — the lesson this lane
+  paid for earlier tonight with a stale `head -1140`.
+- **`git diff --numstat` IS NOT THE PROOF, AND USING IT AS ONE WAS A DEFECT IN THIS LANE'S METHOD.**
+  Bare `git diff` compares the worktree against the **INDEX**, not against `HEAD`, and **the index is
+  shared and moves under you as peers stage and commit.** This very check read
+  **`238 insertions / 19 deletions`** on one invocation and **`142 / 0`** on the next, **with the file
+  untouched between them and `HEAD` unmoved** — the first reading raced the freeze commit updating the
+  index. **A proof whose answer depends on when a peer last staged something is not a proof.**
+  Where a numstat is quoted it must be **`git diff HEAD --numstat`**, and it is corroboration, never the
+  proof. Measured here: `git diff HEAD --numstat` = **142 insertions, 0 deletions**.
+- **Lines whose number changed above this section: 0.**
+
+### A1.10 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not move the grading path**, any gate, any threshold, any cap or any label.
+- **It does not re-grade `DEC5`.** That row stands at `NOT A RESULT`.
+- **It does not claim the launcher is now correct.** It claims two specific defects are repaired, two
+  controls now fail on a broken copy, and the launcher reports its own md5 so the table and the artefact
+  are comparable. **`DEC6` is the test.**
