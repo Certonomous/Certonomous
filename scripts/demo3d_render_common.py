@@ -229,6 +229,18 @@ CASE_FACTS = {
         "verdict_stamp": "GATE FAIL",
         "source": "verification/runs/M6J_runs/M6J_L1/m6j_grade_M6J_L1.json",
     },
+    "M6J_L2": {
+        "case_dir": os.path.join(REPO, "verification", "runs", "M6J_runs",
+                                 "M6J_L2"),
+        "cells": 122880,                 # constant/polyMesh/owner note: nCells:122880
+        "mesh_words": "122880 cells, medium level",
+        "solver": "rhoSimpleFoam",       # system/controlDict: application
+        "end_time": "5000",              # last written time directory
+        "fields": ("p", "U", "T"),
+        "allowed_verdicts": {"GATE FAIL"},
+        "verdict_stamp": "GATE FAIL",
+        "source": "verification/runs/M6J_runs/M6J_L2/m6j_grade_M6J_L2.json",
+    },
     "M6J_L3": {
         "case_dir": os.path.join(REPO, "verification", "runs", "M6J_runs",
                                  "M6J_L3"),

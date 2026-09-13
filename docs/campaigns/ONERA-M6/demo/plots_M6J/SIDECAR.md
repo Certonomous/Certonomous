@@ -144,7 +144,15 @@ Everything above still holds. What changed is the DRAWING, not a number.
   driver WOULD have drawn, before any pixel, so a verdict word a case does not own is
   still refused. What moved is where the sentence is printed, not whether it is checked.
 
-* **The mesh figure is now the FINE level.** The owner: *"the 480-face coarse
+* **A COARSE-OR-MEDIUM MESH PANEL, per the owner's standing rule of 2026-09-13**
+  (*"for all the cases we should plot the coarse or medium mesh (but show the fine
+  mesh's result)"*): `m6_mesh_medium.png`, the **medium** level `M6J_L2`'s wall patch,
+  **1,920 faces** of a 122,880-cell mesh. **Medium and not coarse is a measurement,
+  not a default**: the rule admits either, and the boundary files say `M6J_L3` carries
+  **480** wall faces against L2's 1,920 — which is exactly the "reads as a toy"
+  complaint. **Every FIELD panel in this folder still comes from the FINE level**, and
+  nothing is interpolated between the two meshes.
+* **The nose cut stays on the FINE level.** The owner: *"the 480-face coarse
   wall patch reads as a toy"*. `m6_mesh.png` is a **cut at the η = 0.65 station**,
   framed on the leading edge, showing the cells across the nose and the wall
   layers — 28,048 cells in that plane; `m6_mesh_surface.png` is the fine level's

@@ -14,6 +14,8 @@ SIX PANELS, on the owner's 2026-09-13 instruction:
     m6_mesh_surface.png       the FINE level's wall patch with its own edges
     m6_mesh.png               a cut at the eta = 0.65 station, framed on the nose,
                               showing the cells across it and the wall layers
+    m6_mesh_medium.png        the MEDIUM level's wall patch, 1920 faces -- the
+                              owner's standing "coarse or medium mesh" panel
 
 FIELDS FROM THE FINE LEVEL, MESH FROM THE COARSE LEVEL (`m6_mesh.png`, rendered
 separately by `scripts/render_openfoam_3d_paraview.py`).
@@ -526,6 +528,53 @@ def mesh_panels(reader, out_body, out_cut, y_cut, eta):
     return n1 + n2
 
 
+def coarse_mesh_panel(out):
+    """The MEDIUM level's wall patch, per the owner's standing ParaView rule.
+
+    Her rule of 2026-09-13: *"for all the cases we should plot the coarse or medium
+    mesh (but show the fine mesh's result)"*. **MEDIUM and not coarse, and that is a
+    measurement rather than a default**: her earlier note is that this family's coarse
+    level *"reads as a toy"*, and the boundary file says why -- `M6J_L3` carries
+    **480** wall faces against `M6J_L2`'s **1,920**. The rule admits either, so the
+    legible one is taken and the count is printed here rather than left to the eye.
+
+    The fine level keeps the FIELD panels and the nose cut; nothing is interpolated
+    between the two meshes.
+    """
+    from paraview.simple import MergeBlocks, Show, Render, UpdatePipeline
+    root = None
+    try:
+        reader, root, n = C.open_case("M6J_L2", ["p"], ["5000"])
+        C.announce("  M6J_L2: %s cells" % format(n, ","))
+        v = _view()
+        reader.MeshRegions = ["patch/wing"]
+        UpdatePipeline(time=5000.0, proxy=reader)
+        surf = MergeBlocks(Input=reader); UpdatePipeline(time=5000.0, proxy=surf)
+        info = surf.GetDataInformation()
+        if info.GetNumberOfCells() != 1920:
+            C.refuse("the M6J_L2 wing patch rendered %d cells where the boundary "
+                     "file says 1920" % info.GetNumberOfCells())
+        d = Show(surf, v); _flat_lighting(d)
+        d.ColorArrayName = [None, ""]
+        d.DiffuseColor = [0.66, 0.69, 0.74]; d.AmbientColor = [0.66, 0.69, 0.74]
+        d.Representation = "Surface With Edges"
+        d.EdgeColor = [0.12, 0.12, 0.12]; d.LineWidth = 0.6
+        b = info.GetBounds()
+        C.frame_by_extent(v, [(b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2],
+                          (0.75, -0.55, 0.60), up=(0.0, 0.0, 1.0), bounds=b, pad=1.06)
+        Render(v)
+        nb = C.save_screenshot(v, out, size=(1600, 1000))
+        _, px = _spread(out)
+        if px < 20000:
+            C.refuse("%s drew only %d body pixels" % (os.path.basename(out), px))
+        C.announce("  wrote %s (%s bytes, 1920 faces, %s body px)"
+                   % (os.path.basename(out), format(nb, ","), format(px, ",")))
+        return nb
+    finally:
+        if root:
+            shutil.rmtree(root, ignore_errors=True)
+
+
 def main():
     C.assert_paraview_version()
     cdir = C.facts(FINE)["case_dir"]
@@ -563,6 +612,7 @@ def main():
         total += mesh_panels(reader, os.path.join(HERE, "m6_mesh_surface.png"),
                              os.path.join(HERE, "m6_mesh.png"),
                              EXT["stations"]["0.65"]["y_cut_target"], "0.65")
+        total += coarse_mesh_panel(os.path.join(HERE, "m6_mesh_medium.png"))
 
         # ONE Mach range and ONE velocity range for BOTH stations, MEASURED over
         # the two station planes themselves rather than assumed. A per-panel

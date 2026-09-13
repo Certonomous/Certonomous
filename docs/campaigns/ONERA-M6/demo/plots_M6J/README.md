@@ -1,6 +1,6 @@
 # ONERA M6 — demo plot folder
 
-Seventeen figures, built 2026-09-13 from the M6J run tree with **zero solver compute**,
+Eighteen figures, built 2026-09-13 from the M6J run tree with **zero solver compute**,
 under plot library **v2**: math only on the figures, and ParaView panels that are
 white-ground, triad-free and carry no text at all.
 Regenerate with `python3 build_plots.py` (matplotlib figures) and
