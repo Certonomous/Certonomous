@@ -60,7 +60,13 @@ CKPT_INTERVAL_S=1800
 # THE IDENTICAL REGISTERED FIGURES looked up under a third key.  NO NEW THRESHOLD
 # IS INVENTED, none is raised and none is reduced.  DEC2 keeps its directory and
 # its NOT A RESULT row, is never re-seeded and is never re-graded, exactly as DEC.
-cap_core_min() { case "$1" in DEC|DEC2|DEC3) echo 968.1 ;; FM|FM2|FM3) echo 618.0 ;; FM_L2) echo 180.0 ;; *) echo "" ;; esac; }
+#
+# ADDENDUM 3 (2026-09-13): FM4 is the RE-RUN id after the two item-9 producer
+# defects (cgnsutilities `.X` vs `.coords`, and H1 fed the block-structured
+# array instead of the registered unique node set).  IT INHERITS THE IDENTICAL
+# REGISTERED FIGURE 618.0 under a fourth key.  NO NEW THRESHOLD IS INVENTED.
+# FM3 keeps its directory and its NOT A RESULT row, as FM2 and FM do.
+cap_core_min() { case "$1" in DEC|DEC2|DEC3) echo 968.1 ;; FM|FM2|FM3|FM4|FM5) echo 618.0 ;; FM_L2) echo 180.0 ;; *) echo "" ;; esac; }
 
 # ===========================================================================
 # G-ROOT.1 -- BASE must be THIS item's registered run root, normalised
@@ -182,7 +188,7 @@ seed_arm() {
   cp "$PARENT_BASE/O_mp/d6r2c_evals.jsonl" "$WORK/d6r2c_evals_final.jsonl" || return 5
   cp "$PARENT_BASE/O_mp/d6r2c_x0.json"     "$WORK/d6r2c_x0_final.json"     || return 5
   cp "$SRC/d6r2c_opt_runScript.py" "$SRC/d6r2c_decomp.py" "$SRC/d6r2c_freshmesh.py" "$WORK/" || return 5
-  if [ "$ARM" = "FM" ] || [ "$ARM" = "FM2" ] || [ "$ARM" = "FM3" ]; then
+  if [ "$ARM" = "FM" ] || [ "$ARM" = "FM2" ] || [ "$ARM" = "FM3" ] || [ "$ARM" = "FM4" ] || [ "$ARM" = "FM5" ]; then
     cp "$SURFACE_SRC" "$WORK/surfaceMesh_base.cgns" || return 5
     cp "$FAMILY_DIR/genWingMesh.py" "$WORK/genWingMesh.py" || return 5
     md5_is "$WORK/genWingMesh.py" "$MD5_GENWINGMESH" || {
@@ -243,7 +249,8 @@ if [ "$ARM" = "--selftest" ]; then
   # exist -- an id that ran with a different cap would be a new threshold.
   [ "$(cap_core_min DEC3)" = "$(cap_core_min DEC)" ] && [ "$(cap_core_min FM3)" = "$(cap_core_min FM)" ] \
     && [ "$(cap_core_min DEC2)" = "$(cap_core_min DEC)" ] && [ "$(cap_core_min FM2)" = "$(cap_core_min FM)" ] \
-    && echo "SELFTEST ok DEC2/DEC3/FM2/FM3 carry the IDENTICAL registered caps" \
+    && [ "$(cap_core_min FM4)" = "$(cap_core_min FM)" ] && [ "$(cap_core_min FM5)" = "$(cap_core_min FM)" ] \
+    && echo "SELFTEST ok DEC2/DEC3/FM2/FM3/FM4/FM5 carry the IDENTICAL registered caps" \
     || { echo "SELFTEST FAIL a re-run id does not carry its arm's registered cap"; rc=1; }
   [ -z "$(cap_core_min NOSUCHARM)" ] && echo "SELFTEST ok an unknown arm has no cap" || { echo "SELFTEST FAIL unknown arm got a cap"; rc=1; }
   # ADDENDUM 2: the count is the number of checks ACTUALLY DRIVEN above.  It was
@@ -252,9 +259,9 @@ if [ "$ARM" = "--selftest" ]; then
   [ "$rc" -eq 0 ] && echo "D6R2C_AFTER_LAUNCH SELFTEST PASS n=6" || echo "D6R2C_AFTER_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_after_run_arm.sh <DEC|DEC2|DEC3|FM|FM2|FM3> <image>  |  --selftest"; exit 64; }
+test -n "$ARM" || { echo "ABORT usage: d6r2c_after_run_arm.sh <DEC|DEC2|DEC3|FM|FM2|FM3|FM4|FM5> <image>  |  --selftest"; exit 64; }
 CAP=$(cap_core_min "$ARM"); test -n "$CAP" || { echo "ABORT unknown arm $ARM"; exit 64; }
-case "$ARM" in DEC|DEC2|DEC3|FM|FM2|FM3) ;; *) echo "ABORT arm $ARM is registered but NOT run by this registration"; exit 64 ;; esac
+case "$ARM" in DEC|DEC2|DEC3|FM|FM2|FM3|FM4|FM5) ;; *) echo "ABORT arm $ARM is registered but NOT run by this registration"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
@@ -353,4 +360,10 @@ exit 0
 # NO gate, threshold, cap or label is altered by this line or by any line above.
 # PIN d6r2c_after_grade.py 6c22013af54569ae651f8f23d1088861
 # PIN d6r2c_decomp.py 42ec0dd582584812a69129a474b2783e
-# PIN d6r2c_freshmesh.py 6cb2214f9e5d4d124e77db816efbb2af
+# ADDENDUM 3: freshmesh repinned after the two item-9 producer defects.
+#   d6r2c_freshmesh.py  6cb2214f9e5d4d124e77db816efbb2af -> 274afb034bc3752bd043d95991cc78e9
+# THE GRADER PIN IS STILL UNCHANGED AND THE GRADER IS STILL UNTOUCHED.
+# ADDENDUM 4: freshmesh repinned after the _flat defect (FM4, 11 s).
+#   d6r2c_freshmesh.py  274afb034bc3752bd043d95991cc78e9 -> c72cf035bde3cfc8e396118d3b07d28e
+#   (defect 4, addPointSet) c72cf035bde3cfc8e396118d3b07d28e -> 1d15ce361673ca600d565280441b67e0
+# PIN d6r2c_freshmesh.py 1d15ce361673ca600d565280441b67e0

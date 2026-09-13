@@ -1138,3 +1138,338 @@ than running with a silently absent cap.
 
 **The grader remains untouched at `6c22013af54569ae651f8f23d1088861` and no gate, threshold, cap or
 label is altered by anything in this section.**
+
+---
+
+## ADDENDUM 3 — 2026-09-13 — TWO ITEM-9 PRODUCER DEFECTS, AND THE ASSERT THAT MAKES THE SECOND REPAIR CONFORMANCE RATHER THAN FITTING
+
+**This addendum carries the document to version 1.3.** Line 4 still reads `Version 1.0` and is
+**deliberately not edited**, for the reason ADDENDUM 1 gives.
+
+**Lines whose number changed above this section: 0.** Proof in §A3.8.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `D1`–`D6`, `H1`–`H4`, `TRIM_TOL`,
+`REPRO_TOL`, `CLOSE_TOL`, `INTERACT_TOL`, `SHAPE_MATCH_TOL`, `FM_BAND_ABS`, `PLANT`, `TRIM_MAX_EVALS`
+and every cap in section 8 stand exactly as frozen at `c06df89a18bc33a93e7ebcafc8f35b73d9c48f5e`.
+**`FM3`'s `NOT A RESULT` row stands and is never re-graded**, as `DEC`'s, `DEC2`'s and `DEC3`'s do.
+
+### A3.0 WHAT HAPPENED
+
+`FM3` launched 2026-09-13T06:17:22Z and died **15 s later, rc = 1, 1.000 core-min**, inside
+`phase_deform`, before the cold preamble. The frozen grader `--item 9` **REFUSED, exit 2,
+`REFUSE_MISSING_FRESHMESH_RECORD`**; `H4` fails and the arm is **`NOT A RESULT`**. Cap 618.0, 0.2 %
+used. **Section 11a's "the first compute is cheap and disposable" has now paid for itself three times
+— 8 s, 222 s, 15 s.** That is the design working, not the item failing.
+
+### A3.1 DEFECT 1 — THE `cgnsutilities` ATTRIBUTE
+
+`d6r2c_freshmesh.py:224` read `blk.X` → `AttributeError: 'Block' object has no attribute 'X'`.
+**Measured in the pinned image:** the attribute is **`coords`**, and `Block.__init__` is
+`(self, zoneName, dims, coords)`. Two sites, both repaired: `:224` (read) and the write-back.
+
+### A3.2 DEFECT 2 — `H1` WAS FED AN ARRAY THE REGISTRATION NEVER DESCRIBES
+
+`phase_deform` handed `bijection()` the **block-structured** point array. Measured in the pinned image:
+
+| quantity | value |
+|---|---|
+| blocks | 9 |
+| block-structured points | **1215** |
+| unique by exact coordinate | **1031** (stable at tol `1e-12`, `1e-10`, `1e-8`, `1e-6`) |
+| duplicated block-interface nodes | **184** |
+
+`bijection()` compares 1215 against the OpenFOAM patch's 1031 and returns a count mismatch, which
+section 2c makes `NOT A RESULT` and which it explicitly forbids softening into a Hausdorff distance.
+
+**SECTION 2c'S ASSUMPTION IS SOUND, AND THIS IS THE OPPOSITE OF THE `J_S` FINDING OF ADDENDUM 2.** It
+registers *"1008 faces / 1031 unique nodes"* and says the bijection *"is known to be possible before the
+run"*. **The surface really does have exactly 1031 unique nodes — the registered number, confirmed to
+the digit.** The frozen text never describes a 1215-point block-structured array. The producer was
+supplying an object the registration does not name, so making it supply the registered one is
+**conformance**. Item 9's registration survives where item 8's section 1a did not.
+
+### A3.3 THE ASSERT — WHAT SEPARATES CONFORMANCE FROM FITTING
+
+Without it, "de-duplicate the input" is *reshape the input until the gate is satisfiable*, which is
+indistinguishable from fitting. With it, it is *supply the array the registration named, and refuse if
+the surface is not what was registered*:
+
+```
+if len(uniq_idx) != CGNS_UNIQUE_NODES:            # CGNS_UNIQUE_NODES = 1031, copied from sec 2c
+    raise Refusal("REFUSE_CGNS_UNIQUE_NODE_COUNT block_structured=%d unique=%d registered=%d ...")
+```
+
+A unique count of 1030 or 1032 is **a finding about the geometry**: the run stops and says so rather
+than proceeding on a number nobody registered. **Both counts — 1215 block-structured and the unique
+count against the registered 1031 — are written to `h1.json` on every path, pass or fail**, as
+`n_cgns_block_structured`, `n_cgns_unique_nodes` and `n_cgns_unique_registered`.
+
+### A3.4 THE INDEX MAP IS BUILT FROM THE **ORIGINAL** COORDINATES — ANTI-CIRCULARITY
+
+**The map is built from the original coordinates, never the deformed ones, and that is deliberate.**
+The original coordinates are a property of the **md5-asserted** surface and are fixed before any
+deformation happens, so **the input to `H1` cannot depend on the answer `H1` is computing.**
+De-duplicating the *deformed* array would give 1031 today and would **silently change size the day two
+nodes collapsed together** — a gate whose own input moves with the thing under test. Same
+anti-circularity principle as L-588: *a check must not be fed by the object it is checking.* The
+comment in the source says this in terms, with an explicit **"DO NOT 'SIMPLIFY' THIS TO DEDUPLICATE
+`new`"**, because a later reader will otherwise undo it.
+
+**Scope, and no wider:** the write-back keeps **all 1215** points, duplicates included — every one is
+needed to reconstitute the CGNS blocks, and DVGeo deforms duplicates identically because it is a
+function of position. One point set for geometry, its unique subset for the `H1` comparison alone.
+**`bijection()` itself is untouched.**
+
+### A3.5 THE HOST-SIDE PRE-CHECK — BOTH SIDES OF THE COMPARISON, MEASURED BEFORE ANY SPEND
+
+Only the CGNS side had been measured, so the gate could still have been dead on the other side and we
+would have learned that after a ~200 core-min cold preamble. **Both sides were therefore measured on
+the host, for zero compute, before the repair was applied:**
+
+| side | measured | registered |
+|---|---|---|
+| OpenFOAM `wing` patch faces | **1008** | 1008 (section 9a) |
+| OpenFOAM `wing` unique wall points | **1031** | — |
+| CGNS surface unique nodes | **1031** | 1031 (section 2c) |
+
+**Both sides are 1031 and both match what was registered before either was measured. `H1` is
+well-defined.** The standing habit this establishes for the item: **measure both sides of a comparison
+on the host before spending a preamble to discover one of them.**
+
+### A3.6 SECTION 11 — THE INSTRUMENT TABLE
+
+| file | md5 before | md5 after ADDENDUM 3 | selftest re-driven |
+|---|---|---|---|
+| `d6r2c_after_grade.py` | `6c22013af54569ae651f8f23d1088861` | **UNCHANGED** | `PASS n=51` |
+| `d6r2c_decomp.py` | `42ec0dd582584812a69129a474b2783e` | **UNCHANGED** | `PASS n=32` |
+| `d6r2c_freshmesh.py` | `6cb2214f9e5d4d124e77db816efbb2af` | `274afb034bc3752bd043d95991cc78e9` | `PASS n=23` |
+| `d6r2c_after_run_arm.sh` | `f777e6a89fd5316af917077db16fb0df` | `09e7b35c704a34748cdde50497d2e9d7` | `PASS n=6` |
+
+**All four counts unchanged from the freeze.** The launcher changed only its `d6r2c_freshmesh.py`
+`# PIN` line and the arm-id sites for **`FM4`**, which carries **the identical registered cap of
+618.0** — proved by the executable selftest assertion, not by this sentence
+(`FM = FM2 = FM3 = FM4 = 618.0`). **The grader pin is unchanged and the grader is untouched.**
+
+### A3.7 WHAT IS STILL UNTESTED — THE PRODUCER IS **NOT** PROVEN
+
+**The producer has still never reached `phase_mesh` or `phase_solve`.** pyHyp, `plot3dToFoam`,
+`autoPatch`, `createPatch`, `renumberMesh` and all three primals remain **unexercised**. **Section 11a's
+honest gap is only PARTLY closed, and the next run may find a third defect.** Nothing in this addendum
+should be read as evidence that item 9's producer works; what has been driven is four selftests and a
+planted control on pure logic, plus two diagnostics that solve nothing.
+
+**`H2` is UNTESTED, NOT PASSED.** No mesh was generated by `FM3`, so `FM3/constant/polyMesh/points.gz`
+is still the base mesh at `0fb1935a9b8781b73ac4ccb136e3ec68`. `H2` requires the generated `points.gz`
+to **DIFFER** from that — an identical mesh means the deformation never reached the mesher.
+
+### A3.8 THE APPEND-ONLY PROOF
+
+- Pre-append head-md5 of this file: **`d779c6d4dc1b2abdfb201871be8242fc`**, **1140 lines**, identical to
+  `HEAD` at the moment of appending — checked, not assumed.
+- `git diff --numstat` on this path must show **insertions only and `0` deletions**.
+- **Lines whose number changed above this section: 0.**
+- This is `ADDENDUM 3`, the number derived from the maximum existing heading in this file, never a count.
+
+### A3.9 SPEND
+
+`FM3`'s **1.000 core-min IS defect-attributable waste**. Defect waste is now **16.333 core-min**
+(`DEC` 0.533 + `DEC2` 14.800 + `FM3` 1.000) = **$0.0140 derived, not measured**. **`DEC3`'s 63.000
+core-min is NOT waste** — it falsified a registered structural assumption, which is the most valuable
+thing an arm can do. **Item total 79.333 core-min = $0.0678 derived, not measured**, `cost_basis` class
+**reported-by-owner**. **No calibration row is owed: no arm has completed.**
+
+### A3.10 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not re-grade `DEC`, `DEC2`, `DEC3` or `FM3`.** All four `NOT A RESULT` rows stand.
+- **It does not revive item 8.** Section 1a's `J_S` assumption remains false and the decomposition as
+  registered still cannot be completed; that needs a new registration, not an addendum.
+- **It does not touch the grading path**, `bijection()`, or any tolerance.
+- **It does not claim item 9 will now pass.** It claims two defects are repaired and `H1` is
+  well-defined on both sides. `FM4` is the test.
+
+---
+
+## ADDENDUM 4 — 2026-09-13 — DEFECTS 3 AND 4, AND A DRY-RUN REPLICATE CONTROL REGISTERED BEFORE `FM5`
+
+**This addendum carries the document to version 1.4.** Line 4 still reads `Version 1.0` and is
+**deliberately not edited**, for the reason ADDENDUM 1 gives.
+
+**Lines whose number changed above this section: 0.** Proof in §A4.9.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `D1`–`D6`, `H1`–`H4`, `TRIM_TOL`,
+`REPRO_TOL`, `CLOSE_TOL`, `INTERACT_TOL`, `SHAPE_MATCH_TOL`, `FM_BAND_ABS`, `PLANT`, `TRIM_MAX_EVALS`
+and every cap in section 8 stand exactly as frozen at `c06df89a18bc33a93e7ebcafc8f35b73d9c48f5e`.
+**`FM4`'s `NOT A RESULT` row stands**, as `DEC`'s, `DEC2`'s, `DEC3`'s and `FM3`'s do.
+
+### A4.0 DEFECT 3 — A FUNCTION NAMED `_flat` THAT DID NOT FLATTEN
+
+`FM4` died in **11 s, rc = 1, 0.733 core-min**, graded **`NOT A RESULT`** (grader refused, exit 2,
+`REFUSE_MISSING_FRESHMESH_RECORD`). Cause:
+
+```
+pygeo/mphys/mphys_dvgeo.py:119
+    self.DVGeo.addPointSet(points.reshape(len(points) // 3, 3), ptName, **kwargs)
+ValueError: cannot reshape array of size 3645 into shape (405,3)
+```
+
+pygeo reads `len(points)` as **3N**, not N. `_flat()` returned the `(1215, 3)` array, so `len()` gave
+1215, pygeo reshaped to `(405, 3)`, and 3645 values do not fit. **The name was the specification and
+the body ignored it.** Repaired to `.reshape(-1)`, plus a refusal if the flattened size is not
+`3 × len(coords)`, so a future shape surprise names itself instead of arriving as a pygeo error.
+
+### A4.1 DEFECT 4 — A POINT SET CANNOT BE ADDED THROUGH THE mphys COMPONENT AFTER `setup()`
+
+Found by the dry run of §A4.2, **not** by a launch.
+
+```
+pygeo/mphys/mphys_dvgeo.py:70, OM_DVGEOCOMP.compute()
+    outputs[ptName] = self.DVGeo.update(ptName).flatten()
+KeyError: 'geometry_cl05' <class OM_DVGEOCOMP>: Variable name 'cgnssurf' not found
+```
+
+`nom_addPointSet` appends the name to `omPtSetList`, and `compute()` then writes an OpenMDAO **output**
+for every listed set. **An OpenMDAO output cannot be created after `prob.setup()`**, which
+`load_frozen_model` has already run, so the write had no variable to land in.
+
+**The repair uses the library's own guard.** `compute()` iterates
+`for ptName in self.DVGeo.points:` but writes only `if ptName in self.omPtSetList:`. A point set added
+**directly to `DVGeo`** is therefore skipped by `compute()` and still served by `DVGeo.update()`. One
+call changed: `geo.nom_addPointSet(...)` → `geo.DVGeo.addPointSet(...)`.
+
+**AND THE MECHANISM THAT MATTERS MORE THAN THE INSTRUCTION, RECORDED BECAUSE AN INSTRUCTION WITHOUT ITS
+REASON SURVIVES ONE REFACTOR AND NO MORE:** the call **must stay before `run_model()`**.
+`addPointSet` embeds points against the FFD's **current** control points and stores their parametric
+coordinates. Embedding *after* the design variables are applied would bake the deformation into those
+parametric coordinates, and `update()` would hand back an **undeformed** surface. The source carries
+this warning at the call site; a later reader moving the line next to its first use would silently
+produce the wrong wing.
+
+### A4.2 THE DRY RUN — WHAT IT IS, AND THE PREMISE IT WAS APPROVED ON THAT WAS WRONG
+
+Three launches had each found one defect and stopped: a launcher is an expensive way to run an import.
+A **dry run of `phase_deform`** was therefore authorised — the exact producer invocation, on a
+container-local copy, outside the launcher.
+
+> **THE AUTHORISATION RESTED ON A STATED CONSTRAINT — "solves no primal" — THAT WAS FALSE.**
+> `phase_deform` calls `prob.run_model()`, which is how the design variables reach `DVGeo` at all, so
+> the three primals cannot be avoided without abandoning the producer's own path. **The supervisor
+> approved it on a wrong premise; the lane found the error and said so before the result landed, not
+> after.** It is recorded that way round deliberately.
+
+**The constraints that carry the authorisation all held:** container-local copy, **writes into no arm
+directory**, produces no verdict and cannot, and — being outside the launcher — it is not a case under
+Sanaa's item 19 and can never be graded. That the primals do run makes it a **fuller** replicate of the
+deform path, not a weaker one.
+
+**THE BOUNDARY, IN THE LANE'S OWN WORDS, SO A LATER READER CAN HOLD BOTH OF US TO IT.** The dry run may
+motivate fixes to things that **prevent execution** — exceptions, shape errors, attribute names, API
+contracts. It may **NOT** motivate any change that moves a gate's numeric value. If anyone finds
+themselves adjusting something because a dry-run number *looked wrong* rather than because it *threw*,
+that is the moment a diagnostic becomes a tuning loop, and no amount of later disclosure repairs it.
+**Stop and escalate instead.** Every one of defects 1–4 was execution-preventing; not one was found by
+looking at a number and disliking it.
+
+### A4.3 THE DRY RUN'S `H1` RESULT — **REGISTERED HERE BEFORE `FM5` LAUNCHES**
+
+Run `2026-09-13`, `rc = 0`, deform path complete, `d6r2c_freshmesh.py` at
+`1d15ce361673ca600d565280441b67e0`:
+
+| field | value |
+|---|---|
+| `n_cgns_block_structured` | **1215** |
+| `n_cgns_unique_nodes` | **1031** |
+| `n_cgns_unique_registered` | **1031** |
+| `n_foam_wall_points` | **1031** |
+| `bijective` | **true** |
+| `n_unmatched` | **0** |
+| `worst_dist` | **5.010837892761856e-09** |
+| `surface_in_md5` | `3050ea454c2d0304bafa2c1a80c53b76` (the registered surface) |
+| `surface_out_md5` | `32e877909712395b81c80f7ad1730363` (**DIFFERS** — the deformation reached the CGNS) |
+
+**`worst_dist = 5.011e-09` against `SHAPE_MATCH_TOL = 1.0e-8`: inside the bar, using 50.11 % of the
+tolerance, a factor 1.996× below it.** The two deformation paths — `DVGeo` onto the CGNS surface, and
+IDWarp onto the OpenFOAM wall during `O_mp` — agree to 5 nanometres across all 1031 nodes.
+
+> **REGISTERED REQUIREMENT ON `FM5`, FIXED BEFORE IT RUNS: `FM5`'s `H1` block MUST EQUAL THE TABLE
+> ABOVE EXACTLY** — every count identical, `bijective` true, `n_unmatched` 0, and `worst_dist` equal
+> bit for bit. **This is not a tolerance; it is an equality.** `H1` depends only on the `DVGeo`
+> deformation and on `O_mp`'s wall points already on disk — **it is independent of the flow solve** —
+> and this solver class has been measured bitwise reproducible across independent cold runs (ADDENDUM 2,
+> `KR_REF` vs `O_mp`, identical to 17 significant digits). **Any difference at all is a finding and is
+> escalated, not absorbed.** The dry run is a replicate control, not a preview: **the graded `H1` value
+> is `FM5`'s, produced through the launcher, and this table can never substitute for it.**
+
+### A4.4 A CORRECTION TO ADDENDUM 2's CLAIM ABOUT WHAT `H1` CAN SEE
+
+ADDENDUM 2 §A2.4 says `H1` is *"self-consistent and therefore blind"*. **That is half right and the
+precise version belongs on the record:**
+
+> `H1` compares a CGNS surface reached through `DVGeo` against an OpenFOAM wall reached through IDWarp.
+> It is **BLIND TO A COMMON-MODE ERROR IN THE SHARED INPUT** — the ADDENDUM 2 scaler defect moved both
+> sides identically and `H1` would have matched. It is **SENSITIVE TO A DIFFERENTIAL ERROR IN EITHER
+> PATH** — an undeformed CGNS surface against a deformed wall is exactly what `H1` catches.
+> **`H1` discriminates PATH faults, not INPUT faults.**
+
+That is narrower and more useful than the original wording, and it is why §A4.1's ordering matters:
+moving `addPointSet` after `run_model()` would produce precisely the *differential* fault `H1` can see
+— which is luck, not design. L-588 as drafted overstates the same point and is to be amended to match.
+
+### A4.5 SECTION 11 — THE INSTRUMENT TABLE
+
+| file | md5 now | selftest |
+|---|---|---|
+| `d6r2c_after_grade.py` | `6c22013af54569ae651f8f23d1088861` — **UNCHANGED SINCE THE FREEZE** | `PASS n=51` |
+| `d6r2c_decomp.py` | `42ec0dd582584812a69129a474b2783e` — unchanged since ADDENDUM 2 | `PASS n=32` |
+| `d6r2c_freshmesh.py` | `1d15ce361673ca600d565280441b67e0` | `PASS n=23` |
+| `d6r2c_after_run_arm.sh` | `fa58d4829295c6b97e647e0a3aa5c422` | `PASS n=6` |
+
+The launcher changed only its `d6r2c_freshmesh.py` `# PIN` line and the arm-id sites for **`FM5`**,
+which carries **the identical registered cap of 618.0** — proved by the executable selftest assertion
+(`FM = FM2 = FM3 = FM4 = FM5 = 618.0`, unknown arm empty), not by this sentence. **The grader is
+untouched and its pin is unchanged.**
+
+### A4.6 WHAT IS STILL UNTESTED
+
+**`phase_mesh` and `phase_solve` have STILL never executed.** pyHyp, `plot3dToFoam`, `autoPatch`,
+`createPatch`, `renumberMesh` and all three primals of the fresh-mesh solve remain **unexercised**.
+Section 11a's gap is **narrowed, not closed**: the deform path is now demonstrated end to end, and the
+two phases after it are not. **`FM5` may still find a fifth defect.**
+
+**`H2` remains UNTESTED, NOT PASSED.** No mesh has been generated by any arm. `H2` requires the
+generated `points.gz` to **DIFFER** from the base mesh's `0fb1935a9b8781b73ac4ccb136e3ec68`; an
+identical mesh means the deformation never reached the mesher. *(The dry run's differing
+`surface_out_md5` shows the deformation reached the CGNS **surface**; that is not `H2`, which is about
+the volume mesh pyHyp extrudes from it.)*
+
+### A4.7 SPEND, IN THREE SEPARATE CATEGORIES, NEVER MERGED
+
+| category | core-min | note |
+|---|---|---|
+| **Arms** (`DEC` 0.533, `DEC2` 14.800, `DEC3` 63.000, `FM3` 1.000, `FM4` 0.733) | **80.066** | all five `NOT A RESULT` |
+| **Defect-attributable waste** (`DEC`, `DEC2`, `FM3`, `FM4`) | **17.066** | `DEC3` excluded: it falsified a registered assumption |
+| **Diagnostics** (dry run 1: 1.800; dry run 2: 12.600) | **14.400** | replaced at least two launches; found defect 4 |
+
+`80.066 + 14.400 = 94.466 core-min = $0.0808` **derived, not measured**; `cost_basis` class
+**reported-by-owner** at the owner-stated c7a.4xlarge rate (`COMPUTE_BUDGET_CHARTER.md` §5).
+**Four earlier probes were not timed and no estimate is offered for them rather than inventing one.**
+**Dry run 2 cost 12.600 core-min against a ~4 core-min estimate — 3.15× the prediction**, the gap being
+the three primals the wrong premise of §A4.2 had omitted. **No calibration row is owed: no arm has
+completed.** Three defect-finding launches cost **2.266 core-min between them**, so §11a's
+cheap-and-disposable design is holding; the expensive resource has been turnaround, not compute.
+
+### A4.8 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not re-grade any arm.** All five `NOT A RESULT` rows stand.
+- **It does not claim item 9 will pass.** It claims the deform path executes and `H1` clears its bar in
+  a replicate that cannot be graded. `FM5` is the test.
+- **It does not revive item 8.** §1a's `J_S` assumption is still false; that needs a new registration.
+- **It does not touch the grading path, `bijection()`, or any tolerance.**
+- **It does not let the dry run stand in for a verdict.** §A4.3 registers an equality `FM5` must meet;
+  it does not register a result.
+
+### A4.9 THE APPEND-ONLY PROOF
+
+- Pre-append head-md5: **`4f00731ea83647aebbe695e1d920489c`**, **1288 lines**.
+- `git diff --numstat` on this path must show **insertions only and `0` deletions**.
+- **Lines whose number changed above this section: 0.**
+- This is `ADDENDUM 4`, the number derived from the maximum existing heading, never a count.

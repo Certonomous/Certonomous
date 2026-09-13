@@ -55,10 +55,17 @@ EVALS_MD5 = "2c0b8143caad198cd2e21d8047986aa3"
 FINAL_RECORD_N = 88
 # "a bijection ... within SHAPE_MATCH_TOL = 1.0e-8 (absolute, metres)"  (sec 2c)
 SHAPE_MATCH_TOL = 1.0e-8
+# "the CGNS surface has 1008 faces / 1031 unique nodes, so the comparison is
+# known to be possible before the run"  (sec 2c).  THE REGISTERED COMPARISON IS
+# AGAINST THE UNIQUE NODES.  Copied from the registration, not chosen here.
+# Both sides measured and both are 1031: the CGNS surface in the pinned image,
+# and the OpenFOAM `wing` patch (1008 faces, 1031 unique points) on the host.
+CGNS_UNIQUE_NODES = 1031
 WALL_PATCH = "wing"
 RECORD = "d6r2c_freshmesh.json"
 
-from d6r2c_decomp import Refusal, load_frozen_model, read_final_dv, _md5_file  # noqa: E402
+from d6r2c_decomp import (Refusal, load_frozen_model, read_final_dv,  # noqa: E402
+                          _md5_file, dv_divisor, dv_divisor_for)
 
 
 # ---------------------------------------------------------------------------
@@ -220,31 +227,83 @@ def phase_deform(arm_dir, runscript, evals, base_dir, omp_dir, surface_in, surfa
     grid = readGrid(surface_in)
     coords, blocks = [], []
     for blk in grid.blocks:
-        x = blk.X
+        # ADDENDUM 3: the pinned image's cgnsutilities Block exposes `coords`,
+        # NOT `X` -- measured, Block.__init__ is (self, zoneName, dims, coords).
+        # `blk.X` raised AttributeError and killed arm FM3 in 15 s.
+        x = blk.coords
         blocks.append(x.shape)
         coords.extend([tuple(float(v) for v in p) for p in x.reshape(-1, 3)])
 
-    geo.nom_addPointSet(_flat(coords), "cgnssurf")
+    # ADDENDUM 4: add the point set DIRECTLY to DVGeo, NOT through the mphys
+    # component.  `nom_addPointSet` appends the name to `omPtSetList`, and
+    # OM_DVGEOCOMP.compute() then does `outputs[ptName] = ...` for every listed
+    # set -- but an OpenMDAO output cannot be created after `prob.setup()`, which
+    # `load_frozen_model` has already run.  That raised
+    #   KeyError: 'geometry_cl05' <class OM_DVGEOCOMP>: Variable name 'cgnssurf' not found
+    # and killed the deform path.  compute() guards its loop with
+    # `if ptName in self.omPtSetList`, so a set added straight to DVGeo is
+    # SKIPPED there and is still updated by `DVGeo.update()` below.
+    #
+    # IT MUST STAY BEFORE run_model().  addPointSet embeds the points against the
+    # FFD's CURRENT control points; embedding after the design variables were
+    # applied would bake the deformation into the parametric coordinates and
+    # `update()` would hand back an UNDEFORMED surface.
+    geo.DVGeo.addPointSet(_flat(coords).reshape(-1, 3), "cgnssurf")
     meta = prob.model.get_design_vars(recurse=True, get_sizes=True, use_prom_ivc=True)
-    scalers = {k.split(".")[-1]: float(v.get("total_scaler") or 1.0) for k, v in meta.items()}
+    scalers = {k.split(".")[-1]: dv_divisor(v) for k, v in meta.items()}
     for name in ("shape", "twist"):
-        prob.set_val(name, [v / scalers.get(name, 1.0) for v in dv_star[name]])
+        s = dv_divisor_for(scalers, name)
+        prob.set_val(name, [v / s for v in dv_star[name]])
     prob.run_model()
     new = geo.DVGeo.update("cgnssurf").reshape(-1, 3)
 
     off = 0
     for i, shape in enumerate(blocks):
         n = shape[0] * shape[1] * shape[2]
-        grid.blocks[i].X = new[off:off + n].reshape(shape)
+        # ALL block-structured points are written back, duplicates included:
+        # every one is needed to reconstitute the CGNS blocks, and DVGeo deforms
+        # duplicates identically because it is a function of position.
+        grid.blocks[i].coords = new[off:off + n].reshape(shape)
         off += n
     grid.writeToCGNS(surface_out)
 
+    # ---- H1 COMPARES THE SURFACE'S UNIQUE NODES, WHICH IS WHAT SEC 2c NAMES --
+    # The block-structured array repeats interface nodes (measured in the pinned
+    # image: 9 blocks, 1215 points, 1031 unique, 184 duplicates).  The frozen
+    # text never describes that array; it registers "1031 unique nodes" and says
+    # the bijection "is known to be possible before the run".  Supplying the
+    # unique set is CONFORMANCE, not a reshape to make a gate satisfiable --
+    # AND THAT IS ONLY TRUE BECAUSE OF THE REFUSAL BELOW.
+    #
+    # DO NOT "SIMPLIFY" THIS TO DEDUPLICATE `new`.  The index map is built from
+    # the ORIGINAL coordinates, which are a property of the md5-asserted surface
+    # and are fixed before any deformation happens, so THE INPUT TO H1 CANNOT
+    # DEPEND ON THE ANSWER H1 IS COMPUTING.  Deduplicating the DEFORMED array
+    # would give 1031 today and would silently change size the day two nodes
+    # collapsed together -- a gate whose own input moves with the thing under
+    # test.  Same anti-circularity principle as L-588.
+    seen, uniq_idx = set(), []
+    for i, p in enumerate(coords):
+        if p not in seen:
+            seen.add(p)
+            uniq_idx.append(i)
+    if len(uniq_idx) != CGNS_UNIQUE_NODES:
+        raise Refusal(
+            "REFUSE_CGNS_UNIQUE_NODE_COUNT block_structured=%d unique=%d "
+            "registered=%d -- the surface is not the surface section 2c "
+            "registered; this is a finding about the geometry and the run stops "
+            "rather than proceed on a count nobody registered"
+            % (len(coords), len(uniq_idx), CGNS_UNIQUE_NODES))
+
     # the IDWarp-deformed wall points THE O_mp RUN LEFT ON DISK
     deformed = read_deformed_wall_points(base_dir, omp_dir)
-    h1 = bijection([tuple(p) for p in new], deformed)
+    h1 = bijection([tuple(new[i]) for i in uniq_idx], deformed)
     if rank0:
         with open(os.path.join(arm_dir, "h1.json"), "w") as fh:
             json.dump({"h1": {"n_cgns_nodes": h1["n_a"],
+                              "n_cgns_block_structured": len(coords),
+                              "n_cgns_unique_nodes": len(uniq_idx),
+                              "n_cgns_unique_registered": CGNS_UNIQUE_NODES,
                               "n_foam_wall_points": h1["n_b"],
                               "bijective": bool(h1["bijective"]),
                               "n_unmatched": int(h1["n_unmatched"]),
@@ -255,8 +314,26 @@ def phase_deform(arm_dir, runscript, evals, base_dir, omp_dir, surface_in, surfa
 
 
 def _flat(coords):
+    """A FLAT (3N,) array of coordinates -- which is what pygeo's
+    `nom_addPointSet` requires and what this function's name promises.
+
+    ADDENDUM 4: it did NOT flatten, and arm FM4 died in 11 s on
+    `ValueError: cannot reshape array of size 3645 into shape (405,3)`.
+    pygeo/mphys/mphys_dvgeo.py:119 does
+
+        self.DVGeo.addPointSet(points.reshape(len(points) // 3, 3), ptName)
+
+    so it reads `len(points)` as 3N, not N.  Passing the (N, 3) array made
+    `len()` return 1215 instead of 3645, so pygeo reshaped to (405, 3) and the
+    size did not divide.  A function named `_flat` that returns a 2-D array is
+    the whole defect; the name was the specification and the body ignored it.
+    """
     import numpy as np
-    return np.array(coords, dtype=float)
+    a = np.array(coords, dtype=float).reshape(-1)
+    if a.size != len(coords) * 3:
+        raise Refusal("REFUSE_FLATTEN_SHAPE %d coords produced %d values, expected %d"
+                      % (len(coords), a.size, len(coords) * 3))
+    return a
 
 
 def read_deformed_wall_points(base_dir, omp_dir, point="mp05"):
@@ -341,10 +418,11 @@ def phase_solve(arm_dir, runscript, evals, out_path):
     ns = load_frozen_model(runscript)
     prob, POINTS, W, T = ns["prob"], ns["POINTS"], ns["WEIGHTS"], ns["CL_TARGETS"]
     meta = prob.model.get_design_vars(recurse=True, get_sizes=True, use_prom_ivc=True)
-    scalers = {k.split(".")[-1]: float(v.get("total_scaler") or 1.0) for k, v in meta.items()}
+    scalers = {k.split(".")[-1]: dv_divisor(v) for k, v in meta.items()}
     for name, vals in dv_star.items():
         if name in ("shape", "twist") or name.startswith("patchV_"):
-            prob.set_val(name, [v / scalers.get(name, 1.0) for v in vals])
+            s = dv_divisor_for(scalers, name)
+            prob.set_val(name, [v / s for v in vals])
     prob.run_model()      # comparison (i): NO re-trim
     cd = {p: float(prob.get_val("%s.aero_post.CD" % p)[0]) for p in POINTS}
     cl = {p: float(prob.get_val("%s.aero_post.CL" % p)[0]) for p in POINTS}
