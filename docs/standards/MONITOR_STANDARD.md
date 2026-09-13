@@ -2601,3 +2601,92 @@ corrections at **`docs/LESSONS.md` L-574**.
 | md5 of this file's HEAD blob before this append | `a61aa9ec5594323fe35eb290b990d9d4` |
 | md5 of this file's first **2531** lines after it | `a61aa9ec5594323fe35eb290b990d9d4` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 14. 🔴 FIVE DRAFTS ROUTED IN. **TWO ARE ALREADY FILED**, THREE ARE **NOT THIS CLAUSE'S SUBJECT**, AND THE PROVENANCE SCHEME GAINS A THIRD STATE.
+
+Five member drafts were routed here, committed **NOT FILED** at `27ca9f7c9` by the render lane.
+**Every cited commit was verified here rather than accepted**: `27ca9f7c9`, `481fd48b9`,
+`e08a102cd`, `25caef4c6` and `c2c46be07` all **exist and are ancestors of HEAD**.
+
+#### 14.1 — TWO OF THE FIVE ARE DUPLICATES OF MEMBERS ALREADY IN THIS LIST
+
+**M-1 "the control was not a control" cites `25caef4c6`, which is §10's MEMBER 9.
+M-2 "usability is part of reliability" cites `c2c46be07`, which is §10's MEMBER 10.**
+**Same findings, same commits, already filed.** They are **not** added again and **the member
+count does not move for them.** Filing them twice would have inflated the count by 15 % — in a
+list whose whole discipline is that its number must not be overstated.
+
+#### 14.2 — THE THIRD PROVENANCE STATE, AND TWO EXISTING ROWS MOVE INTO IT
+
+The table has carried two states: **measured by the drafting lane** and **relayed, not
+verified here**. The render lane's contributions are **neither**: that lane **measured them
+itself and re-checked every citation before committing** — all cited commits confirmed
+ancestors, the M-5 launch line re-read from `runner.log` and quoted verbatim, and the `cmp`
+demonstration rerun with a byte-exact prefix confirmed.
+
+> **STATE 3 — MEASURED BY A NAMED LANE, CITATIONS RE-VERIFIED, NOT VERIFIED BY THIS
+> AMENDMENT'S AUTHOR.** Stronger than a relay from memory; weaker than a first-hand
+> measurement. **Recording it as either of the other two would misstate it in one direction or
+> the other.**
+
+**MEMBERS 9 AND 10 MOVE FROM STATE 2 TO STATE 3.** Their rows in §10 read *"NOT verified by
+this drafting lane"*, which remains **literally true** and is **not edited** — §10's rows stand
+as committed. **This section supersedes their provenance LABEL only**, and says so here rather
+than rewriting a committed line.
+
+**REVISED SPLIT FOR THE PROXY CLAUSE — still 13 members:**
+
+| provenance state | count | which |
+|---|---|---|
+| **1 — measured by this drafting lane** | **4** | §3 members 1, 2, 3; §9's member 8 |
+| **3 — measured by a named lane, citations re-verified here** | **2** | §10's members 9, 10 |
+| **2 — relayed, NOT verified here** | **7** | §3 members 4–7; §11's members 11, 12; §12's member 13 |
+
+**Still 4 measured by this author of 13.** The third state improves the table's *resolution*,
+not its flattery: **nine of thirteen remain second-hand in one degree or another.**
+
+#### 14.3 — 🔴 AND THE REMAINING THREE ARE **NOT THE PROXY SUBCLASS**. THE LIST IS NARROWED, NOT THE HEADING WIDENED.
+
+The observation that prompted this is correct and is the same defect one level up: **a heading
+must not describe a narrower thing than the list beneath it.** §2's clause is specifically *an
+instrument that evaluates a **correlate** of the quantity its registered rule **names***.
+
+| draft | what it actually is | proxy subclass? |
+|---|---|---|
+| **M-3** a guard doing routine work has already spent its margin (`481fd48b9`) | about a guard's **MARGIN** — 43 of 44 patches failed when two renders shared an `--out`, and the guard is the only reason it was a nuisance rather than a wrong picture | **NO** |
+| **M-4** a floor must be exceeded by construction, not met by arithmetic identity (`e08a102cd`) | a **REGISTRATION** defect — a quantity equal to its own threshold carries no evidence about which side the truth lies on; the fault is in the registration, not the run | **NO** |
+| **M-5** two correct rules can be jointly unsatisfiable (`e08a102cd`) | a **COLLISION BETWEEN TWO RULES** — rule 2's dated addenda against the runner's byte pin; a legal addendum to a pinned document breaks the pin **while obeying the constitution**, and the collision is **silent until a launch reports it** | **NO** |
+
+**There were two ways to resolve the mismatch and the conservative one is taken: THE LIST IS
+NARROWED RATHER THAN THE HEADING WIDENED.** Widening a clause until it fits whatever arrives is
+how a clause becomes unfalsifiable, and **this amendment would not accept that in anyone else's
+file.** M-3, M-4 and M-5 are therefore recorded **as adjacent findings, outside the member
+count**, under **state 3**, and **the proxy clause's count stays at 13.** Whether they warrant a
+sibling clause of their own is **this file's owner's call, not this section's.**
+
+#### 14.4 — M-5's ATTRIBUTION IS CARRIED EXACTLY AS DRAFTED AND IS **NOT** PROMOTED
+
+M-5 records *"a document named in `grading_freeze` is APPEND-FROZEN FOR THE LIFE OF THE PIN"*
+as **adopted by the cfd supervisor for the DrivAer family** — **not as a lab rule, and not as
+the contributing lane's to declare.** The rule-interaction itself **needs a ruling from above
+and is settled by neither of them; it is before the chief.** **That scoping is preserved
+verbatim and is NOT promoted by this filing.** If the ruling goes the other way, **the member is
+amended rather than left standing** — because it would then be describing a **habit** as a
+**rule**, which is the precise thing this clause exists to catch.
+
+🔴 **And M-5 carries its own irony rather than suppressing it: the addendum that broke the pin
+was the one recording that lane's refusal of a dispatch from the supervisor who adopted the
+rule.** A document written to **strengthen** the procedural record **broke a procedural
+control.** It is kept, because it is the clearest available statement of the collision — **and
+it is not an argument against writing such records.**
+
+| addendum to the v1.14 record | |
+|---|---|
+| sections added | **1** (§14) — appended below §13; §§1–13 and all record tables unchanged |
+| **members added** | **0** — two drafts were already filed; three are outside this clause's subject |
+| provenance states | **2 → 3**; members 9 and 10 re-labelled here, their §10 rows **not edited** |
+| member count and author-measured split | **unchanged at 13, of which 4 measured by this author** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before this append | `705636be5987a714eb2645a5563d1a97` |
+| md5 of this file's first **2603** lines after it | `705636be5987a714eb2645a5563d1a97` |
+| the two digests | **EQUAL — assertion MEASURED** |
