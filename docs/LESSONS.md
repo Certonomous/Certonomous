@@ -28934,3 +28934,61 @@ than quietly dropping the probe that disagreed with it. A control that exonerate
 is precisely where a wrong answer gets manufactured — it arrives wearing the authority of a
 measurement and it closes an investigation. Report the disagreeing control and say why you
 went past it.
+
+## L-590 — the per-patch layer table in a snappyHexMesh log is the REQUEST, NOT THE ACHIEVEMENT; and a control that tests whether a GATE FIRES is not a control that tests whether ITS INPUT IS REAL
+
+**The capstone of 2026-09-13, and the lane found it in the instrument it had built to catch
+exactly this class of error.**
+
+A blades-only layer run exited **`rc = 0`** in 442 s and printed:
+
+```
+patch  faces    layers  thickness[m] near-wall  overall
+blades 76465    6       1.79e-06                1.07e-05
+```
+
+**Six layers on 76,465 faces, clean exit.** The birth certificate's parser read that `layers`
+column as the achieved count and would have printed **"blades 6.00 of 6 nominal, coverage
+100.0 %, SPECIFICATION MET"**.
+
+**There is not one prism layer on that mesh.** Verified independently at the log:
+
+| line | text |
+|---|---|
+| 430 | `Extruding 0 out of 76465 faces (0%). Removed extrusion at 36335 faces.` |
+| 431 | `Added 340816 out of 458790 cells (74.285839%)` |
+| 484 | `Added 0 out of 458790 cells (0%)` |
+| 485 | `Layer mesh : cells:3939801` — **identical to the snapped count, delta ZERO** |
+
+**The table is printed BEFORE the outer iterations begin** — the next line in the log is
+`Outer iteration : 0`. It is what was asked for. **And line 431 shows the "Added" counter is
+itself untrustworthy at intermediate iterations**: 340,816 cells "added" at iteration 0, then
+removed, ending at zero. Only the **final** counter together with the **cell delta** is true.
+
+**THE DEEPER LESSON, AND IT GENERALISES EVERY OTHER FINDING OF THIS DATE.** The instrument had
+**nine planted controls and all nine passed.** Not one caught this, because **every one of them
+fed the parser a table and asked whether the GATE FIRED. None asked whether the NUMBER WAS
+REAL.** A control on the decision is not a control on the input. **A gate can be perfectly
+armed, correctly thresholded, demonstrably able to fail — and still be reading a field that
+does not mean what its name says.**
+
+**THE FIX — three independent readings that must AGREE, and refusal when they do not:**
+1. the last `Extruding N out of M faces (P%)` line;
+2. the last `Added X out of Y cells (Q%)` line;
+3. the cell delta between `Snapped mesh : cells:` and `Layer mesh : cells:`.
+
+If any says zero while another says non-zero, **REFUSE to report a coverage**. If the log
+carries none of those lines, **refuse rather than falling back to the table.** When all three
+agree on zero, print that no prism layer exists and that the per-patch table is what was
+**asked for** and **not achieved**. The real defect is now a permanent planted fixture carrying
+its own real numbers — request table saying 6, every achievement counter saying zero.
+
+**AND THE FINDING UNDERNEATH IT:** the snapped mesh carries **18,408 illegal faces** (snappy's
+own words: "concave, zero area or negative cell pyramid volume"), down from 1,131,720 mid-run.
+Extrusion is refused wherever quality constraints cannot be met. **The layer failure may be a
+symptom of an unclean snapped mesh rather than of the cyclic mechanism previously proposed —
+which is accordingly WITHDRAWN, not defended.**
+
+*Read with L-577, L-581…L-585, L-587: every one is a reader that cannot see what it claims to
+check. This is the purest case — clean exit code, plausible number, truthful-looking table, and
+a fully armed gate reading the wrong field.*
