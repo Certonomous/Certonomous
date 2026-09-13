@@ -1164,3 +1164,102 @@ cap of 19,890 core-min is **not raised**, and the calibration row is mandatory a
 the smoke only; the y+ window is widened for the smoke only; the quality gates of §6.4, the
 admissibility rule of §6.5, and the smoke predictions of §8.3 (KT sign POSITIVE, KT between
 0.4 and 0.6, a NEGATIVE KT stops the case) stand exactly as frozen.
+
+---
+
+## AMENDMENT 5 — 2026-09-13, before first compute. HOW THE FREEZE IS RESOLVED, AND NOTHING ELSE: THE COMPARATOR'S C1 CHECK FAILED PRECISELY WHEN THIS DOCUMENT DID THE LEGAL THING
+
+**Legality.** CLAUDE.md rule 2: before first compute, amendments are legal and must state
+the condition and how it was checked. **Condition: no PPTC solve has been graded by
+`analyse_pptc.py`.** **Checked at the location the runs ACTUALLY USE** —
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/` — swept for any solver time directory, any
+`postProcessing/`, any `forces*` output and any `log.simpleFoam*`, the same sweep A4 ran.
+🔴 **This amendment deliberately does NOT cite `verification/runs/PPTC_VP1304/`, which
+AMENDMENTS 1–3 named.** That path is not the run root and never was; those amendments'
+condition was therefore *true of a path that was never going to exist* — vacuous, though
+substantively correct (A1–A3 were committed 22:54–23:07Z on 2026-09-12 and the first run
+directory anywhere under the real root is 2026-09-13 04:32Z, five and a half hours clear).
+**A control checked against the wrong location cannot fail, which makes it not a control.**
+A4 corrected the method; this amendment keeps the correction.
+
+**Nothing registered moves.** No gate, threshold, band, cap or label is touched. Verified
+mechanically: every module-level constant in `analyse_pptc.py` is byte-identical except the
+freeze-mechanism names themselves (`PREREG_BLOB`/`PREREG_SHA256` replaced by
+`PREREG_BLOB_AT_COMMIT`/`PREREG_SHA256_AT_COMMIT`, and `PREREG_VERSION`). `PREREG_COMMIT`
+is unchanged.
+
+### A5.1 The defect — the check was not implementing the rule it cited
+
+Rule 2 requires verifying that the frozen file **is** the file that ran **by hashing it
+against the committed blob**. The check being replaced hashed **the whole file on disk**
+against one stored `sha256`. Because rule 2 *also* permits dated amendments before first
+compute, **every legal amendment invalidated the pin**, which then had to be re-set by hand.
+
+**Measured 2026-09-13:** `analyse_pptc.py --selftest` exited 2 at C1 and printed no
+coefficient, because AMENDMENT 4 had been appended that day while the pin still carried the
+v1.3 `sha256`. **The comparator was correct by its own written rule and wrong in substance,
+and it was blocking every PPTC grade.**
+
+**The document was verified innocent before the instrument was touched.** The change since
+the freeze commit `09396b48` is a **single hunk at the foot** — `@@ -752,3 +752,415 @@`,
+754 → 1166 lines — and **the first 754 lines are byte-identical**, `sha256
+5611e24bee05ecc5862f1907166efc9015f3875c7035265e922a3174f777ad38` on both sides. Pure
+append, exactly as rule 6 requires.
+
+### A5.2 🔴 A second defect, found while repairing the first: the pin named a pairing that does not exist
+
+The old constants named **a blob and a commit that do not go together**:
+`PREREG_BLOB = 845974fab273…` is the blob at commit **`4f3e99de6`** (AMENDMENT 3), while the
+blob at `PREREG_COMMIT = 09396b48…` is **`7047d9aad5da…`**. A previous re-pin updated the
+`sha256` and the blob to v1.3 and left the commit at the original freeze. **The refusal
+message the comparator printed — "committed blob 845974fab… at 09396b48…" — asserted a
+pairing that has never existed.** The constants are now mutually consistent and each is
+verified against `git` rather than transcribed.
+
+### A5.3 The replacement, and why it is strictly stronger
+
+Two clauses, drawn from **two different sources** — the git object store and the filesystem —
+so this is not an assert comparing a thing with itself:
+
+| | clause | source |
+|---|---|---|
+| **F1** | the frozen text read at `PREREG_COMMIT` must hash to the declared blob **and** `sha256` | `git cat-file` — **no edit on disk can defeat it** |
+| **F2** | the file on disk must **begin with** that frozen text, byte for byte | the filesystem |
+
+**F2 is a clause the old whole-file hash could not express at all**: it enforces rule 6's
+*"lines whose number changed above this section: 0"* mechanically. A legal appended
+amendment passes; an in-place edit anywhere above the appended tail fails. **The old check
+verified one thing weakly; this verifies two, one of which was previously unenforced.**
+
+This is the mechanism CRM's `ADDENDUM 13 D0` identified and `A14.8` ruled for that act —
+*"a document that is pinned as a frozen instrument cannot also be the document that grows an
+addendum for every subsequent rung"* — **pin by commit, resolve with `git cat-file`, never
+from disk.** PPTC carried the identical defect and it bit harder: CRM's only threatened a
+spurious `DRIFTED` stamp, PPTC's stopped the comparator dead.
+
+### A5.4 🔴 The failing-direction controls, because a freeze check that cannot fail is worse than one that fails too often
+
+**Six clauses, each driven to REFUSE on a case built to break it, and then the real pin
+required to PASS.** They run **on every invocation, before the instrument is pointed at
+anything** — the habit taken from `verification/runs/PPTC_VP1304_runs/spd_gate.py:257`;
+an instrument armed once and trusted thereafter is an instrument nobody is checking.
+
+| control | construction | required |
+|---|---|---|
+| `F1/blob` | declared blob mutated | REFUSE |
+| `F1/sha256` | declared `sha256` mutated | REFUSE |
+| `F1/commit` | pin pointed at `HEAD` instead of the freeze | REFUSE |
+| `F2/append-accepted` | frozen text **+ an appended amendment** | **PASS** |
+| `F2/inplace-refused` | **one byte flipped inside the frozen region** | REFUSE |
+| `F2/truncation-refused` | frozen text truncated | REFUSE |
+
+The fixtures are written to a temporary directory **outside the repository**; nothing is
+written into the working tree by a control.
+
+### A5.5 Status
+
+**Pre-compute for the grading path. C1 and C2 pass; C3 still requires a case with forces
+output. This amendment is itself the first live exercise of the repair: appending it changes
+this document's whole-file `sha256`, which is exactly what used to break C1 — and C1 now
+passes, because the frozen text at `09396b48` is unchanged and this text is appended below
+it.**

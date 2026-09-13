@@ -31,7 +31,9 @@ import math
 import os
 import re
 import shutil
+import subprocess
 import sys
+import tempfile
 
 # --------------------------------------------------------------------------------------
 # FROZEN CONSTANTS.  Every value below is quoted from the frozen pre-registration, which is
@@ -56,10 +58,63 @@ PREREG = 'cases/PPTC_VP1304/PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md'
 #
 # This pin was exercised: run against v1.1 while still pinned to v1.0, the comparator
 # refused with exit 2 and printed both hashes. C1 is not decorative.
-PREREG_SHA256 = '3524f8ad7b0bce1a365f500ac62dbc998763bb666adedaeb4e8727363720bd5b'
-PREREG_BLOB = '845974fab273e2c02b4e13ee3cc22727943ebad2'
+#   v1.4  AMENDMENT 4, 2026-09-13, before first compute. Appended at the foot; it
+#         moved no gate, threshold, cap or label.
+#
+# ---------------------------------------------------------------------------------
+# AMENDMENT 5 TO THE GRADING PATH -- 2026-09-13. HOW THE FREEZE IS RESOLVED, AND
+# NOTHING ELSE.  No gate, threshold, band, cap or label is touched by this change;
+# every constant below it is byte-unchanged.
+#
+# THE DEFECT.  Standing rule 2 says: verify the frozen file IS the file that ran by
+# hashing it against THE COMMITTED BLOB.  The check this replaces hashed THE WHOLE
+# FILE ON DISK against one stored sha256 -- so every legal pre-compute amendment
+# invalidated it, and it had to be re-pinned by hand after each.  It FAILED PRECISELY
+# WHEN THE DOCUMENT DID THE LEGAL THING.  Measured 2026-09-13: the comparator refused
+# with exit 2 and printed no coefficient, because AMENDMENT 4 was appended on
+# 2026-09-13 and the pin still carried the v1.3 sha256.  This is the defect CRM's
+# ADDENDUM 13 D0 identified and A14.8 repaired for that act -- "a document that is
+# pinned as a frozen instrument cannot also be the document that grows an addendum
+# for every subsequent rung" -- and the canonical repair is that act's: pin by
+# COMMIT, resolve with `git cat-file`, NEVER from disk.
+#
+# 🔴 A SECOND DEFECT, FOUND WHILE REPAIRING THE FIRST, AND IT MADE THE OLD REFUSAL
+# MESSAGE FALSE.  The old constants named a blob and a commit THAT DO NOT GO
+# TOGETHER: `845974fab273...` is the blob at commit `4f3e99de6` (AMENDMENT 3), not at
+# `09396b48...`.  The blob at `09396b48...` is `7047d9aad5da...`.  A previous re-pin
+# updated the sha256 and the blob to v1.3 and left the commit at the original freeze,
+# so the message "committed blob 845974fab... at 09396b48..." asserted a pairing that
+# has never existed.  The constants below are now mutually consistent and each is
+# verified against `git` rather than transcribed.
+#
+# THE REPLACEMENT, AND WHY IT IS STRICTLY STRONGER.  Two clauses, from TWO DIFFERENT
+# SOURCES -- the git object store and the filesystem -- so this is not an assert
+# comparing a thing with itself (L-596's shape):
+#   F1  The frozen text is read out of git at PREREG_COMMIT and must hash to BOTH
+#       PREREG_BLOB_AT_COMMIT and PREREG_SHA256_AT_COMMIT.  Read from the object
+#       store, so NO EDIT ON DISK CAN DEFEAT IT.
+#   F2  The file on disk must BEGIN WITH that frozen text, byte for byte.  A legal
+#       amendment appends and passes; an in-place edit ANYWHERE ABOVE the appended
+#       tail fails.  This enforces rule 6's "lines whose number changed above this
+#       section: 0" mechanically, which the old whole-file hash never did.
+# The old check verified one thing weakly.  This verifies two things, one of which
+# the old check could not express at all.
+#
+# CONDITION FOR THIS AMENDMENT, AND HOW IT WAS CHECKED (rule 2).  Before first
+# compute FOR THE GRADING PATH: no PPTC solve has been graded by this comparator.
+# Checked at the location the runs ACTUALLY USE -- `/home/ubuntu/certonomous-runs/
+# PPTC_VP1304/` -- not at `verification/runs/PPTC_VP1304/`, which AMENDMENTS 1-3 named
+# and which is not the run root, so their condition was true of a path that was never
+# going to exist.  A control checked against the wrong location cannot fail, which
+# makes it not a control; A4 corrected the method and this amendment keeps it.
+# ---------------------------------------------------------------------------------
+
+# Verified against `git rev-parse 09396b48...:<PREREG>` and `git cat-file`, not
+# transcribed: the blob AT the commit, and the sha256 OF that blob's content.
 PREREG_COMMIT = '09396b48990da3ce8e91714cd1a35f3fbc07e4de'
-PREREG_VERSION = '1.3 (amendments 1, 2 and 3)'
+PREREG_BLOB_AT_COMMIT = '7047d9aad5da20b66fa3f92cf65d8fea094781d6'
+PREREG_SHA256_AT_COMMIT = '5611e24bee05ecc5862f1907166efc9015f3875c7035265e922a3174f777ad38'
+PREREG_VERSION = '1.4 (amendments 1-4; freeze resolved by commit, amendment 5)'
 #   v1.2  AMENDMENT 2, 2026-09-12, also before first compute: the comparator's
 #         torque is BLADE TORQUE ONLY, so the two integration sets below differ.
 #         Alters no gate, threshold, cap or label.
@@ -188,21 +243,165 @@ def reynolds(J: float, n_rps: float = N_RPS) -> float:
 # C1 -- the freeze
 # --------------------------------------------------------------------------------------
 
-def check_freeze(repo_root: str) -> str:
-    path = os.path.join(repo_root, PREREG)
+def _git(repo_root: str, *args: str) -> bytes:
+    """Run git in the repository and return stdout, or raise Refusal."""
+    r = subprocess.run(('git',) + args, cwd=repo_root,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if r.returncode != 0:
+        raise Refusal(f'git {" ".join(args)} failed (rc={r.returncode}): '
+                      f'{r.stderr.decode("utf-8", "replace").strip()}')
+    return r.stdout
+
+
+def frozen_text(repo_root: str, commit: str = PREREG_COMMIT,
+                path: str = PREREG) -> bytes:
+    """THE FROZEN REGISTRATION, READ OUT OF GIT AND NEVER FROM DISK.
+
+    This is the whole point of amendment 5: the object store is immutable for a given
+    commit, so no edit to the working tree can change what this returns."""
+    return _git(repo_root, 'cat-file', 'blob', f'{commit}:{path}')
+
+
+def check_freeze(repo_root: str, prereg: str = PREREG,
+                 commit: str = PREREG_COMMIT,
+                 blob: str = PREREG_BLOB_AT_COMMIT,
+                 sha256_at_commit: str = PREREG_SHA256_AT_COMMIT,
+                 disk_path: str | None = None) -> str:
+    """C1, as amended 2026-09-13.  Two clauses, TWO DIFFERENT SOURCES.
+
+    F1 -- the frozen text read from the GIT OBJECT STORE at `commit` must hash to the
+          declared blob and sha256.  A disk edit cannot defeat this.
+    F2 -- the file ON DISK must BEGIN WITH that frozen text, byte for byte.  A legal
+          appended amendment passes; an in-place edit above the tail does not.
+
+    Returns the sha256 of the frozen text.  Raises Refusal, never degrades."""
+    # `prereg` names the path INSIDE GIT; `disk_path` names the file on the filesystem.
+    # They are the same file in production and are separable ONLY so the F2 controls can
+    # point the disk clause at a fixture without disturbing the git clause or writing
+    # anything into the repository.
+    path = disk_path or os.path.join(repo_root, prereg)
     if not os.path.exists(path):
         raise Refusal(f'frozen pre-registration not on disk at {path}')
-    with open(path, 'rb') as fh:
-        got = hashlib.sha256(fh.read()).hexdigest()
-    if got != PREREG_SHA256:
+
+    # ---- F1.  From git.  NOT from disk.
+    froz = frozen_text(repo_root, commit, prereg)
+    # git's blob id is sha1 over the header "blob <len>\0" plus the content. Computed
+    # here rather than shelled out to `git hash-object`, so this clause depends on the
+    # object's BYTES and not on a second git invocation agreeing with the first.
+    got_blob = hashlib.sha1(b'blob %d\x00' % len(froz) + froz).hexdigest()
+    got_sha = hashlib.sha256(froz).hexdigest()
+    if got_blob != blob or got_sha != sha256_at_commit:
         raise Refusal(
-            'the frozen pre-registration is NOT the file that was committed.\n'
-            f'    expected sha256 {PREREG_SHA256}\n'
-            f'    found    sha256 {got}\n'
-            f'    committed blob  {PREREG_BLOB} at {PREREG_COMMIT}\n'
-            '    The grading path is fixed at the pre-registration commit; a comparator may\n'
-            '    not grade against an edited freeze.')
-    return got
+            'THE PINNED COMMIT DOES NOT CARRY THE PINNED FROZEN TEXT.\n'
+            f'    commit          {commit}\n'
+            f'    expected blob   {blob}\n'
+            f'    found    blob   {got_blob}\n'
+            f'    expected sha256 {sha256_at_commit}\n'
+            f'    found    sha256 {got_sha}\n'
+            '    The grading path is fixed at the pre-registration commit; if the commit\n'
+            '    and the blob disagree, the pin names a pairing that does not exist.')
+
+    # ---- F2.  From the filesystem.  A DIFFERENT SOURCE from F1 -- that is deliberate,
+    # because an assert that compares a thing with itself is not an assert (L-596).
+    with open(path, 'rb') as fh:
+        disk = fh.read()
+    if not disk.startswith(froz):
+        n = min(len(disk), len(froz))
+        where = next((i for i in range(n) if disk[i] != froz[i]), n)
+        raise Refusal(
+            'THE FROZEN REGISTRATION HAS BEEN EDITED IN PLACE, NOT AMENDED.\n'
+            f'    frozen text at {commit}: {len(froz)} bytes\n'
+            f'    file on disk           : {len(disk)} bytes\n'
+            f'    first divergence at byte {where}\n'
+            '    Rule 6: a departure is a DATED AMENDMENT APPENDED AT THE FOOT, with\n'
+            '    "lines whose number changed above this section: 0". A comparator may not\n'
+            '    grade against a frozen file whose frozen part has moved.')
+    return got_sha
+
+
+def freeze_controls(repo_root: str, verbose: bool = True) -> None:
+    """C1's FAILING-DIRECTION CONTROLS.  A freeze check repaired into one that cannot
+    fail is far worse than one that was failing too often, so each clause is driven to
+    REFUSE on a case built to break it, and then the real pin is required to PASS.
+
+    Run ALWAYS, before the instrument is pointed at anything -- the habit taken from
+    `verification/runs/PPTC_VP1304_runs/spd_gate.py:257`. An instrument armed once and
+    trusted thereafter is an instrument nobody is checking."""
+    fired = []
+
+    # --- F1 must refuse a mutated blob: same commit, wrong declared hashes.
+    try:
+        check_freeze(repo_root, blob='0' * 40)
+        raise Refusal('CONTROL FAILED: F1 accepted a mutated blob sha. The freeze check '
+                      'cannot fail and is therefore not a check.')
+    except Refusal as e:
+        if 'CONTROL FAILED' in str(e):
+            raise
+        fired.append('F1/blob')
+    try:
+        check_freeze(repo_root, sha256_at_commit='0' * 64)
+        raise Refusal('CONTROL FAILED: F1 accepted a mutated sha256.')
+    except Refusal as e:
+        if 'CONTROL FAILED' in str(e):
+            raise
+        fired.append('F1/sha256')
+
+    # --- F1 must refuse a commit that does not carry this text.
+    try:
+        check_freeze(repo_root, commit='HEAD')
+        raise Refusal('CONTROL FAILED: F1 accepted HEAD as the frozen commit, so the '
+                      'pin does not pin anything.')
+    except Refusal as e:
+        if 'CONTROL FAILED' in str(e):
+            raise
+        fired.append('F1/commit')
+
+    # --- F2 must refuse an IN-PLACE EDIT inside the frozen region, and must ACCEPT an
+    # appended one.  Driven on real copies, not on a mocked reader.
+    froz = frozen_text(repo_root)
+    with tempfile.TemporaryDirectory() as td:
+        dst = os.path.join(td, 'probe.md')       # OUTSIDE the repository, always
+
+        # (a) frozen text plus an APPENDED amendment -> MUST PASS.
+        with open(dst, 'wb') as fh:
+            fh.write(froz + b'\n## APPENDED AMENDMENT PROBE\n')
+        check_freeze(repo_root, disk_path=dst)
+        fired.append('F2/append-accepted')
+
+        # (b) ONE BYTE changed INSIDE the frozen region -> MUST REFUSE.  This is the
+        # clause the old whole-file hash could not express at all.
+        mut = bytearray(froz)
+        mid = len(mut) // 2
+        mut[mid] = mut[mid] ^ 0x20
+        with open(dst, 'wb') as fh:
+            fh.write(bytes(mut) + b'\n## APPENDED AMENDMENT PROBE\n')
+        try:
+            check_freeze(repo_root, disk_path=dst)
+            raise Refusal('CONTROL FAILED: F2 accepted a file whose FROZEN REGION had '
+                          'been edited in place. Rule 6 is unenforced.')
+        except Refusal as e:
+            if 'CONTROL FAILED' in str(e):
+                raise
+            fired.append('F2/inplace-refused')
+
+        # (c) TRUNCATED -> MUST REFUSE.
+        with open(dst, 'wb') as fh:
+            fh.write(froz[:-10])
+        try:
+            check_freeze(repo_root, disk_path=dst)
+            raise Refusal('CONTROL FAILED: F2 accepted a TRUNCATED frozen file.')
+        except Refusal as e:
+            if 'CONTROL FAILED' in str(e):
+                raise
+            fired.append('F2/truncation-refused')
+
+    # --- and the control on the controls: the REAL pin must PASS.
+    real = check_freeze(repo_root)
+    if real != PREREG_SHA256_AT_COMMIT:
+        raise Refusal('CONTROL FAILED: the real pin does not pass its own check.')
+    if verbose:
+        print(f'  C1 controls ARMED: {len(fired)} clauses driven to their failing '
+              f'direction ({", ".join(fired)}), and the real pin still PASSES.')
 
 
 # --------------------------------------------------------------------------------------
@@ -410,8 +609,15 @@ def main() -> int:
     a = ap.parse_args()
 
     try:
+        # THE CONTROLS RUN ALWAYS, BEFORE THE INSTRUMENT IS POINTED AT ANYTHING -- the
+        # habit taken from verification/runs/PPTC_VP1304_runs/spd_gate.py:257. An
+        # instrument armed once and trusted thereafter is an instrument nobody is
+        # checking, and a freeze check repaired into one that CANNOT FAIL would be far
+        # worse than the one that was failing too often.
         print('C1  FREEZE     verifying the frozen pre-registration is the file that ran')
-        print(f'    sha256 {check_freeze(a.repo_root)}  -- C1 PASS')
+        freeze_controls(a.repo_root)
+        print(f'    frozen text at {PREREG_COMMIT[:9]} sha256 {check_freeze(a.repo_root)}'
+              '  -- C1 PASS')
         print('C2  SELF-TEST  reproducing Report 3752 page 2.12 measured N and Nm from its '
               'own page 2.13 coefficients')
         check_selftest()
