@@ -53,23 +53,42 @@ def read_internal(path):
 
 
 def write_scalar_nonuniform(path, values):
-    """Replace internalField in an existing scalar field file, keeping its boundaryField."""
+    """Replace internalField in an existing scalar field file, keeping its boundaryField AND its
+    declared format.
+
+    WRITE IN THE FORMAT THE FILE DECLARES. The first version wrote ASCII values and flipped the
+    FoamFile header to `ascii` -- which broke the file a second way: potentialFoam had written the
+    boundaryField in BINARY form, where an empty patch list is `nonuniform List<scalar> 0;` with no
+    parentheses. Under an ascii header the reader demands ASCII syntax and chokes on exactly those
+    entries ("Expected a '(' or a '{' while reading List, found punctuation ';'"). Changing a
+    file-level declaration reinterprets EVERY part of the file, not the part being edited.
+    """
     d = open(path, "rb").read()
-    # The decomposed 0/ files carry `format binary;` in their FoamFile header, inherited from
-    # writeFormat binary. Writing ASCII values into a file that DECLARES binary makes OpenFOAM
-    # read the digits as a binaryBlock -- "Expected a ')' while reading binaryBlock". The header
-    # must be switched to ascii in the same edit that changes the payload: a declared format that
-    # the payload does not match is the file-level version of a flag that is set and never read.
-    d = re.sub(rb"(\bformat\s+)binary\s*;", rb"\1ascii;", d, count=1)
-    body = b"internalField   nonuniform List<scalar>\n%d\n(\n" % len(values)
-    body += b"\n".join(b"%.10g" % v for v in values)
-    body += b"\n)\n;\n"
-    for pat in (rb"internalField\s+nonuniform[^;]*?;", rb"internalField\s+uniform\s+[0-9.eE+-]+\s*;"):
-        new, k = re.subn(pat, lambda _: body, d, count=1, flags=re.S)
-        if k:
-            open(path, "wb").write(new)
-            return
-    raise ValueError(f"could not replace internalField in {path}")
+    m = re.search(rb"\bformat\s+(\w+)\s*;", d)
+    fmt = m.group(1).decode() if m else "ascii"
+    if fmt == "binary":
+        payload = struct.pack("<%dd" % len(values), *values)
+        body = (b"internalField   nonuniform List<scalar>\n%d\n(" % len(values)) + payload + b")\n;\n"
+    else:
+        body = b"internalField   nonuniform List<scalar>\n%d\n(\n" % len(values)
+        body += b"\n".join(b"%.10g" % v for v in values)
+        body += b"\n)\n;\n"
+    # match the existing internalField entry, binary payload included (it may contain ';' bytes)
+    m0 = re.search(rb"internalField\s+nonuniform[^(]*?\(", d, re.S)
+    if m0:
+        n_old = int(re.search(rb"(\d+)\s*\($", d[:m0.end()], re.S).group(1))
+        if fmt == "binary":
+            end = m0.end() + n_old * 8
+            end = d.index(b";", end) + 1
+        else:
+            end = d.index(b";", d.index(b")", m0.end())) + 1
+        out = d[:m0.start()] + body + d[end:]
+    else:
+        m1 = re.search(rb"internalField\s+uniform\s+[0-9.eE+-]+\s*;", d)
+        if not m1:
+            raise ValueError(f"could not locate internalField in {path}")
+        out = d[:m1.start()] + body + d[m1.end():]
+    open(path, "wb").write(out)
 
 
 def main():
