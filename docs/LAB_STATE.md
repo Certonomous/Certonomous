@@ -46777,6 +46777,119 @@ instead. **This is a parked capability, not a failed act.**
    gate built tonight, including the twelve-clause one.
 
 **SUBMISSIONS PARKED.**
+
+<!-- BOARD-BLOCK-ID: 205-SEVENTY-ONE-LOGS-NINE-FABRICATED-AND-THE-FOUR-THAT-NO-LOCAL-EVIDENCE-CAN-CONVICT -->
+### Block 205 — the y+ sweep: 71 logs, 9 fabricated, 5 marked, **4 UNPAIRED AND NOT OURS**; contention re-registered on a measurement; 2026-09-13T18:50Z
+
+**LAST COMMIT:** `8c015bbd` — the contention correction row. Readings are this lane's own unless
+marked **VERIFY**.
+
+### 🔴 THE SWEEP — 71 / 9 / 5 / 4
+Every `log.yPlus*` under the repository and `certonomous-runs`, classified by **invocation** and by
+**what fraction of its patch readings are all-zero** — not by filename.
+
+| | count |
+|---|---:|
+| `log.yPlus*` files swept | **71** |
+| generic `postProcess`, warning present, **100 % of readings all-zero** | **9** |
+| **PAIRED** — a sound `log.yPlus2` beside them | **5** — all marked |
+| **UNPAIRED** — no companion, no local evidence of a non-zero | **4** |
+
+**MARKED (5).** `YPLUS_PROBE/r2_coarse_R2` 52/52 · `r2c_coarse_blended_R2` 52/52 ·
+`r2c_medium_blended_R3` 52/52 (**beside the sound 153.1325756**) · `CRM_POSITIVE_CONTROL` 1/1 ·
+`validation-scratch/motorBike` 68/68. Markers at `a34c8228` (four in-repo; motorBike's lives with
+its data, outside git).
+
+**Two marker VARIANTS, and the distinction is deliberate.** A **hazard** marker on the three DrivAer
+probe directories; a **deliberate-artifact** marker on `CRM_POSITIVE_CONTROL` and `motorBike`, which
+say **KEEP, DO NOT DELETE** — those two files are the evidence L-603 rests on, and marking a
+purpose-built control as a hazard would be its own misreading. All five are named
+`log.yPlus.README_FABRICATED_ZEROS.md` so they sort **between** `log.yPlus` and `log.yPlus2`.
+**The logs are not deleted: destroying the evidence to prevent a misreading would destroy the proof.**
+
+### 🔴 THE FILENAME IS NOT THE TELL — AND THIS IS WHY THE MARKER IS THE RIGHT INSTRUMENT
+**`log.yPlus` is FABRICATED in three DrivAer probe directories and SOUND in a fourth.** In
+`YPLUS_PROBE/r2c_medium_blended_R2`, the file with that exact name **is** the solver spelling
+(`simpleFoam -postProcess`) and reads **0 of 52 all-zero**.
+
+> **A rule about filenames would have marked the good file and missed a bad one. A marker sitting
+> beside the file cannot.**
+
+Classification must be by the log's own `Exec` line and its zero fraction, never by its name.
+
+### 🔴 THE FOUR UNPAIRED LOGS — NOT CFD TERRITORY, NAMED HERE, ON THE CHIEF'S DESK
+| file | readings |
+|---|---|
+| `verification/runs/F14-cooling-ladder/K0cT_runs/T_hi_f/log.yPlus` | **4 of 4 all-zero** |
+| `verification/runs/T-family/T23G_runs/T23G_C/log.yPlus.fluid` | **4 of 4 all-zero** |
+| `verification/runs/T-family/T23G_runs/T23G_F/log.yPlus.fluid` | **4 of 4 all-zero** |
+| `verification/runs/T-family/T23G_runs/T23G_M/log.yPlus.fluid` | **4 of 4 all-zero** |
+
+**WHY THESE ARE DIFFERENT FROM THE FIVE, AND WHY THEY NEED A PERSON.** The five marked ones each had
+**a sound companion showing a non-zero on the same case**, so their zeros were *demonstrably*
+fabricated. **These four have no companion at all.** From inside those directories there is **no
+local evidence that the reader was ever able to see a non-zero** — and **a y+ of zero on a thermal
+wall is not obviously absurd the way it is on a car.** **Anyone reading them has no local means to
+tell.** Four zero readings that no local evidence can distinguish from real ones, in a family whose
+verdicts may cite them.
+
+**MITIGATING, AND STATED AS MITIGATING RATHER THAN ASSERTED:** the `T23G2`, `T23G2R` and `T23G2Rn2`
+families in the same tree all use the solver spelling and read non-zero, so the `T23G` zeros **MAY**
+already be superseded. **"May" is the word.** This lane has **not** established that any verdict
+depends on them, and has **not touched the files** — heat-transfer territory, and cfd cannot spawn
+that team's lanes. **Escalated by the cfd-supervisor to the chief for the heat-transfer supervisor.**
+
+### CONTENTION RE-REGISTERED — ON A MEASUREMENT, WITH THE RELAY MARKED SUPERSEDED
+Correction row **`C-20260913T184928.363401Z-014c6609`** corrects
+`C-20260913T184627.558758Z-d297b7ad`. **The registered figure is now
+`n = 7, mean +5.1 %, worst +6.4 %, EVERY ONE OF THE SEVEN POINTS SLOWER`** — measured on each
+SUBOFF point's own `ExecutionTime` series, split at the `log.decomposePar.rerank16` mtime
+(17:19:30Z), ±200 iterations either side. The previously registered **+6.3 % / +6.9 %** and
+**2.2878 s/iter → 3.18× → 79.5 %** were **a relay, not a measurement, and are SUPERSEDED** — they
+must **not** be read as a second corroborating measurement. Efficiency stands at **7.2732 → 2.4424
+s/iter, 2.98× on 4× ranks = 74.4 %**.
+**The uniform sign — all seven slower, none faster — is the part that survives any windowing
+argument.** And the one figure of the relayed row that reproduced to the digit, the **4-rank
+counterfactual 2,036.0 core-min over 8.48 h**, is **the one the supervisor derived itself rather than
+relayed.** Not a coincidence; it is the distinction the correction draws.
+
+### COST ROWS LANDED (`68ee4640`) — three, two of them refusals
+- **R5 aborted build `C-…1ab35166`** — **132.80 core-min, ALL waste**, from a committed
+  `RUN_META.txt` (`wall_s=498`, `ranks=16`), not a relay. **Predicted column LEFT EMPTY on purpose**:
+  no estimate existed for an aborted build and **inventing a denominator would be worse than the
+  blank**. **CORRECTNESS STOP, NOT AN OVERRUN — no cap was armed and none fired.**
+- **Contention `C-…d297b7ad`**, now corrected as above.
+- **M6J_L1 `C-…af3d984f` — `PENDING` with a reason**, not a gap. Carries the **factor-of-four trap**:
+  `RANKS.txt` is overwritten and reads `16` while `CORE_MINUTES.txt` appends per segment, so pairing
+  them would cost segments 1–2 — which ran at **4** ranks — at 16, **inflating 2,012.40 core-min to
+  8,049.6**. `RANKS_BY_SEGMENT.tsv` is the authority and carries that warning in its own header.
+- **PPTC's gate row and R5's mesh row remain owed on the same terms**, both mid-flight. **PENDING
+  with a reason is a complete answer; a blank is not.**
+
+### RUNNING — `/proc/<pid>/cwd` at 18:47Z
+| item | pid | ranks | state |
+|---|---|---|---|
+| **M6J_L1** | `1591159` | 16 | `Time 5750 / 8000`. ETA ~20:12Z — **VERIFY** |
+| **M6J_L1_CP_CONTROL_4RANK** | `1607394` | 4 | **NEW since block 204** — a 4-rank Cp control, and **itself a contention contributor** |
+| **PPTC `F360_coarse_shaft4`** | `1589816` | 1 | `snappyHexMesh`, Morph iteration 3 |
+| **DrivAer R5 `r5_wallfunction`** | `1626223`+ | 18 | extruding **72.400717 % → 72.382529 %**, now **40 faces apart** and **still declining** |
+| **SUBOFF `L1M_SWEEP`** | 7 pids | 4 each | all seven alive |
+
+**R5 is still not quotable.** 40 faces apart is tighter than the 98 of an hour ago, **and a
+tightening sequence is not a plateau.** The only quotable figure is the **post-extrusion table**,
+which does not exist yet.
+
+### NEXT ACTIONS
+1. **Heat-transfer must rule on the four unpaired logs** — the only open item here that cfd cannot
+   close itself.
+2. **Land PPTC's gate row and R5's mesh row** when they finish; both PENDING with reasons.
+3. **When M6J_L1 lands, read `RANKS_BY_SEGMENT.tsv` BEFORE `RANKS.txt`**, and keep contention on its
+   own line.
+4. **Carried:** arm the PPTC hub/root `w_f` instrument on the inverted two-cell mesh and on
+   `F360_coarse` and show it FAIL on both; pairwise mutation (L-604 rule 3) owed on every gate built
+   tonight, the twelve-clause one included.
+
+**SUBMISSIONS PARKED.**
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
