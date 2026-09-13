@@ -1623,3 +1623,65 @@ it is for, and it is the practical meaning of A9.5's failure mode 2.
 
 **Pre-compute. Baseline green; 6 of 7 singles RED with the survivor named; 21 of 21 pairs
 RED. C1 PASS, C2 PASS, C3 ARMED, C4 ARMED at 13 clauses, C5 ARMED, SPD gate ARMED.**
+
+---
+
+## AMENDMENT 11 — 2026-09-13, before first compute. 🔴 CORRECTING A6.4 AND A9.4: THE CLAIM THAT THE CONTROLS RAN ON EVERY INVOCATION WAS FALSE, AND THE COUNT IS NOW ASSERTED SO IT CANNOT RECUR SILENTLY
+
+**Legality.** Rule 2, before first compute; condition checked at
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/`. **Nothing registered moves.**
+
+### A11.1 The struck claims, quoted
+
+**A6.4 said, of C4's controls:**
+
+> *"They run **before the instrument is pointed at anything**, as C1's do."*
+
+**A9.4 rested on the same premise for C5.** 🔴 **BOTH WERE FALSE, AND STRUCK.** Until commit
+`825d94d4e`, `readable_controls()` and `provenance_controls()` were called **below**
+`--selftest`'s early return. **They ran only when a `--case` was supplied.**
+**`analyse_pptc.py --selftest` — the invocation anyone uses to check this instrument, and the
+one both amendments were written to describe — exercised C1 and C2 and nothing else.**
+
+Three of the five instruments this act reports as ARMED were, under that invocation, **not
+being exercised at all**. A10.1 repaired the wiring; **this amendment corrects the claim**,
+which A10 did not do. **Correcting the code and leaving the false sentence standing in a
+frozen document is half a repair.**
+
+### A11.2 🔴 Moving the calls fixes today's instance and does NOT stop the next one
+
+A suite can be skipped again by any future early return, exception path or refactor, **and
+the output would look identical**. So each suite now **registers itself and its clause
+count**, and the selftest **asserts the registered set and the total** against a frozen
+expectation:
+
+```
+CONTROL REGISTER: 23 control clauses exercised across 3 suites:
+                  C1/freeze 6, C4/readable 13, C5/provenance 4
+```
+
+**The count is ASSERTED, not merely printed.** Printing it would help only a reader who
+already suspected. Driven in its failing direction:
+
+| injected fault | result |
+|---|---|
+| C4's suite skipped — **the exact 2026-09-13 defect** | **rc=2**, `CONTROL SUITES DID NOT RUN: C4/readable` |
+| C5's suite skipped | **rc=2**, `CONTROL SUITES DID NOT RUN: C5/provenance` |
+| one C4 clause silently dropped | **rc=2**, `CONTROL CLAUSE COUNT IS 22, REGISTERED 23` |
+
+**A skipped suite is now named in a refusal rather than absent from a pass.**
+
+### A11.3 Owed work, recorded and NOT closed tonight
+
+**C4's controls discriminate at GATE level, not at CLAUSE level.** A10.3's surviving mutation
+shows it: degrading `zone_cell_count`'s anchored match makes the case refuse via the
+**empty-zone** clause instead of the **zone-not-found** clause, and a control that only
+requires "refused on G-2" is satisfied by either. **`refuse on the right clause` must mean the
+right LIMB, not the right GATE.** Recorded as owed; **deliberately not closed by contriving a
+fixture, which would paper over the granularity question rather than answer it.**
+
+### A11.4 Status
+
+**Pre-compute. `--selftest` alone now arms every suite and prints an ASSERTED register of 23
+clauses across 3 suites. C1 PASS, C2 PASS, C3 ARMED, C4 ARMED at 13 clauses, C5 ARMED, SPD
+gate ARMED — and until `825d94d4e`, three of those were not exercised by the selftest at all.**

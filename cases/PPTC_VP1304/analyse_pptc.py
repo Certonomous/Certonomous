@@ -410,6 +410,7 @@ def freeze_controls(repo_root: str, verbose: bool = True) -> None:
     real = check_freeze(repo_root)
     if real != PREREG_SHA256_AT_COMMIT:
         raise Refusal('CONTROL FAILED: the real pin does not pass its own check.')
+    _register_controls('C1/freeze', len(fired))
     if verbose:
         print(f'  C1 controls ARMED: {len(fired)} clauses driven to their failing '
               f'direction ({", ".join(fired)}), and the real pin still PASSES.')
@@ -1085,6 +1086,7 @@ def readable_controls(verbose: bool = True) -> None:
         if r['readable']:
             raise Refusal('CONTROL FAILED: C4 accepted a case with no MRFProperties.')
         fired.append('G-2/MRFProperties-absent')
+    _register_controls('C4/readable', len(fired))
     if verbose:
         print(f'  C4 controls ARMED: {len(fired)} clauses driven '
               f'({len(fired) - 1} to REFUSE, the clean fixture to READABLE).')
@@ -1111,6 +1113,51 @@ def readable_controls(verbose: bool = True) -> None:
 # it printed before this amendment; an unverified one prints the same verdict token WITH its
 # provenance attached, and `_emit_verdict` makes a bare `VERDICT: PASS` on unverified input
 # STRUCTURALLY UNREACHABLE rather than merely discouraged.
+
+# --------------------------------------------------------------------------------------
+# THE CONTROL REGISTER  (amendment 11, 2026-09-13)
+# --------------------------------------------------------------------------------------
+# 🔴 WHY A COUNTER, AND WHY IT ASSERTS RATHER THAN REPORTS.  Until 2026-09-13 the C4 and C5
+# control suites sat BELOW `--selftest`'s early return, so THE INVOCATION ANYONE USES TO
+# CHECK THIS INSTRUMENT exercised C1 and C2 and nothing else -- while AMENDMENT 6 §A6.4 and
+# AMENDMENT 9 §A9.4 both stated the controls ran on every invocation.  Moving the calls fixes
+# today's instance; IT DOES NOT STOP THE NEXT ONE.  A suite can be skipped again by any
+# future early return, exception path or refactor, and the output would look identical.
+#
+# So each suite REGISTERS ITSELF AND ITS CLAUSE COUNT as it runs, and the selftest asserts
+# THE REGISTERED SET AND THE TOTAL against a frozen expectation.  A suite that does not run
+# makes the selftest go RED with its name printed -- it can no longer be silently absent.
+# Printing the number without asserting it would only help a reader who already suspected.
+
+EXPECTED_CONTROL_SUITES = ('C1/freeze', 'C4/readable', 'C5/provenance')
+EXPECTED_CONTROL_CLAUSES = 23          # 6 + 13 + 4; raise it when a clause is ADDED
+_CONTROLS_EXERCISED: dict = {}
+
+
+def _register_controls(suite: str, n_clauses: int) -> None:
+    _CONTROLS_EXERCISED[suite] = n_clauses
+
+
+def assert_controls_exercised() -> str:
+    """REFUSES unless every registered suite actually ran, with its full clause count."""
+    missing = [s for s in EXPECTED_CONTROL_SUITES if s not in _CONTROLS_EXERCISED]
+    if missing:
+        raise Refusal(
+            'CONTROL SUITES DID NOT RUN: ' + ', '.join(missing) + '.\n'
+            '    Every suite must arm BEFORE the instrument is used or before any early\n'
+            '    return. A suite that is skipped leaves output indistinguishable from one\n'
+            '    that passed -- that is how C4 and C5 went unexercised until 2026-09-13.')
+    total = sum(_CONTROLS_EXERCISED.values())
+    if total != EXPECTED_CONTROL_CLAUSES:
+        raise Refusal(
+            f'CONTROL CLAUSE COUNT IS {total}, REGISTERED {EXPECTED_CONTROL_CLAUSES}.\n'
+            f'    per suite: {_CONTROLS_EXERCISED}\n'
+            '    A clause was added or removed without updating EXPECTED_CONTROL_CLAUSES,\n'
+            '    or a suite ran partially. Neither may pass silently.')
+    return (f'{total} control clauses exercised across '
+            f'{len(_CONTROLS_EXERCISED)} suites: '
+            + ', '.join(f'{k} {v}' for k, v in sorted(_CONTROLS_EXERCISED.items())))
+
 
 PROV_REAL = 'REAL-SOLVE'
 PROV_UNVERIFIED = 'UNVERIFIED-PROVENANCE'
@@ -1226,9 +1273,10 @@ def provenance_controls(verbose: bool = True) -> None:
         for v in ('PASS', 'GATE FAIL', 'NOT A RESULT'):
             if not _emit_verdict(v, p_syn).startswith(f'VERDICT: {v}'):
                 raise Refusal(f'CONTROL FAILED: the marker changed the {v!r} token.')
+    _register_controls('C5/provenance', 4)
     if verbose:
-        print('  provenance controls ARMED: no-log marked, real banner accepted, borrowed '
-              'log refused, verdict token unchanged in both directions.')
+        print('  provenance controls ARMED: 4 clauses -- no-log marked, real banner '
+              'accepted, borrowed log refused, verdict token unchanged both directions.')
 
 
 def nearest_registered_J(J: float) -> float:
@@ -1291,6 +1339,9 @@ def main() -> int:
         # does not run while looking as though it did -- caught in this file's own suite.
         readable_controls()
         provenance_controls()
+
+        _roster = assert_controls_exercised()
+        print(f'  CONTROL REGISTER: {_roster}')
 
         if a.selftest:
             print('\nSELF-TEST COMPLETE. C1, C2 pass; C4 and C5 controls armed. '
