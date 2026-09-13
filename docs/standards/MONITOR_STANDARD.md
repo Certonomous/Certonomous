@@ -2690,3 +2690,104 @@ it is not an argument against writing such records.**
 | md5 of this file's HEAD blob before this append | `705636be5987a714eb2645a5563d1a97` |
 | md5 of this file's first **2603** lines after it | `705636be5987a714eb2645a5563d1a97` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+---
+
+## Amendment (2026-09-13) — **SIBLING CLAUSE: A CONTROL DISCRIMINATES ONLY BY SEPARATION, AND A CONTROL AT ITS OWN LIMIT HAS NONE**
+
+**Appended at the foot, append-only. `lines whose number changed above this section: 0` —
+MEASURED; the digests are in the record below and the append refused unless they were equal.**
+Authoritative version **v1.15**; the header still reads `Version 1.12` and is deliberately not
+edited (v1.14 §7 explains why, permanently).
+
+**Ruled into existence by this file's owner, the cfd supervisor**, who took v1.14 §14.3's two
+adjacent findings M-3 and M-4 and ruled they share a mechanism and earn a clause, **and that
+M-5 does not join them** (§3 below). **Drafted by a cfd lane. Gates nothing until the
+verification team reads its diff.**
+
+### 1. THE CLAUSE
+
+> ## **A CONTROL DISCRIMINATES ONLY BY SEPARATION. WITH NO SEPARATION IT DISTINGUISHES NOTHING, HOWEVER CORRECTLY IT IS IMPLEMENTED.**
+>
+> Separation has **two** forms and a control needs whichever one it trades on:
+>
+> - **SEPARATION IN VALUE** — the observed quantity must be able to sit **on either side** of
+>   the threshold. A quantity **equal to its threshold** carries **no evidence about which side
+>   the truth lies on.**
+> - **SEPARATION IN FREQUENCY** — the control must fire **rarely enough that firing means
+>   something.** A guard that fires during **correct routine use** has spent its budget of
+>   surprise **before the defect arrives.**
+
+**THE TEST, and it is one question:**
+
+> **What would this control show if the thing it guards against WERE happening — and what would
+> it show if it were NOT? If the two answers are the same, it is not a control.**
+
+🔴 **That is word-for-word v1.14 member 9's test, asked of a different quantity**, and the
+identity is the strongest argument that this is a real clause rather than a category invented
+to hold two leftovers. **Member 9 asks it of the REFERENCE ARM** (*"what does the reference show
+if the instrument is perfect, and if it is dead?"*). **This clause asks it of the THRESHOLD and
+the FIRING RATE.** One question, three places it can be asked, and **a control that cannot
+answer it differently in the two cases has no separation wherever the deficit sits.**
+
+### 2. THE TWO INSTANCES
+
+| | **M-3 — separation in FREQUENCY** | **M-4 — separation in VALUE** |
+|---|---|---|
+| cite | `481fd48b9` | `e08a102cd` |
+| what happened | **43 of 44 patches failed** when two renders shared an `--out` | a registered **floor met by ARITHMETIC IDENTITY** — the quantity **equalled** its threshold |
+| why it matters | the guard **catching it is the only reason it was a nuisance and not a wrong picture** — but a guard that fires on 43 of 44 routine runs has **no surprise left to spend** on the 44th | **a value equal to its floor is evidence for neither side.** The fault is **in the REGISTRATION, not the run** — the run behaved; the threshold was placed where it could not discriminate |
+| provenance | **STATE 3** — measured by the render lane, citations re-verified in v1.14 §14 | **STATE 3** — originated with the cfd supervisor, **instance and demonstration** the render lane's own |
+
+**The corollary for whoever writes a threshold:** **a floor must be exceeded BY CONSTRUCTION,
+not met by arithmetic.** If the only way the registered quantity can clear its floor is to
+equal it, **the registration has pre-committed to learning nothing**, and that is discoverable
+**at freeze time, before any compute** — which is where it is cheapest and where §2's
+"pre-registration protects against fitting the gate, not against a gate that cannot
+discriminate" already points.
+
+### 3. 🔴 WHAT THIS CLAUSE DELIBERATELY DOES **NOT** TAKE IN
+
+**M-5 — "two correct rules can be jointly unsatisfiable"** (`e08a102cd`; rule 2's dated addenda
+against the runner's byte pin) — **is NOT admitted, by the file owner's ruling and this lane's
+agreement.** It is **neither a proxy nor a margin**: it is two individually valid rules that
+cannot both be satisfied.
+
+**And the reason for waiting is the substance, not caution:** **until the chief rules on the
+rule-interaction, nobody knows whether M-5 is a finding about our PRACTICE or about the
+CONSTITUTION.** If the pin yields to the addendum, it becomes **a note on how to use
+`grading_freeze`**. If the addendum yields to the pin, it becomes **a constraint on rule 2's own
+mechanism.** **Those are different clauses, and writing either now would be the premature
+promotion that v1.14 §14.4 refused when it declined to promote M-5's attribution.** It stays an
+**adjacent finding with its evidence intact and its status explicit.**
+
+### 4. THE OVERLAP WITH MEMBER 10, STATED RATHER THAN HIDDEN
+
+**M-3 touches v1.14's member 10** (*"usability is part of reliability — an instrument can fail
+by being ignored as easily as by being wrong"*). **They are not the same and the difference is
+worth one sentence:** member 10 is about a guard whose **MESSAGE** fails to say what to do next,
+so a reader works around it; **M-3 is about a guard whose FIRING RATE destroys its own signal,
+whatever its message says.** A perfectly worded refusal that fires on 43 of 44 routine runs is
+**still** noise. **Both routes end at an ignored guard; only one is fixed by better wording.**
+
+### 5. WHAT THIS AMENDMENT DOES NOT DO
+
+1. **It adds no member to the proxy clause**, which stays at **13**, of which **4 measured by
+   v1.14's author**. This is a **sibling**, with **2 instances of its own**, both **state 3**.
+2. **It alters no threshold and no existing clause.**
+3. **It gates nothing** until verification reads its diff.
+4. **It makes no claim of prevalence.** Two instances is two, and **nobody has swept the lab's
+   controls for thresholds met by identity or guards firing on routine work** — which, given
+   how cheap that sweep is at freeze time, is the obvious next thing and is **not done here.**
+
+| amendment record | **v1.15** |
+|---|---|
+| clauses added | **1** (§1, a sibling to v1.14's proxy clause) |
+| instances carried | **2** — M-3, M-4, **both STATE 3**, neither measured by this author |
+| members added to the proxy clause | **0** — it remains **13**, split 4 / 2 / 7 |
+| adjacent findings still held outside any clause | **1** — M-5, pending the chief's ruling |
+| thresholds or existing clauses altered | **0** |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `55a237282bceaa1cff565e4bbc372906` |
+| md5 of this file's first **2692** lines after it | `55a237282bceaa1cff565e4bbc372906` |
+| the two digests | **EQUAL — assertion MEASURED** |
