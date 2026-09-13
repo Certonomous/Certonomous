@@ -82,7 +82,20 @@ PW=$(grep -oE '^purgeWrite +[0-9]+;' system/controlDict | grep -oE '[0-9]+')
   || fail "purgeWrite is ${PW:-unset}; must be 0 (keep all) or >= 2"
 grep -q  '#include'                     system/controlDict || fail "controlDict lost its #include"
 grep -qE 'RASModel +SpalartAllmaras;'   constant/turbulenceProperties || fail "model is not SpalartAllmaras"
-grep -qE 'transonic +yes;'              system/fvSolution || fail "transonic is not yes"
+# `transonic yes` is the REGISTERED physics and is asserted for every graded run. A registered
+# DIAGNOSTIC that deliberately turns it off must declare itself, exactly as the runner requires a
+# `purge_waiver` for purgeWrite 0 -- A DECLARED EXCEPTION, NEVER A SILENT ONE. Without the
+# declaration this refuses, which is what blocked the A10.4 probe until it was declared.
+if grep -qE 'transonic +no;' system/fvSolution.startup 2>/dev/null; then
+  [ "${TRANSONIC_DIAGNOSTIC:-}" = "yes" ] \
+    || fail "system/fvSolution.startup sets 'transonic no' but TRANSONIC_DIAGNOSTIC=yes was not declared"
+  echo "*** TRANSONIC DIAGNOSTIC: stage 1 runs with 'transonic no'. THIS IS NOT THE REGISTERED"
+  echo "*** PHYSICS AT M 0.85 AND ITS ANSWER IS NEVER GRADED (ADDENDUM 10.4). Stage 2 restores the"
+  echo "*** registered dictionaries md5-identically, so no graded answer can come from this branch."
+  grep -qE 'transonic +yes;' system/fvSolution || fail "the GRADED fvSolution must still be transonic yes"
+else
+  grep -qE 'transonic +yes;' system/fvSolution || fail "transonic is not yes"
+fi
 grep -qE 'div\(phid,p\) +Gauss upwind;' system/fvSchemes  || fail "div(phid,p) is not the corrected unbounded form"
 for K in rhoInf Aref lRef CofR magUInf; do
   foamDictionary -entry "functions/forceCoeffs/$K" system/controlDict >/dev/null 2>&1 \
