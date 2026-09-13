@@ -615,6 +615,102 @@ def split_identity_control(row):
     return checks
 
 
+# ============================== 4a. IS A FORCE READABLE FROM THIS CASE AT ALL? ==
+# A15.6(c), discharged 2026-09-13.  THIS IS A REFUSAL-ONLY GATE: standing rule 5 lets a
+# gate turn a PASS or a GATE FAIL INTO `NOT A RESULT` and never the reverse, so coupling
+# the force channel to the field state can only ever withhold a number, never produce or
+# improve one.  That is why it may be added without touching a frozen threshold.
+#
+# 🔴 THE HAZARD, MEASURED ON `SOLVE_T_SST`'s OWN ARTIFACT, NOT HYPOTHESISED.
+# That run died of SIGFPE at iteration 22 with the field at `p max 3.86761822375e+129`.
+# Its `forceCoeffs` log blocks carry Total / Pressure / Viscous / Internal, and the
+# PRESSURE column is quiet while the total is destroyed:
+#
+#     step  3  Total Cd -5.629357e+01    Pressure Cd +0.08000426
+#     step  4  Total Cd -1.604469e+02    Pressure Cd +0.05376081
+#     step  5  Total Cd -7.848507e+03    Pressure Cd +0.04040391
+#     step  6  Total Cd -1.771947e+05    Pressure Cd +0.01696321
+#     step  7  Total Cd +1.886737e+08    Pressure Cd +0.00037753
+#     step 21  Total Cd -4.414128e+88    Pressure Cd +0.00912114
+#
+# SIX OF TWENTY-ONE STEPS CARRY A PRESSURE Cd INSIDE A15.7 L3's OWN ADMISSIBLE BAND
+# [0, 0.2], on a run that crashed.  A reader that mines the pressure column finds a
+# plausible, L3-passing drag coefficient in a destroyed solution.
+#
+# 🔴 AND AN HONEST LIMIT OF MY OWN P-B CONTROL, STATED RATHER THAN LEFT TO BE FOUND.
+# The split identity Cd(f)+Cd(r) == Cd PASSES on SST's artifact -- measured, rel_err
+# 8.64e-14.  An arithmetic identity is NECESSARY AND NOT SUFFICIENT: the file is
+# perfectly self-consistent while being garbage.  Only the field coupling below
+# separates the two, which is why P-B alone was never enough.
+
+FORCE_COMPONENT_NAMES = ("Pressure", "Viscous", "Internal", "pressure", "viscous")
+
+
+def force_is_readable(case, comp):
+    """May ANY force number be quoted from this case?  Refusal-only (rule 5).
+
+    Three independent clauses, ANY ONE of which withholds every force:
+
+      F-1  THE FIELD IS NOT ADMISSIBLE.  A15.7 L5's own field gate, reused: if p or
+           max|U| is outside its registered ceiling, or the field cannot be read at all,
+           no force integrated over that field is evidence.  A15.3 measured a finite,
+           ordinary-looking pressure-force integral on a field at 1e+129.
+      F-2  THE CLAMP WAS HIDING AN EXCURSION.  If pressureControl reported a pre-clamp
+           max over L5's ceiling, the written field understates what the pressure
+           equation produced, and a force integrated over the written field is
+           integrating a clamped surrogate.  DISCLOSURE-SOURCED, so it is reported and
+           may refuse, but per the 2026-09-13 containment ruling it changes no L5
+           verdict -- withholding a force is not an L5 verdict.
+      F-3  THE PLANTED-FORCE CONTROL HAS NOT PASSED under this application (A15.6(c)).
+
+    A case that fails none of the three is readable.  Nothing here can make a force
+    BETTER; it can only decline to serve one."""
+    r = {"refusals": [], "clauses": {}}
+    l5 = comp.get("L5", {}) or {}
+    r["clauses"]["F-1_field_admissible"] = (l5.get("verdict") == "PASS")
+    if l5.get("verdict") != "PASS":
+        r["refusals"].append(
+            f"F-1: the field gate does not PASS (L5 {l5.get('verdict')!r}: "
+            f"{l5.get('reason') or 'p or max|U| outside its registered ceiling'}). "
+            "A force integrated over a field that is not admissible is not evidence, "
+            "however ordinary the number looks -- SST's pressure Cd was +0.00912114 "
+            "while its field stood at p max 3.87e+129.")
+    pre = (l5.get("p_clause_reachability") or {}).get("preclamp") or {}
+    over = bool(pre.get("exceeds_L5_ceiling"))
+    r["clauses"]["F-2_no_hidden_clamp_excursion"] = not over
+    if over:
+        r["refusals"].append(
+            f"F-2: pressureControl reported a pre-clamp max of "
+            f"{pre.get('preclamp_p_max_Pa')} Pa on {pre.get('n_steps_over_clamp')} steps, "
+            f"over L5's ceiling of {L5_P_ABS_MAX} Pa. The written field is a clamped "
+            "surrogate for what the pressure equation produced, so a force integrated "
+            "over it is integrating the clamp.")
+    ok_plant = (comp.get("force_plant_control") == "PASS")
+    r["clauses"]["F-3_planted_force_control_passed"] = ok_plant
+    if not ok_plant:
+        r["refusals"].append(
+            f"F-3: A15.6(c)'s planted-force control is {comp.get('force_plant_control')!r} "
+            "under this application; a force from a reader never shown able to be wrong "
+            "is not evidence.")
+    r["readable"] = not r["refusals"]
+    r["basis"] = ("REFUSAL-ONLY gate (rule 5): it can turn a force reading into NOT A "
+                  "RESULT and can never produce, improve or rescue one.")
+    return r
+
+
+def refuse_component_as_force(name):
+    """A pressure or viscous COMPONENT IS NOT A FORCE, and this reader will not serve
+    one under that name.  The hazard is not hypothetical: `Cd(f)` was once read as `Cd`
+    in this lab and drag was reported halved, and SST's Pressure column is quiet on six
+    of twenty-one steps of a crashed run."""
+    if any(c in str(name) for c in FORCE_COMPONENT_NAMES):
+        refuse(f"{name!r} is a force COMPONENT, not a force. This comparator serves only "
+               "the Total, because a component can look ordinary while the total and the "
+               "field it came from are destroyed (SST: Pressure Cd +0.00912114 at "
+               "p max 3.87e+129).")
+    return name
+
+
 # ================================================== 5. THE A15.7 LOG CHANNELS ===
 
 _TIME_RE   = re.compile(r"^Time = ([0-9.eE+-]+)\s*$", re.M)
@@ -741,14 +837,12 @@ def evaluate_L(case, app, steps, coeffs, comp):
                      "ceiling_pct": L2_CLAMP_CEIL_PCT}
 
     # ---- L3.  Registered as readable ONLY after the planted-force control passes.
-    ctl = comp.get("force_plant_control")
-    if ctl != "PASS":
+    fr = force_is_readable(case, comp)
+    out["force_readability"] = fr
+    if not fr["readable"]:
         out["L3"] = {"verdict": "NOT A RESULT",
-                     "reason": "A15.6(c): the planted-force control under this "
-                               f"application has not passed (state {ctl!r}); a force "
-                               "from a reader never shown able to be wrong is not "
-                               "evidence, and this case produces plausible force "
-                               "numbers while failing (A15.3)"}
+                     "reason": "; ".join(fr["refusals"]),
+                     "force_readability": fr}
     elif not coeffs:
         out["L3"] = {"verdict": "NOT A RESULT", "reason": "no coefficient rows read"}
     else:
@@ -1488,6 +1582,67 @@ def selftest():
               pc2["n_steps_over_clamp"] == 0 and pc2["preclamp_p_max_Pa"] is None
               and pc2["exceeds_L5_ceiling"] is False, json.dumps(pc2))
 
+        # ---------------------------------------------------------------- P-N ---
+        # A15.6(c)'s ADVERSARIAL CLAUSE.  The force channel must REFUSE on a diverged
+        # field even when the number it would serve looks perfectly ordinary.  Driven on
+        # SST's real SHAPE -- an ordinary Cd sitting on a field at 1e+129 -- and on a
+        # clean case, because a gate that refuses everything is not a gate.
+        cn_bad = _fake_case(os.path.join(td, "PN_bad"), end_time=8, nproc=1, cd=0.024,
+                            clamp=(0.2, 0.3), courant=0.15)
+        _write_binary_field(os.path.join(cn_bad, "processor0", "8", "U"), "vector",
+                            [1.0, 0.0, 0.0, 3.86761822375e+129, 0.0, 0.0], "8")
+        comp_bad = check_completion(cn_bad)
+        am3 = os.path.getmtime(comp_bad["age_anchor"])
+        for f in os.listdir(os.path.join(cn_bad, "processor0", "8")):
+            os.utime(os.path.join(cn_bad, "processor0", "8", f), (am3 + 100, am3 + 100))
+        comp_bad = check_completion(cn_bad)
+        comp_bad["force_plant_control"] = "PASS"          # the plant PASSES; the field does not
+        comp_bad["L5"] = evaluate_L5(cn_bad, comp_bad)
+        fr_bad = force_is_readable(cn_bad, comp_bad)
+        check("P-N the field gate SEES the diverged velocity",
+              comp_bad["L5"]["verdict"] == "GATE FAIL",
+              json.dumps({k: comp_bad["L5"].get(k) for k in ("verdict", "U_mag_max_m_s")}))
+        check("P-N a force is REFUSED on a diverged field EVEN WITH THE PLANT PASSED",
+              fr_bad["readable"] is False
+              and any("F-1" in x for x in fr_bad["refusals"]),
+              json.dumps(fr_bad))
+        L_bad = evaluate_L(cn_bad, "rhoPimpleFoam",
+                           read_log_channels(cn_bad, "rhoPimpleFoam"),
+                           read_coefficients(cn_bad)[0], comp_bad)
+        check("P-N and L3 is therefore NOT A RESULT, not a plausible pass",
+              L_bad["L3"]["verdict"] == "NOT A RESULT", json.dumps(L_bad["L3"])[:200])
+        # THE CONTROL ON THE CONTROL.  A clean field, plant passed -> READABLE.
+        cn_ok = _fake_case(os.path.join(td, "PN_ok"), end_time=8, nproc=1, cd=0.024,
+                           clamp=(0.2, 0.3), courant=0.15)
+        comp_ok = check_completion(cn_ok)
+        comp_ok["force_plant_control"] = "PASS"
+        comp_ok["L5"] = evaluate_L5(cn_ok, comp_ok)
+        fr_ok = force_is_readable(cn_ok, comp_ok)
+        check("P-N a clean field with the plant passed IS readable",
+              fr_ok["readable"] is True,
+              "the refusal gate refuses everything, which is not a gate: "
+              + json.dumps(fr_ok))
+        # and each clause must be independently sufficient
+        comp_np2 = dict(comp_ok)
+        comp_np2["force_plant_control"] = "NOT RUN"
+        check("P-N F-3 alone refuses",
+              force_is_readable(cn_ok, comp_np2)["readable"] is False, "")
+        # THE SPLIT IDENTITY IS NECESSARY AND NOT SUFFICIENT -- SST's REAL NUMBERS.
+        sst_row = {"Cd": -4.41412776577e+88, "Cd(f)": 1.874164177613e+89,
+                   "Cd(r)": -2.31557695419e+89}
+        check("P-N the split identity PASSES on SST's destroyed artifact",
+              split_identity_control(sst_row)["Cd"]["ok"] is True,
+              "the fixture is wrong: SST's artifact is internally consistent and the "
+              "point of this control is that arithmetic consistency does not detect "
+              "divergence")
+        # a COMPONENT may never be served as a force
+        for nm in ("Pressure", "Viscous", "pressure_x"):
+            try:
+                refuse_component_as_force(nm)
+                fails.append(f"P-N {nm!r} was served as a force")
+            except SystemExit as e:
+                check(f"P-N refuses to serve {nm!r} as a force", e.code == 2, str(e.code))
+
         # ---------------------------------------------------------------- P-M ---
         # THE CONTAINMENT RULING, ENFORCED.  The SAME case is graded twice: once with a
         # planted pre-clamp excursion far over the L5 ceiling in its log, once without.
@@ -1624,6 +1779,9 @@ def selftest():
         "P-F the binary field reader with a decoy, numpy cross-decoded against struct. "
         "P-K the write-schedule pre-flight (fires on the probe shape, quiet on the "
         "production one). "
+        "P-N A15.6(c)'s ADVERSARIAL CLAUSE: a force REFUSED on a diverged field even "
+        "with the plant passed, a clean field still readable, and the split identity shown "
+        "to PASS on SST's destroyed artifact (necessary, not sufficient). "
         "P-M THE 2026-09-13 CONTAINMENT RULING ENFORCED: a planted pre-clamp excursion "
         "is disclosed and moves no L5 verdict and no L5 number. "
         "P-L the pre-clamp reader seeing a planted excursion and quiet without one. "
