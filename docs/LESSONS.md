@@ -28809,3 +28809,36 @@ provenance**, which is a stronger reason than an assert.
 under `VERIFICATION_CHARTER` §2d.1, committed BEFORE it ran and before any `DPbar` existed;
 landing `c5b942df05ac663fbb7db1f739bc9e9ae17587e1`; ADDENDUM 9 in
 `docs/campaigns/F14-cooling-ladder/K2h_PREREGISTRATION.md`.*
+
+## L-587 — killing the worker does not stop the work: a launcher parent respawns it, and checking that your target died is not checking that the job stopped
+
+**Measured cost: ~128 core-minutes of pure waste, on a mesh that could never produce a number.**
+
+A lane killed an 8-rank `snappyHexMesh` at 04:26 and confirmed the process was gone. At
+**05:07 a mesher reappeared on the same rejected tessellation** and ran eight cores for
+roughly sixteen minutes before anyone noticed. **The parent `build_level.sh` had survived
+the kill and respawned its child.** The lane's own words: *"I killed the child and did not
+verify the parent was gone — I checked that the thing I aimed at died, not that the thing I
+wanted stopped had stopped."*
+
+**This is distinct from the two kill lessons already on record.** L-10 is `pgrep -f`/`pkill
+-f` matching the invoking shell. L-5 is a dispatched agent orphaning its own long job. **This
+is a launcher that outlives its worker and starts another one**, and neither of the others
+catches it.
+
+**THE RULE — verify the OUTCOME, never the ACTION.** After any kill:
+1. Kill the **process group or the session leader**, not the leaf. `kill -- -$PGID`, or walk
+   `ppid` up to the detached leader first.
+2. **Re-check after a delay long enough for a respawn** — a single post-kill `ps` proves the
+   leaf died, not that nothing will replace it.
+3. **Check by WHAT IS RUNNING WHERE, not by pid.** Sweep `/proc/*/cwd` for the tree you want
+   quiet. A pid is gone; the work may not be.
+
+**And sweep for work on retired trees as a matter of routine.** The wasted cores here were
+burning on a tessellation the act had already rejected in writing — nothing would ever have
+read the result, and nothing would have complained.
+
+*Same family as the reader-limit failures of 2026-09-13 (L-577, L-581…L-585), moved from
+reading to acting: the check was aimed at the thing the operator targeted rather than at the
+condition the operator wanted. Waste named separately per `COMPUTE_BUDGET_CHARTER` §6 and
+never folded into an act's ratio.*
