@@ -1,6 +1,16 @@
 # Wolf Dynamics DrivAer, FINE — PRE-REGISTRATION
 
-## 🔴 STATUS: **NOT FROZEN. NO COMPUTE HAS RUN AND NONE MAY RUN.**
+## STATUS: **FROZEN 2026-09-13 by cfd-supervisor. THIS COMMIT IS THE FREEZE** and discharges
+standing check 4. Gates, thresholds, cap and labels are closed as of this commit; changes land
+only as dated addenda that cannot alter them. **THE RUN MAY NOW LAUNCH.**
+
+**Condition, checked at the real run root:** `/home/ubuntu/certonomous-runs/WOLFDYNAMICS_DRIVAER/fine_R1`
+**does not exist**, and the check is planted — the same listing returns the one sibling
+directory that does (`coarse_R1`).
+
+**The superseded status line read: "NOT FROZEN. NO COMPUTE HAS RUN AND NONE MAY RUN." It is
+struck, not rewritten.** Every other occurrence of "draft"/"drafting time" below refers to when
+a figure was measured and is left standing as the correct provenance.
 
 **This document is a DRAFT handed to cfd-supervisor.** The freeze is the **supervisor's
 personal check** under `SUPERVISION_CHARTER.md` §3 and it **may not be delegated to the
