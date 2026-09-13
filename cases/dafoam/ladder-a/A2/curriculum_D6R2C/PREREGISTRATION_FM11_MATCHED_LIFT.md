@@ -510,3 +510,168 @@ D6R2C_FM11_LAUNCHED name=d6r2c_fm11_FM11_<UTC>_<pid> arm=FM11 uid=1000:1000+1002
 - **Nothing is stopped by the cap** (Sanaa directive #17). A crossing is reported and graded
   `NOT A RESULT`.
 - **SUBMISSIONS PARKED (rule 7).** Nothing in this arm sends, files, uploads or posts anything.
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — THE LAUNCH, AND A DEFECT IN §8's OWN LAUNCH LINE
+
+**Appended after the freeze. It alters no gate, no threshold, no cap and no label, and it inserts and
+edits nothing above itself.**
+
+| assertion | value |
+|---|---|
+| lines whose number changed above this section | **0 — proved on BYTES by `cmp -n 33302` against the frozen blob at `6190e070c6f53fe07f058dfcfa610ba7fb246596`, exit 0** |
+| gates, thresholds, caps or labels altered | **none** |
+
+### A1.1 THE DEFECT — §8's LAUNCH LINE IS NOT A RUNNABLE IMAGE REFERENCE
+
+§8 spells the image as `sha256:2927768a…` with **no repository**. `G-IMG` accepts it, because it matches
+the registered digest as a substring — but `docker run` cannot resolve a bare digest, so **the line as
+written in the frozen document would not have started a container.** The runnable form, and the one the
+lineage's own `FM9_wrapper.sh` used, is:
+
+```
+dafoam-idwarp-rot@sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7dee30f6d35
+```
+
+**THE ARM WAS LAUNCHED WITH THAT FORM.** This is recorded as a defect in the frozen text rather than
+corrected in place (rule 6). It is the same class as `G-IMG` itself: a guard that matches a substring
+proves the digest is *mentioned*, not that the reference *resolves*.
+
+### A1.2 THE LAUNCH, AS IT HAPPENED
+
+| fact | value |
+|---|---|
+| freeze sha | `6190e070c6f53fe07f058dfcfa610ba7fb246596` |
+| wrapper | `/home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-FM11-a2-wing-matched-lift/FM11_wrapper.sh`, detached with `setsid`, **no timeout and no kill** (directive #17) |
+| wrapper pid | **1594844** |
+| container | `d6r2c_fm11_FM11_20260913T173321Z_1594848` |
+| ranks / cpuset | **4 ranks on cores 4,5,6,7**, chosen at launch |
+| cores the guard found already busy | **48 of 96**, none of them 4-7 |
+| cap printed at launch | **668.559 core-min**, from `d6r2c_fm11_grade.py --print-cap` |
+| command block md5 | `204f961540b28e82ec82d864a20d1586` |
+| age datum | `1789320801` |
+
+All five launch guards passed: `G-ROOT`, `G-BOX` (load1 45.88 of 96, zero solver swap offenders,
+646 GB available), `G-FREEZE`, `G-DEPS` (6 staged, 6 scanned), `G-CPUSET`.
+
+### A1.3 FIRST MEASUREMENT OFF THE ARM — THE `Zb` MESH AS BUILT
+
+`checkMesh` in `mesh_generation.log`: **max non-orthogonality 66.97, average 11.49, "Mesh OK."**
+**Within DAFoam's declared `maxNonOrth = 70.0`.** This is the mesh **AS BUILT**; `Q1` measures the mesh
+**AS RUN**, after the final DV application, and the two are different numbers — on the optimisation mesh
+they were 66.32 as built and **71.24 as run**.
+
+**SUBMISSIONS PARKED (rule 7).**
+
+---
+
+## ADDENDUM 2 — 2026-09-13 — **`FM11` IS `BLOCKED` AT ITS FIRST STAGING STEP, ON THE EXACT CONDITION §3's `M0` REGISTERED. AND TWO OF MY OWN CLAIMS ARE FALSIFIED BY IT.**
+
+**Appended after the freeze. It alters no gate, no threshold, no cap and no label.**
+
+| assertion | value |
+|---|---|
+| lines whose number changed above this section | **0 — proved on BYTES by `cmp -n 33302` against the frozen blob at `6190e070c6f53fe07f058dfcfa610ba7fb246596`, exit 0** |
+| gates, thresholds, caps or labels altered | **none** |
+
+### A2.1 THE VERDICT
+
+**`BLOCKED`.** Arm `FM11`, container `d6r2c_fm11_FM11_20260913T173321Z_1594848`, **rc = 1, wall 22 s,
+1.467 core-min** against a registered cap of 668.559. The Zb sub-arm's `--phase mesh` succeeded
+(`checkMesh`: max non-orthogonality **66.97**, "Mesh OK.") and the producer then refused at its staging
+step, before `load_frozen_model` and before one primal ran:
+
+```
+d6r2c_fm9_stage.Refusal: REFUSE_FRESH_IS_BASE the generated mesh's points.gz md5 equals
+the BASE mesh's (0fb1935a9b8781b73ac4ccb136e3ec68)
+```
+
+**This is the condition §3's `M0` registered in advance, and the registered consequence is the one
+taken:** the guard is inherited and frozen, it is not this arm's to weaken, it was not handed a
+substituted hash, and the arm is **`BLOCKED`** rather than passed. The Zo sub-arm never started, because
+the command block aborts on a non-zero rc.
+
+### A2.2 FALSIFIED CLAIM 1 — MY OWN JUSTIFICATION FOR MEASURING `M0` ON POINTS IS WRONG
+
+§3's `M0` says a `points.gz` md5 comparison is an adjacent quantity **"because gzip embeds an mtime, so
+two byte-identical point lists written a second apart have different hashes."** **THAT SENTENCE IS
+FALSE FOR THIS WRITER, AND THE RUN PROVES IT.** Measured on the arm's own output:
+
+| quantity | value |
+|---|---|
+| `FM11/Zb/constant/polyMesh/points.gz` md5 | `0fb1935a9b8781b73ac4ccb136e3ec68` |
+| the registered base mesh's md5 | `0fb1935a9b8781b73ac4ccb136e3ec68` — **identical** |
+| gzip header MTIME field | **0** — OpenFOAM stores no timestamp |
+| points, regenerated vs base | 40209 vs 40209 |
+| **max point difference** | **0 m, exactly** |
+
+**The conclusion the clause reached is still right and its stated reason was wrong.** Measuring on points
+is correct because it answers the question directly; it is *not* correct because hashes are unreliable
+here — **here they are exactly reliable.** A right answer with a false justification is still a false
+claim (§18.6), and it is recorded as one.
+
+**AND THE FINDING THAT COMES FREE IS A GOOD ONE:** `genWingMesh.py` plus the family's
+`plot3dToFoam / autoPatch / createPatch / renumberMesh` sequence **regenerates the base mesh BYTE FOR
+BYTE** from `surfaceMesh_base.cgns`, 46 days after the original was written. That is `M0`'s `Zb`
+expectation confirmed at the strongest level available, and it is the first bit-exact reproducibility
+measurement this family has on its mesher.
+
+### A2.3 FALSIFIED CLAIM 2 — §7b's GREEN IS NARROWER THAN IT READS, AND THE GRADER CANNOT LOAD ITS OWN EXTERNAL ANCHOR
+
+Running the launcher's own emitted grading command **against the real arm and the real `O_mp` record**:
+
+```
+D6R2C_FM11_GRADE REFUSED
+REFUSE_NO_J_IN_RECORD keys=['cl04.aero_post.functionals.CL', 'cl05.aero_post.functionals.CL',
+ 'cl06.aero_post.functionals.CL', 'geometry_cl05.thickcon', 'geometry_cl05.volcon', 'obj.J']
+```
+
+**`load_inherited` cannot read the file `R_def` comes from.** Three measured reasons, and all three had
+to be true at once:
+
+1. its key probe tries `<pt>.aero_post.CD`, `<pt>_CD`, `CD_<pt>`, then `obj`, `J`, `fun`,
+   `weighted_CD` — **and the real key is `obj.J`**, which is none of them;
+2. `obj.J`'s value is a **one-element list**, `[0.030641631438997615]`, which `_finite()` would reject
+   even if the key matched;
+3. an `F` record carries **no per-condition `CD` at all**, so the preferred "recompute from the
+   per-condition CD" path can never fire on this file and the fallback is the only path there is.
+
+**The anchor itself is intact and recoverable** — `obj.J` at `n = 2` and `n = 88` give
+`J0 = 0.030641631438997615` and `Jf = 0.023063259528677764`, reproducing
+**`R_def = 0.752677270941`** to twelve places, exactly the registered figure. **Nothing about the
+physics is in doubt; the reader is.**
+
+**WHY §7b's CHECK DID NOT CATCH IT, STATED AGAINST MY OWN WORK.** Clause (b) ran the emitted command with
+`--evals SYNTHETIC --fm10-record SYNTHETIC`, because the synthetic arm has no real anchors beside it.
+**So the check drove the command line and NOT THE DATA THE COMMAND LINE READS.** That is the same shape
+as the defect §22.4 clause 2 exists to prevent, one layer down: FM9's selftest exercised the function and
+not the entry point; mine exercised the entry point and not the external anchors. **§7b's "PASS" is true
+as written and narrower than it reads, and the honest statement is that it did not cover the anchor
+loaders.**
+
+**The repair belongs to a re-registered arm.** First compute has happened (1.467 core-min), so `FM11`'s
+gates are closed and this addendum alters none of them. `FM12` is the registered re-run id, carrying the
+**identical** cap of 668.559 under another key. **What `FM12` must carry is a supervisor's call, not this
+lane's**, and it is named here so it cannot be lost:
+
+- an `M0`-shaped clause for `Zb` that does not route through `REFUSE_FRESH_IS_BASE`, without weakening
+  that guard for `Zo`, where it is exactly right;
+- `load_inherited` reading `obj.J` and unwrapping a one-element list, with **the real file in the
+  control**, not a synthetic stand-in;
+- a pre-freeze clause (b) that drives the emitted command **against the real external anchors**.
+
+### A2.4 COST CALIBRATION (rule 12, charter §22.5)
+
+| quantity | value |
+|---|---|
+| predicted | **222.853 core-min** |
+| **actual** | **1.467 core-min** (ledger row, 22 s wall x 4 ranks / 60) |
+| ratio actual/predicted | **0.0066** |
+| attribution | **NOT misprediction, and not contention or waste.** The arm was `BLOCKED` by a registered refusal 22 s in, before the model was built and before one primal ran. The prediction was never exercised; it is neither confirmed nor falsified by this row. |
+| dollars | **$0.00125 DERIVED** at the owner-stated $0.0513/core-h — **derived, never measured**; the box cannot read its own billing |
+
+**This row is OWED to `docs/COST_CALIBRATION.md` and this document does not land it**, exactly as
+`FM10`'s row (predicted 11.400, actual 10.677, ratio 0.937) is still owed.
+
+**SUBMISSIONS PARKED (rule 7).**
