@@ -157,11 +157,36 @@ def cell_centres(work):
 
 
 def _foam_list_ints(path):
+    """Parse an OpenFOAM labelList / cellSet into an int array.
+
+    MEASURED DEFECT, recorded rather than quietly fixed: the first version found
+    the list's opening bracket by searching for "(" after the first "}" following
+    "FoamFile".  On `constant/polyMesh/sets/concaveCells` that raised
+    ValueError -- the header's brace structure is not what the heuristic assumed.
+    A parser that guesses at a header is the same class of error as a comparator
+    that guesses at a window.  This one BRACE-MATCHES the FoamFile block, so it
+    does not care what is inside it, and it REFUSES if the declared element count
+    and the parsed count disagree.
+    """
     txt = open(path).read()
-    i = txt.rindex(")")
-    j = txt.index("(", txt.index("FoamFile"))
-    j = txt.index("(", txt.index("}", j))
-    return np.fromstring(txt[j + 1:i].replace("\n", " "), sep=" ", dtype=float).astype(np.int64)
+    i = txt.index("FoamFile")
+    j = txt.index("{", i)
+    depth = 0
+    for k in range(j, len(txt)):
+        if txt[k] == "{":
+            depth += 1
+        elif txt[k] == "}":
+            depth -= 1
+            if depth == 0:
+                break
+    body = txt[k + 1:]
+    lo = body.index("("); hi = body.rindex(")")
+    vals = np.fromstring(body[lo + 1:hi].replace("\n", " "), sep=" ", dtype=float)
+    m = re.search(r"(\d+)\s*\(", body[:lo + 1])
+    if m is not None and int(m.group(1)) != len(vals):
+        sys.stderr.write(f"REFUSED: {path} declares {m.group(1)} entries and "
+                         f"{len(vals)} were parsed.\n"); sys.exit(2)
+    return vals.astype(np.int64)
 
 
 def boundary_patches(path):

@@ -1,0 +1,118 @@
+{
+  "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/L1",
+  "level": "L1",
+  "rule3_plant_count": {
+    "PLANT_N": 13,
+    "returned": 13,
+    "excluded_window_returned": 0,
+    "verdict": "ARMED"
+  },
+  "rule3_plant_area": {
+    "PLANT_AREA": 7.0,
+    "returned": 0.7,
+    "expected": 0.7,
+    "empty_mask_returned": 0.0,
+    "verdict": "ARMED"
+  },
+  "n_cells_parsed": 10618259,
+  "cell_sizes_m": {
+    "base": 0.0787,
+    "hull_surface": 0.00491875,
+    "sail_surface": 0.0012296875,
+    "fin_surface": 0.0012296875,
+    "sail_TE_box": 0.0001537109375,
+    "fin_TE_box": 0.0001537109375
+  },
+  "fins": {
+    "fin000_upper_rudder": {
+      "azimuth_deg": 0.0,
+      "RM1_cells_across_the_appendage_root_RATIO": 86.15212139759032,
+      "RM1_floor": 16,
+      "RM1_root_full_thickness_m": 0.046470454281866996,
+      "RM1_measured_chordwise_cell_spacing_m": 0.0005394000000000787,
+      "RM2_count_across_root_TE_base": 8,
+      "RM2_floor": 8,
+      "RM3_count_along_exposed_span": 57,
+      "RM3_floor": 24,
+      "n_cells_in_RM1_band": 156663
+    },
+    "fin090_horizontal": {
+      "azimuth_deg": 90.0,
+      "RM1_cells_across_the_appendage_root_RATIO": 60.023836582128,
+      "RM1_floor": 16,
+      "RM1_root_full_thickness_m": 0.046470454281866996,
+      "RM1_measured_chordwise_cell_spacing_m": 0.0007741999999997251,
+      "RM2_count_across_root_TE_base": 16,
+      "RM2_floor": 8,
+      "RM3_count_along_exposed_span": 57,
+      "RM3_floor": 24,
+      "n_cells_in_RM1_band": 313131
+    },
+    "fin180_lower_rudder": {
+      "azimuth_deg": 180.0,
+      "RM1_cells_across_the_appendage_root_RATIO": 86.15212139759032,
+      "RM1_floor": 16,
+      "RM1_root_full_thickness_m": 0.046470454281866996,
+      "RM1_measured_chordwise_cell_spacing_m": 0.0005394000000000787,
+      "RM2_count_across_root_TE_base": 8,
+      "RM2_floor": 8,
+      "RM3_count_along_exposed_span": 57,
+      "RM3_floor": 24,
+      "n_cells_in_RM1_band": 156770
+    }
+  },
+  "Q1_concave_area_share": {
+    "hull": {
+      "faces": 130868,
+      "concave_owner_faces": 1960,
+      "cell_share_of_faces": 0.014976923312039613,
+      "Q1_AREA_share": 0.005366797933202894,
+      "patch_area_m2": 2.9720343337269557
+    },
+    "sail": {
+      "faces": 83301,
+      "concave_owner_faces": 433,
+      "cell_share_of_faces": 0.005198016830530246,
+      "Q1_AREA_share": 0.005551221780056578,
+      "patch_area_m2": 0.09191461333339922
+    },
+    "fin000_upper_rudder": {
+      "faces": 43757,
+      "concave_owner_faces": 2058,
+      "cell_share_of_faces": 0.04703247480403135,
+      "Q1_AREA_share": 0.030372446437020518,
+      "patch_area_m2": 0.02735304788623556
+    },
+    "fin090_horizontal": {
+      "faces": 87514,
+      "concave_owner_faces": 4129,
+      "cell_share_of_faces": 0.04718102246497703,
+      "Q1_AREA_share": 0.0302590675113128,
+      "patch_area_m2": 0.054705716771734705
+    },
+    "fin180_lower_rudder": {
+      "faces": 43757,
+      "concave_owner_faces": 2058,
+      "cell_share_of_faces": 0.04703247480403135,
+      "Q1_AREA_share": 0.030571482488449413,
+      "patch_area_m2": 0.027353049258078403
+    },
+    "ALL_GRADED_WALLS": {
+      "Q1_AREA_share": 0.006234050849696781,
+      "area_m2": 3.1733607609764034
+    }
+  },
+  "layer_table": {
+    "rows": {},
+    "notes": []
+  },
+  "checkMesh": {
+    "cells": 10618259.0,
+    "max_non_orthogonality": 69.96064,
+    "max_skewness": 3.2686753,
+    "max_aspect_ratio": 12.319407,
+    "concave_cells": 262976,
+    "failed_checks_line": "Failed 4 mesh checks."
+  },
+  "NOTE": "RM1 is a RATIO (numerator = source geometry, denominator = MEASURED cell spacing).  RM2 and RM3 are COUNTS and carry the rule-3 plant.  Q1 is an AREA share, not a cell share.  Measured from a SCRATCH COPY; the graded tree was not written to.  The gate verdict is the cfd-supervisor's."
+}

@@ -1646,3 +1646,201 @@ source-corroboration checks match within 0.1 mm** on the new geometry.
 is disclosed rather than removed: the residual 6.354 % of fin area is the **flat tip cap**
 (departure D2), and the TE-box rows are the **flat truncated trailing-edge ribbon** (departure
 D1). Both are planes, and a plane triangulated with long edges is exact.
+
+---
+---
+
+# ADDENDUM 8 — 2026-09-13 — **§11's MEASURED MESH ROW, FILLED FROM THE BUILT L1** — AND THE HEADLINE QUALITY NUMBER IS THE DICTIONARY, NOT THE MESH
+
+**Appended at the foot. Lines whose number changed above this section: 0.**
+**AMENDMENT CONDITION (rule 2), CHECKED:** `SOLVE_A*` absent, no queue entry, no solver run.
+This discharges MESH_STANDARD §8.1 with a **measured** row, which is what §4.4 said it would wait for.
+
+**THE BUILD.** `rc = 0`, `snappyHexMesh_rc = 0`, `reconstructParMesh_rc = 0`, wall 2,980 s at 16
+ranks = **794.67 core-min MEASURED**, finished 2026-09-12T23:55:16Z.
+**10,618,259 cells · 32,673,530 faces · 11,456,786 points.**
+
+## A8.1 🔴 THE 69.96 IS THE DICTIONARY REPORTING ITS OWN CONTENTS BACK
+
+`Mesh non-orthogonality Max: 69.96064` against a 70° gate is **0.04° under**, and the
+cfd-supervisor was right to attack it before anything else. **Read out of the dictionary that
+produced it:**
+
+```
+meshQualityControls { maxNonOrtho 65; ... relaxed { maxNonOrtho 70; minDeterminant 0.001; } }
+```
+
+> **THE RELAXED CONSTRAINT IS EXACTLY 70, AND `snappyHexMesh` ENFORCES IT by backing off
+> displacement until it is met. So "max non-orthogonality 69.96, inside the 70° standard" IS NOT
+> A QUALITY RESULT. It is the mesher achieving the bound it was given, to within 0.06 % of it.**
+> Putting that number on a certificate as evidence of mesh quality would be circular, and it
+> would read exactly like evidence.
+
+**THE HONEST STATEMENT:** the mesher was constrained to **65° in the strict pass and 70° in the
+relaxed pass, and achieved 69.96°.** **The quality claim that survives is about the
+DISTRIBUTION, not the maximum: `average non-orthogonality 9.8770`**, which no dictionary entry
+bounds and which is a genuinely good number.
+
+**THE SAME QUESTION, ASKED OF SKEWNESS, GETS A DIFFERENT AND BETTER ANSWER.** Achieved max
+skewness **3.2687** against the standard's gate of 4.
+- Internal faces were constrained at `maxInternalSkewness 3.5`; 3.2687 is **7 % under** its own
+  constraint, not 0.06 % under. A real margin.
+- Boundary faces were constrained only at `maxBoundarySkewness 20` — **looser than the
+  standard's 4** — so on the patches where forces are integrated, **nothing stopped skewness
+  from reaching 20 and it did not exceed 3.27.** That number is **free**.
+- **DISCLOSED:** MESH_STANDARD §3.2 says the lab enforces 4 on boundary faces as well. **This
+  dict does not** — it inherits SUBOFF_A1's `20`. The mesh passes the gate on its **measured**
+  value; it was not held there by the dict.
+
+## A8.2 THE GATED ROW
+
+| quantity | gate | **MEASURED** | verdict |
+|---|---|---|---|
+| max non-orthogonality (reported maximum, §14) | ≤ 70° | **69.96064** | inside — **but see §A8.1: bounded by the dict** |
+| average non-orthogonality | not gated | **9.8770** | the real quality finding |
+| max skewness | ≤ 4 | **3.2686753** | inside, and **free on boundary faces** |
+| max aspect ratio | advisory 1000 | **12.3194** | far inside |
+| max cell openness | — | **4.357 × 10⁻¹⁶** | machine precision |
+| min cell volume | > 0 | **1.166 × 10⁻¹³ m³** | positive |
+
+**`checkMesh` reports "Failed 4 mesh checks."** Per §14 that line is **not** the verdict; the
+four are itemised and located below.
+
+## A8.3 THE FOUR FAILED CHECKS — THREE ARE TINY AND SIT ON KNOWN GEOMETRIC SINGULARITIES
+
+| check | count | fraction | **located** |
+|---|---|---|---|
+| face tets, low quality / negative volume | **17 faces** | 5.2 × 10⁻⁷ of faces | — |
+| cells with determinant < 0.001 | **15 cells** | 1.4 × 10⁻⁶ of cells | **see below** |
+| faces with interpolation weight < 0.05 | **8 faces** | 2.4 × 10⁻⁷ of faces | — |
+| **concave cells (face planes)** | **262,976** | **2.477 % of cells** | §A8.5 |
+
+**The 15 small-determinant cells, located rather than excused** — every one sits on a feature
+this geometry is known to make hard:
+
+- `(3.9986, ±0.08534, +0.00388)`, radius **0.08542 m** — **the fin ROOT at the TRAILING EDGE**
+  (root radius 0.082685 m, fin TE at 4.00622 m), on `fin000` and `fin180`, in a symmetric pair.
+- `(3.8065…3.8091, ±0.003…0.009, +0.1509…0.1522)` — **the fin LEADING EDGE at mid-span** on
+  `fin090`, where `z ∝ √ξ` gives **infinite curvature by construction**.
+- The set's forward extreme, x = 1.2738 m, is at the **sail trailing edge** (1.29091 m).
+
+**Fin root/TE junction, fin leading edge, sail trailing edge. Three singularities, fifteen
+cells, one part in seven hundred thousand.**
+
+## A8.4 LAYERS — **AND THE FINS ARE THE WORST-LAYERED SURFACES IN THE MESH**
+
+| patch | faces | requested | **achieved layers** | near-wall | overall | **COVERAGE** |
+|---|---|---|---|---|---|---|
+| `hull` | 130,868 | 6 | **5.4** | 0.853 mm | 8.18 mm | **91.5 %** |
+| `sail` | 83,301 | 6 | **5.87** | 0.183 mm | 1.80 mm | **98.1 %** |
+| `fin000_upper_rudder` | 43,757 | 6 | **4.8** | 0.121 mm | 1.07 mm | **87.2 %** |
+| `fin090_horizontal` | 87,514 | 6 | **4.8** | 0.122 mm | 1.07 mm | **87.2 %** |
+| `fin180_lower_rudder` | 43,757 | 6 | **4.8** | 0.121 mm | 1.07 mm | **87.2 %** |
+
+**ACHIEVED GROWTH RATIO = 1.200, EXACTLY THE REGISTERED `expansionRatio`, ON EVERY PATCH.**
+Checked, not assumed: for 6 layers at r = 1.2, overall/near-wall = (1.2⁶ − 1)/0.2 = **9.9299**.
+Hull 8.470/0.853 = 9.930. Sail 1.817/0.183 = 9.93. Fins 1.201/0.121 = 9.93.
+
+> 🔴 **THE FINS CARRY THE GRADED QUANTITY AND THEY ARE THE WORST-LAYERED SURFACES IN THE MESH:
+> 4.8 layers of 6 at 87.2 % coverage.** The hull+sail body reached **99.0 %** and **98.2 %**.
+> **AND THIS MESH'S HULL IS WORSE THAN THAT BODY'S TOO — 91.5 % against 99.0 % on the SAME,
+> BYTE-IDENTICAL hull STL.** Adding the appendages degraded the hull's own layer coverage by
+> 7.5 points.
+>
+> **WHAT 87 % COVERAGE MEANS BEFORE ANYONE GRADES A NORMAL-FORCE DERIVATIVE:** one fin face in
+> eight has **no full prism stack**, so its wall shear and near-wall pressure are computed on a
+> cell whose wall-normal resolution is not the one the ladder registered. `Z` and `M` are
+> **integrals over exactly those faces.** This does not disqualify the mesh; it sets what its
+> fin forces can be claimed to mean, and it must be printed beside them.
+
+**THE MESH CONFIRMS THE SYMMETRY ARGUMENT ON ITS OWN:** `fin090` has **87,514** faces and
+`fin000` and `fin180` have **43,757** each — **exactly half, to the face.** The fins lying in
+`z = 0` are bisected by the symmetry plane and the fin standing out of it is whole, which is
+§A5.3's measurement reproduced by an instrument that knows nothing about it.
+
+## A8.5 THE CONCAVE POPULATION — §5's PREDICTIONS, GRADED
+
+Registered in §5 **before the mesh existed**. Measured now, with the rule-3 plants armed:
+
+| | **cell share** | **Q1 = AREA share** | ratio |
+|---|---|---|---|
+| `hull` | 1.498 % | **0.537 %** | cell overstates **2.8 ×** |
+| `sail` | 0.520 % | **0.555 %** | 0.94 × |
+| `fin000_upper_rudder` | 4.703 % | **3.037 %** | 1.55 × |
+| `fin090_horizontal` | 4.718 % | **3.026 %** | 1.56 × |
+| `fin180_lower_rudder` | 4.703 % | **3.057 %** | 1.54 × |
+| **all graded walls** | — | **0.623 %** | — |
+| whole mesh | 2.477 % | — | — |
+
+**PREDICTION 1 — the population is present at this level. CONFIRMED** (262,976 cells).
+
+**PREDICTION 3 — denser on the fins than on the hull. CONFIRMED, and by a wide margin:**
+3.03 % against 0.537 % by area, **5.7 ×**.
+
+**PREDICTION 2 — ≥ 90 % of concave cells sit on a refinement jump. NOT MEASURED, AND THE REASON
+IS MY OWN INSTRUMENT CHOICE.** `writeFlags (noRefinement)` in the snappy dict **suppresses
+`cellLevel`**, so the built mesh does not carry the per-cell refinement level the prediction is
+stated in. **It is recorded as NOT MEASURED, not as unconfirmed and not quietly dropped.** The
+fix for the graded family is to drop that flag; it costs two small files.
+
+**A1b's REGISTERED PREDICTION, TESTED ON A THIRD BODY.** `SUBOFF_A1b_CONCAVE_FORCE_SHARE`
+(frozen `bc73dc0ca`) predicted **Q1 ≈ 0.7 %, within a factor of two, i.e. 0.35–1.4 %.**
+**Measured here across all graded walls: 0.623 %. INSIDE THE BAND.** On the hull alone,
+0.537 % — also inside. **A prediction made on the hull+sail body, confirmed on the appended one.**
+
+> 🔴 **AND THE FINS ARE AT 3.03–3.06 %, WHICH IS ON THE WRONG SIDE OF A1b's OWN MATERIALITY
+> THRESHOLD.** A1b's fixed bands: `F ≤ 1.0 %` closed; `1.0 < F ≤ 3.0 %` disclosed with the
+> number beside every force; **`F > 3.0 %` MATERIAL — forces REPORTED, NOT GRADED.**
+> `Q1` is the mesh-side predictor, and **A1b's directional prediction is `F > Q1`.** With
+> `Q1 = 3.03 %` on the fins **before a solve has run**, the fin forces on this mesh are pointed
+> at the MATERIAL band on the very surfaces Sanaa's sweep grades. **`F = max(Q2, Q3)` is
+> unmeasured until a converged solve exists and is not asserted here.**
+
+**THE CELL-VERSUS-AREA FACTOR, MEASURED AND SMALLER THAN THE ONE I WAS BRIEFED.** The brief said
+the two differ by more than a factor of twelve. **On this body they differ by 2.8 × on the hull,
+1.55 × on the fins, and 4.0 × comparing the whole-mesh cell share to the graded-wall area share.
+The DIRECTION is confirmed; the MAGNITUDE is not, and the measured figure is reported rather
+than the briefed one.**
+
+## A8.6 THE ROOT METRICS — SANAA'S NAMED CHECK, LIVE FOR THE FIRST TIME
+
+Definitions fixed in §4.3 **before the mesh was built**. Rule-3 plants armed before any mesh was
+read: the counting function returns the planted 13 and returns 0 for a window excluding it; the
+area function returns the planted 0.75.
+
+| | **RM1** cells across the appendage root (ratio) | **RM2** count across the root TE base | **RM3** count along the exposed span |
+|---|---|---|---|
+| floor | **≥ 16** | **≥ 8** | **≥ 24** |
+| `fin000_upper_rudder` | **86.2** | **8** (half-model) → **16** full | **57** |
+| `fin090_horizontal` | **60.0** | **16** | **57** |
+| `fin180_lower_rudder` | **86.2** | **8** (half-model) → **16** full | **57** |
+
+**ALL THREE METRICS CLEAR THEIR FLOORS ON ALL THREE FINS.**
+
+> **THE FACTOR OF TWO IN RM2 IS THE HALF MODEL AND NOT A RESULT, AND IT IS REPORTED BOTH WAYS
+> BECAUSE A READER GIVEN ONE CANNOT TELL A CONVENTION ERROR FROM A MEASUREMENT.** `fin000` and
+> `fin180` lie **in** the symmetry plane, so only half of each one's trailing-edge base thickness
+> is inside the domain and the raw count is halved. `fin090` stands **out** of the plane and is
+> whole. **Full-base-equivalent: 16 on all three fins — consistent, and 2 × the floor.** The
+> raw 8 sits exactly **at** the floor and would have read as a bare pass to anyone who did not
+> know which fins the plane cuts.
+
+**RM1 differs between the bisected fins (86.2) and the whole one (60.0)** because its denominator
+is the **measured** chordwise cell spacing in the root band, and the bands differ: the bisected
+fins' root bands lie against the symmetry plane. Both are far above the floor of 16 and the
+difference is reported rather than averaged away.
+
+## A8.7 WHAT THIS MESH IS, STATED AS ONE SENTENCE FOR WHOEVER GRADES ON IT
+
+**A 10.6 M-cell half model whose bulk quality is good (average non-orthogonality 9.88, aspect
+ratio 12.3, skewness free at 3.27), whose maximum non-orthogonality is the dictionary's own
+relaxed bound and not a measurement, and which carries TWO INDEPENDENT LIMITATIONS ON EXACTLY
+THE SURFACES THAT CARRY SANAA'S GRADED QUANTITY: the fins are tessellation-limited at 1.9 × the
+local cell (§A7.4) and layer-limited at 87.2 % coverage with 4.8 of 6 layers (§A8.4), and their
+concave area share of 3.03 % sits above A1b's 3.0 % materiality threshold before a solve has run
+(§A8.5).**
+
+**Neither limitation disqualifies the mesh. Together they fix what an L1 fin force may be
+claimed to mean, and all three numbers must be printed beside any `Z`, `M`, `Z_w'` or `M_w'`
+taken from it.** The corrected-fin family of §A7.4 exists precisely so the graded sweep does not
+have to inherit the first two.
