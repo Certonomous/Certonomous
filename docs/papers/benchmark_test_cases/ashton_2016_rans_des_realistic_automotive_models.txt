@@ -1,0 +1,1469 @@
+                                                                          The University of Manchester Research
+
+
+
+
+Assessment of RANS and DES methods for realistic
+automotive models
+DOI:
+10.1016/j.compfluid.2016.01.008
+
+
+Document Version
+Accepted author manuscript
+
+
+Link to publication record in Manchester Research Explorer
+
+
+Citation for published version (APA):
+Ashton, N., West, A., Lardeau, S., & Revell, A. (2016). Assessment of RANS and DES methods for realistic
+automotive models. Computers and Fluids, 128, 1-15. https://doi.org/10.1016/j.compfluid.2016.01.008
+
+
+Published in:
+Computers and Fluids
+
+
+Citing this paper
+Please note that where the full-text provided on Manchester Research Explorer is the Author Accepted Manuscript
+or Proof version this may differ from the final Published version. If citing, it is advised that you check and use the
+publisher's definitive version.
+
+
+General rights
+Copyright and moral rights for the publications made accessible in the Research Explorer are retained by the
+authors and/or other copyright owners and it is a condition of accessing publications that users recognise and
+abide by the legal requirements associated with these rights.
+
+
+Takedown policy
+If you believe that this document breaches copyright please refer to the University of Manchester’s Takedown
+Procedures [http://man.ac.uk/04Y6Bo] or contact openresearch@manchester.ac.uk providing relevant details, so
+we can investigate your claim.
+
+
+
+
+Download date:13. Sep. 2026
+       Assessment of RANS and DES methods for realistic automotive models
+
+                                           N. Ashtona , A. Westb , S. Lardeaub , A. Revella
+            a Modelling & Simulation Centre, School of Mechanical, Aerospace & Civil Engineering, University of Manchester, U.K
+                                                        b CD-adapco, London, U.K
+
+
+
+
+Abstract
+
+This paper presents a comprehensive investigation of RANS and DES models for the Ahmed car body and a realistic
+automotive vehicle; the DrivAer model. A variety of RANS models, from the 1-equation Spalart Allmaras model
+to a low-Reynolds number Reynolds Stress model have shown an inability to consistently correctly capture the flow
+field for both the Ahmed car body and DrivAer model, with the under-prediction of the turbulence in the initial
+separated shear layer found as a key deficiency. It has been shown that the use of a hybrid RANS-LES model (in
+this case, Detached Eddy Simulation) offers an advantage over RANS models in terms of the force coefficients, and
+general flow field for both the Ahmed car body and the DrivAer model. However, for both cases even at the finest
+mesh level hybrid RANS-LES methods still exhibited inaccuracies. Suggestions are made on possible improvements,
+in particular on the use of embedded LES with synthetic turbulence generation. Finally the computational cost of
+each approach is compared, which shows that whilst hybrid RANS-LES offer a clear benefit over RANS models for
+automotive relevant flows they do so at a much increased cost.
+Keywords:
+Hybrid RANS-LES, DDES, Ahmed Body, DrivAer, RANS, Separated Flow, Automotive
+
+
+
+1. Introduction
+
+    Computational Fluid Dynamics (CFD) has become one the main design tools for the external aerodynamic design
+of modern day vehicles. The computational resources necessary for these simulations has become more affordable,
+and commercial software is now sophisticated enough to handle the often complex geometries that are common in
+automotive design. For typical automotive configurations a separated wake flow exists behind the car body, which
+has a major impact on the drag and fuel efficiency of the vehicle. Whilst there are other important areas around and
+within the car, the ability of a CFD simulation to capture this recirculation region is largely a function of the predictive
+capability of the turbulence model. For this work, a comparison is made between Reynolds Averaged Navier-Stokes
+(RANS) models (at both eddy-viscosity and second-moment closure levels) and hybrid RANS-LES methods (for
+this work, Detached Eddy Simulation (DES)). RANS methods assume that the entire spectrum of turbulence can be
+
+
+    Email address: neil.ashton@manchester.ac.uk (N. Ashton)
+
+Preprint submitted to Computers & Fluids                                                                                  October 27, 2015
+modelled by a set of transport equations which arise from decomposing the turbulence into a mean and fluctuating
+component around this mean. The result of this decomposition is an additional term in the Navier-Stokes equation,
+named the Reynolds Stress tensor. This term requires additional modelling to close the set of equations. Whilst this
+approach has a certain level of empiricism, it is also based on key physical mechanisms observed in canonical flows,
+and thus aim to model the turbulence at a much lower cost than higher fidelity methods such as Large Eddy Simulation
+(LES). Hybrid RANS-LES methods attempt to provide a compromise between accuracy and computational expense
+by only using LES in regions of flow which are challenging to RANS models (such as separated flow) but then use
+RANS models elsewhere. Compared to a wall-resolved LES this results in a significant saving of computational
+resources.
+   Until recently, most validation work for turbulence models in the automotive sector was confined to simple au-
+tomotive models such as the Ahmed car body [1, 2] or MIRA/SAE Reference bodies. These bodies resemble a car
+in terms of their broad aerodynamic features, but miss some of the features of a complete automotive model. Whilst
+different turbulence models have been evaluated on full-car models, these are often internal studies that cannot be
+published for confidentiality reasons, and cannot be verified by other groups because of the control on geometry and
+experimental data.
+   This work aims to assess the capability of the current state of the art RANS and hybrid RANS-LES models (in this
+work, DES) for automotive relevant test cases. The desired outcome is to provide industrial users with the information
+to make informed choices of whether to use RANS or hybrid RANS-LES approaches, both in terms of their accuracy
+and computational expense.
+   In this paper the Ahmed car body, a well established automotive test case that combines geometric simplicity with
+a comprehensive set of experimental data and prior numerical simulations is firstly studied to provide information
+on the performance of both RANS and hybrid RANS-LES models. Finally, a realistic car model is evaluated to
+assess whether the conclusions from the Ahmed car hold true for a complete vehicle and also to assess the predictive
+capability of these different turbulence modelling approaches for a realistic car model. For this we evaluate the
+DrivAer automotive model [3, 4], a recent effort by TUM and Audi/BMW to produce an open-source car model based
+closely on realistic complete car geometries with openly available experimental data. The ultimate aim of this paper is
+to bring together both academic and industrial type studies to make conclusions that can be relevant to the automotive
+industry.
+   This paper is structured as follows. Section 2 outlines the turbulence models and approaches used in this study,
+including information on the validation procedure for the hybrid RANS-LES models. Section 3 provides information
+the two test cases studied in this paper, including information on the computational grid, boundary condition and
+numerical schemes in use. In Section 4 the results for the two test cases are presented, using both RANS and hybrid
+RANS-LES methods. In this section, there is also an analysis of the computational expense of each approach as
+well as discussion on possible improvements. Finally Section 5 provides the main conclusions from this work and
+suggestions for further work.
+                                                          2
+2. Turbulence models
+
+   In this paper, a variety of turbulence modelling approaches are assessed. These models represent some of the most
+popular RANS models as well as variants of the popular DES approach (as shown in Table 1). One of the central aims
+of this work is to assess the current state-of-the art RANS models against one of the most well validated and popular
+hybrid RANS-LES models; DES. Whilst this work cannot claim to be fully comprehensive, it represents the range of
+models typically found in the majority of CFD codes (both commercial and open source) and therefore provides an
+assessment of the current state-of-the-art RANS and DES models for automotive related flows.
+   The authors chose DES to represent the hybrid RANS-LES models as this is the model largely in use by the
+automotive industry in finite-volume solvers.
+
+                                     RANS Models                                    Hybrid RANS-LES models
+                               Spalart Allmaras (SA) [5]                                  SST-DDES [6]
+                               Realizable k − ε (RKE) [7]                                 SST-IDDES [8]
+                                  k − ω SST (SST) [9]                                     SA-DDES [6]
+                     Elliptic Blending k − ε v2 − f (B-EVM) [10]                          SA-IDDES [11]
+                Elliptic Blending Reynolds Stress Model (EB-RSM) [12]
+
+
+                                          Table 1: Turbulence models used in this study
+
+
+   The principle behind hybrid RANS-LES methods is that a traditional wall-resolved LES is too expensive for
+complex high-Reynolds number flows that are influenced by near-wall effects. By applying a RANS model in the
+boundary layer and using LES outside of this region, the total cell count can by greatly reduced as RANS models do
+not require the same level of grid resolution in the boundary layer. A comprehensive review of hybrid RANS-LES
+methods can be found in Frohlich et al. [13], but in this study one particular method is used: DES [6]. This method
+has become increasingly popular due to its ease of implementation and demonstrated performance for a range of
+applications.
+   DES can be seen as a RANS model which performs as a LES sub-grid scale model in regions where the grid is
+fine enough to support LES content and as a standard RANS models where the grid is not. In this study we investigate
+both standard DDES [6] as well as the variant, IDDES [11], which aims to improve some of the shortcomings of
+DDES and add a wall-modelled LES capability. Readers are advised to read the doctoral thesis of Mockett [14] for a
+comprehensive explanation of DES models and its variants.
+
+
+2.1. Validation of DES - Decaying Isotropic Turbulence
+
+   Each DES formulation is validated using Decaying Isotropic Turbulence (DIT) to ensure the correct energy decay
+and validate the model constants. Whilst this is a simple, idealised test case, it is a useful first case to ensure correct
+
+                                                               3
+levels of dissipation before moving to more complex cases. This is particularly important for commercial CFD codes
+which tend to have many numerical options (both default and user selectable). The solution domain of the DIT
+calculation is cubic with length 2π. The solution domain is meshed with three grids consisting of 323 , 643 & 1283
+cubic and equidistant cells. Periodic boundary conditions are imposed in each direction. The initial velocity field
+is set with a suitable instance of isotropic turbulence from the Wray [15] DNS data from the AGARD database. In
+order to obtain the initial values for other variables such as the pressure and turbulence quantities (k & ε etc), a frozen
+velocity field simulation was conducted, the turbulence variables are solved, which once converged were used as
+initial conditions for the unsteady decay of turbulence simulation.
+    Calculations were performed with the commercial finite-volume code STAR-CCM+, developed by CD-Adapco.
+Additional simulations were conducted using the open-source finite-volume Code Saturne [16] developed by EDF
+R&D.
+    The temporal discretization is 2nd order, and a fully centred 2nd order scheme is used to spatially discretise the
+momentum convective terms unless otherwise stated. A 2nd order upwind scheme is applied to the turbulent quantities.
+    Figures 1(a) & 1(b) show the value of the model constant C DDES (which can be seen as an equivalent to the
+Smagorinsky constant in LES) for each model using the 323 , 643 & 1283 grids. The C DDES values were selected to
+give the appropriate level of dissipation for each model, although with a constant C DDES value it is not possible to
+match the DNS data for every mesh resolution. These values agree with the calibrated values from Ashton et al. [17]
+as well as those observed by many partners in the EU project ATAAC (Advanced Turbulence Simulation Approaches
+for the Aerospace Community) [18].
+    Additionally, a 2nd order upwind scheme and a blended central difference scheme were used to illustrate the
+importance of using a numerical scheme with low numerical dissipation (Figure 1(c)). It can be seen that using any
+scheme other than the fully central scheme gives too much numerical dissipation. This can lead to an over-prediction
+of the separation region for such cases as the 2D wall-mounted hump [17] and the Ahmed car body [19].
+
+
+      10−2                                           10−2                                            10−2
+
+
+   E(κ)                                           E(κ)                                            E(κ)
+      10−3                                           10−3                                            10−3
+               Exp.                                           Exp.                                            Exp.
+               CDDES = 0.65 (323 )                            CDDEs = 0.61 323                                CDS
+               CDDES = 0.65 (643 )                            CDDES = 0.61 643                                CDS/UDS
+                                 3
+               CDDES = 0.65 (128 )                            CDDES = 0.61 1283                               2nd UDS
+      10−4 0                                         10−4 0                                          10−4 0
+         10                          101    102         10                            101   102         10                    101         102
+                                     κ                                                κ                                       κ
+
+                               (a)                                           (b)                                        (c)
+
+Figure 1: (a) Calibration of the C DDES constant using Decaying Isotropic Turbulence for the SA-DDES model (b) Calibration of the C DDES constant
+using Decaying Isotropic Turbulence for the SST-DDES model, (c) Numerical scheme sensitivity study using Decaying Isotropic Turbulence for
+the SA-DDES model
+
+
+
+                                                                                  4
+3. Test Case Descriptions
+
+3.1. Ahmed Car Body
+
+      The Ahmed car body [1][2] represents a generic car geometry with a slanted back and a flat front and has been
+extensively tested in the literature [20, 21, 22, 23, 24]. While it is a much simplified version of a real car, it nevertheless
+provides many of flow features found in real-life cars such as the complex vortex interactions that occur in its wake and
+the large 3D separation region behind the car body itself. The wake behind the car body is a result of the interaction
+between the counter-rotating vortices produced by the slant side edges and the separated flow over the rear of the
+body (Figure 2(a)). The angle of the slant back section was found to be influential in the structure of the wake and
+the reattachment point. At 35o the counter-rotating vortices are weaker, which results in the flow being completely
+separated over the entire slant back of the vehicle. At 25o the counter-rotating vortices are strong enough to help to
+bring enough momentum into the separation region to reattach the flow half way down the slant back.
+      This case has been the focus of several CFD investigations [20, 21, 22, 25, 26, 27, 19] where a range of RANS, LES
+and hybrid RANS-LES models were investigated. The general conclusions from the studies involving RANS models
+[20, 21, 25, 27, 19] were dependant on the slant angle. At 35o (where the separation occurred along the entire slant
+back) most of the RANS approaches (both simple linear k − ε and more complex Reynolds stress models) captured
+the correct level of the turbulent stresses and, as a result, showed good agreement with the experimental results for
+the separation and reattachment points. However at 25o (where the complex interaction between the counter-rotating
+vortices and the separated flow results in a shorter separation region) the majority of RANS models,regardless of mesh
+refinement or wall treatment, failed to predict the flow correctly. In general, they either failed to predict separation
+completely, or even when they did, they did not predict the correct separation point and thus were unable to capture
+the correct size of the recirculation region due to an under-prediction of the turbulent stresses [22].
+      More recently, a number of LES & DES studies have been performed on this case, mainly at the more challenging
+  o
+25 slant angle [22, 28, 29, 30, 26, 31, 32, 27, 19]. These studies were performed with a range of sub-grid scale
+models and wall-treatments and, while some were more successful than others, many failed to capture fully the
+correct recirculation region. The high-Reynolds number (Re = 7.68 × 105 ) meant that even with meshes of up to 48
+million cells, the resolution requirements were still not ideal for a wall-resolved LES.
+
+
+3.1.1. Computational grid and boundary conditions
+      The car body was mounted on four stilts z/H = 0.174 (where H = 0.288m is the height of the body) above the
+ground in the experiment to model the effect of the car’s height with wheels (and thus capture the important ground
+effect). Both the 25o and 35o slant back angles have been investigated in this study to assess the capability of each
+model to capture the important changes in flow physics and separation size & strength. The body has a length of
+L/H = 3.625, a height of H and a width of W/H = 1.35. The flow is at a Reynolds number of Re = 768, 000
+based on the body height H and the free-stream velocity U∞ = 40ms−1 . For both cases, an inlet condition is imposed
+
+                                                              5
+                                                         2                                                         E. Serre et al. / Computers & Fluids xxx (2011) xxx–xxx
+
+
+
+
+                                                             Fig. 1. Side, rear and top view of the Ahmed body together with the coordinate system used. Distances are in mm. The slant angle u = 25! in the current analysis.
+
+
+
+                                    (a)                                                                                                    (b)
+                                                         experiments with the same body and recovered the general obser-                         hardly be met. This can impact the resolved turbulent motion in
+                                                         vations of Ahmed. This study provided well-defined LDA measure-                         the shear layer and deteriorate the solution quality.
+                                                         ments of mean velocity fields and turbulence statistics at                                  For this reason, hybrid LES/RANS methods have been applied as
+                             Figure 2: (a) Ahmed car body flow physics and (b) Ahmed car body dimensions
+                                                         Re = 768,000 that are used as reference in the present study.                           well to this flow. The overall strategy with such an approach is to
+                                                             In the literature, a certain number of studies are now available                    model the attached turbulent boundary layer in RANS manner
+                                                         for the two angles 25! and 35! of the rear slanted surface using                        while LES-type resolution of the large-scale turbulent wake is at-
+                                                         different turbulence modeling approaches. Several of these em-                          tempted. Several concepts of hybridization between LES and RANS
+                                                         ployed Reynolds-Averaged Navier–Stokes (RANS) models such as                            exist, as detailed in [8]. In particular, one can distinguish between
+                                                         [10,6,4,29,12]. A review on this topic by F. Menter can be found in                     segregated approaches, where a sharp interface between a steady
+                                                         [25]. The cited studies used a large variety of two-equation models,                    RANS and an unsteady LES is used so that the computed solution
+at x/H = −7.3 upstream of the body and an outlet condition is imposed x/H = 20.3 downstream. A no-slip wall
+                                                         from the standard K ! ! model with wall-function to the K ! x ap-
+                                                         proaches including an algebraic treatment of the Reynolds tensor
+                                                                                                                                                 is discontinuous there, and unified approaches where the com-
+                                                                                                                                                 puted solution is continuous throughout. The latter inevitably
+                                                         (EARSM), and also more sophisticated Reynolds Stresses Models.                          leads to a gray zone between the LES and the RANS region. The
+
+condition is imposed on the ground floor and car body, with slip conditions applied to the wind tunnel walls (z/H = 4.8
+                                                         The overall conclusion is that while the simulations were relatively
+                                                         successful in predicting the 35! case, they did not provide satisfac-
+                                                                                                                                                 most prominent unified hybrid approach is Detached Eddy Simula-
+                                                                                                                                                 tion (DES) proposed by Spalart et al. [39]. Indeed, the DES of Men-
+                                                         tory results for the 25! case. Indeed, for u = 25! the shear due to                     ter and Kuntz [29,30] and Kapadia et al. [20] show globally much
+                                                         the partial detachment of the flow on the upper part of the slant pro-                  better results than the ones provided by RANS approaches. They
+above and y/H = 3.1 to the side walls). Inlet turbulence levels were found to be largely insensitive due to the large
+                                                         vides small scale structures, related to a Kelvin–Helmholtz instabil-
+                                                         ity, which significantly increase the momentum transfer across the
+                                                                                                                                                 resolve in particular for u = 25! the vortical structures in the wake
+                                                                                                                                                 as well as in the shear layer between the freestream and the recir-
+                                                         mean streamlines and enhance the three-dimensionality as well as                        culation but do not recover the partial detachment on the slant.
+
+distance between the inlet and car body, thus the turbulent intensity was set to 1%, and ω and ε were computed by
+                                                         the unsteadiness of the flow. This type of mechanism is very difficult
+                                                         to model by RANS approaches so that the predictions at subcritical
+                                                                                                                                                 Mathey and Cokljat [27] presented results for an approach close
+                                                                                                                                                 to segregated modeling. They performed a RANS simulation for
+                                                         angle generally remain unsatisfactory whatever turbulence model                         the entire flow and then added an LES domain which starts right
+                                                         is used. Most of the RANS simulations miss the flow separation at                       at the corner of the slant where the flow separates and covers
+assuming the turbulent viscosity ratio νt = 10.          the rear part or, when they accurately predict the separation onset,
+                                                         they fail in the massively separated flow regions containing many
+                                                                                                                                                 the wake region. The inflow conditions for this subdomain were
+                                                                                                                                                 generated from the mean flow of the RANS solution to which syn-
+                                                         coherent structures by mainly underpredicting the level of turbu-                       thesized turbulence was superimposed to an amount specified by
+                                                         lent stresses [25].                                                                     the RANS solution and generated by means of a vortex method
+     For the 25o angle, a structured 16 million cell mesh was used (Figure 3(a)); courtesy of Professor Krajnovic of
+                                                             The above remarks suggest that LES may constitute a valuable                        [26]. The coupling back to the RANS domain, which distinguishes
+                                                         way to compute the flow around the Ahmed body, particularly                             an LES with particular inflow conditions from a truly hybrid simu-
+                                                         for subcritical slant angles. The first LES results [16] using a geom-                  lation, is still missing in this paper, but the results presented show
+Chalmers University of Technology. For this mesh, the first near-wall cells over the car body had a y+ < 1 and the
+                                                         etry without bottom wall and the Smagorinsky model globally cap-
+                                                         tured the topology of the flow for a subcritical slant angle u = 28!
+                                                                                                                                                 the quality of the solution which can be achieved with this ap-
+                                                                                                                                                 proach. Indeed, the obtained statistical data capture the measure-
+                                                         but drag estimation and flow field visualizations were characteris-                     ments very well. Unified approaches on the other hand, if not
+                                                         tics of a flow for u > 30!. Several LES studies [13,14,32,21] showed                    employing some type of stochastic forcing, rely on the instability
+refinement was concentrated on the near-wall and separation regions.
+                                                         that the accuracy of the solution is undeniably improved compared                       of the mean flow in the transition between upstream RANS and
+                                                         to the RANS studies. Particularly, the unsteady phenomena are well                      downstream LES region. For the Ahmed body this effect is quite
+                                                         described and the solutions almost capture the peak of turbulent                        strong so that substantial unsteady motion is created which in turn
+     For the 35o angle, an unstructured polyhedral based mesh (Figure 3(b)), created in STAR-CCM+ was used with
+                                                         kinetic energy measured at the beginning of the slant.
+                                                             A fundamental problem with LES, however, is the need to re-
+                                                                                                                                                 can yield results closer to the experiment than those obtained with
+                                                                                                                                                 (U) RANS methods.
+                                                         solve the turbulent boundary layer along the roof of the body                               The test case of this paper is the one initially defined in 2001
+                                                         which is decisive for adequately capturing the separated shear                          during the 9th ERCOFTAC Workshop on Refined Turbulence Model-
+three levels of refinement (Coarse, Medium & Fine). A constant refinement was kept in the near-wall region for
+                                                         layer over the slant. Due to the high Reynolds number it is extre-                      ling [46] for a body with subcritical slant angle u = 25! at a
+                                                         mely thin with d " 10 mm or d/L " 10!2, as illustrated in Fig. 11 be-                   Reynolds number of Re = 768,000 (note that in [1] the Reynolds
+                                                         low. Even if a wall function approach is used as in [13,14], the usual                  number is based on the length of the body). Measurements were
+each of these variants, ensuring a y+ < 1 for all near-wall cells. The refinement between the successive meshes was
+                                                         resolution requirements in streamwise and spanwise direction can                        performed by Lienhart and Becker [22,23].
+
+
+                                                          Please cite this article in press as: Serre E et al. On simulating the turbulent flow around the Ahmed body: A French–German collaborative evaluation of LES
+
+concentrated in the rear separation region over the rear window and behind the car. Mesh size were approximately 4,
+                                                          and DES. Comput Fluids (2011), doi:10.1016/j.compfluid.2011.05.017
+
+
+
+
+10 and 19 million cells for the coarse, medium and fine meshes respectively and it was found that acceptable mesh
+convergence was reached by the fine mesh.
+     Calculations were performed using the open-source software Code Saturne v3.0.1 [33] [16] developed by EDF
+R&D and STAR-CCM+ v9.04, developed by CD-adapco. The computational details for each code is shown in Table
+2.
+
+        Code         Method                Spatial Scheme                                            Temporal Scheme                                                                         Criteria
+     STAR-CCM+        RANS                2nd order Upwind                                                          Steady                                                   < 1 × 10−5 residuals
+     STAR-CCM+        DDES         Hybrid CDS/2nd UDS [34]                            2nd order (∆tU/L = 1 × 10−4 )                                                                   30 flow units
+     Code Saturne    URANS            75% CDS-25% UDS                                 2  nd
+                                                                                                order (∆tU/L = 1 × 10 )                                        −4
+                                                                                                                                                                                      10 flow units
+     Code Saturne     DDES         Hybrid CDS/2nd UDS [17]                            2nd order (∆tU/L = 1 × 10−4 )                                                                   30 flow units
+
+
+                    Table 2: Numerical setup for each code and turbulence modelling approach for the Ahmed car body
+
+
+
+
+                                                                             6
+                                           (a)                                                      (b)
+
+Figure 3: Meshes for the Ahmed car body (a) Structured 16 million cell mesh for 25 degrees case and (b) unstructured 10 million cell mesh for 35
+degrees case.
+
+
+
+3.2. DrivAer automotive model
+
+    A recent addition to the openly available car geometries is the DrivAer model [3, 4]. In these experiments three car
+configurations (shown in Figure 4(a)) were subject to a wind tunnel investigation, where global loads were obtained
+as well as surface pressure information in key areas over and under the vehicles. These three configurations represent
+three typical car configurations i.e. estate, fastback and notchback. For each configuration, several variants were also
+investigated where several components were tested on and off the model (side mirrors and wheels) as well as a smooth
+and detailed underbody. In addition each configuration were tested with and without a rolling road to test the effect
+of ground simulation. Previous numerical simulations by TUM focused only on the fastback configuration with a
+single turbulence model [3]. Whilst some effort was made to ensure mesh convergence and to investigate the effect of
+the several geometry variations, no investigation was made into different turbulence models or the other two DrivAer
+configurations. The turbulence model in question, the k − ω SST [9] model was used in the study of [3] and also in this
+research. The model in [3] used a mesh that did not resolve the near-wall region which makes any direct comparison
+difficult, however some key flow areas, such as the bonnet/windscreen intersection, show the same trend between
+the previously mentioned work and the authors previous work. Whilst they showed excellent agreement for the drag
+coefficient, the pressure distribution over the top and bottom of the car differs from the experiment suggesting that a
+certain amount of error cancellation is present. This was also observed in recent work using OVERFLOW, which used
+overset structured meshes [35]. Even though a high quality structured mesh was used, the same discrepancies with the
+pressure coefficient were observed, which suggests a consistent turbulence modelling error. Guilmineau [36] recently
+applied DES models to the DrivAer model, one of the first examples of DES being applied to this case. Unfortunately
+only the fastback configuration was studied, however the findings were in agreement with the previous studies. RANS
+models (including an Explicit Algebraic RSM model) were unable to correctly predict the forces, particularly the lift
+force which was considerably different than the experimental data. They found that DES provided much improved
+accuracy (particularly for the lift force) although there were still inaccuracies compared to the experimental data.
+
+
+                                                                       7
+                                   (a)                                                       (b)
+
+                Figure 4: (a) DrivAer models, F-Fastback, E-Estate, N-Notchback (b) DrivAer computational domain Size
+
+
+
+3.3. Computational Set-up
+
+3.3.1. Computational Grid and Boundary Conditions
+   Two configurations of the DrivAer model are investigated: the Estate and Fastback variants (Figure 4(a)) both
+with side mirrors and a smooth underbody. For each configuration the meshing methodology is identical in an attempt
+to ascertain the predictive performance of different turbulence models with the mesh being a known source of error.
+A schematic of the domain and car is shown in Figure 4(b), the top of the domain (where a slip wall condition is
+imposed) is at a height of 8H, where H is the height of the car body. An inlet condition is imposed at the start of the
+domain (4L upstream of the car) with a freestream velocity of 40ms−1 (Re = 1.48 × 106 based upon the car height
+H = 0.567m), turbulent viscosity ratio of 20 and a turbulent intensity of 1%. The appropriate values for k, ε, ω and
+were then derived from these values using the appropriate relationship (e.g. νt = k/ω). An outlet condition is imposed
+6L downstream of the rear of the car. The width of the domain is 11W (W is the width of the car), where slip wall
+conditions are imposed. The floor was set to a no-slip condition with non-rotating wheels to match the experimental
+non-ground simulation case. This was chosen as it removes any rotating tyre modeling error and was also shown to
+have little effect on the flow physics [4]. The choice of numerics and time-step are described below and summarized
+in Table 3.
+
+
+3.3.2. STAR-CCM+ : RANS
+   A steady coupled incompressible finite-volume solver is used for each RANS calculation. A second order upwind
+scheme is used to discretize the convection and diffusion terms of the momentum and turbulence equations. An
+Algebraic Multigrid (AMG) method using a V cycle for the momentum equations and a flex cycle for the turbulence
+quantities was employed. The solution was initialized using a Grid Sequencing Initialization (GSI) method, which
+solves a fully implicit incomplete-Newton solution algorithm to compute a first-order inviscid flow solution on a series
+of coarse grids, which provides a better initial flow field than specifying constant values for the flow variables over
+
+                                                                 8
+the domain. All simulations were run until the standard deviation of the drag and lift coefficients dropped below
+2 × 10−5 over 400 samples. This criteria was in conjunction with the residual error for the momentum and turbulent
+equations reaching a monotonic state below 1 × 10−5 . Both of these were used to ensure that the flow had a reached
+full convergence, which typically occurred after 2000-5000 iterations depending on the turbulence model.
+
+
+3.3.3. STAR-CCM+ : DDES
+   An unsteady segregated incompressible finite-volume solver was used for all the DES computations. A hybrid
+numerical scheme [34] was used to discretize the convective terms of the momentum equations, which switches
+between a bounded Central Differencing Scheme (CDS) in regions where LES is active to a 2nd order upwind scheme
+where RANS modes are active. For the turbulent quantities, a second order upwind scheme is used. The temporal
+discretization was achieved using a 2nd order Crank-Nicholson type scheme with a non-dimensional time-step of
+∆tU/L = 1 × 10−3 , ensuring a CFL< 1 throughout the LES regions. An Algebraic Multigrid (AMG) method using a
+V cycle for the momentum equations and a flex cycle for the turbulence quantities was employed. The solution was
+initialized using the steady RANS results which shortened the time to reach a suitable time for time-averaging. Each
+simulation was run for 10 convective flow units (10 × L/U) followed by a further 20 convective units for the gathering
+of time-averaged statistics.
+
+       Code          Method             Spatial Scheme                      Temporal Scheme                          Criteria
+   STAR-CCM+         RANS              2nd
+                                             order Upwind                          Steady                   < 1 × 10−5 residuals
+   STAR-CCM+         DDES        Hybrid CDS/2nd UDS [34]             2nd order (∆tU/L = 1 × 10−3 )               30 flow units
+
+
+                   Table 3: Numerical setup for each code and turbulence modelling approach for the DrivAer model.
+
+
+   Five grids were generated in total, for which two were used for the DES calculations. These are summarized in
+Table 4 and illustrated in Figure 5. The meshes are split into broadly polyhedral/prismatic based for the RANS studies
+and hexahedral/prismatic cells for the DES studies. Each of the meshes were successively refined to establish mesh
+convergence, each with greater refinement throughout the rear of the domain (except for a constant highly resolved
+near-wall mesh, with 20 prism layer cells to ensure the boundary layer was well captured).
+
+
+4. Results
+
+   To achieve the objective of both comparing a simple and realistic car model and also assessing the potential benefits
+of hybrid RANS-LES methods over RANS models, we discuss the performance of the RANS models for both cases
+before moving on the performance of the hybrid RANS-LES models. It will be seen that there is a common theme
+between the simple and realistic car cases for both RANS and hybrid RANS-LES models.
+
+
+
+
+                                                                 9
+                                   Mesh Name                 Mesh Type             y+      Cell Count
+                                  RANS coarse           Polyhedral+prism           <1       18 × 106
+                                 RANS Medium            Polyhedral+prism           <1       37 × 106
+                                    RANS fine           Polyhedral+prism           <1       80 × 106
+                                   DES Coarse           Polyhedral+prism           <1       80 × 106
+                                    DES Fine            Hexahedral+prism           <1       100 × 106
+
+
+                                        Table 4: Mesh type and resolution used within this study.
+
+
+
+
+              Figure 5: Slices through the symmetry plane of the meshes used for the DES calculations (estate configuration)
+
+
+
+4.1. RANS
+
+4.1.1. Ahmed car body: RANS
+   Figure 6 show the results for a selection of RANS models for the Ahmed car body with a 35o rear window angle for
+both the streamwise velocity and turbulent kinetic energy (TKE). These results were obtained using STAR-CCM+,
+where a mesh convergence study resulted in a final mesh of 10 million cells. Whilst further mesh refinement may
+result in some modification of the results, the authors believe that the trends will most likely be very similar. It can be
+seen from these figures that the models predict largely the correct flow along the symmetry plane which also reflected
+in other planes. Each model shows good agreement with the experimental data for the TKE, it is also notable that there
+are only small differences between all the turbulence models, even for a fully separated flow. This is in agreement with
+many previous studies, including the ERCOFTAC workshops [20, 21] using a variety of different turbulence models
+and grid resolution.
+   Figure 7 shows the streamwise velocity and turbulent kinetic energy for the Ahmed car body with a 25 o rear
+window angle. None of the RANS models tested correctly predicted the streamwise velocity with each model over-
+predicting the size of the recirculation region. It can be seen that this a result of the turbulent kinetic energy being
+under predicted in the initial separated shear layer (just after separation) which means less turbulent mixing and thus
+a greater recirculation region. It is again observed that there is little difference between the models tested. These re-
+
+                                                                   10
+                      380                                                                  500
+                      360
+                      340                                                                  400
+
+                      320
+                                                                                           300
+                      300
+             Z (mm)
+
+
+
+
+                                                                                  Z (mm)
+                      280
+                                 Exp.                                                      200
+                      260        SST
+                      240        RKE
+                                                                                           100
+                                 B-EVM
+                      220
+                                 EB-RSM
+                      200                                                                    0
+                        -240    -200   -160    -120    -80     -40       0                    0       100     200     300   400    500       600
+                                                X (mm)                                                                  X (mm)
+
+
+                                              (a)                                                                     (b)
+                      380                                                                  500
+                      360
+                      340                                                                  400
+
+                      320
+                                                                                           300
+                      300
+             Z (mm)
+
+
+
+
+                                                                                  Z (mm)
+
+
+
+
+                      280
+                                 Exp.                                                      200
+                      260        SST
+                      240        RKE
+                                                                                           100
+                                 B-EVM
+                      220
+                                 EB-RSM
+                      200                                                                    0
+                         -240   -200   -160   -120   -80     -40     0                            0         100     200    300   400   500     600
+                                                X (mm)                                                                    X (mm)
+
+
+                                              (c)                                                                     (d)
+
+Figure 6: Streamwise velocity (a) over and at the (b) rear of the Ahmed car body at 35 degrees and Turbulent Kinetic Energy (TKE) (c) over and
+at the (d) rear of the Ahmed car body at 35 degrees for different RANS models
+
+
+
+sults are in agreement again with many previous studies, where unsatisfactory performance was observed with RANS
+models, both EVM and RSM variants [20, 21]. A common theme from all of these studies was an under-prediction of
+the turbulent kinetic energy in the initial separated shear layer, which is also observed here.
+    In the work of Ashton et al. [19] a mesh convergence study found that mesh convergence was achieved for all
+models on the 16 million cell grid which is currently in use, therefore we discount a lack of grid resolution for the poor
+performance of the RANS models. In order to also eliminate code-related errors, the same mesh and models were
+tested in the open source finite-volume code, Code Saturne. Whilst the exact numerics and model implementation
+may be different between codes, it can be seen in Figure 8 that the models provide similar performance, with all
+models over-predicting the separation region. We therefore believe that these results are code-independent.
+    As linear eddy-viscosity and Reynolds stress models give nearly identical results (in both codes as well as other
+studies), it can also be concluded that it is not purely an issue of models lacking the ability to capture anisotropy or
+near-wall modelling (although how well they do this may be contributing to the poor performance). Other ε based
+RSM models (such as the LRR model [37]) were tested and yielded no improvement. The under prediction of the
+                                                                             11
+                      380                                                               500
+
+                      360
+                                                                                        400
+                      340
+
+                                                                                        300
+                      320
+             Z (mm)
+
+
+
+
+                                                                               Z (mm)
+                      300
+                                 Exp.                                                   200
+
+                      280        SST
+                                 RKE
+                                                                                        100
+                      260        B-EVM
+                                 EB-RSM
+                      240                                                                 0
+                        -240   -200   -160   -120   -80    -40    0                        0       100     200     300   400    500       600
+                                               X (mm)                                                                X (mm)
+
+
+                                             (a)                                                                   (b)
+                      380                                                               500
+
+                      360
+                                                                                        400
+                      340
+
+                                                                                        300
+                      320
+             Z (mm)
+
+
+
+
+                                                                               Z (mm)
+
+
+
+
+                      300
+                                                                                        200
+
+                      280
+                                                                                        100
+                      260
+
+                      240                                                                 0
+                        -240   -200   -160   -120    -80    -40       0                        0         100     200    300   400   500     600
+                                              X (mm)                                                                   X (mm)
+
+
+                                             (c)                                                                   (d)
+
+Figure 7: Streamwise velocity (a) over and at the (b) rear of the Ahmed car body at 25 degrees and Turbulent Kinetic Energy (TKE) (c) over and
+at the (d) rear of the Ahmed car body at 25 degrees for different RANS models
+
+
+
+turbulence in the initial separated shear layer has been investigated in more detail in the work of [19] and this same
+failure of common RANS models has been found in a number of other separated flows e.g 2D wall-mounted hump &
+2D periodic hills. The authors believe this is an area of potential development for future RANS models, and work is
+currently underway by the authors to investigate this in the spirit of work done by Rumsey et al. [38] on sensitising
+models to increase the turbulence in this initial separated shear layer.
+
+
+4.1.2. DrivAer model: RANS
+    The same RANS models were applied to the DrivAer case (with the inclusion of the Spalart Allmaras model)
+which now represents a realistic car geometry. The results of these for the lift and drag coefficients are summarized in
+Table 5 and Figures 9 & 10 are compared to the experimental data and simulations from other research groups. The
+results from this study are all using the fine mesh (80 million cells), although it was seen that there was very little
+difference between the medium and fine grids for most models, as shown in Figure 11.
+    It can be seen firstly that none of the models can correctly predict all the car configurations. Whilst one model may
+
+                                                                          12
+                        380                                                         380
+
+                        360                                                         360
+
+                        340                                                         340
+
+                        320                                                         320
+               Z (mm)
+
+
+
+
+                                                                           Z (mm)
+                        300                                                         300
+
+                        280        Exp.                                             280        Exp.
+                                   SST                                                         SST
+                        260        B-EVM                                            260        B-EVM
+                                   EB-RSM                                                      EB-RSM
+                        240                                                         240
+                          -240   -200   -160   -120   -80   -40   0                   -240   -200   -160   -120    -80   -40   0
+                                                 X (mm)                                                     X (mm)
+
+
+                                               (a)                                                         (b)
+
+Figure 8: (a) Streamwise velocity and (b) Turbulent Kinetic Energy for different RANS models at y = 0 for the Ahmed car body at 25 degrees with
+Code Saturne
+
+
+
+perform predict the drag force correctly for one configuration (SST for Fastback), it is unable to predict the correct
+drag force for the other car configuration and has a significant error with the lift coefficient. This overprediction of
+the lift force is in agreement with the other studies, which each used different meshing strategies and resolution. An
+inspection of the drag contribution from each part of the car showed that the majority of the differences between the
+models occurred in the rear of the car, which is not surprising as this is the area of greatest flow separation. There
+is a noticeable trend towards the RANS models predicting the fastback configuration more accurately, which has no
+separation over the rear window compared to the estate configuration. Whilst certain RANS models predict the drag
+force better than others (e.g SST compared to EBRSM), this appears to be due to an over-prediction of the lift force,
+which in turn produces an induced drag component. None of the RANS models captures the correct lift-to-drag ratio
+for either car configuration.
+    Table 5 also provides further insight by showing the difference in lift and drag coefficient between the estate and
+fastback configurations. Whilst all the models capture the trend of a reduction in drag coefficient, they all fail to
+capture the magnitude. Typically for industrial automotive flows it is accepted that RANS models cannot capture
+the absolute force coefficients, so instead they are used to assess the magnitude and direction of a trend. Looking at
+geometry trends removes constant sources of error, which can be useful for such a complex geometry however such
+high errors suggest the models are missing some fundamental flow features between the two configuration (i.e the
+extent of the separation region).
+    The pressure coefficient over the top of both the fastback and estate vehicles is shown in Figure 12. Inspection
+of Figure 12(a) for the fastback vehicle, shows that each model exhibits broadly similar pressure distributions apart
+from the region at bottom of the front window/bonnet intersection. Here the SST (in agreement with the results of
+Heft et al. [4]) predicts too strong suction. All models under-predict the pressure coefficient (for both the fastback
+and estate vehicles) over the roof of the car, which is also seen in Heft et al. [4]. This is likely due to the lack of a
+
+                                                                      13
+strut in the CFD model, which connects the car model to the wind tunnel. The flow over the roof of the car should
+be attached and therefore simple to capture with any turbulence model. Without also having the precise geometry of
+the wind tunnel, it is not possible to match the same blockage conditions. For the estate configuration in Figure 12(b),
+there is clear split between the models over the rear portion of the car. This is due to differences in the model ability
+to capture the flow separation, which is also reflected in the drag coefficient (SST having the largest drag for greater
+flow separation).
+   The previous figures have shown the C p along a single plane at the centreline, Figure 13 however provides us with
+the pressure coefficient over the rear window of the car for the all the models for both configurations. Here it can be
+seen that the fastback is predicted more accurately by all the turbulence models (which is also reflected in the drag
+coefficient), with relatively little difference between them. For the estate configuration, the pressure coefficient is far
+from the experimental values (which is again reflected in the drag coefficient).
+   Figures 14 & 15 shows a visualization of the separated regions of the flow (i.e Ui < 0) for the SST, EBRSM and
+the SST-IDDES model (to be discussed in the next section). It can seen that there is a noticeable difference in the
+shape of the wake for the both the fastback and estate configurations. These difference is likely to be one of the major
+contributions to the difference observed in the lift and drag forces.
+   Figures 16-19 show the mean streamwise velocity and modelled & resolved TKE for selected slices along and
+behind the car body. Whilst these are only selected slices, they show different wake patterns behind the two example
+RANS models (SST & EBRSM) although the difference is relatively small at these positions. The major observation
+from these figures is the under-prediction of TKE compared to the hybrid RANS-LES solutions. Although there is no
+experimental data to compare against this under-prediction of the TKE relative to the hybrid RANS-LES results, this
+agrees closely with the Ahmed car body at 25o , and suggests a common source of error from the RANS models.
+   This inability to correctly predict the flow regardless of the turbulence model, mesh (mesh refinement was eval-
+uated up to 80 million cells) was a major motivation to test the hybrid RANS-LES models in this paper. Whilst it
+cannot be said that no RANS model could ever predict the flow correctly, the current state of the art models have not
+showed acceptable performance both for the Ahmed car body and this realistic car model.
+
+
+4.2. Hybrid RANS-LES
+
+   It has been shown for both the Ahmed car body and DrivAer vehicle that no RANS model is capable of predicting
+the flow correctly for all configurations. This suggests that whilst they may offer good predictive capability for
+particular flow types, they are unable to consistently provide good enough accuracy (i.e within 5% of absolute loads).
+For this reason we evaluate hybrid RANS-LES models, in particular Detached Eddy Simulation initially for the
+Ahmed car body (at the more challenging 25 o degrees) and then later the DrivAer realistic car geometry. These type
+of methods offer close to the theoretical predictive capability of LES models but with much reduced computational
+resources.
+
+
+                                                            14
+                                                                      Estate              Fastback            Vehicle Delta
+                                 Model
+                                                                CD           CL         CD          CL         CD          CL
+                                  Exp.                        0.294       -0.12       0.261        0.01       0.033       0.13
+                   k − ω SST from Heft et al. [3]               n/a          n/a      0.243        n/a         n/a         n/a
+                 k − ω SST from Peters et al. [35]              n/a          n/a      0.256       0.069        n/a         n/a
+                  EARSM from Guilmineau [36]                    n/a          n/a      0.254       0.079        n/a         n/a
+                        Spalart Allmaras (SA)                 0.280       0.054       0.260       0.136       0.02       0.084
+                       Realizable k − ε (RKE)                 0.260       -0.026      0.244       0.085       0.016       0.11
+                               k − ω SST                      0.275      0.0436       0.260       0.124       0.00        0.08
+                             k − ε B-EVM                      0.253       0.007      0.2435       0.116      0.0095      0.109
+                                EB-RSM                        0.256       -0.029     0.2482       0.075      0.0078      0.104
+                 SST-DES from Guilmineau [36]                   n/a          n/a      0.266       0.024        n/a         n/a
+                        SST IDDES (Coarse)                    0.310       -0.096      0.268       0.011       0.042      0.107
+                          SST IDDES (Fine)                    0.307       -0.131     0.2615       0.024      0.0455      0.155
+                          SA IDDES (Fine)                     0.313       -0.136        n/a        n/a         n/a         n/a
+                           SA DDES (Fine)                     0.307       -0.13         n/a        n/a         n/a         n/a
+
+
+Table 5: Lift and drag coefficients for the computational and experimental results for the fastback and estate configurations of the DrivAer using
+different RANS models on 80 million fine RANS mesh and a range of DES variants on the coarse and fine meshes
+
+
+
+
+                                                                        15
+                                                                                                                                  Estate
+                                                                                                                                  Fastback
+                 0.30
+
+                 0.25
+
+                 0.20
+            CD
+
+
+
+
+                 0.15
+
+                 0.10
+
+                 0.05
+
+                 0.00
+                        Exp.
+
+
+                                SA
+
+
+                                          RKE
+
+
+                                                     SST
+
+
+                                                               B-EVM
+
+
+                                                                         EB-RSM
+
+
+                                                                                   SST-IDDES (C)
+
+
+                                                                                                   SST-IDDES (F)
+
+
+                                                                                                                   SA-IDDES (F)
+
+
+                                                                                                                                   SA-DDES (F)
+                    Figure 9: Drag Coefficient for the estate and fastback configurations using RANS and DES models
+
+
+
+4.2.1. Ahmed car body: DES
+   Figure 20 shows the mean streamwise velocity and turbulent kinetic energy over and behind the Ahmed car body
+using the SST, EBRSM and SST-IDDES models. It can be seen that the SST-IDDES model provides an improved
+prediction of the streamwise velocity as a result of predicting a large TKE in the initial separated region. There is
+still however a clear under-prediction of the TKE in the initial separated shear layer which means too little turbulent
+mixing and an over-prediction of the separation region. This is visualized more clearly in Figure 21 which shows the
+regions of separated flow for the SST, EBRSM and SST-IDDES models, it’s clear that the RANS model predict a much
+larger recirculation region compared to the SST-IDDES model. To assess if this can be improved by either ulitizing
+a different underlying RANS models or a different DES variant, Figure 22 shows the results for the SA IDDES and
+SA-DDES models. It can be seen that there is very little sensitivity to either the DES variant or underlying RANS
+models for this case, with none improving the underprediction of TKE in the initial separated shear layer region.
+   To establish that any errors do not arise from the use of STAR-CCM+ (i.e the codes numerics or implementation),
+the same case and mesh was run in Code Saturne using the SST-DDES model (as shown in Figure 22(c)). It can be
+seen that there is little or no difference between this and the all the DES variants run in STAR-CCM+. This is further
+seen through the visualization of iso-contours in Figure 23, where there is little difference in the structures observed.
+   For all the DES variants, there is a clear improvement over the RANS models in the prediction of both the turbulent
+kinetic energy and the streamwise velocity. However, there is still an underprediction of the turbulence in the initial
+separated shear layer, as shown in Figure 22(c). This exists no matter the grid refinement (up to 16 million cells [19],
+
+                                                                  16
+                0.20
+                                                                                                                                   Estate
+                                                                                                                                   Fastback
+                0.15
+
+
+                0.10
+
+
+                0.05
+           CL
+
+
+
+
+                0.00
+
+
+                -0.05
+
+
+                -0.10
+                                 SA
+                        Exp.
+
+
+
+
+                                            RKE
+
+                                                      SST
+
+                                                                B-EVM
+
+                                                                          EB-RSM
+
+
+
+
+                                                                                                                                     SA-DDES (F)
+                                                                                                                    SA-IDDES (F)
+                                                                                    SST-IDDES (C)
+
+                                                                                                    SST-IDDES (F)
+
+
+                   Figure 10: Lift coefficient for the estate and fastback configurations using RANS and DES models
+
+
+
+DES model formulation (IDDES, DDES) nor the code itself (STAR-CCM+, Code Saturne). Further analysis of this
+case can be found in Ashton et al. [19], including more detailed analysis of the failure of the RANS and DES variants.
+
+
+4.2.2. DrivAer Model: DES
+   It was seen that using hybrid RANS-LES for the Ahmed car body, provided an improvement over all RANS
+models in terms of a more accurate prediction of the separation region (although still not in complete agreement with
+experimental data). As the conclusions from the RANS study of both the Ahmed car body and DrivAer were similar,
+we now apply hybrid RANS-LES methods to the DrivAer vehicle to assess if these also provide an improvement.
+   We evaluate two meshes for the hybrid RANS-LES calculations, a coarse 80 million cell grid composed of prism
+cells in the boundary layer and polyhedral cells away from the wall, this is the same as the fine grid used in the RANS
+simulations. Secondly we use a mesh of 100 million cells, with now hexahedral cells away from the wall to provide
+a more structured cell layout. A third finer mesh was evaluated but insufficient time-sampling has taken place (initial
+results show little difference between this and the 100 million cell grid). These meshes are summarized in Table 4.
+   The results for the force coefficients are shown in Table 5 and Figures 9 & 10 for the fastback and estate config-
+urations, as well as the pressure coefficient in Figure 24. The results firstly show that all hybrid RANS-LES results
+
+
+                                                                 17
+                  0.32                                                           0.32
+                                                             SST                                                            SST
+                  0.31                                       RKE                 0.31                                       RKE
+                                                             SA                                                             SA
+                  0.30                                       B-EVM               0.30                                       B-EVM
+                                                             EB-RSM                                                         EB-RSM
+                  0.29                                                           0.29
+             Cd
+
+
+
+
+                                                                            Cd
+                  0.28                                                           0.28
+                  0.27                                                           0.27
+                  0.26                                                           0.26
+                  0.25                                                           0.25
+                  0.24                                                           0.24
+                     10    20     30    40        50   60     70      80            10     20     30   40        50   60     70      80
+                                Mesh Size (×106 cells)                                          Mesh Size (×106 cells)
+
+                                        (a)                                                            (b)
+
+                            Figure 11: Mesh Refinement for the fastback & estate configuration using RANS models
+
+
+                                                             Exp.                                                           Exp.
+                  1.0                                                                1.0
+                                                             SST                                                            SST
+                                                             RKE                                                            RKE
+                                                             SA                                                             SA
+                  0.5                                        B-EVM                   0.5                                    B-EVM
+                                                             EB-RSM                                                         EB-RSM
+             Cp                                                                 Cp
+                  0.0                                                                0.0
+
+
+                −0.5                                                             −0.5
+
+
+                −1.0                                                             −1.0
+                            0.0          0.5           1.0         1.5                     0.0          0.5           1.0         1.5
+                                              x                                                              x
+
+                                        (a)                                                            (b)
+
+Figure 12: (a) Pressure Coefficient over the top of the Fastback configuration for each RANS model. (b) Pressure Coefficient over the top of the
+Estate configuration for each RANS model.
+
+
+
+(regardless of mesh resolution or DES variant) provide a better prediction of the flow for both vehicle configurations.
+This is most noticeable for the lift coefficient, which was poorly predicted by the RANS models, but predicted rel-
+atively well for all the hybrid RANS-LES models. Interestingly, in a similar fashion to the Ahmed car body, there
+is relatively little difference between the DES variants (SA IDDES, DDES, SST-IDDES) for this flow, although this
+might be more pronounced with a finer mesh and/or the addition of inflow turbulence.There is a noticeable improve-
+ment with the fine mesh for the SST-IDDES computations, which suggests that the polyhedral mesh has additional
+numerical dissipation (as there is only 20 million cells difference between coarse and fine meshes).
+    Table 5 also provides the change in drag coefficient between the Estate and Fastback configurations. Compared
+to the RANS results it can be seen that not only is the direction of the trend correct but the magnitude is much closer
+with the hybrid RANS-LES models which combined with the absolute values, makes the hybrid RANS-LES much
+
+                                                                           18
+                                                                     (a)
+
+
+
+
+                                                                     (b)
+
+Figure 13: Mean Pressure Coefficient distribution for the (a) Fastback and (b) Estate vehicles for Experimental data and RANS CFD simulations
+
+
+
+
+                      (a)                                           (b)                                            (c)
+
+ Figure 14: Volume render, showing separation regions for (a) SST RANS, (b) EBRSM RANS and (c) SST-IDDES model for fastback vehicle
+
+
+
+more accurate overall than any of the RANS models. These differences can be seen in the wake structures in Figures
+14 & 15 for the fastback and estate configurations respectively. In a similar fashion to the Ahmed car body, the
+RANS models predict a larger recirculation region and a different wake structure than the hybrid RANS-LES models.
+Whilst there is no experimental data for the 3D wake, the close agreement with both the lift and drag for the hybrid
+RANS-LES models suggests this is a more accurate representation of the wake structures.
+   Figure 13 also shows the C P distribution over the rear window of the Estate and Fastback configurations against
+the RANS and experimental data [4]. For the fastback configuration, both RANS and DES methods predict a similar
+
+
+
+
+                      (a)                                           (b)                                            (c)
+
+  Figure 15: Volume render, showing separation regions for (a) SST RANS, (b) EBRSM RANS and (c) SST-IDDES model for estate vehicle
+
+
+
+                                                                    19
+                                     (a)                                                         (b)
+
+Figure 16: Mean Streamwise velocity at selected slices of the Fastback vehicle for the SST & EBRSM RANS models and the SST-IDDES model
+on the coarse and fine mesh
+
+
+
+
+                              (a)                                                          (b)
+
+Figure 17: (a) Mean Modelled Turbulent Kinetic Energy (TKE) & (b) Mean Resolved Turbulent Kinetic Energy (TKE) at selected slices of the
+Fastback vehicle for the SST & EBRSM RANS models and the SST-IDDES model on the coarse and fine mesh
+
+
+
+
+Figure 18: Mean Streamwise Velocity at selected slices of the Estate vehicle for the SST & EBRSM RANS models and the SST-IDDES model on
+the coarse and fine mesh
+
+
+
+                                                                  20
+                                (a)                                                                   (b)
+
+Figure 19: (a) Mean Modelled Turbulent Kinetic Energy (TKE) & (b) Mean Resolved Turbulent Kinetic Energy (TKE) at selected slices of the
+Estate vehicle for the SST & EBRSM RANS models and the SST-IDDES model on the coarse and fine mesh
+
+
+
+
+                      380                                                               500
+                                                                                                                        Exp.
+                      360                                                                                               SST RANS
+                                                                                        400                             EB-RSM RANS
+                      340                                                                                               SST IDDES
+                                                                                        300
+                      320
+             Z (mm)
+
+
+
+
+                                                                               Z (mm)
+
+
+
+
+                      300
+                                                                                        200
+
+                      280        Exp.
+                                 SST RANS
+                                                                                        100
+                      260        EB-RSM RANS
+                                 SST IDDES
+                      240                                                                 0
+                        -240   -200   -160   -120   -80    -40    0                        0   100   200    300   400   500   600
+                                               X (mm)                                                         X (mm)
+
+
+                                             (a)                                                            (b)
+                      380                                                               500
+                                                                                                                        Exp.
+                      360                                                                                               SST RANS
+                                                                                        400                             EB-RSM RANS
+                      340                                                                                               SST IDDES
+                                                                                        300
+                      320
+             Z (mm)
+
+
+
+
+                                                                               Z (mm)
+
+
+
+
+                      300
+                                                                                        200
+
+                      280        Exp.
+                                 SST RANS
+                                                                                        100
+                      260        EB-RSM RANS
+                                 SST IDDES
+                      240                                                                 0
+                        -240   -200   -160   -120    -80    -40       0                    0   100   200    300   400   500   600
+                                              X (mm)                                                          X (mm)
+
+
+                                             (c)                                                            (d)
+
+Figure 20: (a) Mean Streamwise velocity along and (b) behind the Ahmed car body and (c) Mean turbulent kinetic energy along and (d) behind the
+Ahmed car body for the SST & EBRSM RANS and SST-IDDES models
+
+
+
+                                                                          21
+                                     (a)                                                          (b)                                                            (c)
+
+Figure 21: Visualization of the separated flow for the Ahmed car body using the (a) SST RANS, (b) EBRSM RANS and (c) the SST-IDDES model
+
+
+
+
+              380                                                          380                                                          380
+
+              360                                                          360                                                          360
+
+              340                                                          340                                                          340
+
+              320                                                          320                                                          320
+
+                                                                                                                               Z (mm)
+     Z (mm)
+
+
+
+
+                                                                  Z (mm)
+
+
+
+
+              300                                                          300                                                          300
+
+              280                                                          280                                                          280
+                         Exp.                                                         Exp.                                                         Exp.
+
+              260        SA-IDDES                                          260        SA-IDDES                                          260        SST-IDDES
+                         SST-IDDES                                                    SA-DDES                                                      SST-DDES SATURNE
+              240                                                          240                                                          240
+                -240   -200   -160   -120   -80   -40   0                    -240   -200   -160   -120   -80   -40   0                    -240   -200     -160   -120   -80   -40   0
+                                       X (mm)                                                       X (mm)                                                         X (mm)
+
+
+
+                                     (a)                                                          (b)                                                            (c)
+
+Figure 22: Mean Streamwise velocity along the Ahmed car body for the (a) SA-IDDES and SST-IDDES models, (b) SA-IDDES and SA-DDES
+models and (c) SST-IDDES and SST-DDES (Code Saturne) models.
+
+
+
+
+                                                            (a)                                                          (b)
+
+Figure 23: (a) Iso surface contours of the λ2 function (λ2 = 200) for the Ahmed car body using the SST-IDDES model, (b) the SST-DDES model
+in Code Saturne
+
+
+
+
+                                                                                                  22
+distribution to the experimental data, however both slightly under-predict the pressure recovery. For the Estate con-
+figuration neither the RANS and DES methods can capture the correct distribution. Note that the scaling has been
+changed to make the differences between RANS and DES more visible. There may however be differences due to the
+exact wind tunnel domain not being replicated in the CFD models which could affect the pressure coefficient. Both
+DES and RANS models over-predict the negative pressure on the rear, which indicates too large separation prediction.
+Unfortunately there is no skin-friction or oil flow data from the experiment but it is clear the estate configuration is
+most challenging. The DES models provide better agreement than the RANS which is reflected somewhat in the drag
+coefficient.
+    We can see from all the previous figures that firstly no RANS model can correctly predict the C D or C p for any
+configuration and that whilst the DES methods give a better prediction they still cannot predict the correct flow,
+particularly for the estate configuration. It is important to try to ascertain how the DES models provide this improved
+accuracy.
+
+
+Turbulence levels
+    Figure 17 shows both the modeled and resolved TKE for the fastback vehicle. Whilst there is no experimental data
+to compare to, we can see that firstly the modeled contribution is small (5%) in comparison to the resolved content
+suggesting that the models are operating in LES mode at these locations. This does not however tell us whether the
+resolved turbulence levels are high enough. For the Ahmed body it was found that all RANS models under-predicted
+the level of turbulence in the initial separated shear layer and that also even DES variants on a fine mesh still under-
+predicted the values compared to the experimental data [19]. In Figure 17(b), the level of TKE predicted by the
+SST-RANS model can be compared to the resolved TKE from the DES results. In a similar fashion to the Ahmed car
+body it can be seen that the RANS model predicts a lower value of TKE than any of the DES variants. This helps to
+explain why the RANS models exhibits greater flow separation in Figure 16(b), as reduced levels of TKE would result
+in lower levels of turbulent mixing and a greater recirculation region.
+    Figures 18 & 19 show the mean streamwise velocity, modeled TKE and resolved TKE for the estate configuration
+for different DES variants and the SST-RANS model. A similar conclusion to the fastback can be observed where the
+RANS model predicts a lower level of TKE and as a consequence shows a larger recirculation region than any of the
+DES variants.
+    Whilst it has been established that the DES variants provides better accuracy on both car configurations than
+RANS models, they still exhibit errors with the lift & drag coefficients and also for the Cp over the rear window. So
+far it has been shown that the relative RANS-DES performance for the DrivAer cars appear to match the traits from
+the Ahmed car body (in terms of TKE and recirculation size), thus it is therefore likely that the level of TKE is still
+under-predicted in the initial separated shear layer which results in too large recirculation length.
+
+
+
+
+                                                           23
+4.3. Embedded LES
+
+   The solution for the Ahmed car body (as detailed in Ashton et al. [19]) was to inject synthetic turbulence (via
+the DFSEM approach [39]) in a one-way coupled embedded DES region, thereby over-coming the lack of TKE in
+the initial separated shear layer. This provided the unsteady velocity fluctuations prior to the separation point, which
+allowed the flow to move into a fully resolved state in the initial separated shear layer. This showed very promising
+performance for the Ahmed car body (as shown in Figure 25) and provided much closer prediction of the turbulence
+in the initial separated shear layer. As this was a one-way coupled approach, it meant cutting the domain and car prior
+to the separation point and placing an inlet boundary condition on this plane, at which synthetic turbulence could be
+produced.
+   Unfortunately for a realistic configuration, like the DrivAer model, this approach would not be suitable. Cutting
+the car in half firstly poses a challenge for the modelling of the vortices that move down the car, which may be
+disturbed by such an approach and secondly there is an obvious coupling effect of the rear separation on the whole
+circulation of the car, thus only a two-way coupled approach would be suitable (which is also strictly true for the
+Ahmed car body). The authors are currently working on developing such an approach but at present this was not
+available to evaluate. Nevertheless it is of the opinion of the authors that injecting synthetic turbulence prior to the
+separation point would help overcome the current shortcomings of the DES approach, in a similar fashion to the
+Ahmed car body, and hopefully provide an even closer agreement to the experimental data.
+
+
+4.4. Computational Expense
+
+   A major consideration for industrial users of CFD is not only the accuracy of the method but also the computational
+cost. Whilst it has shown that hybrid RANS-LES methods, in particular DES provides a clear advantage over RANS
+models for the two test-cases evaluated, it is important to also assess the computational cost of each approach. For
+this, shown in Table 6, we compare a RANS simulation using the SST model on the DrivAer fastback configuration
+to the SST-IDDES model used also on the DrivAer fastback configuration. A constant number of cells per core is
+used to decide upon the total number of cores used; 144,000 cells per core in this case. This represents the scalability
+possible with the majority of industrial CFD codes.
+   The RANS simulations were run steady-state so the number of iterations required to reach the convergence criteria
+is stated. For the SST-IDDES simulation a dual-time stepping transient approach is used, thus the time per iteration is
+now the time per time step (of which 5 inner iterations are used). We calculate a relative cost based upon the additional
+compute time as well as the additional computational expense of using more HPC resources. It can be seen that the
+hybrid RANS-LES simulation is 17 times more expensive than the RANS computation. Whilst these values could be
+increased or decreased depending on specific optimzation of the mesh or solution strategy this difference explains why
+RANS models are still the workhorse of many industries. Nevertheless, with the inaccuracies highlighted in this paper
+of the current state-of-the-art RANS models, the additional computational time should now be deemed necessary.
+
+
+                                                           24
+    Whilst the current turnaround time is 2 days (on 704 cores), increased scalability of CFD codes and greater access
+to HPC resources could bring this under 24 hours, as highlighted in Table 6 when using 2048 cores on MareNostrum
+HPC facility at Barcelona Supercomputing Centre (BSC). On the other hand, improved RANS models capable of
+providing accuracy closer to hybrid RANS-LES would become very attractive and thus it is the opinion of the authors
+that there is a still a real need for further research to produce improved RANS models, particularly for complex
+separated flows.
+
+                          Table 6: Computational expense of each RANS and DES simulation for the DrivAer vehicle
+
+
+
+
+    Method             Cells        Cores 1        Temporal Scheme               Time per iteration          Compute time   Relative cost 2
+  SST RANS           80 × 106          512                Steady                    6s (2500 it.)                 4 hrs           1
+                               6                                       −5
+ SST IDDES          100 × 10           704        Transient (5 × 10 )           7s (26,000 t. steps)              50 hrs          17
+ SST IDDES          100 × 106        20483        Transient (5 × 10−5 )        2.5s (26,000 t. steps)             18 hrs          17
+
+
+
+
+5. Conclusions
+
+    A comprehensive investigation of RANS and DES models for the Ahmed car body and a realistic automotive
+model has been conducted. A variety of RANS models, from the one-equation Spalart Allmaras model to a low-
+Reynolds number Reynolds Stress model have shown an inability to consistently correctly capture the flow for both
+these cases with the under-prediction of the turbulence in the initial separated shear layer a key deficiency. It has been
+shown that the use of a hybrid RANS-LES model (in this case, Detached Eddy Simulation) offers an advantage over
+RANS models in terms of the force coefficients, and general flow field for both the Ahmed car body and the DrivAer
+model. However, for both cases even at the finest mesh level they could not correctly capture the flow. The use of
+an embedded LES approach with the injection of synthetic turbulence is discussed, and results from using such an
+approach on the Ahmed car body is briefly presented, however it is noted that further work is required to make this
+suitable for a complete vehicle simluation. Finally the computational expense of each approach is discussed, showing
+that hybrid RANS-LES methods are still many times more expensive than steady RANS, which suggests that further
+work to improve RANS modelling is still an important area, largely because of the potential cost benefit.
+
+
+   1 Using 2.6 GHz Intel Sandy Bridge processors (16 cores per node with 64GB memory), with Mellanox QDR Infiniband
+   2 Relative cost calculated as additional compute time × additional cost of HPC resource (e.g number of cores used)
+   3 Performed on MareNostrum at Barcelona Supercomputing Centre (BSC) using 2.6 GHz Intel Sandy Bridge Xeon processors (16 cores per
+
+node with 32GB memory), with Mellanox FDR Infiniband
+
+
+
+
+                                                                      25
+                                                        Exp.                                                                 Exp.
+                       1.0                                                                  1.0
+                                                        SST RANS                                                             SST RANS
+                                                        SST IDDES Coarse                                                     SST IDDES Coarse
+                                                        SST IDDES Fine                                                       SST IDDES Fine
+                       0.5                                                                  0.5
+             Cp                                                                   Cp
+                       0.0                                                                  0.0
+
+
+                  −0.5                                                                 −0.5
+
+
+                  −1.0                                                                 −1.0
+                                 0.0           0.5          1.0        1.5                            0.0           0.5          1.0           1.5
+                                                    x                                                                    x
+
+                                              (a)                                                                  (b)
+
+Figure 24: (a) Mean Pressure Coefficient over the top of the Fastback configuration for each mesh using the SST IDDES model. (b) Mean Pressure
+Coefficient over the top of the Estate configuration for each mesh using the SST IDDES model.
+
+
+
+Acknowledgements
+
+    The authors gratefully acknowledge the support from CD-adapco and also BETA-CAE Systems for providing
+the ANSA pre-processing tool. The authors gratefully acknowledge computational support from EPSRC for UK’s
+National HPC Facility, ARCHER and Barcelona Supercomputing Centre (BSC) for time on Mare Nostrum. This
+work also made use of the facilities of N8 HPC provided and funded by the N8 consortium and EPSRC (Grant
+No.EP/K000225/1). The Centre is co-ordinated by the Universities of Leeds and Manchester. Finally the authors
+would like to thank the Institute of Aerodynamics and Fluid Mechanics at Technische Universitat Munchen for pro-
+viding the CAD data of the DrivAer models.
+
+                      380                                                                  380
+
+                      360                                                                  360
+
+                      340                                                                  340
+
+                      320                                                                  320
+                                                                                  Z (mm)
+             Z (mm)
+
+
+
+
+                      300                                                                  300
+
+                      280        Exp.                                                      280
+                                 SST URANS
+                      260        SST DDES                                                  260
+                                 SST E-DDES
+                      240                                                                  240
+                        -240   -200    -160   -120   -80    -40    0                         -240   -200    -160   -120    -80     -40     0
+                                                X (mm)                                                              X (mm)
+
+
+                                              (a)                                                                  (b)
+
+Figure 25: (a) Mean Streamwise velocity along the Ahmed car body for the SST-URANS, SST-DDES and SST-E-DDES models. (b) Mean
+Turbulent Kinetic Energy along the Ahmed car body for the SST-URANS, SST-DDES and SST E-DDES models.
+
+
+
+
+                                                                             26
+References
+
+ [1] Ahmed SR, Ramm G, Faltin G. Some salient features of the time averaged ground vehicle wake. SAE-Paper 840300 1984;.
+ [2] Lienhart H, Becker S. Flow and turbulent structure in the wake of a simplified car model. SAE 2003;01(1):0656.
+ [3] Heft AI, Adams NA. Experimental and numerical investigation of the drivaer model. In: Proceedings of the ASME 2012 Fluids Engineering
+     Summer meeting. 2012, p. 1–11.
+ [4] Heft AI, Indinger T, Adams NA.           Introduction of a New Realistic Generic Car Model for Aerodynamic Investigations.          SAE
+     2012;doi:10.4271/2012-01-0168.
+ [5] Spalart PR, Allmaras SR. A one-equation turbulence model for aerodynamic flows. La Recherche Aerospatiale 1994;1:5–21.
+ [6] Spalart PR, Deck S, Shur ML, Squires KD, Strelets MK, Travin A. A New Version of Detached-eddy Simulation, Resistant to Ambiguous
+     Grid Densities. Theor Comput Fluid Dynam 2006;20(3):181–95. doi:10.1007/s00162-006-0015-0.
+ [7] Shih T, Liou WW, Shabbir A, Yang Z, Zhu J. A new k-epsilon eddy viscosity model fo high Reynolds number turbulent flows. Computers
+     & Fluids 1995;24(3):227–38.
+ [8] Gritskevich MS, Garbaruk AV, Menter FR. Fine-tuning of DDES and IDDES formulations to the k-w Shear Stress Transport model. In: 4th
+     European Conference for Aerospace Sciences EUCASS4. 2011, p. 1–10.
+ [9] Menter FR. Two-Equation Eddy-Viscosity Turbulence Models for Engineering Applications. AIAA 1994;32(8):1598–605.
+[10] Billard F, Laurence D. A robust k/k elliptic blending turbulence model applied to near-wall, separated and buoyant flows. International
+     Journal of Heat and Fluid Flow 2012;33(1):45–58. doi:10.1016/j.ijheatfluidflow.2011.11.003.
+[11] Shur ML, Spalart PR, Strelets MK, Travin AK. A hybrid RANS-LES approach with delayed-DES and wall-modelled LES capabilities.
+     International Journal of Heat and Fluid Flow 2008;29(6):1638–49. doi:10.1016/j.ijheatfluidflow.2008.07.001.
+[12] Lardeau S, Manceau R. Computations of complex flow configurations using a modified Elliptic-Blending Reynolds-Stress Model. In:
+     ETMM10: 10th International ERCOFTAC Symposium on Engineering. 2014,.
+[13] Fröhlich J, von Terzi D. Hybrid LES/RANS methods for the simulation of turbulent flows. Progress in Aerospace Sciences 2008;44:349–77.
+[14] Mockett C. A comprehensive study of detached-eddy simulation. Ph.D. thesis; TUB; 2009.
+[15] Wray A. Unpublished DNS data. Available on AGARD database Test Cases for the Validation of Large- Eddy Simulations of Turbulent
+     Flows. 1997.
+[16] Fournier Y, Bonelle J, Moulinec C, Shang Z, Sunderland A, Uribe J. Optimizing Code Saturne computations on Petascale systems. Computers
+     and Fluids 2011;45(1):103–8. doi:10.1016/j.compfluid.2011.01.028.
+[17] Ashton N, Prosser R, Revell A. A hybrid numerical scheme for a new formulation of delayed detached-eddy simulation (DDES) based on
+     elliptic relaxation. In: Journal of Physics: Conference Series; vol. 318. 2011, p. 042043. doi:10.1088/1742-6596/318/4/042043.
+[18] Schwamborn D, Strelets M. ATAAC An EU-Project Dedicated to Hybrid RANS-LES methods. In: Progress in Hybrid RANS-LES
+     Modelling; vol. 117 of Notes on Num. Fluid Mech. and Multidisc. Design. 2012, p. 59–75.
+[19] Ashton N, Revell A.            Key factors in the use of DDES for the flow around a simplified car.                   International Jour-
+     nal of Heat and Fluid Flow 2015;54:236–49.         URL: http://linkinghub.elsevier.com/retrieve/pii/S0142727X15000673.
+     doi:10.1016/j.ijheatfluidflow.2015.06.002.
+[20] Jakirlić S, Jester-Zurker R, Tropea C. Report on 9th ERCOFTAC/IAHR/COST Workshop on Refined Turbulence Modelling. In: ERCOFTAC
+     Bulletin. Darmstadt University of Technology; 2002, p. 36–43.
+[21] Manceau R, Bonnet JP, Leschziner M, Menter FR. 10th Joint ERCOFTAC(SIG-15)/IAHR/QNET-CFD Workshop on Refined Flow Mod-
+     elling. Universite de Poitiers; 2002,.
+[22] Serre E, Minguez M, Pasquetti R, Guilmineau E, Deng GB, Kornhaas M, et al. On simulating the turbulent flow around the Ahmed body: A
+     FrenchGerman collaborative evaluation of LES and DES. Computers \& Fluids 2013;78:10–23. doi:10.1016/j.compfluid.2011.05.017.
+[23] Mathey F, Cokljat D. Zonal multi-domain RANS/LES simulation of airflow over the Ahmed body. In: Rodi W, Mulas M, editors. Engineering
+     turbulence modelling and experiments (ETMM 6). 2005, p. 647–56.
+
+
+
+                                                                     27
+[24] Caridi D, Cokljat D, Schuetze J, Lechner R. Embedded Large Eddy Simulation of Flow around the Ahmed Body. SAE World Congress
+     2012;doi:10.4271/2012-01-0587.
+[25] Haase W, Aupoix B, Bunge U, Schwamborn D, editors. FLOMANIA - A European Initiative on Flow Physics Modelling; vol. 94 of Notes
+     on Numerical Fluid Mechanics and Multidisciplinary Design. Springer-Verlag; 2006.
+[26] Haase W, Braza M, Revell A. DESider - A European Effort on Hybrid RANS-LES Modelling; vol. 103 of Notes on Numerical Fluid
+     Mechanics and Multidisciplinary Design. Springer-Verlag; 2007.
+[27] Ashton N, Revell A, Poletto R. Grey-area mitigation for the Ahmed car body using embedded DDES. In: Progress in Hybrid RANS-LES
+     Modelling. Notes on Num. Fluid Mech.; 2014,.
+[28] Hinterberger C, Garcia-Villalba M, Rodi W. Large eddy simulation of flow around the Ahmed body. In: The Aerodynamics of Heavy
+     Vehicles: Trucks, Buses, and Trains; vol. 19 of Lecture notes in applied and computational mechanics. Springer; 2004,.
+[29] Minguez M, Pasquetti R, Serre E.       High-order large-eddy simulation of flow over the Ahmed body car model.           Physics of Fluids
+     2008;20(9):095101. doi:10.1063/1.2952595.
+[30] Krajnovic S, Davidson L. Large-eddy simulation of the flow around simplified car model. In: SAE World Congress. Detroit; 2004,.
+[31] Kapadia S, Roy S, Vallero M, Wurtzler K, Forsythe J. Detached-Eddy Simulation over a reference ahmed car model. In: AIAA 41th
+     Aerospace Sciences Meeting and Exhibit. Reno Nevada: AIAA; 2003,.
+[32] Guilmineau E, Deng G, Wackers J. Numerical simulation with a DES approach for automotive flows. Journal of Fluids and Structures
+     2011;27(5-6):807–16. URL: http://dx.doi.org/10.1016/j.jfluidstructs.2011.03.010. doi:10.1016/j.jfluidstructs.2011.03.010.
+[33] Archambeau F, Mechitoua N, Sakiz M. A finite volume method for the computation of turbulent incompressible flows - industrial applications.
+     Int J Finite Volumes 2004;1:1–62.
+[34] Travin A, Shur M, Strelets M, Spalart PR. Physical and numerical upgrades in the detached-eddy simulation of complex turbulent flows. In:
+     Proceedings of the 412th Euromech Colloquium on LES and Complex Transitional and Turbulent Flows. Munich; 2000,.
+[35] Peters BC, Uddin M, Bain J, Charlotte UNC, Engineering M. Simulating DrivAer with Structured Finite Difference Overset Grids. SAE
+     Paper 2015-01-1536 2015;doi:10.4271/2015-01-1536.Copyright.
+[36] Guilmineau E. Numerical Simulations of Flow around a Realistic Generic Car Model. SAE International Journal of Passenger Cars -
+     Mechanical Systems 2014;7(2):2014–01. URL: http://papers.sae.org/2014-01-0607/. doi:10.4271/2014-01-0607.
+[37] Launder BE, Reece GJ, Rodi W. Progress in the development of a Reynolds stress turbulence closure. Journal of Fluid Mechanics
+     1975;68:537–66.
+[38] Rumsey CL, Jeyapaul E. Pressure-strain and near-wall modeling for two-dimensional separated flows. In: Stanford Summer School. 2009;
+     2012,.
+[39] Poletto R, Craft T, Revell A. A New Divergence Free Synthetic Eddy Method for the Reproduction of Inlet Flow Conditions for LES. Flow,
+     Turbulence and Combustion 2013;:519–39doi:10.1007/s10494-013-9488-2.
+
+
+
+
+                                                                      28
+
