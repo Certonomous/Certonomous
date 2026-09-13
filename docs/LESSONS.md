@@ -28392,3 +28392,37 @@ variable part on its own line; never unquote the delimiter to get one
 substitution.** *Sibling to the existing "backticks kill the commit" lesson,
 which covers `git commit -m`; this is the same trap one layer earlier, in the
 heredoc that WRITES the `-F` file — and `-F` does not protect you from it.*
+
+## L-576 — An exception is DECLARED by the thing asking for it and VERIFIED by the thing granting it
+
+**2026-09-13, cfd CRM wing-body lane. Three guards in one act refused legitimate registered work,
+and the queue runner had the pattern right all three times.**
+
+A guard that asserts a registered value as **equality** enforces the policy's DEFAULT, not its
+INTENT, and blocks the exception the registration itself created:
+
+| guard | refused | why it was wrong |
+|---|---|---|
+| `purgeWrite` must equal 2 | a diagnostic run keeping every field | intent is "never fewer than two"; MORE retention dominates |
+| `purgeWrite >= 2` | `purgeWrite 0` | **0 means KEEP EVERYTHING** — numeric and semantic ordering disagree at exactly that value |
+| `transonic` must be `yes` | a registered `transonic no` DIAGNOSTIC | the registration created the exception the guard forbade |
+
+**THE QUEUE RUNNER ALREADY HAD THE ANSWER.** It accepts `purgeWrite 0` **only** when the entry
+carries a non-empty `purge_waiver` string saying why the full series is needed — *"a REGISTERED
+declaration in the frozen entry, not a runner-side exemption."*
+
+**THE RULE.** Do not weaken the guard and do not carve a silent exemption. **The requester
+DECLARES the exception in the frozen entry or on the launch line; the granter VERIFIES the
+declaration and says so loudly.** The `transonic no` gate now requires `TRANSONIC_DIAGNOSTIC=yes`,
+prints that the answer is never graded, **and additionally asserts the GRADED dictionary is still
+`transonic yes`** so no later stage can inherit the diagnostic branch.
+
+**AND THE COROLLARY THAT PAID FOR ITSELF WITHIN THE HOUR:** that last assertion immediately caught
+a **latent defect present in eleven earlier runs** — a two-stage launcher copies ramp dictionaries
+over the registered names, and on a FAILED stage 1 the restore never ran, leaving the case holding
+ramp dictionaries under registered names. A resume would have solved first-order with ramp
+relaxation and been graded as the registered case. **A guard added for one reason found a defect
+of another kind, which is what guards that assert INTENT do and guards that assert DEFAULTS do not.**
+
+*See also: `purgeWrite N` keeps the MOST RECENT N — a run built to capture the beginning of a
+transient will not contain it. Measured: `purgeWrite 20, writeInterval 1` retained times 62–81.*

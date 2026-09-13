@@ -1336,3 +1336,90 @@ lower bound and produced **zero graded rows** — the spend is in diagnosis, not
 and semantic orderings disagree at exactly that one value, and it is the value a diagnostic run is
 most likely to use; `-ge 2` refused it. Now accepted: **0 (keep all) or ≥ 2.** The previous fix's
 own commit message described this hole and left it.
+
+---
+
+# ADDENDUM 11 — 2026-09-13, THREE CORRECTIONS AND A PARTITION. Version 1.11.
+
+**lines whose number changed above this section: 0**
+
+## A11.1 🔴 "EXONERATED" IS WITHDRAWN — THE CORRECT CLAIM IS WEAKER
+
+A10.4 branch 2 fired and the DIVERGENT verdict stands. **The word attached to it does not.**
+
+> *"It still diverges without X"* proves **X IS NOT NECESSARY**. It does **not** prove X is not a
+> cause. If two independent mechanisms are each sufficient to diverge this case, removing either
+> leaves it diverging — and each would then "exonerate" the other.
+
+**REGISTERED CLAIM, REPLACING THE EXONERATION: the transonic branch is NOT SOLELY RESPONSIBLE.**
+
+## A11.2 🔴 THE 34.6× I DECLINED TO READ — RECORDED, ON THE GRADED CHANNEL
+
+| | iteration-1 `p max` | × p∞ |
+|---|---|---|
+| `transonic yes` | 10,364.11 Pa | **2.59** |
+| `transonic no` | 358,971.90 Pa | **89.58** |
+| | | **ratio 34.6×** |
+
+This is **the same channel A8.2 grades** — `p max`, iteration 1 — not a qualitative aside.
+**Removing the term made the first iteration 34.6 times WORSE**, which points the opposite way
+from the label I attached: that is what one sees if the term had been *suppressing* the runaway.
+
+**The A10.4 branch does not turn on it, and it is UNEXPLAINED. It is recorded anyway.**
+Declining to read a number on the graded channel is not discipline; it was over-correction from
+having been wrong three times. **Unexplained and recorded beats unread.**
+
+## A11.3 🔴 THE EXCLUSION LIST, SPLIT BY STRENGTH OF EVIDENCE
+
+Flattened into one list, six items read as equally excluded. They are not.
+
+**MEASURED CLEAN — the suspect itself was measured:**
+- **mesh**: 13–22 cells across the TE base in η 0.58–0.88 vs a requirement of ≫8
+- **farfield**: processor0 and processor1 own 11,040 and 10,342 *body* faces and **zero** farfield faces
+- **initial field**: self-consistent; its maximum **is** stagnation, 6427.135 Pa, to six figures
+- **clamps**: derived from the registered Mach; iteration 1 still overshoots them
+- **energy relaxation**: the dictionary that ran carries **both** `e 0.3` and `h 0.3`; the energy
+  equation **is** relaxed. *(Checked by the supervisor from the dictionary, not by a run.)*
+
+**NOT SOLELY RESPONSIBLE — removing it did not cure it:**
+- **the transonic branch / `div(phid,p)`**
+
+## A11.4 WHAT IS ACTUALLY EARNED, AND IT DOES NOT DEPEND ON A11.1
+
+**The divergence survives two different pressure-equation formulations, two preconditioners and
+two Krylov solvers** — PCG/DIC on a symmetric matrix and PBiCGStab/DILU on an asymmetric one.
+That is real support for *the cause is upstream of the pressure solve*, and it stands whatever
+A11.1 says.
+
+*And the DIC/DILU mirror is a structural confirmation in its own right: DIC was refused as
+asymmetric with transonic ON, DILU refused as symmetric with it OFF. Two refusals, opposite
+directions, same term — OpenFOAM confirming by construction that `div(phid,p)` is the asymmetry
+source.*
+
+## A11.5 🔴 STOP ELIMINATING SUSPECTS — PARTITION THE REMAINING SPACE IN ONE RUN
+
+Fourteen runs have eliminated one suspect at a time and the list is not empty. Everything upstream
+of the pressure solve is **U, h, nuTilda, the psi/rho closure and phi** — and every one is already
+written beside `p` on every write.
+
+> **REGISTERED CRITERION: WHICHEVER FIELD LEAVES ITS PHYSICAL RANGE FIRST IS UPSTREAM OF THE REST.**
+> Reported per iteration, each against its own physical scale: `max|U|` vs U∞ = 300.019 m/s;
+> `T` min/max vs T∞ = 310 K and T₀ = 354.795 K; `max nuTilda` vs the SA freestream 1.261×10⁻³;
+> `max|phi|`; `rho` min/max vs ρ∞ = 0.04503 kg/m³; and `p max` alongside.
+> **No mechanism is named in advance. This is a partition, not a guess.**
+
+## A11.6 🔴 `purgeWrite N` KEEPS THE MOST RECENT N — AND IT COST THIS ACT ITS BEGINNING TWICE
+
+Measured on this act's own runs:
+
+| run | `purgeWrite` | `writeInterval` | times retained |
+|---|---|---|---|
+| `DIAG_EARLY_T` | 20 | 1 | 0, **62 … 81** |
+| `PROBE_NOTRANSONIC_T` | **0** | 3 | 0, 3, 6, … 33 — **everything** |
+
+**The run built to capture the beginning does not contain the beginning.** `purgeWrite 20` kept the
+LAST twenty. **The value that works is `purgeWrite 0` — the exact value the launcher's guard
+refused until an hour ago**, which is now the second time that one number has cost this act its
+early evidence.
+
+**The partition run therefore uses `purgeWrite 0`, `writeInterval 1`, three to five iterations.**
