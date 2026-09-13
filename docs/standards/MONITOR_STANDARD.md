@@ -2963,3 +2963,62 @@ live name**. **All three are answerable before compute, and all three are free t
 | md5 of this file's HEAD blob before the append | `254545fe3a5b4651140b31b4a3bea847` |
 | md5 of this file's first **2919** lines after it | `254545fe3a5b4651140b31b4a3bea847` |
 | the two digests | **EQUAL — assertion MEASURED** |
+
+### 1a. SEPARATION-CLAUSE INSTANCE 3 — 🔴 **RULE 3's MISSING HALF: A NON-ZERO FROM A CHECKER NOT SHOWN ABLE TO RETURN ZERO IS NOT EVIDENCE EITHER**
+
+**This is an instance of the SEPARATION clause, not of the proxy clause, and the placement is
+the argument.** v1.15 §1 said the same question can be asked of the **reference arm** (member
+9), of the **threshold**, and of the **firing rate**. **There is a fourth place: THE CHECKER'S
+OWN REACHABLE OUTCOMES.** An instrument that cannot return both answers has **no separation in
+its own output space**, and it distinguishes nothing regardless of how correct its logic is.
+
+> ## **RULE 3: a ZERO from a reader not shown able to see a NON-ZERO is not evidence.**
+> ## **ITS MIRROR: a NON-ZERO from a checker not shown able to return ZERO is not evidence either.**
+
+**Every planted control in this lab proves the first direction. Almost none proves the second** —
+and a checker that can only ever say *"found something"* makes **its own silence worthless**,
+which is the state of every unproven clean report in this repository. **The asymmetry is not
+symmetric in consequence, which is why it went unnoticed:** the first direction protects a
+*claim of absence*, and absence claims are what the lab grades. The second protects a *claim of
+presence's complement* — and nobody grades a clean bill of health, so nobody tested that it
+could be issued.
+
+**DEMONSTRATED, not asserted, and on a real file:**
+`scripts/check_comparator_dead_values.py` returns **exit 1 with two findings** on
+`scripts/grade_m6_agard_cp.py`, and **exit 0, clean**, on
+`verification/runs/M6I_runs/extract_cp_m6i.py`. **Both outcomes reachable, both driven, on
+files that exist for other reasons** — a synthetic fixture would have demonstrated only that
+the code has an `if`.
+
+#### 🔴 AND THE DISCRIMINATOR FOR **REFUSE** VERSUS **REPORT**, SO THE NEXT INSTRUMENT DOES NOT COPY THIS ONE BLINDLY
+
+That checker **reports (exit 1) and does not refuse (exit 2)**, and the reason generalises:
+
+> **REFUSE WHEN THE FINDING IS ALWAYS A DEFECT. REPORT WHEN IT IS USUALLY BENIGN.**
+
+**A failed planted control is always a defect → exit 2.** **A dead prefix-variant is usually
+harmless — both known instances are → exit 1**, and the freezing lane declares or repairs.
+**Getting this backwards in either direction is how a guard becomes noise or a defect becomes
+optional**, and it is v1.14 member 10 (*usability is part of reliability*) applied at the
+design stage instead of after the complaints.
+
+#### WHAT IS **NOT** MEASURED HERE, AND WHY NO NUMBER IS OFFERED
+
+🔴 **This lane did NOT sweep the lab for instruments lacking the second limb, and states that
+rather than producing a figure.** The sweep is not cheap-and-reliable like §2b's `ast` pass:
+deciding whether a `selftest` exercises a **clean** outcome requires reading **intent**, not
+syntax, and a pattern-match over selftest bodies would be **precisely the proxy defect §2
+documents** — an instrument evaluating a correlate of the property it was asked about.
+**So: one demonstrated instrument, no prevalence claim, and the sweep named as not done and
+not cheaply doable.** The clause stands on the argument and on one driven demonstration.
+
+| addendum to the v1.15 record | |
+|---|---|
+| sections added | **1** (§1a); prior sections and record tables unchanged |
+| **separation-clause instances** | **2 → 3** (M-3 frequency, M-4 value, **§1a the checker's own outcome space**) |
+| members added to the proxy clause | **0** — it remains **13**, split 4 / 2 / 7 |
+| prevalence claims made | **0** — the sweep is named as not done and not cheaply doable |
+| **lines whose number changed above this section** | **0** |
+| md5 of this file's HEAD blob before the append | `a8e6b97dada43e20359e484d30590848` |
+| md5 of this file's first **2965** lines after it | `a8e6b97dada43e20359e484d30590848` |
+| the two digests | **EQUAL — assertion MEASURED** |
