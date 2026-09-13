@@ -28854,3 +28854,83 @@ are unchanged and were correct as written.
 reading to acting: the check was aimed at the thing the operator targeted rather than at the
 condition the operator wanted. Waste named separately per `COMPUTE_BUDGET_CHARTER` §6 and
 never folded into an act's ratio.*
+
+## L-588 — A SELF-CONSISTENCY GATE IS BLIND TO A COMMON-MODE ERROR IN WHATEVER BOTH SIDES SHARE; count a gate family's EXTERNAL ANCHORS, not its gates
+
+**Two independent instances in one item in one night, both measured, both nearly shipped.**
+
+**Instance 1 — `H1`, the fresh-mesh shape check (`D6R2C` After-item 9).** `H1` was built to
+stop a fresh-mesh confirmation from confirming the *wrong shape*: a bijection between the
+deformed CGNS surface nodes and the IDWarp-deformed OpenFOAM wall points at `1.0e-8`. Sound,
+and it would catch a mis-exported shape. But `d6r2c_freshmesh.py:231` sets the design
+variables and `:233` calls `geo.DVGeo.update("cgnssurf")` — **both surfaces are driven by the
+same `DVGeo`.** A scaler defect that installed `shape` **ten times too large** (`±2.786`
+against its own registered bounds of `±1`) moved *both* sides identically. **`H1` would have
+matched to machine precision and PASSED on a wing deformed 10x too far**, and so would `H2`
+and `H4`. Only `H3`, the one clause comparing against a number from outside the run, would
+have spoken — and it would have spoken as a `GATE FAIL` whose stated cause was the mesh.
+
+**Instance 2 — `ARM 0`, the parallelism-health gate (same item, §7).** A 2-vs-4 rank gradient
+comparison. It cannot, in principle, see an error common to both rank counts. Its `GATE FAIL`
+survived scrutiny only because `obj.J|shape` and `obj.J|twist` — 8 components over tolerance,
+worst `1.708777e-04` — are single arrays that cannot be replicated; the 19 disagreements in
+the triplicated `CL` rows carried nine misses counted twice.
+
+**The contrast that saved the sibling arm, and it is the whole lesson.** Item 8's `D2` requires
+`|J_B − J0| / J0 ≤ 1.0e-5` against a `J0` **fixed by md5 before the arm ran**. That clause
+points OUTSIDE the run, so the identical defect would have been caught at grading rather than
+published. Item 8 was structurally safe and item 9 was not, and **the difference was one
+clause, not the count or the care of the gates**: `H1`, `H2` and `H4` are all self-referential.
+
+**THE RULE.** When designing a gate family, do not ask "how many gates are there" or "is each
+one strict". Ask: **how many of these clauses compare against a quantity this run did not
+produce?** If the answer is zero, the family certifies internal consistency and nothing else,
+and it will pass a run that is uniformly and confidently wrong. **At least one clause must be
+anchored to something external and fixed before the run** — a prior measurement, a reference
+value, an md5-pinned artefact. A family of five self-consistent clauses is weaker than one
+external anchor.
+
+**The tell that this is the failure mode you are in:** the check compares two things the same
+code path produced. Rank A against rank B from one build. Surface X against surface Y from one
+`DVGeo`. A reader against a writer from one module. Each is worth having — they catch real
+faults — but **none of them is evidence that the answer is right**, and a record must not
+present one as if it were.
+
+**Filed against:** `PREREGISTRATION_AFTER_ITEMS.md` §4 (`H1`-`H4`) and `PREREGISTRATION.md` §7
+(`ARM 0`). The item-9 asymmetry was **disclosed, not repaired** — rule 2 closes gates after
+first compute, and writing a new clause to fit a defect already seen is the move
+pre-registration exists to prevent. It is carried to the successor item as a design
+requirement instead.
+
+## L-589 — A CONTROL BUILT IN A SIMPLIFIED SETTING CAN EXONERATE A REAL DEFECT; build the control in the configuration under test
+
+**Measured, and it nearly ended a correct investigation.** Chasing a suspected scaler defect
+in `D6R2C`'s decomposition producer, a lane wrote the obvious control first: a flat
+`om.Group`, `add_design_var(scaler=0.1)`, no case, no solver. In that setting OpenMDAO
+populates `total_scaler` — `0.1 / 10.0 / 0.1` — and the producer's divisor **agreed** with the
+runscript's. **The control REFUTED the hypothesis.** Reported at that point, the finding would
+have been "not the mechanism", and a producer that installs a wing 10x over-deformed would
+have gone back into the queue exonerated by a green control.
+
+**The real model says the opposite.** Built from the frozen runscript inside the pinned image:
+`total_scaler` is **`None` for every design variable**, `scaler` carries `twist 0.1`,
+`shape 10.0`, `patchV_* 0.1`, and reading back through the producer's own code path gives
+`patchV_cl04 = [10.0, 0.29303833722365635]` against the registered physical
+`[100.0, 2.9303833722365633]`.
+
+**The mechanism of the false exoneration:** `total_scaler` is populated when `add_design_var`
+is called on a flat group and is `None` in this model, where it is called inside a nested
+`configure()`. **The simplification removed the exact structure that caused the defect.**
+
+**THE RULE.** A control is only evidence about the configuration it was built in. When the
+suspected fault involves framework behaviour — resolution order, nesting, promotion, MPI
+decomposition, lazy setup — **a simplified reproduction is not a control, it is a different
+experiment**, and a green result from it is not exculpatory. Build the control against the
+real model, or state plainly that the control cannot bear on the question.
+
+**The meta-lesson, and the reason this is filed.** The lane ran the misleading probe FIRST,
+got an answer that contradicted its own hypothesis, and **reported that it had done so** rather
+than quietly dropping the probe that disagreed with it. A control that exonerates the suspect
+is precisely where a wrong answer gets manufactured — it arrives wearing the authority of a
+measurement and it closes an investigation. Report the disagreeing control and say why you
+went past it.
