@@ -48,6 +48,9 @@ PREREG = 'cases/PPTC_VP1304/PPTC_VP1304_OPEN_WATER_PREREGISTRATION.md'
 # would resolve into the run tree.
 REPO_ROOT_FOR_SCRIPTS = os.path.abspath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+# Set from --repo-root in main(); consulted ONLY if the path above does not carry
+# scripts/solver_log_set.py. See the note at its use site.
+_SCRIPTS_FALLBACK_ROOT = None
 
 # The grading path is pinned to the frozen pre-registration AS AMENDED, and the whole
 # history of that pin is recorded here so a reader can see what changed and when.
@@ -673,7 +676,20 @@ def check_completion(case: str) -> dict:
         r['error'] = 'system/controlDict carries no readable endTime'
         return r
 
-    repo_scripts = os.path.join(REPO_ROOT_FOR_SCRIPTS, 'scripts')
+    # `scripts/` is resolved from THIS FILE's location, never from cwd -- the comparator
+    # is run detached from the case directory and a cwd-derived root would resolve into
+    # the run tree.  THE FALLBACK EXISTS FOR ONE REASON AND IT IS NOT CONVENIENCE: a
+    # mutation control copies this file to a temporary directory and runs it, and
+    # without the fallback the copy dies on `ModuleNotFoundError` BEFORE reaching the
+    # mutated line -- so the control would report a refusal it never actually caused.
+    # Found exactly that way, 2026-09-13.  The fallback is tried ONLY when the
+    # file-derived path does not carry the module, so production behaviour is unchanged.
+    cands = [os.path.join(REPO_ROOT_FOR_SCRIPTS, 'scripts'),
+             os.path.join(_SCRIPTS_FALLBACK_ROOT, 'scripts') if _SCRIPTS_FALLBACK_ROOT
+             else None]
+    repo_scripts = next(
+        (c for c in cands if c and os.path.isfile(os.path.join(c, 'solver_log_set.py'))),
+        cands[0])
     if repo_scripts not in sys.path:
         sys.path.insert(0, repo_scripts)
     import solver_log_set as _sls
@@ -1093,6 +1109,7 @@ def main() -> int:
     ap.add_argument('--repo-root', default=os.getcwd())
     ap.add_argument('--selftest', action='store_true')
     a = ap.parse_args()
+    globals()['_SCRIPTS_FALLBACK_ROOT'] = os.path.abspath(a.repo_root)
 
     try:
         # THE CONTROLS RUN ALWAYS, BEFORE THE INSTRUMENT IS POINTED AT ANYTHING -- the

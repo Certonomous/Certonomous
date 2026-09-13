@@ -1408,3 +1408,66 @@ passed nine clauses of its own suite and was caught by one read of a real file.
 **Pre-compute. C4 controls now 12 clauses — 11 driven to REFUSE, the clean fixture to
 READABLE — including the header-trap regression and a decomposed eight-tree sum. The
 supervisor's ordered pre-flight is DISCHARGED and it fired.**
+
+---
+
+## AMENDMENT 8 — 2026-09-13, before first compute. C3 IS ARMED BEFORE THE SOLVE EXISTS, AND A MUTATION CONTROL FOUND THE COMPARATOR WAS NOT RELOCATABLE
+
+**Legality.** Rule 2, before first compute; condition checked at
+`/home/ubuntu/certonomous-runs/PPTC_VP1304/`. **No gate, threshold, band, cap or label
+moves.** The only behavioural change is a fallback that engages **solely** when the
+file-derived `scripts/` path does not carry `solver_log_set.py`, which in production it
+always does — so production behaviour is byte-unchanged.
+
+### A8.1 C3 armed without waiting for a solve
+
+C3 was the last unarmed instrument and was recorded as *"requires a case with forces
+output."* It does not require a **solve** — only the **artifact**. Driven end to end on a
+case built to pass C4 with the registered synthetic forces tree overlaid
+(`plant_calibration/make_synthetic_forces.py`):
+
+| | |
+|---|---|
+| thrust set `forcesThrust` over `(blades hub cap shaft)` | 88.715 N → 93.1507 N, **+5.0000 %** against an expected +5.00 % |
+| torque set `forcesTorque` over `(blades)` | 86.0535 N → 90.3562 N, **+5.0000 %** |
+
+**The whole comparator now runs end to end — C1, C2, C4, C3 — and returns a verdict.**
+
+> 🔴 **AND THAT VERDICT IS NOT A RESULT ABOUT THE PROPELLER, BY CONSTRUCTION.** The
+> synthetic tree is built **from** the measured KT 0.5052, so reading 0.5052 back is a
+> **round trip of the algebra, not evidence about the flow**. It says the pipeline inverts
+> correctly. **It says nothing about VP1304, and its printed `VERDICT: PASS` is
+> indistinguishable in the output from a real one** — noted here so that no reader, and no
+> screenshot, mistakes one for the other.
+
+### A8.2 Fixture versus artifact, checked as A7.4 now requires
+
+The synthetic tree writes **parenthesised vectors**; real OpenFOAM v2606 writes **bare
+columns**. Checked against a real `force.dat` from the same build
+(`_481094f-20260618`): both parse to **9 values per row with `total_x` at the index the
+comparator uses**, so the difference does not change the reading. **Checked, not assumed —
+that is the whole of A7.4.**
+
+### A8.3 🔴 C3's failing direction, and what it exposed
+
+| mutation | rc | reading |
+|---|---|---|
+| the plant is written but never applied | **2, REFUSE** | `+0.0000 %` against an expected +5.00 % |
+| the tolerance clause disabled, plant intact | 0, PASS | correct — a working plant should pass |
+| **both together** | **0, PASS** | `+0.0000 %` sails through and a **fully plausible KT 0.5052 is printed with `VERDICT: PASS`** |
+
+**The third row is the point: with the plant broken, the tolerance clause is the only thing
+that refuses.** It is load-bearing, not decorative.
+
+**And the first attempt at this control did not run at all.** The mutated copy died with
+`ModuleNotFoundError: No module named 'solver_log_set'` **before reaching the mutated line**,
+because `scripts/` is resolved from `__file__` — correct for production, since a cwd-derived
+root would resolve into the run tree, but it made the comparator **unrunnable from a copy**,
+and **a mutation control that cannot run reports a refusal it never caused.** The fallback
+added here is consulted **only** when the primary path lacks the module.
+
+### A8.4 Status
+
+**Pre-compute. C1 PASS, C2 PASS, C3 ARMED with its failing direction driven, C4 ARMED at 12
+clauses, SPD gate ARMED. Every instrument on the PPTC grading path is now armed before the
+first solve.**
