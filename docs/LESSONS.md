@@ -29652,3 +29652,79 @@ Eight blinding mutations across three logs now refuse with exit 2 wherever the
 blinded channel exists in the log; the one that does not refuse is genuinely
 redundant with another channel, and that is stated rather than counted as
 coverage.
+
+## L-602 — A PRESSURE OR VISCOUS COMPONENT IS NOT A FORCE, AND ARITHMETIC SELF-CONSISTENCY DOES NOT MAKE A FIELD REAL; an identity over a decomposition is a claim about the BOOKKEEPING, not about the physics
+
+**The artifact.** `/home/ubuntu/certonomous-runs/CRM_WB_D8G/SOLVE_T_SST/postProcessing/` — 21 steps
+of a run whose total drag coefficient reaches **−4.414128e+88**. There is no reading of that number
+under which the field is alive.
+
+**WHAT THE COMPONENT CHANNEL SAYS ABOUT THE SAME 21 STEPS.** Taking the `pressure_x/y/z` columns of
+`forces/0/force.dat`, projecting on the registered `dragDir` (9.988483864850e-01, 0,
+4.797812852100e-02) and normalising by `0.5 ρ U² A` with `U = 300.0189024`, `A = 191.8447776`:
+**6 of the 21 steps carry a pressure `Cd` inside L3's admissible band [0, 0.2].** The first five
+are −9.9e-07, −1.6e-03, +3.6e-03, +2.4e-03, +1.8e-03 — **small, plausible, and completely
+meaningless**, because the total on those same steps is already past 1e+08.
+
+**And the count does not depend on the normalisation.** Re-derived at `rhoInf` = 1.0, 0.4135 and
+1.225, the answer is **6 of 21 every time** — the band is wide relative to the component values, so
+the in-band count is set by the sign pattern, not by ρ. **A gate reading this channel would have
+passed six times on a destroyed solve, and would have passed six times whatever density it was
+handed.**
+
+**AND THE SELF-CONSISTENCY IDENTITY PASSES ON THE SAME FILE, TO MACHINE PRECISION.**
+`Cd(f) + Cd(r) == Cd` over all 21 rows of `forceCoeffs/0/coefficient.dat`:
+
+| statistic | relative error |
+|---|---|
+| max | **1.230e-11** |
+| mean | 1.716e-12 |
+| median | 6.896e-13 |
+| **min** | **0.000e+00 — exact, at t = 8** |
+
+**The file is perfectly self-consistent while being garbage.** At t = 8 the identity is satisfied
+*exactly*, on a row reading `Cd = 7.399767e+07`.
+
+**WHY THE IDENTITY CANNOT POSSIBLY CATCH THIS, STATED STRUCTURALLY.** `Cd(f)` and `Cd(r)` are the
+**front and rear axle split** of the very same integral that produced `Cd` — OpenFOAM computes the
+total and partitions it. The identity therefore asks *"does a sum of two parts equal the whole they
+were cut from?"* **That is a question about the partition arithmetic and it has the same answer on
+every field, alive or dead.** It catches a column-index error, a units slip, a transposed read
+(L-585 was exactly that, and this identity is what exposed it). **It cannot catch a dead field,
+because nothing about the field enters the question.**
+
+**NOTE THE SECOND TRAP SITTING BESIDE THE FIRST.** `coefficient.dat`'s header is
+`Time Cd Cd(f) Cd(r) Cl Cl(f) Cl(r) CmPitch CmRoll CmYaw Cs Cs(f) Cs(r)` — **there is no pressure
+column and no viscous column in that file at all.** `(f)`/`(r)` are FRONT/REAR, not
+pressure/viscous. The pressure/viscous decomposition lives in a **different file**,
+`forces/0/force.dat`, whose header is `total_* pressure_* viscous_*`. **Reading `Cd(f)` as "the
+pressure part" is a third instance of the L-585 misread in this same act**, and it is easy precisely
+because both files are called forces, both are written by the same function object, and `(f)` is a
+plausible abbreviation for exactly the wrong thing.
+
+**THE RULE.**
+1. **A component is evidence about a component.** A pressure `Cd` inside a band licenses no
+   statement about the force, and a gate that reads a component must state the total beside it or
+   it is not a force gate.
+2. **An identity over a decomposition of one quantity is a check on the BOOKKEEPING, never on the
+   PHYSICS.** Before citing any identity as a control, ask what it would read **on a field of pure
+   noise**. If the answer is "it still passes", it is a consistency check, and consistency checks
+   are silent about validity by construction. Pair every such identity with **one channel that has
+   an external anchor** — a reference value, a conservation law against an inflow, a bound the
+   physics cannot exceed.
+3. **Check the header of the file you are reading, every time, and check WHICH file.** Two files
+   from one function object, both about forces, with different decompositions and overlapping
+   names, is the exact configuration in which a reader reads the right column of the wrong split.
+
+**RECORDED BECAUSE THE AUTHOR HAD BEEN CITING THIS IDENTITY AS A CONTROL ALL NIGHT**, including in
+briefs to other lanes, and found it themselves rather than having it found for them. The lesson is
+not that the identity is worthless — it caught L-585 — but that **a control earns its standing
+against a stated failure mode, and this one's failure mode is a column error, not a dead solve.**
+
+**MEASUREMENT DISCLOSURE.** The relative-error figures above are this lane's own re-derivation over
+all 21 rows. **A residual of `8.64e-14` was reported for this identity and could NOT be reproduced
+here from any `coefficient.dat` under `/home/ubuntu/certonomous-runs/CRM_WB_D8G/` — neither the `Cd`
+nor the `Cl` triple, at any of the ten runs present, yields it as a max, mean or single-row value
+(the nearest is `PROBE_P3_MAXITER_T`'s `Cd` mean, 7.844e-14).** The discrepancy is recorded rather
+than reconciled; **it does not weaken the lesson, it strengthens it — the measured minimum is
+`0.000e+00`, an exact pass.**
