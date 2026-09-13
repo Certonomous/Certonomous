@@ -360,3 +360,11 @@ Earlier the same exchange, hers: "the in house is the one we built us ? not the 
 > ok thats good. plotting agent: for the mesh paraview view lets make sure to plot the coarse one or medium one else its hard to see . And in general for all the cases we should plot the coarse of medium mesh (but show the fine meshs result) so if you didnt plot the paraview of coarse/ medium make sure to have that too. Which plots are you going to provide/ make for suboff once its done ? surely some plot of quantity A vs angle of attack; some pressure plots and whatever else ? iw ant a list so i can add to it or disapprove. And good for dafoam.
 
 **Chief's reading:** every demo folder carries a coarse-or-medium mesh panel (the M6 fine-wall + 65 % cut from fix 3 stays as well); fields always from the finest completed level. The SUBOFF plot list goes to her for approval before the final SUBOFF plots are made.
+
+---
+
+## U. Propeller coarse design point on all 48 ranks — byte-exact, 2026-09-13 ~23:55Z
+
+> yeah i agree with giving it 48 ranks for the coarse provided it passes.
+
+**Chief's reading:** if PRISM-A2 (360° coarse, 19.8 M cells) passes her mesh gate, the design point J = 1.2021 launches on all 48 propeller ranks (not the 8 of the 8/16/24 split, which applies once three meshes exist); the medium build proceeds on the mesher's single core meanwhile.
