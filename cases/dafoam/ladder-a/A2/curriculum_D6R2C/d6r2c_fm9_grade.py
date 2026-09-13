@@ -923,6 +923,36 @@ def selftest():
               LABEL_NOT_A_RESULT)
         check("AT the cap is NOT crossed (strict >)",
               grade_item9(p, d, DATUM, inh, CAP, 0, log_path=lg)["label"], LABEL_PASS)
+
+        # ---- ADDENDUM 1: THE CONTROL THAT DRIVES main(), NOT THE FUNCTION -----
+        # THE DEFECT THIS EXISTS FOR: --log was absent from the parser and main()
+        # never passed log_path, so on the CLI path the corroboration limb and
+        # the convergence limb were both skipped and THIS GRADER COULD ONLY EVER
+        # RETURN NOT A RESULT.  Every control above calls grade_item9 DIRECTLY and
+        # none of them could see it.  I TESTED THE FUNCTION AND SHIPPED THE CLI.
+        p, d, lg = arm("cli")
+        df = os.path.join(d, ".d6r2c_age_datum")
+        open(df, "w").write(str(DATUM))
+        outp = os.path.join(d, "CLI_GRADE.json")
+        rcmain = main(["--item", "FM9", "--arm-dir", d, "--datum-file", df,
+                       "--core-min", "5.0", "--rc", "0", "--log", lg,
+                       "--out", outp])
+        check("main() accepts --log and exits 0", rcmain, 0)
+        check("main() wrote the verdict", os.path.isfile(outp), True)
+        got = json.load(open(outp))
+        check("THROUGH THE CLI the verdict is PASS, not the unconditional "
+              "NOT A RESULT the unrepaired entry point produced",
+              got["label"], LABEL_PASS)
+        check("...and the log-fed corroboration limb actually RAN",
+              got["M1_detail"]["limbs"]["log_corroboration"]["ok"], True)
+        check("...and the log-fed convergence limb actually RAN",
+              got["H4_detail"]["convergence_from_the_log"]["checked"], True)
+        # AND THE NEGATIVE: no --log through the CLI must still be NOT A RESULT
+        outp2 = os.path.join(d, "CLI_GRADE_NOLOG.json")
+        main(["--item", "FM9", "--arm-dir", d, "--datum-file", df,
+              "--core-min", "5.0", "--rc", "0", "--out", outp2])
+        check("NEGATIVE -- main() with NO --log is NOT A RESULT, never a silent pass",
+              json.load(open(outp2))["label"], LABEL_NOT_A_RESULT)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -942,6 +972,15 @@ def main(argv=None):
     ap.add_argument("--core-min", type=float)
     ap.add_argument("--rc", type=int)
     ap.add_argument("--out", help="where to write the verdict JSON")
+    # ADDENDUM 1: --log WAS ABSENT AND main() NEVER PASSED log_path.  Both the
+    # mesh-corroboration limb and the convergence limb sit behind
+    # `if log_path and os.path.isfile(...)`, so ON THE CLI PATH THEY WERE SKIPPED
+    # AND THIS GRADER COULD ONLY EVER RETURN NOT A RESULT.  The launcher emitted
+    # `--log` and argparse rejected it.  The selftest did not see it because IT
+    # CALLS THE GRADING FUNCTION DIRECTLY AND NEVER GOES THROUGH main() -- the
+    # function was tested and the entry point was shipped.
+    ap.add_argument("--log", help="the arm log: the ONLY source of convergence "
+                                  "evidence and of the mesh corroboration limb")
     ap.add_argument("--print-cap", metavar="ARM",
                     help="print the registered cap in core-minutes for ARM and exit. "
                          "THE LAUNCHER CALLS THIS RATHER THAN CARRYING ITS OWN LITERAL.")
@@ -963,7 +1002,7 @@ def main(argv=None):
         inherited = load_inherited(a.evals)
         kw = dict(json_path=os.path.join(a.arm_dir, "d6r2c_freshmesh.json"),
                   arm_dir=a.arm_dir, datum_epoch=datum, inherited=inherited,
-                  core_min=a.core_min, rc=a.rc)
+                  core_min=a.core_min, rc=a.rc, log_path=a.log)
         rec = grade_item9(**kw)
         rec["planted_control"] = live_plant_check(a.item, kw, rec["label"])
     except Refusal as e:

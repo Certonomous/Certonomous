@@ -19,6 +19,26 @@
 #         heights).  This arm starts from the case's own freestream 0.orig.
 #   E3 -- the pins are the FM9 instruments plus the REUSED freshmesh producer and
 #         its library, both unchanged.
+# ADDENDUM 1 (2026-09-13): FM9 was launched onto cpuset 2,3,4,5 -- THE SAME FOUR
+# CORES DEC7 ALREADY HELD -- putting eight MPI ranks on four cores.  MEASURED on
+# DEC7's own log: its clock/exec ratio went from ~1.00-1.15 (thousands of samples)
+# to a steady 1.98-2.19, and recovered to 0.77-1.20 the moment FM9 was stopped.
+# DEC7 RAN AT HALF SPEED FOR FIFTEEN MINUTES.  N-D4 records this class already --
+# a pinned 4-rank DAFoam job degrading 21.5x under co-tenants.
+#
+# AND NOTE THE SHAPE OF WHAT FAILED: guard_box measured `load1 = 41 of 96` AND
+# THAT WAS TRUE AND IRRELEVANT.  A BOX-LEVEL AVERAGE CANNOT SEE FOUR SATURATED
+# CORES INSIDE A 96-CORE MACHINE.  That is a guard reading an ADJACENT QUANTITY
+# -- L-595 -- and the repair is to read the quantity that matters:
+#   E5 -- CPUSET IS CHOSEN AT LAUNCH FROM CORES NO RUNNING CONTAINER HOLDS,
+#         never hardcoded.
+#   E6 -- G-CPUSET, NEW: refuse to START if the chosen cpuset intersects any
+#         running container's.  A launch precondition that refuses to start and
+#         NEVER STOPS ANYTHING RUNNING -- structurally identical to the load and
+#         swap limbs, and it would have caught this in one line.
+#   E7 -- FM10 is the RE-RUN ID, carrying the IDENTICAL registered cap of 34.200.
+#         FM9 keeps its directory and its NOT A RESULT row and is never re-seeded.
+#
 #   E4 -- THE CAP IS NOT CARRIED HERE and the provenance label names the file it
 #         actually calls.  The GS1 launcher printed
 #         `source=d6r2c_fm6_grade.py` while calling the GS1 grader -- the value
@@ -52,7 +72,10 @@ IMG_PATCHED_DIGEST=sha256:2927768a16acdea0330180fff95c8879c1dda9efcf6028728523b7
 STAGED_PY="d6r2c_opt_runScript.py d6r2c_freshmesh.py d6r2c_decomp.py d6r2c_fm9_stage.py"
 
 RANKS=4
-CPUSET=2,3,4,5
+# CPUSET IS NO LONGER A CONSTANT (E5).  It is chosen at launch by free_cpuset()
+# from cores no running container holds.  The value below is only the fallback
+# this file refuses on: if nothing free can be found, THE ARM DOES NOT START.
+CPUSET=""
 MEM_LIMIT=20g
 MEM_FOOTPRINT_GB=17
 RUN_UID=1000; RUN_GID=1000; EXTRA_GID=1002
@@ -89,7 +112,7 @@ CKPT_INTERVAL_S=1800
 # and a cap that is one number in one place stays one number in one place.
 cap_core_min() {
   case "$1" in
-    FM9) python3 "$SRC/d6r2c_fm9_grade.py" --print-cap FM9 2>/dev/null ;;
+    FM9|FM10) python3 "$SRC/d6r2c_fm9_grade.py" --print-cap FM9 2>/dev/null ;;
     *) echo "" ;;
   esac
 }
@@ -135,6 +158,143 @@ $FM6_BASE
 }
 
 md5_is() { [ "$(md5sum "$1" | cut -d' ' -f1)" = "$2" ]; }
+
+# ===========================================================================
+# THE CORES OTHER CONTAINERS HOLD, AND A CPUSET THAT AVOIDS THEM (E5, E6)
+# ===========================================================================
+occupied_cpus() {
+  local c
+  for c in $(sudo -n docker ps -q 2>/dev/null); do
+    sudo -n docker inspect -f '{{.HostConfig.CpusetCpus}}' "$c" 2>/dev/null
+  done | paste -sd, -
+}
+
+# BUSY_PCT -- AND THE HONEST HISTORY OF THIS NUMBER, because the first version
+# of it was wrong and its own control said so before anything was frozen.
+#
+# FIRST CLAIM: sampling every core for 2.0 s on 2026-09-13 with zero containers
+# running gave 37 cores at >=90% busy, 59 at <10%, and NOT ONE in between.  I
+# registered BUSY_PCT = 50.0 as the midpoint of that empty band and wrote a
+# control asserting that 1%, 50% and 99% must partition the box identically.
+#
+# THE CONTROL FAILED ON ITS FIRST RUN.  Over a 1.0 s window the same box gives
+# 40 cores at >=1%, 38 at >=50% and 36 at >=99%.  THE BAND IS NOT EMPTY; it only
+# looked empty at one interval.  A few cores are genuinely partially loaded, and
+# a shorter sample catches them straddling.  So BUSY_PCT IS NOT A DERIVED
+# SEPARATOR AND I WILL NOT CALL IT ONE.
+#
+# WHAT IT IS INSTEAD: this is a guard whose only action is TO REFUSE TO START,
+# so its error should fall toward refusing.  BUSY_PCT = 1.0 is the conservative
+# end -- any core doing measurable work is treated as occupied -- and it gives
+# up on discriminating rather than pretending to.  IT COSTS NOTHING HERE: at 1%
+# the box still showed 56 free cores against the 4 this arm needs.
+BUSY_PCT=1.0
+BUSY_INTERVAL=2.0
+
+# classify_busy <snapA> <snapB> <pct>  -- prints the cores at or above pct.
+# A PURE FUNCTION OVER TWO /proc/stat TEXTS, deliberately: that is what lets the
+# selftest drive it with synthetic samples.  A reader that can only be pointed
+# at the live box can only be tested against whatever the box happens to do.
+classify_busy() {
+  python3 - "$1" "$2" "$3" <<'BUSYPY'
+import sys
+def snap(p):
+    d = {}
+    for l in open(p):
+        if l.startswith("cpu") and len(l) > 3 and l[3].isdigit():
+            f = l.split(); c = int(f[0][3:]); v = [int(x) for x in f[1:]]
+            d[c] = (sum(v), v[3] + v[4])       # total, idle+iowait
+    return d
+a, b, pct = snap(sys.argv[1]), snap(sys.argv[2]), float(sys.argv[3])
+out = []
+for c in sorted(a):
+    if c not in b:
+        continue
+    dt = b[c][0] - a[c][0]; di = b[c][1] - a[c][1]
+    if dt > 0 and 100.0 * (dt - di) / dt >= pct:
+        out.append(c)
+print(",".join(str(c) for c in out))
+BUSYPY
+}
+
+# busy_cpus -- THE SECOND OCCUPANCY SOURCE, and the one that sees what docker
+# cannot.  MEASURED 2026-09-13, minutes after DEC7 exited: `docker ps` was EMPTY
+# and reported no occupied cores at all, while cores 1, 2 and 7 sat at 100%.
+# The old hardcoded 2,3,4,5 would have put two ranks on core 2 AND THE DOCKER
+# LIMB WOULD HAVE CALLED IT FREE.  Bare-metal mpirun from another team is
+# invisible to the container daemon exactly as fleet agents are invisible to
+# pgrep (L-41).  A guard that reads the container list is reading an ADJACENT
+# QUANTITY; this one reads whether the core is actually running something.
+busy_cpus() {
+  local d; d=$(mktemp -d)
+  cp /proc/stat "$d/a"; sleep "$BUSY_INTERVAL"; cp /proc/stat "$d/b"
+  classify_busy "$d/a" "$d/b" "$BUSY_PCT"
+  rm -rf "$d"
+}
+
+# free_cpuset <n_ranks> <occupied_csv> <nproc>  -- prints a cpuset or nothing.
+# Taking the occupancy AS AN ARGUMENT is what lets the selftest drive it against
+# a synthetic busy box; a function that reads the live daemon can only ever be
+# tested against whatever the box happens to be doing.
+free_cpuset() {
+  python3 - "$1" "$2" "$3" <<'CPUPY'
+import sys
+k, occ_s, n = int(sys.argv[1]), sys.argv[2], int(sys.argv[3])
+occ = set()
+for tok in occ_s.split(","):
+    tok = tok.strip()
+    if not tok:
+        continue
+    if "-" in tok:
+        a, b = tok.split("-", 1)
+        if a.strip().isdigit() and b.strip().isdigit():
+            occ.update(range(int(a), int(b) + 1))
+    elif tok.isdigit():
+        occ.add(int(tok))
+free = [c for c in range(n) if c not in occ]
+# leave cores 0 and 1 to the OS when there is any choice at all
+pref = [c for c in free if c > 1] or free
+if len(pref) < k:
+    sys.exit(1)
+print(",".join(str(c) for c in pref[:k]))
+CPUPY
+}
+
+# G-CPUSET -- REFUSE TO START if the chosen cpuset touches a core already in use,
+# by a container OR by anything else the busy sample can see.
+# It never stops anything: it is a launch precondition, like G-BOX's load and
+# swap limbs.  FM9 crossed its cap purely because this did not exist.
+guard_cpuset() {
+  local want="$1" occ="$2"
+  python3 - "$want" "$occ" <<'CPUPY'
+import sys
+def expand(s):
+    out = set()
+    for tok in s.split(","):
+        tok = tok.strip()
+        if not tok:
+            continue
+        if "-" in tok:
+            a, b = tok.split("-", 1)
+            if a.strip().isdigit() and b.strip().isdigit():
+                out.update(range(int(a), int(b) + 1))
+        elif tok.isdigit():
+            out.add(int(tok))
+    return out
+want, occ = expand(sys.argv[1]), expand(sys.argv[2])
+clash = sorted(want & occ)
+if clash:
+    print("ABORT G-CPUSET the chosen cpuset %s intersects cores ALREADY IN USE -- "
+          "by a running container, or measurably busy with no container at all: %s."
+          % (sys.argv[1], clash))
+    print("  A BOX-LEVEL LOAD AVERAGE CANNOT SEE THIS.  Eight MPI ranks on four "
+          "cores halved another arm's throughput for fifteen minutes (ADDENDUM 1).")
+    print("  This guard REFUSES TO START and stops nothing that is running.")
+    sys.exit(1)
+print("D6R2C_FM9_G_CPUSET_PASS cpuset=%s occupied=%s"
+      % (sys.argv[1], sorted(occ) if occ else "none"))
+CPUPY
+}
 
 # ===========================================================================
 # G-DEPS (C7) -- EVERY LOCAL MODULE A STAGED FILE IMPORTS MUST ITSELF BE STAGED.
@@ -415,11 +575,85 @@ if [ "$ARM" = "--selftest" ]; then
   grep -qE "^(STAGED_PY|# PIN).*d6r2c_fm6_init" "$0" \
     && { echo "SELFTEST FAIL the invalid field transfer is staged or pinned"; rc=1; } \
     || echo "SELFTEST ok the index transfer is neither staged nor pinned here"
-  [ "$rc" -eq 0 ] && echo "D6R2C_FM9_LAUNCH SELFTEST PASS n=13" || echo "D6R2C_FM9_LAUNCH SELFTEST FAIL"
+  # ---- E5/E6: THE CPUSET LIMB, DRIVEN IN BOTH DIRECTIONS -------------------
+  # THE REPLAY CONTROL, AND IT IS THE ONE THAT MATTERS: hand guard_cpuset the
+  # EXACT situation of 2026-09-13 -- this arm wanting 2,3,4,5 while DEC7 held
+  # 2,3,4,5 -- and REQUIRE a refusal.  If this control passes silently the limb
+  # is decoration.  guard_box measured load1=41 of 96 in that same moment and
+  # said nothing, because a box average cannot see four saturated cores.
+  CPOUT=$(guard_cpuset "2,3,4,5" "2,3,4,5" 2>&1 || true)
+  if guard_cpuset "2,3,4,5" "2,3,4,5" >/dev/null 2>&1; then
+    echo "SELFTEST FAIL G-CPUSET ACCEPTED THE EXACT COLLISION THAT HALVED DEC7"; rc=1
+  else
+    case "$CPOUT" in
+      *"intersects cores ALREADY IN USE"*[2]*)
+        echo "SELFTEST ok G-CPUSET refuses FM9's own collision AND names the cores" ;;
+      *) echo "SELFTEST FAIL G-CPUSET refused without naming the clash"; rc=1 ;;
+    esac
+  fi
+  # A PARTIAL overlap must refuse too: one shared core is still two ranks deep.
+  guard_cpuset "4,5,6,7" "2,3,4,5" >/dev/null 2>&1     && { echo "SELFTEST FAIL G-CPUSET accepted a PARTIAL overlap"; rc=1; }     || echo "SELFTEST ok G-CPUSET refuses a partial overlap, not just an identical one"
+  # ... and a RANGE spelling, which is how docker reports many containers.
+  guard_cpuset "6,7,8,9" "4-8" >/dev/null 2>&1     && { echo "SELFTEST FAIL G-CPUSET is blind to the a-b range spelling"; rc=1; }     || echo "SELFTEST ok G-CPUSET reads the 4-8 range spelling docker actually emits"
+  # THE POSITIVE, which must exist or the limb refuses everything and looks safe:
+  guard_cpuset "2,3,4,5" "10,11,12,13" >/dev/null 2>&1     && echo "SELFTEST ok G-CPUSET PASSES a genuinely disjoint cpuset"     || { echo "SELFTEST FAIL G-CPUSET refused a disjoint cpuset"; rc=1; }
+  # free_cpuset AVOIDS the occupied cores rather than merely returning something.
+  PICK=$(free_cpuset 4 "2,3,4,5" 16)
+  [ "$PICK" = "6,7,8,9" ]     && echo "SELFTEST ok free_cpuset steps over the occupied cores (picked $PICK)"     || { echo "SELFTEST FAIL free_cpuset picked [$PICK] on a box holding 2,3,4,5"; rc=1; }
+  # and its OUTPUT SURVIVES ITS OWN GUARD -- the two are not independently right.
+  guard_cpuset "$PICK" "2,3,4,5" >/dev/null 2>&1     && echo "SELFTEST ok what free_cpuset chooses is what G-CPUSET accepts"     || { echo "SELFTEST FAIL the chooser and the guard disagree"; rc=1; }
+  # WHEN NOTHING IS FREE IT MUST FAIL, not fall back to a shared core.  This is
+  # the clause that makes waiting for the box the default.
+  free_cpuset 4 "0-15" 16 >/dev/null 2>&1     && { echo "SELFTEST FAIL free_cpuset invented cores on a fully occupied box"; rc=1; }     || echo "SELFTEST ok free_cpuset REFUSES when no 4 cores are free"
+  # AND THE CPUSET IS NOT HARDCODED ANY MORE (E5).  This reads the assignment,
+  # not a comment: the literal 2,3,4,5 appears in this file only inside controls.
+  [ "$(grep -cE '^CPUSET=[0-9]' "$0")" -eq 0 ]     && echo "SELFTEST ok no hardcoded cpuset assignment survives in this launcher"     || { echo "SELFTEST FAIL a hardcoded CPUSET= assignment is still here"; rc=1; }
+  # ---- E5b: THE BUSY-SAMPLE LIMB, DRIVEN ON SYNTHETIC /proc/stat SAMPLES ----
+  # Two hand-built snapshots: core 0 fully idle, core 1 fully busy, core 2 half.
+  # Field order is user nice system IDLE IOWAIT irq softirq steal.
+  SD=$(mktemp -d)
+  printf 'cpu  0 0 0 0 0 0 0 0\ncpu0 100 0 0 1000 0 0 0 0\ncpu1 100 0 0 1000 0 0 0 0\ncpu2 100 0 0 1000 0 0 0 0\n' > "$SD/a"
+  printf 'cpu  0 0 0 0 0 0 0 0\ncpu0 100 0 0 2000 0 0 0 0\ncpu1 1100 0 0 1000 0 0 0 0\ncpu2 600 0 0 1500 0 0 0 0\n' > "$SD/b"
+  [ "$(classify_busy "$SD/a" "$SD/b" 50.0)" = "1,2" ] \
+    && echo "SELFTEST ok classify_busy reads a 100%% core and a 50%% core as busy, an idle one as free" \
+    || { echo "SELFTEST FAIL classify_busy returned [$(classify_busy "$SD/a" "$SD/b" 50.0)] not 1,2"; rc=1; }
+  # THE NEGATIVE, which is what proves it is not simply listing every core:
+  [ "$(classify_busy "$SD/a" "$SD/b" 99.0)" = "1" ] \
+    && echo "SELFTEST ok at 99%% only the saturated core is called busy -- the reader discriminates" \
+    || { echo "SELFTEST FAIL classify_busy does not discriminate by threshold"; rc=1; }
+  [ -z "$(classify_busy "$SD/a" "$SD/a" 50.0)" ] \
+    && echo "SELFTEST ok classify_busy calls a box with NO elapsed work entirely free" \
+    || { echo "SELFTEST FAIL classify_busy invented busy cores from a zero interval"; rc=1; }
+  rm -rf "$SD"
+  # BUSY_PCT: THE PROPERTY THAT IS ACTUALLY TRUE, asserted -- MONOTONICITY.
+  # The earlier draft asserted that 1%%, 50%% and 99%% partition the box
+  # identically, on the strength of one 2.0 s sample.  IT FAILED HERE ON ITS
+  # FIRST RUN and the band is not empty; the comment at BUSY_PCT records that in
+  # full.  What is genuinely true of the reader is that lowering the threshold
+  # can only ADD cores, and a guard is only safe if its most conservative
+  # setting is also its widest.  Anything else means the reader is not ordered.
+  LD=$(mktemp -d); cp /proc/stat "$LD/a"; sleep 1.0; cp /proc/stat "$LD/b"
+  B1=$(classify_busy "$LD/a" "$LD/b" 1.0); B99=$(classify_busy "$LD/a" "$LD/b" 99.0)
+  rm -rf "$LD"
+  MONO=$(python3 -c "import sys; a=set(sys.argv[1].split(',')) - {''}; b=set(sys.argv[2].split(',')) - {''}; print('yes' if b <= a else 'no')" "$B1" "$B99")
+  [ "$MONO" = "yes" ] \
+    && echo "SELFTEST ok the busy set at 1%% CONTAINS the set at 99%% -- the reader is ordered, and BUSY_PCT=$BUSY_PCT is its most conservative end" \
+    || { echo "SELFTEST FAIL classify_busy is not monotone in the threshold (1%%:[$B1] 99%%:[$B99])"; rc=1; }
+  # AND IT IS REPORTED, not silently assumed: the spread between the two ends is
+  # the number of partially-loaded cores, which is exactly what killed the
+  # first claim.  A count, printed, every run.
+  echo "SELFTEST NOTE busy cores at 1%%: $(echo "$B1" | tr ',' '\n' | grep -c .) ; at 99%%: $(echo "$B99" | tr ',' '\n' | grep -c .) ; the difference is the partially-loaded population the first BUSY_PCT claim denied existed"
+  # AND THE UNION IS A UNION: a core busy in EITHER source is occupied.
+  [ "$(guard_cpuset "2,3,4,5" "$(printf '%s,%s' '' '2')" >/dev/null 2>&1; echo $?)" = "1" ] \
+    && echo "SELFTEST ok a core busy with NO container at all still blocks the cpuset" \
+    || { echo "SELFTEST FAIL a bare-metal busy core did not block"; rc=1; }
+  # ---- E7: FM10 IS LAUNCHABLE AND CARRIES THE IDENTICAL REGISTERED CAP ------
+  [ "$(cap_core_min FM10)" = "34.200" ]     && echo "SELFTEST ok FM10 carries FM9's identical registered cap of 34.200"     || { echo "SELFTEST FAIL FM10 cap is [$(cap_core_min FM10)] not 34.200"; rc=1; }
+  [ "$rc" -eq 0 ] && echo "D6R2C_FM9_LAUNCH SELFTEST PASS n=27" || echo "D6R2C_FM9_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_fm9_run_arm.sh FM9 <image>  |  --selftest"; exit 64; }
-case "$ARM" in FM9) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
+test -n "$ARM" || { echo "ABORT usage: d6r2c_fm9_run_arm.sh <FM9|FM10> <image>  |  --selftest"; exit 64; }
+case "$ARM" in FM9|FM10) ;; *) echo "ABORT arm $ARM is not registered by this document"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
@@ -427,6 +661,23 @@ guard_root "$BASE" || exit $?
 guard_box || exit $?
 guard_freeze || exit $?
 guard_deps $STAGED_PY || exit 4
+
+# ---- E5/E6: CHOOSE A CPUSET NOTHING ELSE HOLDS, THEN PROVE IT ---------------
+OCC_DOCKER=$(occupied_cpus)
+OCC_BUSY=$(busy_cpus)
+# THE UNION.  Either source alone has a blind spot the other covers: docker
+# misses bare-metal mpirun, and a sampled core can be idle in the instant it is
+# read.  Occupied means occupied ACCORDING TO EITHER.
+OCC=$(printf '%s,%s' "$OCC_DOCKER" "$OCC_BUSY" | sed 's/^,//; s/,$//')
+CPUSET=$(free_cpuset "$RANKS" "$OCC" "$(nproc)") || {
+  echo "ABORT G-CPUSET no $RANKS cores are free (occupied: ${OCC:-none})."
+  echo "  THE ARM DOES NOT START.  Sharing cores with a live arm is what cost DEC7"
+  echo "  fifteen minutes at half speed (ADDENDUM 1).  Wait for the box instead."
+  exit 5; }
+guard_cpuset "$CPUSET" "$OCC" || exit 5
+echo "D6R2C_FM9_CPUSET arm=$ARM chosen=$CPUSET nproc=$(nproc)"
+echo "D6R2C_FM9_CPUSET   by container: ${OCC_DOCKER:-none}"
+echo "D6R2C_FM9_CPUSET   by ${BUSY_PCT}%-busy sample over ${BUSY_INTERVAL}s: ${OCC_BUSY:-none}"
 
 # THE CAP IS READ ONLY NOW -- AFTER G-FREEZE HAS PINNED THE GRADER'S BYTES.
 CAP=$(cap_core_min "$ARM"); test -n "$CAP" || { echo "ABORT no registered cap for arm $ARM"; exit 64; }
@@ -508,7 +759,7 @@ exit 0
 # d6r2c_freshmesh.py AND d6r2c_decomp.py ARE REUSED UNCHANGED -- deform, mesh and
 # solve are the same bytes that ran FM5, FM7 and FM8, and that is deliberate: the
 # one registered change is the staging phase between them, not a new producer.
-# PIN d6r2c_fm9_grade.py b3a07cfa4d61f44ac0b555c64c31669b
+# PIN d6r2c_fm9_grade.py bcf2c674741955066b8a09f97d6e4262
 # PIN d6r2c_fm9_stage.py ea6d180fda38a3980bbb275b86d192c1
 # PIN d6r2c_freshmesh.py 1d15ce361673ca600d565280441b67e0
 # PIN d6r2c_decomp.py 42ec0dd582584812a69129a474b2783e

@@ -319,3 +319,108 @@ launcher**; and **the absence of the invalid field transfer from the staged set 
 full `c7f5feda…` hash appeared only truncated, and the stage record's filename was nowhere in the text.
 Closed at §1a, §3 and §2a. **Third time this check has caught exactly this shape, and all three times
 the instruments were right and the prose was short.**
+
+---
+
+## ADDENDUM 5 — 2026-09-13 — THE CPUSET COLLISION, THE GRADER'S DEAD ENTRY POINT, AND `FM10`
+
+**This addendum alters no gate, no threshold, no cap and no label.** `FM9`'s row stands at
+**`NOT A RESULT`** and is never re-seeded. `FM10` is the re-run and carries the **identical registered
+cap of 34.200 core-minutes** from §8. Repairs land under `VERIFICATION_CHARTER` §2d.1; the grading path
+is unchanged in what it computes.
+
+### A5.1 — `FM9` CROSSED ITS CAP BECAUSE I PUT IT ON CORES ANOTHER ARM WAS USING
+
+`FM9` was launched onto cpuset `2,3,4,5` — **the same four cores `DEC7` already held** — putting eight
+MPI ranks on four cores. Measured on `DEC7`'s own log: its clock/exec ratio moved from ~1.00–1.15
+across thousands of samples to a steady **1.98–2.19**, and recovered to 0.77–1.20 the moment `FM9` was
+stopped. `DEC7` ran at half speed for roughly fifteen minutes. `FM9`'s ledger row:
+`rc=137 wall_s=950 core_min=63.333 cap=34.200`, `CAP_CROSSED`. **N-D4 already records this class** — a
+pinned 4-rank DAFoam job degrading 21.5× under co-tenants.
+
+**`guard_box` was running and it passed.** It measured `load1 = 41 of 96`, **which was true and
+irrelevant**: a box-level average over 96 cores cannot see four saturated ones. That is a guard reading
+an **adjacent quantity** — L-595 — and it is the fourth member of that family.
+
+### A5.2 — `G-CPUSET`: A LAUNCH PRECONDITION THAT REFUSES TO START AND STOPS NOTHING
+
+New in `d6r2c_fm9_run_arm.sh`, structurally identical to `guard_box`'s load and swap limbs:
+
+- **`CPUSET` is no longer a constant** (E5). It is chosen at launch by `free_cpuset()` from cores
+  nothing else is using. The selftest asserts **no `^CPUSET=<digit>` assignment survives in the file**.
+- **`guard_cpuset()` refuses to start** (E6) if the chosen set intersects the occupied set, and names
+  the clashing cores. If no `RANKS` cores are free, **the arm does not start** — waiting for the box is
+  the default, not sharing it.
+- **Occupancy has two sources and they are unioned**, because each alone has the other's blind spot.
+
+**`occupied_cpus()`** reads every running container's `HostConfig.CpusetCpus`.
+**`busy_cpus()`** samples `/proc/stat` twice over `BUSY_INTERVAL = 2.0 s` and calls a core occupied at
+or above `BUSY_PCT`. **The second source is not theoretical.** Measured 2026-09-13, minutes after
+`DEC7` exited: **`docker ps` was empty and reported no occupied cores at all, while cores 1, 2 and 7
+sat at 100%.** The old hardcoded `2,3,4,5` would have put two ranks on core 2 **and the container limb
+would have called it free** — bare-metal `mpirun` from another team is invisible to the daemon exactly
+as fleet agents are invisible to `pgrep` (L-41). Driven live against the current box, the guard
+**refuses `2,3,4,5` naming core 2**, and `free_cpuset` chooses `3,4,5,6` instead.
+
+### A5.3 — `BUSY_PCT` WAS REGISTERED WRONG AND ITS OWN CONTROL SAID SO BEFORE THE FREEZE
+
+**Recorded because the correction is the evidence.** The first version of this addendum registered
+`BUSY_PCT = 50.0` as **derived**: a 2.0 s sample of all 96 cores gave 37 at ≥90% busy, 59 at <10%, and
+**not one core in between**, so 50.0 was the midpoint of a measured empty band and every threshold in
+`(0.5, 100)` would partition identically. A control was written asserting exactly that.
+
+**The control failed on its first run.** Over a 1.0 s window the same box gives **40 cores at ≥1%, 38
+at ≥50%, 36 at ≥99%**. The band is not empty; it only looked empty at one interval, and a handful of
+cores are genuinely partially loaded. **`BUSY_PCT` is therefore not a derived separator and this
+document no longer calls it one.** It is set to **1.0**, the conservative end of a guard whose only
+action is to refuse: any core doing measurable work counts as occupied. That costs nothing here — at
+1% the box still showed 56 free cores against the 4 this arm needs.
+
+What is asserted instead is the property that **is** true of the reader: **monotonicity** — the busy
+set at 1% contains the set at 99%, so the most conservative setting is also the widest. The count at
+each end is **printed every run**, and the difference is the partially-loaded population the first
+claim denied existed.
+
+### A5.4 — THE GRADER COULD ONLY EVER HAVE RETURNED `NOT A RESULT`
+
+`d6r2c_fm9_grade.py` was forked from `d6r2c_fm6_grade.py`, which has no `--log`. The launcher emitted
+`--log`, the parser did not accept it, and `main()` never passed `log_path` — so on the CLI path the
+convergence limbs and the mesh corroboration limb were skipped and **the grader's only reachable
+verdict was `NOT A RESULT`, whatever the arm did.** The selftest had driven the *function* and the
+*entry point* was shipped: L-595's shape again, inside my own instrument.
+
+Repaired: `--log` added to the parser, `log_path=a.log` passed through `main()`, and **a control that
+drives `main()` through the CLI**, asserting a `PASS` where the unrepaired entry point produced an
+unconditional `NOT A RESULT`, plus a negative control asserting that `main()` *without* `--log` is
+still `NOT A RESULT`. **No gate, threshold, cap or label moved** — §2d.1.
+
+**A correction I owe the record:** I reported to my supervisor that `d6r2c_gs2_grade.py` shared this
+hole. **That was wrong.** `d6r2c_gs2_grade.py` already accepts `--log` and already passes `log_path`,
+as does `d6r2c_gs1_grade.py`. **Only the `FM9` grader had the defect**, because only it was forked from
+the `FM6` grader. No change was made to either `GS` grader.
+
+### A5.5 — `FM10`, AND THE REPINNED INSTRUMENTS
+
+`FM10` is accepted by the launcher alongside `FM9` and resolves to the **same cap of 34.200** from the
+same single source (`--print-cap`), asserted in the selftest. **`FM9`'s directory and its `NOT A
+RESULT` row are untouched.**
+
+| Instrument | md5 at `317ab5b3` | md5 now | Changed |
+|---|---|---|---|
+| `d6r2c_fm9_stage.py` | `ea6d180fda38a3980bbb275b86d192c1` | `ea6d180fda38a3980bbb275b86d192c1` | **no** |
+| `d6r2c_fm9_grade.py` | `b3a07cfa4d61f44ac0b555c64c31669b` | `bcf2c674741955066b8a09f97d6e4262` | yes — A5.4 |
+| `d6r2c_fm9_run_arm.sh` | `3f0c1fc6ab8f58b790e26a8a16018f96` | `8694935d672e87109fad65dc6ef291e5` | yes — A5.2, and the grader repin |
+
+`G-FREEZE` refused the tree the moment the grader's bytes moved, which is the pin doing its job; the
+launcher's `# PIN d6r2c_fm9_grade.py` line carries the new md5. Selftests after every repair:
+**grader `PASS n=47`**, **launcher `PASS n=27`** (13 before this addendum).
+
+### A5.6 — WHAT THIS ADDENDUM DOES NOT CLAIM
+
+- It does **not** claim `FM10` will converge. Nothing here touches the open question of whether a
+  freshly extruded mesh reaches a converged primal at all; `M1` still has no datum.
+- It does **not** claim the occupancy union is complete. A process that starts **after** the sample and
+  before `mpirun` is invisible to both sources, and a core idle in the sampled instant reads free.
+  **This is a launch precondition, not a supervisor**: it cannot protect a run already under way.
+- It does **not** claim `BUSY_PCT` is derived. §A5.3 says the opposite in the document and in the code.
+- It does **not** re-open any gate. `FM9` stays `NOT A RESULT`.
