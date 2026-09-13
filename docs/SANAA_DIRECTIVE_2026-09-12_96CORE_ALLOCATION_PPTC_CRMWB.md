@@ -303,3 +303,21 @@ Immediately before, hers: "Then what was it running ? Ive asked so many times no
 > Here: https://www.wolfdynamics.com/tutorials.html?id=152 and it has both meshes (fine and coarse) and the steup and everythign https://www.wolfdynamics.com/validations/drivAer/tut_drivaer_v2.pdf so must be done verbatim
 
 **Chief's reading:** DrivAer deliverable = the Wolf Dynamics DrivAer tutorial (id=152), which ships both meshes (coarse and fine) and the full setup, plus its validation document tut_drivaer_v2.pdf; run VERBATIM on their meshes with their dictionaries; expected within 10 % of experiment. Order afterwards: the OpenFOAM HPC committee steady case (when its Zenodo mesh is reachable), then the wake-resolved case.
+
+---
+
+## O. Reserved cores — byte-exact, 2026-09-13 ~19:05Z
+
+> yes, and nobody touches or steals the propeller's cores or the drivaer ones. (20) bc i want them
+
+Earlier the same exchange, hers: "the in house is the one we built us ? not the published one? and Ok thats fine if it is close to finishing. But once it finishes, it gets stored and set aside till we look at it and grade it later since wolf dynamics case is provenly good."
+
+**Chief's reading:** the propeller lane's 48 ranks and a DrivAer lane of 20 ranks are RESERVED and never lent, to any team, for any reason; their idle ranks stay idle. The in-house DrivAer arm (R5) finishes its build, is stored and set aside ungraded; the Wolf Dynamics case is the DrivAer line. Lane table now: CRM wing-body parked (0), SUBOFF 28, propeller 48 (reserved), DrivAer 20 (reserved), finalization 20 → total 116 > 96, so the finalization lane (M6J, D6R2/D6R3) yields first when the reserved lanes need their ranks: M6J L1 finishes (~20:10Z) before the propeller family launches; D6R3 sizing must fit what remains.
+
+---
+
+## P. D6R3 abort-ratio deviation authorised — byte-exact, 2026-09-13 ~21:35Z
+
+> yes multipt launches
+
+**Chief's reading (the question she answered, verbatim from the chief's message to her):** "raise DAFoam's abort ratio to 7700 (abort bar 7.7e-05), demoted to job control only, with drag stability, a relative spread under 3e-5 over the last 500 iterations, as the real convergence gate. Hard ceiling registered, never lifted after launch; if the rank sweep shows the floor moves, that is disclosed, not used to lift it." Authorised by Sanaa in her own words. D6R3 multipoint launches at 28 ranks; a forced rank drop is a disclosed discontinuity with no gain claimed across the join.
