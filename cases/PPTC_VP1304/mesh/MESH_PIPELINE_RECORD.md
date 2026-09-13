@@ -585,3 +585,87 @@ Two routes exist and both change something registered, so this lane does not pic
 **Raised to the cfd supervisor. No mesh is built on either route until it is settled**, because
 the choice changes the cell count, the tessellation configuration and possibly the registered
 cell targets.
+
+---
+
+## CORRECTION 1 — ADDENDUM E, 2026-09-13. ADDENDUM D's SHORTFALL FACTORS ARE WITHDRAWN. THE STRUCTURAL FINDING STANDS; THE RADIUS DOES NOT
+
+*lines whose number changed above this section: 0*
+
+### E.1 What is withdrawn
+
+Addendum D reported the registered family as short of §6.3's LE resolution by **9.3× or 4.6×**,
+from a measured LE radius of 0.2424 mm at r/R = 0.5. **Those factors are withdrawn.** The
+radius they rest on is not established.
+
+An attempt to characterise the span by widening the radial shell from ±0.25 to ±1.0 mm and
+fitting both chord ends at eight stations:
+
+| r/R | section points | end A | end B |
+|---|---|---|---|
+| 0.30 | 5473 | no fit (6 pts) | no fit (6 pts) |
+| 0.40 | 558 | 0.2420 mm, 253 pts, **residual 0.0975** | no fit (6 pts) |
+| 0.50 | 625 | no fit (6 pts) | no fit (8 pts) |
+| 0.60 | 1159 | no fit (6 pts) | no fit (7 pts) |
+| 0.70 | 1474 | no fit (6 pts) | no fit (5 pts) |
+| 0.80 | 2182 | no fit (6 pts) | no fit (6 pts) |
+| 0.90 | 6114 | no fit (6 pts) | no fit (6 pts) |
+| 0.95 | 1556 | 0.1724 mm, 193 pts, **residual 0.0787** | no fit (12 pts) |
+
+**Six of eight stations refuse to fit at both ends**, even with thousands of section points. The
+two that fit carry residuals of **40% and 46% of the fitted radius**. And the diagnosis applies
+backwards: addendum D's r/R = 0.5 fit had a 0.0338 mm residual on a 0.2424 mm radius — **14%** —
+reported as a measurement when it should have been reported as weak. The chord-extremum search
+is separately unreliable: widening the shell moved the r/R = 0.5 chord from 62.307 to 67.88 mm,
+so the "ends" it locates are not stably the LE and the TE.
+
+### E.2 Why that data could never have given the number — the real reason
+
+gmsh's curvature-driven sizing sets element size **h = 2πR_curv / N**. On `tc_no_gap`, N = 12
+with a **floor of 0.40 mm**, so LE facets sit on the floor and the data yields only a **bound**:
+
+    R_curv  <=  N h / (2 pi)  =  12 x 0.40 / (2 pi)  =  0.764 mm
+
+The floor, not the LE, set the facet size there. That is why six stations had exactly 5–8 points
+inside the fit window: **there was no local refinement at the LE to fit to.** The instrument was
+reading its own clamp.
+
+### E.3 What still stands, and it needs no radius
+
+**The structural finding of addendum D is untouched** and depends on no fitted quantity: the CAD
+carries **one** root-to-tip curve per blade, the smp'11 sheet says the trailing edge is sharp,
+therefore **the leading edge has no CAD edge**, and `surfaceFeatureExtract` cannot extract it on
+any tessellation at any `includedAngle`.
+
+> **REGISTERED, and to be stated in the snappy dictionary so no reader infers otherwise: LE
+> resolution in this family comes from SURFACE REFINEMENT LEVEL ALONE. There is no
+> feature-edge contribution at the leading edge, and there cannot be.**
+
+What is **not** established is whether, or by how much, the family falls short of §6.3.
+
+### E.4 The instrument that can settle it
+
+Not a finer circle fit — the tessellation itself. With the curvature floor dropped to 0.02 mm,
+**facet size becomes a direct readout of local curvature**, R = N·h/(2π), along the whole span,
+with no fitting at all. That run is queued behind `prod6` rather than launched beside it, so two
+heavy meshers do not contend.
+
+### E.5 Which reading of §6.3 governs — raised, not assumed
+
+Sanaa's byte-exact wording: *"leading-edge radius resolved by at least 8 cells across, tip
+resolved by at least 6 cells across the tip chord"*.
+
+The **parallel clause names its extent explicitly** — "across the tip **chord**". The LE clause
+does not, so "across" takes the noun it modifies, **"the leading-edge radius"**: 8 cells across
+the *radius*, cell ≤ R/8. The conventional reading for a rounded nose is across the *diameter*,
+cell ≤ R/4 — a **factor of two**, and probably what was meant.
+
+**The literal parse is registered as governing and the conventional one disclosed beside it**,
+because adopting the gentler reading merely because it is gentler is the error this record
+exists to prevent. Raised to the cfd supervisor to rule.
+
+### E.6 Consequence for the accepted route
+
+Route 2 — build as registered, disclose the limitation — is accepted. **It is blocked on the
+same measurement the withdrawn claim was**: no certificate will carry "not achieved by a factor
+of N" while N is unestablished.
