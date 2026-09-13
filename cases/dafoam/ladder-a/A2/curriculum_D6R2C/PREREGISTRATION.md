@@ -583,3 +583,216 @@ produced and none should be promised**, at any Mach contour level, because the m
 this flow is 0.380. A demo that advertises a transonic wing optimisation and shows this case would
 be advertising something the artefacts cannot support. The optimisation itself is unaffected and the
 drag reduction it measures is real.
+
+---
+
+# ADDENDUM 3 — 2026-09-13, THE PRODUCTION GRADING INSTRUMENT DID NOT EXIST AT THE FREEZE
+
+**Version 1.3.** **Lines whose number changed above this section: 0.** Appended, never inserted;
+nothing above it is edited (rule 6). **It alters no gate, no threshold, no cap and no label**
+(rule 2): `G1`–`G5`, the `G2` band `Jf ≤ 0.90 × J0`, the `G3` tolerance `1.0e-3`, the `G4` artefact
+list and its literal time `1000`, `G5`, the section 5a tolerances, `KR-G1`–`KR-G4` and every cap in
+section 8 stand **exactly as frozen at `7f685867d`**. What this addendum does is **disclose a defect
+in this registration and record the verdict it produced.** Nothing here repairs the defect
+retroactively and nothing here is offered as a reason to weigh the verdict more kindly.
+
+## A3.1 THE DEFECT: SECTION 4 NAMED AN INSTRUMENT THAT HAD NEVER EXISTED
+
+Section 4 opens: *"Graded by `d6r2c_grade.py`'s inputs — the arm's own log, `opt_IPOPT.txt`,
+`OptView.hst`, `d6r2c_evals.jsonl` and the arm directory — all read **after** the container exits."*
+
+**`d6r2c_grade.py` did not exist.** Measured 2026-09-13, by execution: absent from the working tree;
+absent from every tree in this repository's git history; absent from **section 11's frozen-instrument
+table**, which registers five files and not that one; and absent from **A1.6's post-addendum hash
+table**, which re-listed all five and added a sixth control without noticing the gap.
+
+**THE CONSEQUENCE FOR RULE 2, STATED PLAINLY AND NOT SOFTENED.** Rule 2 requires that *"the grading
+path is fixed at the pre-registration commit"*. For this item that requirement was met for the
+kill-and-resume proof (`d6r2c_kr_compare.py`, in the freeze commit, hash-pinned, and deliberately
+left **UNCHANGED** through ADDENDUM 1) and for arm 0 (`d6r2c_arm0_gradient_health.py`, likewise).
+**It was NOT met for the production gates `G1`–`G5`.** At the moment `O_mp` started, the five gates
+that decide this item's headline verdict had **no instrument at all**. Section 11's closing sentence
+— *"The grading path (`d6r2c_kr_compare.py`, `d6r2c_arm0_gradient_health.py`) is in THIS COMMIT,
+fixed before any compute, per rule 2"* — is true as written and **names only the two paths it
+covers**; it is the absence of the third name, not a false claim, that carried the defect past the
+freeze. A table that lists what exists cannot show what is missing, and nothing in this item's
+instrument set asserted that section 4's named grader was among them.
+
+## A3.2 THE INSTRUMENT WAS THEREFORE WRITTEN AFTER ITS RUN HAD PRODUCED DATA
+
+`cases/dafoam/ladder-a/A2/curriculum_D6R2C/d6r2c_grade.py`, written 2026-09-13 while `O_mp` was at
+IPOPT iteration 23 of 25 and finished after it exited. **md5 `ca159f6cee00c3e571195b44d2967659`.**
+This is exactly the hazard rule 2 exists to prevent, and the mitigations below are named as
+mitigations, not as a cure.
+
+- **Every threshold, literal, comparison direction and label is COPIED VERBATIM from the frozen
+  section 4**, and each constant in the file carries the sentence it was copied from as its comment.
+  The cap comparison `core_min > cap` is copied from `d6r2c_run_arm.sh:352`'s own strict `>`.
+- **The author chose nothing.** Where section 4's prose is ambiguous the instrument does not resolve
+  the ambiguity: it computes the strict reading, **reports the alternative beside it**, and
+  **REFUSES (exit 2)** rather than pick when two registered artefacts disagree about one quantity.
+  Four such ambiguities are enumerated in the file's own header (A-1 the printed form of `obj.J`;
+  A-2 which record is the final design; A-3 what "field data" enumerates; A-4 the log's print
+  precision as a floor on `G2`).
+- **43 planted controls (rule 3), `D6R2C_GRADE SELFTEST PASS n=43`, exit 0**, on synthetic trees in
+  a temporary directory, touching no run directory: three negative controls including a real
+  `copytree` regraded, five on `G1`, three on `G2`, four on `G3`, eight on `G4`, one on `G5`, three
+  on the cap, two on label precedence, and fourteen refusals. **The `G5` control plants a REAL
+  uid-0 file** via `sudo -n touch`, verified uid 0 by `lstat`, and removes it — not simulated.
+- **The supervisor read the instrument as a diff before any of its output was believed**, which is
+  the non-delegable check of `SUPERVISION_CHARTER` §3, and that read caught a real defect (A3.4).
+
+**TWO FINDINGS THE CONTROLS PRODUCED ABOUT THE FROZEN GATES THEMSELVES**, recorded because they are
+properties of the registration and not of the instrument, and because **neither was accommodated**:
+
+1. **`G3`'s band edge is not representable.** For every registered target (0.4, 0.5, 0.6) there is
+   no IEEE double `v` with `|v − target| == 1.0e-3`: the attainable misses step by ~1.1e-16 and
+   straddle the literal without landing on it. `target + 1.0e-3` evaluates to a miss of
+   **1.0000000000000009e-3**, which is **outside** the band and `GATE FAIL`s under section 4's `≤`
+   — correctly. The boundary is therefore driven from both sides, one ulp apart. **No tolerance was
+   added to the gate to make the edge reachable.**
+2. **`G2`'s resolution is floored by the log's print.** Section 4 registers *the log* as the source
+   of `J0` and `Jf`, and the log prints `obj.J` at eight decimals. A `G2` margin below that last
+   digit is not resolvable from the registered source, whatever `d6r2c_evals.jsonl` holds at full
+   precision. The instrument computes that floor from the printed string itself and reports it as
+   `j_print_ulp` (here **1e-08**) so that a rounding is never read as a measurement.
+
+**THIS DISCLOSURE TRAVELS WITH THE VERDICT PERMANENTLY.** A reader is entitled to weigh a verdict
+produced by a late-written instrument below one produced by a frozen path, and this section exists
+so that the weighing is possible rather than prevented.
+
+## A3.3 THE SUPERVISOR'S RULING ON AMBIGUITY A-1
+
+The arm's log carries `obj.J` in two printed forms: the per-evaluation dictionary
+`{'obj.J': array([…])}`, and pyOptSparse's optimisation-summary table row `0  obj.J  <value>`.
+Section 4 says only *"the FIRST `obj.J` printed by THIS run"*. The lane refused to choose. **The
+`dafoam-supervisor` ruled 2026-09-13: grade on the dictionary form.** The ruling is recorded with
+its reasons so it is reviewable rather than asserted:
+
+1. The summary-table form's pre-solve row prints `0.000000E+00`. That is an uninitialised slot, not
+   an objective. Section 4 defines `J0` inside a sentence whose whole purpose is the ratio
+   `Jf ≤ 0.90 × J0`; **a reading that puts a zero in the denominator cannot be the one the clause
+   intends.**
+2. The dictionary form's first print is `0.03064163` and its last `0.02306326`, which coincide with
+   IPOPT's own iteration-0 and iteration-25 objectives. That is the sequence the 10 % bar is about.
+
+**`g2_alternative_reading` is preserved in `O_mp_GRADE.json` exactly as built** — the table-form
+reading, its `J0`, its `Jf`, its ratio and its `G2` outcome — so a later reader can disagree with
+the ruling **on the evidence** rather than having to rediscover that there was a choice.
+
+## A3.4 THE DEFECT THE SUPERVISOR'S READ CAUGHT, AND HOW CLOSE IT CAME
+
+`gate_g3` **degraded to NaN arithmetic instead of refusing.** A failed evaluation writes NaN into
+`obj.J` and into the three CLs; **every comparison against NaN is `False` in Python**, so the
+instrument's own A-2 cross-check (`if abs(jlast - jf) > jf_ulp: raise Refusal`) **did not fire on a
+NaN record.** Execution fell through, the misses became NaN, `max(..., key=…)` over NaN has
+undefined ordering, and `ok = nan <= 1.0e-3` evaluated `False` — the instrument would have reported
+**`GATE FAIL` manufactured out of a non-measurement.**
+
+**This was one evaluation away from happening.** Measured from `d6r2c_evals.jsonl`: of 87
+`kind == "F"` records, **52 carry `fail = 1`**, and the tail of the fail-flag sequence is **seven
+consecutive failures followed by the single successful evaluation the run ended on**. Had IPOPT
+stopped one evaluation earlier, this item's headline verdict would have been NaN arithmetic wearing
+a registered label.
+
+**Repaired before the instrument was ever run on the arm**, by an A-2a non-measurement guard placed
+**before** the cross-check — the ordering is load-bearing and the file says so. It refuses (exit 2)
+if the final-design record has a missing or non-zero `fail`, a non-finite `obj.J`, or any non-finite
+CL; it **prints** the record's `n`, `utc` and `fail`, and **names** the last record that *is* a
+measurement with its numbers, **and does not fall back to it** — that choice belongs to the
+supervisor, not to the instrument. Three controls drive it, including one with `fail = 0` and NaN
+values, which isolates the NaN path and proves the `fail` flag is not carrying the guard alone.
+
+## A3.5 THE REGISTERED STOP-RULE INSTRUMENT WAS NEVER INVOKED
+
+Section 6 registers `d6r2c_monitor.py` by md5 (`fd927f36ee47acef09fc8a08b790ccbe`, section 11) with
+13 controls driven at the freeze, to write `D6R2C_MONITOR.jsonl` per tick and to detect Sanaa's
+item-7 stop rules. **Measured 2026-09-13, by execution, not assumed: no `D6R2C_MONITOR.jsonl` exists
+anywhere on this box, and the string `d6r2c_monitor` appears in no launcher, chain or script** —
+not in `d6r2c_run_arm.sh`, not in `d6r2c_queue_chain.sh`, not in `d6r2c_omp_only_chain.sh`, not in
+`scripts/`. **Section 6 was unsatisfied for this run.** The instrument exists and is selftested; it
+was never started, so nothing watched this run against the stop rules while it ran.
+
+**The `dafoam-supervisor` ruled that item 7 did not fire, on independent measured grounds** rather
+than on the absence of a monitor that could have said so: no NaN entered the solver's own solution;
+no divergence in the objective; the evaluation failures do not track step size; and eleven step
+halvings were measured to fail. **The ruling is recorded here as a supervisor's ruling with its
+evidence, and the underlying measurements are the supervisor's, not this lane's** — this lane
+measured only the two facts in the paragraph above, and says so rather than adopting a peer's
+measurement as its own.
+
+## A3.6 WHAT THE FAILED EVALUATIONS ACTUALLY WERE — SECTION 6 ASSUMED A SIGNATURE THIS RUN DID NOT PRODUCE
+
+Section 6's stop rule 2 is written against *"the D6/D6R primal-non-convergence / NaN signature"*.
+**This run's failures do not carry that signature**, and recording what they *are* is the point of
+this section.
+
+- **The fail threshold is `1.0e-5`**, and it is arithmetic on this registration's own frozen
+  constants: `primalMinResTol = 1.0e-8` × `primalMinResTolDiff = 1e3`
+  (`d6r2c_opt_runScript.py:126-127`). **Measured by this lane** from the frozen instrument.
+- **48 `Primal min residual` blocks appear in the arm's log and all 48 are failures**; the minimum
+  failed residual is **`1.000006e-05`** and the maximum **`7.312316e-05`**. **Measured by this
+  lane** from `O_mp_20260913T013230Z_226722.log`. The minimum sits **six parts in ten million above
+  the threshold** — these are primals that missed the bar by rounding, not primals that diverged.
+- **The partition has zero overlap**: the largest non-failed residual is **`9.985532e-06`**, below
+  the smallest failed one. **This figure is the supervisor's measurement, relayed and labelled as
+  such.** This lane confirmed that the value `9.985532e-06` occurs in the log as a converged
+  primal's `p` initial residual but **did not independently reproduce it as the maximum over the
+  non-failed partition**, and does not present it as its own.
+- **A single-cell mesh-quality trip.** `checkMesh` in this run's log reports
+  ***`High aspect ratio cells found, Max aspect ratio: 1026.908433, number of cells 1`*** — **one
+  cell**, on a deformed geometry, against a base mesh whose maximum aspect ratio the same log reports
+  as `684.4022128 OK`. **Measured by this lane** (one occurrence in the log). The `1000` trip level
+  is `checkMesh`'s own reporting threshold, not a quantity this registration fixed, and is named as
+  `checkMesh`'s rather than adopted as a gate.
+
+**None of this moves a gate.** Section 4 does not gate on evaluation failures, on residuals or on
+mesh quality, and this section adds no gate that does. It is recorded because section 6 assumed a
+different failure mode, and a reader of that section is entitled to know this run did not exhibit it.
+
+## A3.7 THE VERDICT AS GRADED
+
+**`GATE FAIL`**, written by `d6r2c_grade.py` to
+`/home/ubuntu/certonomous-runs/CURRICULUM-D6R2C-a2-wing-multipoint-transonic-restartable/O_mp_GRADE.json`,
+exit 0. Section 4's label rule, unchanged: `G1 ∧ G4 ∧ G5` hold and `G3` misses.
+
+| gate | result | the numbers behind it |
+|---|---|---|
+| `G1` | **PASS** | `rc = 0`; `Number of Iterations....: 25`; exactly one `EXIT:` line in `opt_IPOPT.txt`, the registered `EXIT: Maximum Number of Iterations Exceeded.` |
+| `G2` | **PASS** | `J0 = 0.03064163` (log line 11568), `Jf = 0.02306326` (log line 54198), ratio **0.752677**, a **24.732 %** reduction against the registered 10 % bar; margin `Jf − 0.90×J0 = −4.514e-03`; print resolution `1e-08` |
+| `G3` | **MISS** | `cl04` miss `5.539e-04`; `cl05` miss **`1.210e-03`**; `cl06` miss **`2.787e-03`** — against `1.0e-3`. Final design: `F` record `n = 88`, `fail = 0` |
+| `G4` | **PASS** | all four artefacts present and strictly newer than the age datum; time `1000` present in **all twelve** `mp0{4,5,6}/processor{0..3}` directories, 15 files each, **zero** entries not newer than the datum |
+| `G5` | **PASS** | **7,291** entries scanned under the arm directory, **zero** owned by uid 0 or gid 0 and newer than the datum |
+| cap | **not crossed** | **672.933** core-min against the registered **2359.5**, margin **−1686.567** |
+
+**THE CORROBORATION, AT SEVENTEEN DIGITS.** `opt_IPOPT.txt` reports
+`Constraint violation....: 2.7869956827836218e-03`. The grader's `cl06` miss, computed from
+`d6r2c_evals.jsonl` by an entirely separate code path, is `0.0027869956827836218`. **Identical to
+the last digit.** The `dafoam-supervisor` independently recomputed `G3` by a third path and obtained
+the same value. Two instruments that share no code agree, which is what makes the `G3` miss a
+property of the run rather than of the reading the grader took for ambiguity A-2. The A-2
+cross-check itself closed at `|obj.J − log Jf| = 4.71e-10` against the print ulp `1e-08`.
+
+**THIS IS THE OUTCOME SECTION 1a REGISTERED IN ADVANCE.** *"`max_iter = 25` is a BUDGET ON IPOPT
+MAJOR ITERATIONS. It is NOT a convergence tolerance and no reader may present a run that reaches it
+as converged."* The run terminated at the budget with `inf_pr = 2.79e-03`, **two decades above**
+`constr_viol_tol = 1.0e-5`. The drag bar is cleared with room; **the lift equality constraints are
+not held to `1.0e-3` at the final design**, and `GATE FAIL` is precisely the label section 4 assigns
+to that.
+
+## A3.8 WHAT THIS ADDENDUM DOES NOT CLAIM
+
+- **It does not repair the rule-2 defect.** The production grading path was not fixed at the
+  pre-registration commit. It cannot be made so afterwards, and this addendum does not pretend
+  otherwise; it records the defect so the verdict is read with it.
+- **It does not add `d6r2c_grade.py` to the section 11 frozen-instrument table.** That table records
+  what was frozen **at the freeze**; this file was not. Its md5 is recorded in A3.2 **as of this
+  addendum**, explicitly as an instrument written late.
+- **It does not alter a gate, a threshold, a cap or a label**, and no finding in A3.2 was
+  accommodated by widening one.
+- **It does not claim the monitor ran.** Section 6 is recorded as unsatisfied, and the ruling that
+  item 7 did not fire rests on the supervisor's independent measurements, named as the supervisor's.
+- **It does not present the supervisor's residual-partition measurement as this lane's.** A3.6 says
+  which figures are measured here and which are relayed.
+- **It does not re-describe the flow regime.** ADDENDUM 2 stands: `M∞ = 0.288`, compressible
+  subsonic, and no shock figure can be produced from these artefacts.

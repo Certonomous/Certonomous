@@ -28468,3 +28468,94 @@ each script. It is not a claim of 300 live defects and must not be repeated as o
 *Generalises L-221/L-222: a lesson is not applied until every call site asserts it — and here
 31 sites already had the guard while 300 did not, so the knowledge existed and did not
 propagate.*
+
+## L-578 — A guard that compares against a possibly-NaN value NEVER FIRES, because every comparison with NaN is False; "refuse rather than degrade" needs an explicit non-finite check BEFORE the comparison
+
+**Measured, in a production grading instrument, one evaluation from doing real damage.**
+`d6r2c_grade.py`'s G3 gate cross-checked the final-design record against the log with
+`if abs(jlast - jf) > jf_ulp: raise Refusal(...)`. That guard was written to refuse when
+the two artefacts disagree. **It cannot refuse when `jlast` is NaN**: `abs(nan - x) > y`
+evaluates to `False`, so execution falls through into the very path the guard exists to
+protect. Downstream, `misses` become NaN, `max(points, key=...)` over NaN has undefined
+ordering, and `ok = nan <= 1.0e-3` is `False` — producing **`GATE FAIL` computed out of
+NaN arithmetic**: a verdict manufactured from a non-measurement.
+
+**How close it came, measured rather than imagined.** In the run being graded
+(`D6R2C` arm `O_mp`), the tail of the `fail` flags on `d6r2c_evals.jsonl` reads
+`[1,1,1,1,1,1,1,0]` — **seven consecutive failed evaluations**, each with NaN objective
+and NaN CL, and the optimiser terminated on the **eighth**, which happened to succeed.
+Had IPOPT stopped one evaluation earlier, the item's verdict would have been a number
+made of nothing, printed in the registered vocabulary, with no indication anything was
+wrong.
+
+**The general shape.** A comparison guard is a *filter*, not a *validator*. It answers
+"are these two numbers far apart?" and NaN makes that question meaningless while making
+the answer look reassuring. **Order matters and is load-bearing:** validate that the
+inputs are measurements (present, finite, not flagged failed) and refuse if they are
+not; only then compare them. The fix carries three controls, not one — `fail=1`;
+`fail=1` with NaN; and **`fail=0` with NaN** — because the third proves the fail flag is
+not silently carrying a guard that is supposed to be checking the values themselves.
+
+**Where this bites beyond Python.** Anywhere IEEE-754 comparison semantics hold, which
+is everywhere: C, C++, numpy, awk, most SQL. `if (x > tol) reject;` passes every NaN.
+
+**Rule 3's principle restated:** a reader not shown able to see the bad case is not a
+reader. A refusal path that has never been driven on a NaN input has not been shown able
+to refuse.
+
+## L-579 — A pre-registration can NAME a grading instrument that does not exist, and nothing in the lab checks; the frozen-instrument table was TRUE AS WRITTEN and that is exactly how the defect survived
+
+**Measured.** `cases/dafoam/ladder-a/A2/curriculum_D6R2C/PREREGISTRATION.md` section 4
+opens *"Graded by `d6r2c_grade.py`'s inputs"*. **That file had never existed anywhere in
+this repository's git history** — `git log --all -- '**/d6r2c_grade.py'` is empty. The
+production gates `G1`–`G5` were frozen, thresholded, costed and run **with no
+instrument**, and this was discovered only when the run finished and the grade was
+called for.
+
+**Why the existing checks could not see it.** Section 11's frozen-instrument table lists
+five files with md5s and closes: *"The grading path (`d6r2c_kr_compare.py`,
+`d6r2c_arm0_gradient_health.py`) is in THIS COMMIT, fixed before any compute, per rule
+2."* **That sentence is true.** Both named files exist and were frozen. The clause covers
+the kill-and-resume and arm-0 paths — and says so accurately. **It was the absent THIRD
+name, never claimed and therefore never checked, that carried the defect past the
+freeze.** `scripts/check_comparator_freeze.py` hashes the files a registration names; it
+has no way to ask which files a registration *should* have named.
+
+**The rule-2 consequence, stated without softening.** For this item the grading path for
+the **production** gates was **NOT** fixed at the pre-registration commit, unlike the two
+paths that were. The instrument was written after its run had produced data. That is
+disclosed permanently in a dated addendum, with every literal copied verbatim from the
+frozen text, 43 planted controls, and a supervisor's read of the instrument as a diff —
+**none of which converts it into a pre-registered grading path.** A reader is entitled to
+weigh the verdict accordingly.
+
+**The generalisable check, cheap and absent:** every instrument a registration names in
+prose must appear in its frozen-instrument table, and every file in that table must
+exist. Two greps. Neither is run anywhere.
+
+## L-580 — `ps ... | grep -c <path>` counts the auditing shell itself when the path appears as literal text in the command doing the audit; same family as pkill matching its own command line
+
+**Measured.** A lane auditing how many render-hook processes were alive ran a `ps`
+pipeline greping for the hook's path and got **4**. The true count was **1**. The three
+phantoms were its own `bash -c` invocation and its children: the path it was searching
+for appeared **inside the script doing the searching**, so the auditing process matched
+its own argv.
+
+**Why this is worse than the `pkill` version.** `pkill` killing its own shell announces
+itself — the next command in the chain silently never runs and someone eventually
+notices. A *count* that is wrong by the number of processes doing the counting looks like
+a plausible answer, and "4 hooks are armed" and "1 hook is armed" are both believable
+states. The wrong reading is actionable, which is what makes it dangerous.
+
+**The fix that actually works:** audit with a predicate the auditing shell's own argv
+cannot satisfy — e.g. `awk '$4=="bash" && $5 ~ /certonomous-runs/'`, which a
+`bash -c '...'` process cannot match because its `$5` is the script text, not a path.
+Filtering with `grep -v grep` does **not** fix this: the offending process is not `grep`,
+it is the shell wrapping it.
+
+**The meta-lesson, which is the reason this is a lesson at all.** The lane that made the
+error caught it, re-audited with a sound predicate, and then volunteered that its
+*previous* "exactly one hook alive" report had rested on the same weakness and **had been
+right by luck rather than by evidence**. A correct reading obtained by an unsound method
+is not a verification; it is a coincidence that has not been noticed yet, and the honest
+move is to say so about the earlier report too.

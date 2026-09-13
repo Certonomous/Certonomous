@@ -25,8 +25,20 @@ BASE="${BASE:?BASE (the D6R2C run root) must be given explicitly}"
 CASE_DIR=/home/ubuntu/Certonomous/cases/dafoam/ladder-a/A2/curriculum_D6R2C
 RENDER_PY="$CASE_DIR/d6r2c_render.py"
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-OUT="$BASE/D6R2C_RENDER.out"
+# OUT is overridable so a SECOND arming (a later arm, e.g. O_mp behind KR_REF) writes its
+# own record instead of interleaving with the earlier arm's in one file.  say() appends, so
+# the default never overwrote anything -- but two arms in one file is exactly how a fallback
+# arm gets read as the optimum.  Default unchanged: no caller is broken.
+OUT="${D6R2C_RENDER_OUT:-$BASE/D6R2C_RENDER.out}"
 GRACE_GRADE_S=900            # bounded wait for a grade record AFTER the run has ended
+
+# THE ARM PREFERENCE LIST, DEFINED ONCE.  It is consumed TWICE -- to pick the grade record to
+# wait for, and to pick the arm to draw -- and those two must not be able to disagree.  Two
+# copies of this list is precisely how a render ends up captioned with another arm's verdict.
+# KR_RES, NOT KR_RESUME: the resumed arm on disk is $BASE/KR_RES, so the old spelling never
+# matched any directory and the resumed arm would have been SILENTLY SKIPPED in favour of the
+# KR_REF 4-major probe -- a worse state presented as the best available, with nothing said.
+ARM_PREFERENCE="O_mp O KR_RES KR_REF"
 
 say(){ printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" >> "$OUT"; }
 say "D6R2C_RENDER_ARMED base=$BASE ppid=$PPID (1 == reparented to init)"
@@ -42,7 +54,15 @@ say "D6R2C_RENDER_RUN_COMPLETE chain_rc=$CHAIN_RC"
 #        not graded still gets its picture, and the sidecar records which happened.
 GRADE_JSON=""; VERDICT="NOT_GRADED_AT_RENDER_TIME"
 for i in $(seq 1 $((GRACE_GRADE_S/15))); do
-  G=$(ls -t "$BASE"/*grade*.json "$BASE"/d6r2c_grade*.json 2>/dev/null | head -1)
+  # ARM-SCOPED, NOT A WILDCARD.  The old glob matched ANY *grade*.json anywhere under $BASE,
+  # so a stale record left by a KR arm would have been read as THIS render's verdict and
+  # printed beside the optimised shape.  A grade record belongs to this render only if it
+  # NAMES THE ARM this render will draw -- $BASE/<ARM>_GRADE.json -- and nothing else is
+  # accepted.  An absent record still costs only the bounded wait, then renders ungraded.
+  G=""
+  for cand in $ARM_PREFERENCE; do
+    [ -d "$BASE/$cand" ] && { [ -s "$BASE/${cand}_GRADE.json" ] && G="$BASE/${cand}_GRADE.json"; break; }
+  done
   [ -n "$G" ] && { GRADE_JSON="$G"; break; }
   sleep 15
 done
@@ -57,14 +77,18 @@ fi
 #        all three scenarios); B is the baseline.  Sanaa asked for the finest fields
 #        available, so E is preferred and the fallback is RECORDED, never silent.
 ARM=""; ARM_MEANING=""
-for cand in O_mp O KR_RESUME KR_REF; do
+for cand in $ARM_PREFERENCE; do
   [ -d "$BASE/$cand" ] && { ARM=$cand; break; }
 done
 case "$ARM" in
   O_mp|O) ARM_MEANING="the optimisation arm: fields at the FINAL design vector reached" ;;
-  KR_RESUME) ARM_MEANING="FALLBACK -- the resumed kill-and-resume arm, NOT a full optimisation" ;;
+  KR_RES)    ARM_MEANING="FALLBACK -- the resumed kill-and-resume arm, NOT a full optimisation" ;;
   KR_REF)    ARM_MEANING="FALLBACK -- the kill-and-resume REFERENCE, a 4-major probe, NOT the optimised state" ;;
   "")        say "D6R2C_RENDER_NO_ARM under $BASE"; exit 0 ;;
+  # BEYOND THE TWO FIXES ASKED FOR, AND SAY SO.  Without this branch, an arm in
+  # ARM_PREFERENCE with no label here renders with ARM_MEANING="" -- a picture of a fallback
+  # state carrying an EMPTY caption, which is worse than the dead code being removed.
+  *)         say "D6R2C_RENDER_ARM_UNLABELLED arm=$ARM -- ARM_PREFERENCE and the label table disagree; REFUSING rather than captioning a state with no meaning"; exit 0 ;;
 esac
 say "D6R2C_RENDER_ARM=$ARM ($ARM_MEANING)"
 
@@ -83,11 +107,31 @@ for mp in mp04 mp05 mp06; do
   # compute" than the precedent, and one fewer thing that can fail after the run is over.
   find "$COPY/$mp" -name '*.gz' -exec gunzip -q {} + 2>/dev/null
   TAG="D6R2C_${ARM}_${mp}_single-level_${STAMP}"
-  timeout 1800 xvfb-run -a --server-args="-screen 0 1920x1440x24" \
-    pvbatch "$RENDER_PY" --case "$COPY/$mp" --out "$COPY/png" --tag "$TAG" --decomposed \
-    >> "$COPY/render_${mp}.log" 2>&1
-  RRC=$?
-  N=$(ls "$COPY/png/${TAG}"_*.png 2>/dev/null | wc -l)
+  # THE MEASURED FAILURE THIS ADDRESSES.  On copy 20260912T235607Z, mp05 produced 0 images
+  # with rc=134 (SIGABRT) while mp04 and mp06 produced 6 each.  The abort is at 2.217s inside
+  # vtkXOpenGLRenderWindow::CreateAWindow() -- "bad X server connection. DISPLAY=:99" -- i.e.
+  # BEFORE any OpenFOAM reader exists, so it cannot be a field, a filter or a short input; the
+  # mp05 copied tree is composition-identical to mp04/mp06 (same 13 entries, same 8 processor0
+  # time dirs, same case.foam).  Mechanism: xvfb-run's clean_up() removes the Xauthority first
+  # and kills Xvfb LAST, without waiting for it, so the next scenario's `-a` can re-select a
+  # display the dying server still owns.  And xvfb-run defaults ERRORFILE=/dev/null, so Xvfb's
+  # own reason was DISCARDED -- which is why render_mp05.log carries no diagnosis at all.
+  #   -e   keeps that reason on disk instead of throwing it away.
+  #   retry once, and settle after each scenario, so a lost display costs a retry, not a picture.
+  # NEITHER CAN CHANGE A VERDICT.  A render is still not a gate and the wrapper still exits 0.
+  RRC=0; N=0
+  for attempt in 1 2; do
+    timeout 1800 xvfb-run -a -e "$COPY/xvfb_${mp}_attempt${attempt}.err" \
+      --server-args="-screen 0 1920x1440x24" \
+      pvbatch "$RENDER_PY" --case "$COPY/$mp" --out "$COPY/png" --tag "$TAG" --decomposed \
+      >> "$COPY/render_${mp}.log" 2>&1
+    RRC=$?
+    N=$(ls "$COPY/png/${TAG}"_*.png 2>/dev/null | wc -l)
+    [ "$N" -gt 0 ] && break
+    say "D6R2C_RENDER_SCENARIO_RETRY $mp attempt=$attempt rc=$RRC images=0 xvfb_err=$COPY/xvfb_${mp}_attempt${attempt}.err"
+    sleep 20
+  done
+  sleep 5   # let this scenario's Xvfb finish dying before the next `-a` picks a server number
   IMAGES_TOTAL=$((IMAGES_TOTAL + N)); SCEN_DONE="$SCEN_DONE $mp"
   # THE rc IS NOT THE SUCCESS SIGNAL HERE AND SAYING SO IS NOT AN EXCUSE.  MEASURED on the
   # rehearsal: pvbatch prints `RENDER_REPORT ... images=8 errors=0`, writes every PNG, and
