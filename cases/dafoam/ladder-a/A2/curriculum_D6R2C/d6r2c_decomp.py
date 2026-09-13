@@ -99,6 +99,62 @@ def read_final_dv(evals_path, require_md5=True):
     return dv, rec["funcs"], got
 
 
+def dv_divisor(meta_entry):
+    """The divisor converting a DRIVER-SCALED DV component to PHYSICAL.
+
+    COPIED FROM THE WORKING SPELLING -- d6r2c_opt_runScript.py `_dv_scalers()`
+    lines 431-434 -- and deliberately NOT re-invented.  ONE definition serves
+    both producers (d6r2c_freshmesh.py imports it), because a second copy of a
+    number is a second thing that can drift (L-221/L-222).
+
+    REPAIR, 2026-09-13, under VERIFICATION_CHARTER 2d.1 and
+    PREREGISTRATION_AFTER_ITEMS.md section 11a, disclosed in ADDENDUM 2.  The
+    original spelling at d6r2c_decomp.py:225 and d6r2c_freshmesh.py:229,344 was
+    `float(v.get("total_scaler") or 1.0)` -- WITH NO FALLBACK TO `scaler`.
+    MEASURED in the pinned image against this exact model: `total_scaler` is
+    None for EVERY design variable and `scaler` carries the value (twist 0.1,
+    shape 10.0, patchV_* 0.1).  The divisor was therefore 1.0 for all five DVs,
+    installing patchV = [10.0 m/s, 0.293 deg] where [100.0, 2.930] was
+    registered -- a 10x velocity error corroborated by a measured yPlus
+    collapse of 9.24x -- with twist 10x too SMALL and shape 10x too LARGE
+    (outside its own registered bounds [-1, 1]).  Arm DEC2 crashed on it and is
+    NOT A RESULT; arm FM would NOT have crashed.
+
+    STATED, NOT FOLDED IN SILENTLY: this uses `is None`, not truthiness, so a
+    scaler of exactly 0.0 is passed through and divides loudly rather than being
+    swallowed into 1.0 by `or`.  That is a behaviour change from the line it
+    replaces and it is named here rather than left to be discovered.
+    """
+    sc = meta_entry.get("total_scaler")
+    if sc is None:
+        sc = meta_entry.get("scaler")
+    return 1.0 if sc is None else float(sc)
+
+
+def dv_divisor_for(scalers, name):
+    """Look up a design variable's divisor, and REFUSE if the model never
+    reported one for it.
+
+    HARDENING, 2026-09-13, disclosed in ADDENDUM 2.  The line this replaces was
+    `scalers.get(name, 1.0)` -- THE SAME DEFECT ONE LAYER DOWN as the
+    `total_scaler or 1.0` it sat beneath.  If a DV name is ever absent from
+    OpenMDAO's metadata, a silent 1.0 installs a DRIVER-SCALED number as a
+    PHYSICAL one, which is exactly how arm DEC2 came to run at U = 10 m/s with
+    shape driven to +/-2.786 against its own registered bounds of +/-1.
+
+    A reader that cannot see must say so rather than pass quietly.  This refuses
+    with the name it wanted AND the names the model actually reported, so the
+    failure names its own cause instead of producing a plausible number.
+    """
+    if name not in scalers:
+        raise Refusal("REFUSE_UNKNOWN_DV_SCALER %r is not among the design "
+                      "variables the model reported (%s) -- refusing rather than "
+                      "dividing by a silent 1.0, which would install a "
+                      "driver-scaled value as a physical one"
+                      % (name, sorted(scalers)))
+    return scalers[name]
+
+
 def dv_for_state(state, dv_star, dv_x0):
     """The design vector for each registered state, in the DRIVER-SCALED space.
 
@@ -222,10 +278,10 @@ def run(arm_dir, runscript, evals, x0_file, out_path):
 
     # the driver's own scalers, read from OpenMDAO metadata, NEVER re-typed
     meta = prob.model.get_design_vars(recurse=True, get_sizes=True, use_prom_ivc=True)
-    scalers = {k.split(".")[-1]: float(v.get("total_scaler") or 1.0) for k, v in meta.items()}
+    scalers = {k.split(".")[-1]: dv_divisor(v) for k, v in meta.items()}
 
     def set_driver_scaled(name, vals):
-        s = scalers.get(name, 1.0)
+        s = dv_divisor_for(scalers, name)
         prob.set_val(name, [v / s for v in vals])
 
     rcs = 0

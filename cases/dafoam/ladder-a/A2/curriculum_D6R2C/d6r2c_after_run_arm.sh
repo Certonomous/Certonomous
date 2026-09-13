@@ -54,7 +54,13 @@ CKPT_INTERVAL_S=1800
 # same numbers looked up under another key.  NO NEW THRESHOLD IS INVENTED, none
 # is raised and none is reduced.  The crashed DEC row keeps its directory and is
 # never re-seeded (G-COLD, seed_arm) and never re-graded.
-cap_core_min() { case "$1" in DEC|DEC2) echo 968.1 ;; FM|FM2) echo 618.0 ;; FM_L2) echo 180.0 ;; *) echo "" ;; esac; }
+#
+# ADDENDUM 2 (2026-09-13): DEC3 and FM3 are the RE-RUN ids after the scaler
+# defect.  THE SAME RULE APPLIES AND IS APPLIED THE SAME WAY -- 968.1 and 618.0,
+# THE IDENTICAL REGISTERED FIGURES looked up under a third key.  NO NEW THRESHOLD
+# IS INVENTED, none is raised and none is reduced.  DEC2 keeps its directory and
+# its NOT A RESULT row, is never re-seeded and is never re-graded, exactly as DEC.
+cap_core_min() { case "$1" in DEC|DEC2|DEC3) echo 968.1 ;; FM|FM2|FM3) echo 618.0 ;; FM_L2) echo 180.0 ;; *) echo "" ;; esac; }
 
 # ===========================================================================
 # G-ROOT.1 -- BASE must be THIS item's registered run root, normalised
@@ -176,7 +182,7 @@ seed_arm() {
   cp "$PARENT_BASE/O_mp/d6r2c_evals.jsonl" "$WORK/d6r2c_evals_final.jsonl" || return 5
   cp "$PARENT_BASE/O_mp/d6r2c_x0.json"     "$WORK/d6r2c_x0_final.json"     || return 5
   cp "$SRC/d6r2c_opt_runScript.py" "$SRC/d6r2c_decomp.py" "$SRC/d6r2c_freshmesh.py" "$WORK/" || return 5
-  if [ "$ARM" = "FM" ] || [ "$ARM" = "FM2" ]; then
+  if [ "$ARM" = "FM" ] || [ "$ARM" = "FM2" ] || [ "$ARM" = "FM3" ]; then
     cp "$SURFACE_SRC" "$WORK/surfaceMesh_base.cgns" || return 5
     cp "$FAMILY_DIR/genWingMesh.py" "$WORK/genWingMesh.py" || return 5
     md5_is "$WORK/genWingMesh.py" "$MD5_GENWINGMESH" || {
@@ -232,13 +238,23 @@ if [ "$ARM" = "--selftest" ]; then
   REGISTERED_BASE=$BASE_SAVE
   guard_freeze >/dev/null 2>&1 && echo "SELFTEST ok G-FREEZE passes on the frozen tree" || { echo "SELFTEST FAIL G-FREEZE rejected the frozen tree"; guard_freeze; rc=1; }
   [ -n "$(cap_core_min DEC)" ] && [ -n "$(cap_core_min FM)" ] && echo "SELFTEST ok caps registered for DEC and FM" || { echo "SELFTEST FAIL missing cap"; rc=1; }
+  # ADDENDUM 2: a lesson is not applied until EVERY call site asserts it
+  # (L-221/L-222).  The re-run ids must carry the IDENTICAL caps, not merely
+  # exist -- an id that ran with a different cap would be a new threshold.
+  [ "$(cap_core_min DEC3)" = "$(cap_core_min DEC)" ] && [ "$(cap_core_min FM3)" = "$(cap_core_min FM)" ] \
+    && [ "$(cap_core_min DEC2)" = "$(cap_core_min DEC)" ] && [ "$(cap_core_min FM2)" = "$(cap_core_min FM)" ] \
+    && echo "SELFTEST ok DEC2/DEC3/FM2/FM3 carry the IDENTICAL registered caps" \
+    || { echo "SELFTEST FAIL a re-run id does not carry its arm's registered cap"; rc=1; }
   [ -z "$(cap_core_min NOSUCHARM)" ] && echo "SELFTEST ok an unknown arm has no cap" || { echo "SELFTEST FAIL unknown arm got a cap"; rc=1; }
-  [ "$rc" -eq 0 ] && echo "D6R2C_AFTER_LAUNCH SELFTEST PASS n=5" || echo "D6R2C_AFTER_LAUNCH SELFTEST FAIL"
+  # ADDENDUM 2: the count is the number of checks ACTUALLY DRIVEN above.  It was
+  # n=5 at the freeze; the re-run-id cap assertion makes it 6.  A banner whose
+  # number does not match its checks is a second copy of a number that can drift.
+  [ "$rc" -eq 0 ] && echo "D6R2C_AFTER_LAUNCH SELFTEST PASS n=6" || echo "D6R2C_AFTER_LAUNCH SELFTEST FAIL"
   exit $rc
 fi
-test -n "$ARM" || { echo "ABORT usage: d6r2c_after_run_arm.sh <DEC|DEC2|FM|FM2> <image>  |  --selftest"; exit 64; }
+test -n "$ARM" || { echo "ABORT usage: d6r2c_after_run_arm.sh <DEC|DEC2|DEC3|FM|FM2|FM3> <image>  |  --selftest"; exit 64; }
 CAP=$(cap_core_min "$ARM"); test -n "$CAP" || { echo "ABORT unknown arm $ARM"; exit 64; }
-case "$ARM" in DEC|DEC2|FM|FM2) ;; *) echo "ABORT arm $ARM is registered but NOT run by this registration"; exit 64 ;; esac
+case "$ARM" in DEC|DEC2|DEC3|FM|FM2|FM3) ;; *) echo "ABORT arm $ARM is registered but NOT run by this registration"; exit 64 ;; esac
 test -n "$IMG" || { echo "ABORT image required, pinned by digest"; exit 64; }
 case "$IMG" in *"$IMG_PATCHED_DIGEST"*) ;; *) echo "ABORT G-IMG image is not the registered digest"; exit 4 ;; esac
 
@@ -256,7 +272,7 @@ WORK="$BASE/$ARM"
 LOG="$BASE/${ARM}_${STAMP}.log"
 
 CMDFILE="$WORK/d6r2c_after_cmd.sh"
-if [ "$ARM" = "DEC" ] || [ "$ARM" = "DEC2" ]; then
+if [ "$ARM" = "DEC" ] || [ "$ARM" = "DEC2" ] || [ "$ARM" = "DEC3" ]; then
   cat > "$CMDFILE" <<'CMD'
 set -uo pipefail
 echo "D6R2C_AFTER_DEADLINE_IN_CONTAINER_S: NONE"
@@ -314,7 +330,7 @@ ROOT_OWNED=$(find "$WORK" -newermt "@$(cat "$WORK/.d6r2c_age_datum")" \( -uid 0 
 awk -v c="$CORE_MIN" -v cap="$CAP" 'BEGIN{exit !(c>cap)}' && \
   echo "D6R2C_AFTER_CAP_CROSSED arm=$ARM core_min=$CORE_MIN cap=$CAP -- the row is graded NOT A RESULT and THE CAP IS NEVER RAISED" | tee -a "$BASE/ledger.txt"
 echo "D6R2C_AFTER_DONE arm=$ARM rc=$RC core_min=$CORE_MIN cap=$CAP root_owned=$ROOT_OWNED"
-echo "NOW GRADE:  python3 $SRC/d6r2c_after_grade.py --item $(case "$ARM" in DEC|DEC2) echo 8 ;; *) echo 9 ;; esac) \\"
+echo "NOW GRADE:  python3 $SRC/d6r2c_after_grade.py --item $(case "$ARM" in DEC|DEC2|DEC3) echo 8 ;; *) echo 9 ;; esac) \\"
 echo "              --arm-dir $WORK --datum-file $WORK/.d6r2c_age_datum \\"
 echo "              --core-min $CORE_MIN --rc $RC"
 exit 0
@@ -323,6 +339,18 @@ exit 0
 # THE REGISTERED md5 PINS.  G-FREEZE reads these lines out of this file.
 # They are filled at the freeze commit and are what make the instruments that
 # run the instruments that were frozen (PREREGISTRATION_AFTER_ITEMS.md sec 11).
+#
+# ADDENDUM 2 (2026-09-13) -- THE PRODUCER PINS ARE RE-POINTED AT THE REPAIRED
+# PRODUCERS, under VERIFICATION_CHARTER 2d.1 and PREREGISTRATION_AFTER_ITEMS.md
+# section 11a.  The scaler defect (total_scaler read with no fallback to scaler;
+# MEASURED None for every DV in this model) installed patchV = [10 m/s, 0.293
+# deg], twist 10x small and shape 10x LARGE at +/-2.786 against its registered
+# bounds of +/-1.  Arm DEC2 crashed on it and is NOT A RESULT.
+#   d6r2c_decomp.py     3089b620587b1c20035f63dc1c8cd175 -> 42ec0dd582584812a69129a474b2783e
+#   d6r2c_freshmesh.py  ad2946f197fefc9cd5829deec1866a57 -> 6cb2214f9e5d4d124e77db816efbb2af
+# THE GRADER PIN IS UNCHANGED AND THE GRADER IS UNTOUCHED.  A producer defect is
+# repairable with disclosure; a grader changed after seeing data is not.
+# NO gate, threshold, cap or label is altered by this line or by any line above.
 # PIN d6r2c_after_grade.py 6c22013af54569ae651f8f23d1088861
-# PIN d6r2c_decomp.py 3089b620587b1c20035f63dc1c8cd175
-# PIN d6r2c_freshmesh.py ad2946f197fefc9cd5829deec1866a57
+# PIN d6r2c_decomp.py 42ec0dd582584812a69129a474b2783e
+# PIN d6r2c_freshmesh.py 6cb2214f9e5d4d124e77db816efbb2af

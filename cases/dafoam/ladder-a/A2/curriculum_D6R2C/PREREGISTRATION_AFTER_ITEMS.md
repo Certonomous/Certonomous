@@ -907,3 +907,234 @@ the addendum must be struck rather than edited.**
 - **It does not move `O_mp`.** That row is closed at `GATE FAIL` and §A1.3 confirms its rc was measured.
 - **It does not claim any result for items 8 or 9.** At the time of writing, both remain `PENDING`: no
   decomposition table and no fresh mesh exist.
+
+---
+
+## ADDENDUM 2 — 2026-09-13 — THE DRIVER-SCALED→PHYSICAL DIVISOR WAS `1.0`, AND WHY `H1` COULD NOT HAVE SEEN IT
+
+**This addendum carries the document to version 1.2.** Line 4 still reads `Version 1.0` and is
+**deliberately not edited**, for the reason ADDENDUM 1 gives. The version of record is the one stated here.
+
+**Lines whose number changed above this section: 0.** Proof in §A2.9 — this section is appended at the
+foot and nothing above line 909 is touched.
+
+**THIS ADDENDUM ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL.** `D1`–`D6`, `H1`–`H4`, `TRIM_TOL`,
+`REPRO_TOL`, `CLOSE_TOL`, `INTERACT_TOL`, `SHAPE_MATCH_TOL`, `FM_BAND_ABS`, `PLANT`, `TRIM_MAX_EVALS`
+and every cap in section 8 stand exactly as frozen at `c06df89a18bc33a93e7ebcafc8f35b73d9c48f5e`.
+**`DEC`'s and `DEC2`'s `NOT A RESULT` rows both stand and neither is re-graded.**
+
+### A2.0 WHAT HAPPENED, IN ORDER
+
+1. `DEC2` launched 2026-09-13T05:30:01Z on the ADDENDUM 1 launcher, as `ubuntu`, PPID 1, 4 ranks,
+   container `d6r2c_after_DEC2_20260913T053001Z_1359320`. All guards passed.
+2. It ran **222 s wall = 14.800 core-min** and exited **rc = 1**, inside state `B`'s trim. The repaired
+   `exit $rc` of ADDENDUM 1 §A1.2 **worked**: the true rc reached the ledger.
+3. Twelve trim primals **converged normally** and returned `CL ≈ 0.001635 / 0.001745 / 0.001872`
+   against targets `0.4 / 0.5 / 0.6`. CL was near-insensitive to AoA, `findFeasibleDesign` took a
+   runaway step, and primal 16 stalled at `Primal min residual 2.466755917e-04` against
+   `primalMinResTol = 1.0e-8` → `AnalysisError: Primal solution failed!`.
+4. `d6r2c_after_grade.py --item 8` (at its unchanged freeze md5) **refused, exit 2,
+   `REFUSE_MISSING_STATES`**. No table, no percentage field — §1c/`D5` behaving as registered.
+5. **`DEC2` is `NOT A RESULT`** under §3 LABELS (`D6` fails: `rc ≠ 0`, zero of five states present) and
+   under §11a. **The cap was not crossed** — 14.800 against 968.1, 953.3 core-min unused.
+
+### A2.1 THE DEFECT, AND IT IS IN THREE DIRECTIONS AT ONCE
+
+`d6r2c_decomp.py:225` and `d6r2c_freshmesh.py:229,344` each read the design-variable scaler as
+
+```
+float(v.get("total_scaler") or 1.0)          # NO FALLBACK TO `scaler`
+```
+
+while the frozen `d6r2c_opt_runScript.py` `_dv_scalers()` (lines 431–434) reads `total_scaler`, **falls
+back to `scaler`**, then to 1.0. **Measured in the pinned image against this exact model:
+`total_scaler` is `None` for every design variable and `scaler` carries the value.** The divisor was
+therefore `1.0` for all five DVs, and the driver-scaled vector was installed as if it were physical:
+
+| DV | registered physical | installed | direction |
+|---|---|---|---|
+| `patchV_cl04/05/06` | `[100.0, 2.930/4.326/5.941]` | `[10.0, 0.293/0.433/0.594]` | **U 10× small, AoA 10× small** |
+| `twist` | ±3.497 deg | ±0.3497 deg | **10× SMALL** |
+| `shape` | ±0.278571 | ±2.785711 | **10× LARGE — outside its own registered bounds `[-1, 1]`** |
+
+**A design variable driven outside its registered bounds by the instrument whose only job is to set it
+is the headline of this addendum.** State `B` was blind to two of the three directions because its
+`shape` and `twist` are exactly zero and zero divided by either divisor is zero — the same blindness
+the runscript's own ADDENDUM-1 docstring records for the `KR_RES` `rc = 73` defect, where 103 of 109
+components could not discriminate. **A 222-second crash on velocity alone was the lucky outcome.**
+
+### A2.2 HOW THIS BECAME A MEASUREMENT, AND THE CONTROL THAT REFUTED IT FIRST
+
+Two diagnostics were run in the pinned image. **Neither is a case and neither grades anything**; both
+print and solve nothing, and neither wrote into any arm directory.
+
+1. **A synthetic control** — a flat `om.Group` with `add_design_var(..., scaler=0.1)` — reported
+   `total_scaler = 0.1`, producer and runscript divisors **agreeing**. **This control REFUTED the
+   hypothesis.** It is recorded because stopping there would have produced a confident wrong answer.
+2. **The real model**, built through `load_frozen_model` from the frozen runscript's own bytes:
+
+```
+dvs.twist  total_scaler=None scaler=0.1    dvs.shape        total_scaler=None scaler=10.0
+dvs.patchV_cl04/05/06        total_scaler=None scaler=0.1
+producer divisors {all 1.0}   runscript divisors {0.1, 10.0, 0.1, 0.1, 0.1}   AGREE=False
+prob.get_val("patchV_cl04") = [10.0, 0.29303833722365635]
+```
+
+`total_scaler` is populated in a flat group and `None` here, where `add_design_var` is called in a
+nested `configure()`. **The cheap check was misleading and the expensive one was correct.**
+
+**Independent corroboration from the run's own artefacts, before the probe existed:** `yPlus max`
+collapsed from the initial uniform field's 1118 to 137 while the working `O_mp` run holds 1266 — a
+ratio of **9.24**, the signature of a 10× inlet-velocity loss; and the option echo of the two runs
+diffs to **nothing but hostname and case path**, so the configuration was never the difference.
+
+### A2.3 THE `VERIFICATION_CHARTER` §2d.1 WALK
+
+- **The defect is in a PRODUCER, not in the grading path.** `d6r2c_after_grade.py` is untouched and
+  remains at `6c22013af54569ae651f8f23d1088861`, its freeze value. §11a: *"a producer defect is a defect
+  in how a number was made and is repairable with disclosure; a grader change after seeing data is not."*
+- **The defect was found by the instrument's own failure, not by inspecting a result.** No number was
+  seen and then explained away; `DEC2` produced no number at all.
+- **The repair is disclosed here, in a dated addendum, before the successor arm runs.**
+- **No gate, threshold, cap or label is touched**, and the `NOT A RESULT` rows are preserved.
+
+### A2.4 THE FINDING THAT OUTRANKS THE BUG — `H1` IS A COMMON-MODE-BLIND SELF-CONSISTENCY CHECK
+
+`d6r2c_freshmesh.py:231` sets the design variables and `:233` calls `geo.DVGeo.update("cgnssurf")`.
+**The deformed CGNS surface and the IDWarp-deformed OpenFOAM wall are therefore driven by the same
+`DVGeo` carrying the same error.** `H1` compares those two surfaces *against each other* and requires a
+bijection within `SHAPE_MATCH_TOL = 1.0e-8`. **Both sides would have been wrong identically, so `H1`
+would have MATCHED and PASSED on a wing deformed ten times too far.** `H2` (mesh freshness) and `H4`
+(completion) would also have passed. Only `H3` would have spoken — as a `GATE FAIL`, a registered
+verdict word, on a physically meaningless solve.
+
+**Arm `FM` does not trim, and at `U = 10 m/s` the primals converge cleanly** (twelve of them did in
+`DEC2`). So `FM2` would very probably **not have crashed**. It would have completed, graded, and
+published a number. **`DEC2` crashed only because it trims; the trim is the sole reason this defect was
+visible at all.** A self-consistency check cannot see a fault common to the thing both sides share.
+
+### A2.5 THE `D2` / `H3` ASYMMETRY — DISCLOSED, AND DELIBERATELY **NOT** REPAIRED
+
+Item 8 would not have produced a false `PASS`: **`D2` anchors `J_B` to the externally fixed `J0` at
+`REPRO_TOL = 1.0e-5`**, a reproduction control that points *outside* the run, and it would have caught
+this at grading. Item 9 has no equivalent: `H1`, `H2` and `H4` are all self-referential and only `H3`
+reaches outside the arm.
+
+**No control is being added to item 9.** Rule 2 closes gates after first compute, and a gate written now
+would be a gate written to fit a defect already seen. **The asymmetry was found by a defect and is
+disclosed rather than repaired**, deliberately and on the record, and it is carried to the successor
+item as a design requirement: *every arm carries at least one reproduction control anchored to a
+quantity fixed outside that arm.*
+
+### A2.6 THE REPAIR
+
+One definition, three call sites, because `d6r2c_freshmesh.py:61` already imports from `d6r2c_decomp`
+and three inline copies would be three chances to fix two (L-221/L-222).
+
+- **`dv_divisor(meta_entry)`**, new in `d6r2c_decomp.py`, body **copied verbatim** from
+  `_dv_scalers()` lines 431–434. Called at `d6r2c_decomp.py:225`, `d6r2c_freshmesh.py:229,344`.
+- **`dv_divisor_for(scalers, name)`**, new in `d6r2c_decomp.py`, **hardening the second silent default
+  one layer down**: `scalers.get(name, 1.0)` would quietly install a driver-scaled number as physical if
+  a DV name were ever absent from the metadata. It now **raises `Refusal("REFUSE_UNKNOWN_DV_SCALER …")`
+  naming the DV it wanted and the DVs the model reported.** Called at `d6r2c_decomp.py:228`,
+  `d6r2c_freshmesh.py:231,347`.
+- **STATED, NOT FOLDED IN SILENTLY:** the replacement tests `is None` rather than truthiness, so a
+  scaler of exactly `0.0` now passes through and divides loudly instead of being swallowed into `1.0`.
+- **The audit is closed, not sampled.** A driver-scaled number enters the model **only** through
+  `prob.set_val`, which occurs **exactly three times** across both producers, each fed by one of the
+  three `scalers` dicts. Every `prob.get_val` returns physical and is recorded as physical. There is no
+  inverse conversion anywhere in either file.
+- **Planted control, driven after application:** on the real model's measured metadata
+  (`total_scaler=None, scaler=0.1`) the old expression returns `1.0` and the new returns `0.1`; on the
+  synthetic flat-group metadata both return `0.1` unchanged; a missing DV name **refuses**. A fix that
+  could not be shown to fire would not be evidence of a fix.
+
+### A2.7 SECTION 11 — THE INSTRUMENT TABLE, REPINNED
+
+| file | md5 at freeze | md5 after ADDENDUM 2 | selftest re-driven |
+|---|---|---|---|
+| `d6r2c_after_grade.py` | `6c22013af54569ae651f8f23d1088861` | **UNCHANGED** | `SELFTEST PASS n=51` |
+| `d6r2c_decomp.py` | `3089b620587b1c20035f63dc1c8cd175` | `42ec0dd582584812a69129a474b2783e` | `SELFTEST PASS n=32` |
+| `d6r2c_freshmesh.py` | `ad2946f197fefc9cd5829deec1866a57` | `6cb2214f9e5d4d124e77db816efbb2af` | `SELFTEST PASS n=23` |
+| `d6r2c_after_run_arm.sh` | `c83d18547353ef32e4ed960bb6783501` | `eb746083b0bfb17fdde657cbb0320d04` | `SELFTEST PASS n=5` |
+
+**All four counts are identical to the freeze.** The launcher changed **only** its trailing `# PIN`
+lines, which `G-FREEZE` reads out of itself: without that re-point `G-FREEZE` would refuse (exit 4) on
+the repaired producers. **The grader pin is unchanged and the grader is untouched.**
+
+### A2.8 SPEND — DEFECT-ATTRIBUTABLE, NAMED SEPARATELY, NEVER ABSORBED
+
+| row | core-min | verdict |
+|---|---|---|
+| `DEC` (staging defect, ADDENDUM 1) | 0.533 | `NOT A RESULT` |
+| `DEC2` (this defect) | 14.800 | `NOT A RESULT` |
+| **cumulative defect-attributable waste** | **15.333** | — |
+
+`15.333 core-min = 0.25555 core-h × $0.0513 = $0.0131`, **derived, not measured** — the box cannot read
+its own billing (`COMPUTE_BUDGET_CHARTER.md` §5); `cost_basis` class **reported-by-owner**. **No ratio
+against the 322.7 core-min prediction is computed**: that figure prices a completed arm and neither of
+these produced anything. **The calibration row of rule 12 is owed when an arm completes, not before.**
+The diagnostics of §A2.2 are primal-free and are not charged as arm spend.
+
+### A2.9 THE APPEND-ONLY PROOF
+
+- Pre-append head-md5 of this file: **`2d815128cca49f4cb282b11e057c1f2f`**, **909 lines**, identical to
+  `HEAD` (`9a0301822`) at the moment of appending — checked, not assumed.
+- This section is appended **at the foot**. `git diff --numstat` on this path must show **insertions
+  only and `0` deletions**; if it ever shows a deletion, this assertion is false and the section is void.
+- **Lines whose number changed above this section: 0.**
+- ADDENDUM 1 is committed at `9a0301822`; this is `ADDENDUM 2`, the number derived from the maximum
+  existing heading in this file, never from a count.
+
+### A2.10 WHAT THIS ADDENDUM DOES NOT DO
+
+- **It does not re-grade `DEC` or `DEC2`.** Both `NOT A RESULT` rows stand and both directories are
+  preserved. The successor arms are `DEC3` and `FM3`.
+- **It does not move `O_mp`.** That row is closed at `GATE FAIL`.
+- **It does not touch the grading path**, and if `d6r2c_after_grade.py` ever must change, that is a new
+  registration and not an addendum.
+- **It does not add, widen or move any tolerance.** `TRIM_TOL = 1.0e-6` is untouched; §3a's prohibition
+  on widening it stands and was never approached.
+- **It does not claim the repair is verified against the solver.** §11a's honest gap still applies: the
+  repaired producers have been driven through their selftests and a planted control, **not through a
+  primal**. `DEC3` is that test, and if `DEC3` fails to write its `state = B` record it is stopped as a
+  producer defect again, exactly as §11a registers.
+- **It does not claim any result for items 8 or 9.** Both remain `PENDING`.
+
+### A2.11 A CORRECTION TO §A2.7 OF THIS SAME ADDENDUM, STRUCK RATHER THAN REWRITTEN
+
+**§A2.7 asserts that the launcher changed "only its trailing `# PIN` lines". THAT SENTENCE IS STRUCK.**
+It was true when written and became false minutes later: `DEC3` and `FM3` had to be added to the
+launcher before either could run, because the frozen launcher knows only the ids `DEC|DEC2|FM|FM2` and
+would have refused `DEC3` at `exit 64`. **The original is struck and left standing, not edited**, per
+rule 2 — a reader is entitled to see that the claim was made and then corrected, and by whom and when.
+
+**The full set of launcher changes under ADDENDUM 2, enumerated rather than summarised:**
+
+1. the three trailing `# PIN` lines, re-pointed at the repaired producers (§A2.7);
+2. `cap_core_min()` — `DEC|DEC2|DEC3` and `FM|FM2|FM3`;
+3. `seed_arm()`'s surface-staging branch — `FM3` added;
+4. the accepted-arm `case` and the usage string — `DEC3|FM3` added;
+5. the `CMDFILE` branch selecting the decomposition command — `DEC3` added;
+6. the `NOW GRADE` line's item selector — `DEC3` → `--item 8`;
+7. the `--selftest` block — a **new executable assertion** that `DEC2`, `DEC3`, `FM2` and `FM3` carry
+   **the identical** registered caps, and the banner count moved `n=5` → `n=6` to match the checks
+   actually driven.
+
+**NO NEW THRESHOLD IS INVENTED AND NONE IS RAISED OR REDUCED.** `DEC3` carries `968.1` and `FM3`
+carries `618.0` — the same registered figures, looked up under a third key, exactly as ADDENDUM 1 did
+for `DEC2`/`FM2`. **This is now proved by an executable check rather than by this paragraph**: the
+selftest fails if any re-run id's cap differs from its arm's. Measured: `DEC/DEC2/DEC3 = 968.1`,
+`FM/FM2/FM3 = 618.0`, unknown arm = empty.
+
+**Why item 7 is here at all.** L-221/L-222 says a lesson is not applied until *every* call site asserts
+it. Six live sites named an arm id and all six were found by enumeration before any was edited; the
+seventh change exists so that a future id added at five sites instead of six **fails a test** rather
+than running with a silently absent cap.
+
+**Launcher md5 after every change above: `f777e6a89fd5316af917077db16fb0df`.** This supersedes the
+`eb746083b0bfb17fdde657cbb0320d04` recorded in §A2.7, which was the value after item 1 only.
+**`D6R2C_AFTER_LAUNCH SELFTEST PASS n=6`, exit 0, six checks printed and six asserted.**
+
+**The grader remains untouched at `6c22013af54569ae651f8f23d1088861` and no gate, threshold, cap or
+label is altered by anything in this section.**
