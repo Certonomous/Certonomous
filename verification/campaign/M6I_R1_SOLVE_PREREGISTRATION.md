@@ -2017,3 +2017,78 @@ grid on both sides of the inequality, a `≤` comparison, and a frozen descripti
 *uniform*. **It passes only because the real hardware is irregular.** A check that only ever
 reports problems teaches nothing about the cases it clears; **this one names exactly how close
 this band came.**
+
+---
+
+# ADDENDUM 16 — 2026-09-13. **I RAISED AN ALARM AGAINST MY OWN LIVE GATE AND THEN DEFUSED IT BY TRACING WHICH QUANTITY THE ASSERT ACTUALLY CONSUMES. IT IS NOT A LIVE RISK.**
+
+**v1.15 → v1.16. Lines whose number changed above this section: 0.** Nothing moves. **This
+addendum corrects two numbers and retracts an alarm this lane raised itself.**
+
+## A16.1 — CORRECTED: THE PROSE-VERSUS-FILE ERROR, WHICH IS MUCH LARGER THAN RELAYED
+
+A figure of *"up to 5.5 % on Δ at η = 0.65"* was relayed for what a grader would suffer had it
+taken the nominal from the prose instead of measuring the file. **Measured here, it is neither
+that size nor that station:**
+
+| station | registered nominal | **true interval widths** | **max error using the nominal** |
+|---|---|---|---|
+| η = 0.65 | 0.0500 | **0.04955 – 0.07011** | **28.68 %** |
+| η = 0.90 | 0.0400 | **0.03779 – 0.04787** | **16.44 %** |
+
+The widest deviations come from the **aft** intervals — and **the frozen registration already
+said so**: §5 B2 records *"widening to 0.060–0.070 c aft of 0.65"*. **The prose warned about
+exactly the intervals that break the nominal.** The principle stands and is strengthened:
+**the instrument reads the file, and that is the only reason the imprecise prose is harmless.**
+
+## A16.2 — 🔴 THE ALARM I RAISED, AND WHY IT IS WRONG
+
+Those widths exceed the grader's own assert tolerance. `BAND_B2_ASSERT_TOL = 0.0125` against a
+registered 0.0500 admits **0.0375 – 0.0625**, and at η = 0.65 **four of fourteen intervals fall
+outside it**:
+
+| interval | width | \|w − 0.0500\| |
+|---|---|---|
+| 0.71034 → 0.78008 | 0.06974 | 0.01974 |
+| 0.78008 → 0.85001 | 0.06993 | 0.01993 |
+| 0.85001 → 0.92012 | 0.07011 | **0.02011** |
+| 0.92012 → 0.98611 | 0.06599 | 0.01599 |
+
+🔴 **And they sit at x/c 0.71–0.99 — exactly where every level's detected shock has landed**
+(L3 and L3_TVD at 0.9531, L2 at 0.8851). That looked like a live trap waiting for L1: D1 picks
+an aft interval, the assert fires, and a sound run grades `NOT A RESULT` on bookkeeping.
+
+**IT IS NOT. I TRACED WHICH QUANTITY THE ASSERT CONSUMES INSTEAD OF REASONING FROM THE WIDTHS.**
+`grade_m6_agard_cp.py`:
+
+- **line 307** — `x_sh_e, dloc, _, _, rise = d1_shock_from_curve(ref_pairs)` → **`dloc` is the
+  EXPERIMENTAL interval width.**
+- **line 322** — `if abs(dloc - reg) > BAND_B2_ASSERT_TOL:` → **the assert is on the
+  EXPERIMENTAL Δ.**
+- **line 318** — the CFD's own `dloc_c` is computed and **never used** by the assert or the band.
+
+**The experimental Cp data is identical for every level and every run, so `dloc` is INVARIANT:
+0.05014 at η = 0.65 and 0.04024 at η = 0.90, both comfortably inside ±0.0125 — confirmed in all
+eight shock rows already graded.** The assert is **a property of the reference file alone** and
+**cannot fire for L1, or for any level, ever.**
+
+**So the alarm is retracted, and the retraction is the point.** I computed the widths of
+intervals D1 would select **only if the experimental curve's largest Cp rise sat there** — it
+does not; it sits at **x/c 0.47517**. **I read a correlate (interval widths in the aft region,
+where the CFD shock happens to land) instead of the quantity the rule names (the width at the
+interval the EXPERIMENTAL D1 selects).** That is tonight's own mechanism, committed by the lane
+that drafted the clause about it, on the third consecutive occasion — and it was caught the
+same way as all the others: **by reading the artifact, which here meant the grader's source
+rather than the data.**
+
+**One genuinely dead value, noted and not dressed up:** `dloc_c` at line 318 is assigned and
+never read. **Harmless** — the band and the assert both use the experimental Δ by design — but
+it is a value a future reader could mistake for the one in force.
+
+## A16.3 — WHAT REMAINS TRUE FOR L1
+
+**Nothing in A15 changes.** B2 cannot be met by arithmetic identity (0 of 13 and 0 of 18), the
+guards keep their separation, and **IC-4's y⁺ ≤ 2.0 on L1 remains the one registered number
+whose margin is undemonstrated.** At endTime this lane reports **C2's two shock-rise numbers
+against 0.212 and 0.320 first**, then **C1**, then **IC-4's measured y⁺** — the last because it
+is the gate whose margin has not been shown on that level.
