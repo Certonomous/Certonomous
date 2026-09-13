@@ -1,0 +1,512 @@
+                                                                                                                                            10_UniGenua
+                                                                02_CRADLE
+
+
+
+
+                                                                                                                                                              11_UniTriest
+                                                                                                         07_MARIC
+
+
+
+
+                                                                                                                                                                                            13_VOITH
+                                                                                03_CSSRC
+
+
+
+
+                                                                                                                                                                                 12_VICUS
+                                                                                                                                  09_TUHH
+                                                                                           04_HSVA
+                                                    01_BERG
+
+
+
+
+                                                                                                                        08_SSPA
+
+
+
+
+                                                                                                                                                                                                       14_VTT
+                                                           1     2          3                        1              2                                     1                  3
+A - Computational Domain
+     Domain Topology
+     1 steady domain
+ A1
+     1 rotating domain                                                                       x       x              x     x         x          x                                   x                     x
+     Multiple domains                                 x    x     x          x     x                                                                       x                  x                x
+     Grid-coupling technique
+     Sliding                                               x     x          x                                                                                                                 x
+ A2
+     Overset
+     Multiple ref. Frames                             x                           x                  x              x     x                    x          x                  x     x
+B - Propeller Representation
+     Resolution
+ B1 Geometrically resolved                            x                     x     x          x       x              x     x         x          x          x                  x     x          x          x
+     Unresolved + Body forces                              x     x
+     Number of considered blades
+     Complete propeller                               x    x     x          x                x                                      x                                                         x
+ B2
+     Single blade + periodicity (matching grids)                                  x                  x              x     x                    x                                                         x
+     Single blade + periodicity (non-matching grids)                                                                                                      x                  x     x
+C - Computational Grid (if both C-parts are used: Fixed Domain/Part)
+     Type
+ C1 Structured                                                                                                      x                                                        x                           x
+     Unstructured                                     x    x     x          x     x          x       x                    x         x          x          x                        x          x
+     Local-grid refinement
+     Possible - used here                             x    x     x          x                x       x              x               x          x                                   x          x
+ C2
+     Possible - not used here                                                     x                                       x                               x                                              x
+     Not possible                                                                                                                                                            x
+     Primary volume elements
+C3
+   Tetraheder                     x   x   x   x       x                   x
+C3
+   Hexahedral                 x                   x       x   x   x           x           x
+   Polyhedral                                                         x           x   x
+   Primary surface elements
+   Quads                                          x       x   x   x           x           x
+C4
+   Triangles                  x   x   x   x   x       x               x   x       x
+   Mixed                                                                              x
+   Wall-boundary layer type
+   Prism layer                x   x   x   x           x               x   x       x   x
+C5
+   Hex layer                                      x       x   x   x           x           x
+   Poly layer                                 x
+   Blade meshing
+C6
+C6 Homogeneous for all blades                          x          x                             x         x        x        x        x                   x          --        --        x        x          x
+   One blade refined                                                        x         x                                                        x                    --        --
+C7 Number of cells across boundary layer               5        20          5         5         0        --        4       --      34          9       20           --        --       --        6        28
+   Y+-value at
+   r/R = 0,4                                        118         <1        30        30        120       100      0.2      20         1       30        3            --        --      0.28     30        ~1
+C8
+   r/R = 0,7                                        140         <1        30        30        120       150      0.3      30         1       30       3.5           --        --      0.42     40        ~1
+   r/R = 0,9                                        160         <1        30        30        120       120      0.4      40         1       50       4.2           --        --      0.62     50        ~1
+   Averaged amount of cells per resolved blade
+
+
+
+
+                                                    2,762,945
+
+
+
+
+                                                                                                                                                      2,500,000
+
+
+
+
+                                                                                                                                                                                                         4,269,568
+                                                                165,000
+
+                                                                          235,000
+
+                                                                                    235,000
+
+                                                                                              658,000
+
+
+
+
+                                                                                                                                   254,440
+
+
+
+
+                                                                                                                                                                  328,380
+
+                                                                                                                                                                            261,066
+
+
+
+
+                                                                                                                                                                                               200,000
+                                                                                                        42,000
+
+                                                                                                                 12,700
+
+                                                                                                                          22,000
+
+
+
+
+                                                                                                                                             90,000
+
+
+
+
+                                                                                                                                                                                      26,400
+C9
+
+
+      Averaged amount of nodes per resolved blade
+
+
+
+
+                                                                                                                                                                            275,680
+                                                                                                                                                                  65,439
+C10                                                   --          --        --        --        --       --       --       --        --       --        --                             --        --        --
+
+C - Computational Grid (if both C-parts are used: Rotating Domain/Part)
+     Type
+C1 Structured                                         --    --   --     --                      --       --       --       --        --       --        --                    x        --        --        --
+     Unstructured                                     --    --   --     --                      --       --       --       --        --       --        --          x                  --        --        --
+     Local-grid refinement
+     Possible - used here                             --    --   --     --                      --       --       --       --        --       --        --          x                  --        --        --
+C2
+     Possible - not used here                         --    --   --     --                      --       --       --       --        --       --        --                             --        --        --
+     Not possible                                     --    --   --     --                      --       --       --       --        --       --        --                    x        --        --        --
+     Primary volume elements
+     Tetraheder                                       --    --   --     --                      --       --       --       --        --       --        --          x                  --        --        --
+C3
+     Hexahedral                                       --    --   --     --                      --       --       --       --        --       --        --                    x        --        --        --
+     Polyhedral                                       --    --   --     --                      --       --       --       --        --       --        --                             --        --        --
+     Primary surface elements
+     Quads                                            --    --   --     --                      --       --       --       --        --       --        --                    x        --        --        --
+C4
+     Traingles                                        --    --   --     --                      --       --       --       --        --       --        --          x                  --        --        --
+     Mixed                                            --    --   --     --                      --       --       --       --        --       --        --                             --        --        --
+     Wall-boundary layer type
+     Prism layer                                      --    --   --     --                      --       --       --       --        --       --        --          x                  --        --        --
+C5
+C5
+   Hex layer                                         --    --     --    --    --     --    --    --     --     --     --                   x        --   --     --
+   Poly layer                                        --    --     --    --    --     --    --    --     --     --     --                            --   --     --
+   Blade meshing
+C6 Homogeneous for all blades                        --    --     --    --    --     --    --    --     --     --     --                            --   --     --
+   One blade refined                                 --    --     --    --    --     --    --    --     --     --     --      x           x         --   --     --
+C7 Number of cells across boundary layer             --    --     --    --    --     --    --    --     --     --     --      --          --        --   --     --
+   Y+-value at
+   r/R = 0,4                                         --    --     --    --    --     --    --    --     --     --     --     22          51         --   --     --
+C8
+   r/R = 0,7                                         --    --     --    --    --     --    --    --     --     --     --     29          32         --   --     --
+   r/R = 0,9                                         --    --     --    --    --     --    --    --     --     --     --     37          30         --          --
+   Averaged amount of cells per resolved blade
+
+
+
+
+                                                                                                                            1,894,314
+
+                                                                                                                                        2,316,306
+C9                                                   --    --     --    --    --     --    --    --     --     --     --                            --   --     --
+
+
+      Averaged amount of nodes per resolved blade
+
+
+
+
+                                                                                                                                        2,360,214
+                                                                                                                            586,057
+C10                                                  --    --     --    --    --     --    --    --     --     --     --                            --   --     --
+
+
+D - Normalized Dimensions of the Physical Domain (if both D-parts are used: Fixed domain)
+     for all domains
+D1 X_min / D                                        5.58 -12 -2.28 -2.28 3           -2    2    2.28    2     -0.5    -2    -2.3        -2.3         4   -12    5
+     X_max / D                                     13.42 4         8     8     4     3     6     6      4      1      6      5.3         5.3        10    6    10
+     for non-cyl. Domains
+D2a Y_min / D                                        --    -4    -1.2 -1.2     --    --    --    --     --     --     --      --          --        --   -6     --
+     Y_max / D                                       --     4     1.2   1.2    --    --    --    --     --     --     --      --          --        --    6     --
+     for non cyl. Domains
+D3a Z_min / D                                        --    -4    -1.2 -1.2     --    --    --    --     --     --     --      --          --        --   -6     --
+     Z_max / D                                       --    1.5    1.2   1.2    --    --    --    --     --     --     --      --          --        --    6     --
+     for cyl. Domains                                3      --     --    --    3    1.35   3    1.2           0.34   1.34     5           5         5    --
+D2b open water                                              --     --    --                             3                                                --     4
+     cavitation tunnel                                      --     --    --                            1.36                                              --    1.35
+D - Normalized Dimensions of the Physical Domain (if both D-parts are used: Rotating domain)
+     for all domains
+D1
+ D1 X_min / D                                    --   --   --   --   --   --   --   --   --   --   --   -0.7 -0.41   --   --   --
+     X_max / D                                   --   --   --   --   --   --   --   --   --   --   --    0.6 0.31    --   --   --
+     for non-cyl. Domains
+D2a Y_min / D                                    --   --   --   --   --   --   --   --   --   --   --    --    --    --   --   --
+     Y_max / D                                   --   --   --   --   --   --   --   --   --   --   --    --    --    --   --   --
+     for non cyl. Domains
+D3a Z_min / D                                    --   --   --   --   --   --   --   --   --   --   --    --    --    --   --   --
+     Z_max / D                                   --   --   --   --   --   --   --   --   --   --   --    --    --    --   --   --
+     for cyl. Domains                            --   --   --   --   --   --   --   --   --   --   --   0.6   0.6    --   --   --
+D2b owt.                                         --   --   --   --   --   --   --   --   --   --   --                --   --   --
+     cav                                         --   --   --   --   --   --   --   --   --   --   --                --   --   --
+E - Numerical Approximation
+     Finite Approximation Scheme (Fluid)
+     Finite volume Navier-Stokes                 x    x    x    x    x    x    x    x    x    x    x     x     x     x    x    x
+ E1 Finite element Navier-Stokes
+     Mixed FV / FE Navier-Stokes
+     None
+     Finite Approximation Scheme (Propeller)
+     Navier-Stokes                               x    x    x    x    x    x    x    x    x    x    x     x     x     x    x    x
+ E2
+     BEM
+     VLM
+     Coordinates
+     Cartesian                                   x    x    x    x    x    x    x    x    x    x    x     x     x     x    x    x
+ E3
+     Cylindrical - fixed
+     Cylindrical - rotating
+     Convection scheme (momentum eq.)
+     high-order upwind                           x    x    x    x         x    x    x         x          x     x               x
+     2nd-order centered                                              x                             x                 x
+ E4
+     high-order centered
+     blended UDS / CDS                                                                   x                                x
+     limited / blended downwind ( compressive)
+     Transient approximation
+ E5
+ E5 implicit                                     x    x    x    x    x    x    x    x    x    x    x    x    x    x    x   x
+     explicit
+     Special Vortex-Treatment Technique:
+ E6 none                                         --   x    x    x    --        x    x    --   --   x    --   --   --   x   --
+     refinement                                  --                  --   x    --   --   --   --        --   --   --       --
+     Spatial order of accuracy (neglecting BC)
+ E7 2nd order                                    --   x    x    x    x    --   x    x    --   x    --   --   --   --       --
+     30 % 1st order; 70 % 2nd order              --                       --   --   --   --        --   --   --   --   x   --
+     Temporal order of accuracy
+ E8 1st order                                    --   --   --        --   --   --   --   --   x    x    --   --   --   x   --
+     2nd order                                   --   --   --   x    --   --   --   --   --             --   --   --       --
+     Time step
+     steady                                      --   x    x         x         x    x    --             --   --   --
+     quasi steady                                --                            --   --   --             --   --   --       x
+ E9 0,5deg / Cycle                               --             x              --   --   --             --   --   --
+     3.02E-05                                    --                       x    --   --   --             --   --   --
+     1.00E-04                                    --                            --   --   --   x         --   --   --   x
+     5.00E-05                                    --                            --   --   --        x    --   --   --
+     Equivalent angle of rot. for a time step
+     0,25°                                       --   --   --   --   --   x    --   --   --             --   --   --       --
+E10 1°                                           --   --   --   --   --        --   --   --             --   --   --   x   --
+     1.00E+00                                    --   --   --   --   --        --   --   --   x         --   --   --       --
+     7,85E10-03 [rad/timestep]                   --   --   --   --   --        --   --   --        x    --   --   --       --
+F - Turbulence treatment
+     Model name
+     k-omega                                                         x    x    x    x    x    x                   x
+     k-epsilon                                             x    x                                  x                   x   x
+     one-equation model
+     Reynolds-stress transport model
+ F1 algebraic stress model
+     hybrid RANS / LES
+     LES
+     SST                                         x
+F1
+
+
+
+
+     other (see reference)                     x                                       x   x
+     Inviscid or Laminar
+     Transition
+     Fully turbulent                       x       x   x   x   x   x   x       x   x   x   x   x   x   x
+ F2
+     Modelled transition                       x                           x
+     Fixed transition
+     Convection scheme (Turbulence Eqn.)
+     1st-order upwind                      x                                   x       x   x
+     high-order upwind                         x   x   x           x   x                               x
+ F3
+     2nd-order centered                                    x                       x           x
+     high-ordered centered
+     blended UDS / CDS                                         x           x                       x
+G - Boundary conditions
+     Blade
+
+G1
+     Slip flow (or Euler)                                      x
+G1 Laminar (no slip)                                                   x   x                               x
+     Logarithmic                               x       x   x       x               x               x   x
+     Hybrid laminar / logarithmic                  x                           x       x   x   x
+     Hub
+     Slip flow (or Euler)                                      x
+G2 Laminar (no slip)                                                   x   x                               x
+     Logarithmic                               x       x   x       x               x               x   x
+     Hybrid laminar / logarithmic                  x                           x       x   x   x
+     Inlet
+G3 Fixed Velocity                              x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     Fixed Pressure
+     Outlet
+     Fixed Velocity
+G4 Fixed Pressure                              x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     Characteristic / Far-Field BC
+     Extrapolate / Far-Field BC
+     Outer domain
+     Slip flow (or Euler)                      x   x   x   x   x   x   x   x   x   x   x   x   x   x       x
+G5 Laminar (no slip)                                                                                   x
+     Logarithmic
+     Hybrid laminar / logarithmic
+H - Computational Model
+     Fluid
+H1 compressible                                            x
+     incompressible                            x   x   x       x   x   x   x   x   x   x   x   x   x   x   x
+     Pressure
+H2 Equation of state
+     pressure correction / projection scheme   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x   x
+     Two-Phase flow treatment
+     Euler / Euler - VOF                           x   x   x   x   x           x   x   x   x   x           x
+H3 Euler / Euler - VOF (single-Phase)
+     Euler / Lagrange                          x                                                   x
+H3
+
+     Euler / Euler
+I - Cavitation Model
+     Type
+     Mass Transfer - VOF                           x    --   --    x      x     x    x    x     x            x     --   x    x    x     x
+     Euler / Euler                                      --   --                                                    --
+ I1 Lagrangian bubble dynamics                          --   --                                                    --
+     Thermodynamic equilibrium                          --   --                                                    --
+     linear BEM                                         --   --                                                    --
+     Mass Transfer - VOF in addition to Lagrange        --   --                                        x           --
+     Author reference
+     Okuda and Ikohagi                             --   --   --    x      --    --   --   --    --           --    --   --   --   --
+ I2
+     Merkle                                        --   --   --           --    --   --   --    --           --    --   --   --   --    x
+     Zwart (2004)                                  --   --   --           --    --   --   --    --     x     --    --   --   --   --
+     Initial (minimam) bubble diameter [mm]
+     1.00E-03                                      --   --   --    --     --    --   --   --    --           x     --        --   x     --
+ I3
+     1.00E-06                                      --   --   --    --     --    --   --   --    --                 --   x    --         --
+     5.00E-03                                      --   --   --    --     --    --   --   --    --     x           --        --         --
+     Maximum bubble diameter [mm]
+ I4
+     1.00E+00                                      --   --   --    --     --    --   --   --    --     x     --    --   --   --   --    --
+     Number of bubbles/m³ (nuclei number)
+     1.00E+08                                      --   --   --    --     --    --   --   --           x           --   --   --   x     --
+ I5
+     1.00E+12                                      --   --   --    --     --    --   --   --                 x     --   --   --         --
+     1.00E+13                                      --   --   --    --     --    --   --   --    x                  --   --   --         --
+     Mass-transfer / VOF interaction (for VOF)
+ I6 RHS pressure / pc equation                          --   --    x      x     x                             --   --   x         x
+     RHS and matrix of pressure / pc equation      x    --   --                      x    x     x      x      --   --        x          x
+ I7 Vapor density [kg/m³]                          --   --   --   0.02   0.02        --   --   0.02   0.03   0.6   --   0    --   --   0.02
+     Model acronym
+     Kunz                                          x    --   --                      x    x                        --   k    x
+     Sauer                                              --   --                                 x            x     --             x
+ I8 Zwart                                               --   --                                        x           --   z
+     Singhal                                            --   --    x      x     x                                  --   s
+     Merkle                                             --   --                                                    --                   x
+I8
+
+
+    Senocak                                          --   --                                               --
+    Condensation source term based on
+    Pressure difference                         x    --   --           x     x   x    x               --   --          x          x
+ I9
+    Square root of pressure difference               --   --    x                         x     x     --   --   s, z        x
+    other                                            --   --                                          --   --    k
+    Vaporisation source term based on
+    Pressure difference                              --   --           x                              --   --    k                x
+I10
+    Square root of pressure difference               --   --    x                         x     x     --   --   s, z        x
+    others                                      x    --   --                 x   x    x                    --          x
+    Condensation coefficient value              --   --   --   0.01   0.01       --       --   25     --   --          --   --   370
+    UniTriest - Kunz                            --   --   --                     --       --          --   --   455    --   --
+I11
+    UniTriest - Singhal 2,3E-04                 --   --   --                     --       --          --   --    s     --   --
+    UniTriest - Zwart                           --   --   --                     --       --          --   --   0.3    --   --
+    Vaporisation coefficient value              --   --   --   0.02   0.02       --       --   0.01   --   --          --   --   370
+    UniTriest - Kunz                            --   --   --                     --       --          --   --   4100   --   --
+I12
+    UniTriest - Singhal                         --   --   --                     --       --          --   --    0.4   --   --
+    UniTriest - Zwart                           --   --   --                     --       --          --   --   300    --   --
+    Limitations to the source term
+I13 Yes                                         x    --   --           x     x   x    x               --   --          x    x
+    No                                               --   --    x                         x     x     --   --    x                x
+    Limitations to the vapor-fraction
+I14 Yes                                         x    --   --           x     x   x    x   x     x     --   --    x     x    x
+    No                                               --   --    x                                     --   --                     x
+    Convection scheme
+    1st -order upwind                                --   --                                          x    --
+    high-order upwind                           x    --   --    x      x     x   x    x         x          --    x     x    x     x
+I15 2nd-order centered                               --   --                                               --
+    high-order centered                              --   --                                               --
+    blended UDS / CDS                                --   --                              x                --
+    limited / blended downwind ( compressive)        --   --                                               --
+    Modification for turbulent flows
+I16 Yes                                         x    --   --    x      x     x   x    x         x          --    x     x
+    No                                               --   --                              x           x    --               x     x
+     Diffusion term employed
+ I17 Yes                                   x      --      --               x        x       x       x                                 --              x                x
+     No                                           --      --       x                                         x       x       x        --      x               x
+     Surface tension employed
+ I18 Yes                                   x      --      --       x       x        x       x       x                                 --     s, z     x
+     No                                           --      --                                                 x       x       x        --      k               x        x
+     Coupling Scheme
+     Uncoupled (1-way)                     x      --      --       x       x        x       x       x        x               x        --      --      x       x        x
+ I19
+     Coupled to Eulerian mixture phase            --      --                                                         x                --      --
+     Coupled to Eulerian liquid phase             --      --                                                                          --      --
+ I20 Active forces for momentum eq.        --     --      --       --      --      --       --      --      --       x       --       --      --      --      --      --
+     Bubble/Bubble-Interaction
+ I21 Yes                                          --      --                                                                          --      --
+     No                                    x      --      --       x       x        x       x       x        x       x       x        --      --      x       x        x
+J - Computational Demands
+  J1 Number of processes used              8     96       48      48       4       16       --      --      24      16       18       4       4       1       32
+     Number of revolutions computed
+     steady state                          x      x       x                x                x       x                                 x       --      --
+     2                                                             x                x                                                         --      --
+     3                                                                                                               x                        --      --
+  J2
+     5                                                                                                                                        --      --      x
+     10                                                                                                                      x                --      --
+     16                                                                                                                                       --      --               x
+     >6000                                                                                                   x                                --      --
+     Wall-clock time per revolution
+  J3 time                                 24h    4h       2h     19h       --     19h               --      --     55h                --      --      --       --
+     time per revolution                                                   --                       --      --             8,5h       --      --      -- 1500s --
+K    Code Reference                              [1]              [2]              [3]                              [4]     [5]      [6]     [7]     [8]  [9] [10]
+
+                                         [1]    Walters, D.K., Leylek, J.H. (2004). ‘A New Model for Boundary Layer Transition Using a Single-Point RANS Approach’, ASME
+                                                                                         Journal of Turbomachinery, 126, pp.193-202
+
+                                                Walters, D.K., Cokljat, D.(2008). ‘A Three-Equation Eddy-Viscosity Model for Reynolds-Averaged Navier-Stokes Simulations of
+                                                                                     Transitional Flow’, ASME J. of Fluids Eng., 130, 121401
+      Walters, D.K., Cokljat, D.(2008). ‘A Three-Equation Eddy-Viscosity Model for Reynolds-Averaged Navier-Stokes Simulations of
+                                           Transitional Flow’, ASME J. of Fluids Eng., 130, 121401
+
+
+
+[2]      Okuda, K., Ikohagi, T. (1996). ‘Numerical Simulation of Collapsing Behavior of Bubble Clouds’, Trans. JSME (B) Vol. 62
+                                                     No.603, pp.38-43 (in Japanese)
+
+      Singhal, A. K., Athavale, M. M., Li, H., Jiang, Y. (2002). ‘Mathematical basis and validation of the full cavitation model’, Journal
+                                                    of Fluids Engineering 124, pp.617-624
+
+
+
+[3]                                                                FreSCo+
+
+
+[4]                                                                 FreSCo
+         M. Abdel-Maksoud, D. Haenel, and U. Lantermann. Modeling and computation of cavitation in
+                       vortical flowJ. of Heat and Fluid Flow, 31(6):1065 – 1074, 2010
+                          T. Rung, K. Woeckner, M. Manzke, J. Brunswig, C. Ulrich,
+                          and A. Stueck. Challenges and Perspectives for Maritime
+                            CFD Applications. Jahrbuch der Schiffbautechnischen
+                                         Gesellschaft, 103. Band, 2009.
+
+[5]                                                  CD-Adapco StarCCM+ v 5.06
+
+[6]            Menter, F. R. (1998). ’Two-Equation Eddy-Viscosity Turbulence Models for Engineering
+                                 Applications’,AIAA Journal, 32(8), p.p. 1598-1605.
+
+[7]         Menter, F. R. (1998). ’Two-Equation Eddy-Viscosity Turbulence Models for Engineering
+                                Applications’,AIAA Journal, 32(8), p.p. 1598-1605.
+            Kunz, R. F..,Boger, D. A., Stinebring, D. R., Chyczewski, T. S., Lindau, J. W., Gibeling, H. J.,
+      Venkateswaran, S., & Govindan, T.R. (2000). ‘A preconditioned Navier-Stokes method for two-phase
+         flows with application to cavitation prediction’. Computers and Fluids 29(8), p.p. 849 – 875.
+
+
+[8]                                                             STARCCM+
+
+[9]                                                                Comet
+[10]         Siikonen, T., 1995. An application of Roe's flux-difference splitting for k-e turbulence model.
+                        International journal for numerical methods in fluids (21), pp. 1017-1039.
+       Sipilä, T., Siikonen, T., Saisto, I., Martio, J., Reksoprodjo H., 2009. Cavitating Propeller Flows Predicted
+                                 by RANS Solver with Structured Grid and Small Reynolds
+       Number Turbulence Model Approach. Proceedings of the 7th international Symposium on Cavitation
+                                      CAV2009. Paper No. 45. 11 pp. Ann Arbor, USA.
+

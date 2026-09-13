@@ -1,0 +1,900 @@
+                                                                Second International Symposium on Marine Propulsors
+                                                                              smp’11, Hamburg, Germany, June 2011
+                                                                                     Workshop: Propeller performance
+
+
+    SMP Workshop on Cavitation and Propeller Performances: The
+ Experience of the University of Genova on the Potsdam Propeller Test
+                                  Case
+
+                               Stefano Gaggero1, Diego Villa1, Stefano Brizzolara1
+
+            1
+             University of Genova, Department of Naval Architecture, Marine and Electrical Engineering, Genoa, Italy
+
+
+
+
+     ABSTRACT                                                     design of rudders and appendages that have to operate,
+Accurate and reliable propeller performances predictions          hopefully in cavity free conditions, inside the wake field
+are a fundamental aspect for any analysis and design of a         behind the propeller itself. The prediction of the
+modern propeller. Prediction of cavitation and cavity             downstream velocity distribution produced by the
+extension is another important task, being cavitation one         propulsor, with special attention to the developed tip
+of the crucial aspects that influences efficiency in addition     vortex, is, as a consequence, another crucial aspect for an
+to propagated noise and blade vibration and erosion.              accurate and useful analysis.
+Accurate prediction of induced velocity field downward            From a numerical point of view it is comprehensive the
+the propeller plane is, moreover, mandatory for the proper        need of both accurate and efficient solvers, able to address
+design of appendages and rudders. The Potsdam Propeller           the problem of performances and cavitation prediction in
+Test Case within the SMP Workshop on Cavitation and               the preliminary design stage and in the more accurate
+Propeller Performances represents an excellent chance to          final propeller optimization phase, during which features
+test and to validate the capabilities of the University of        like tip vortex detachment or cavity bubble dynamics are
+Genova, together with its numerical tools, in predicting          taken into account. While in daily practice design
+propeller open water performances and cavitation.                 boundary elements methods are usually applied because
+     Keywords                                                     of their extreme computationally efficiency and their
+                                                                  overall accuracy in both non cavitating and cavitating
+CFD, Panel Method, Cavitation, Propeller Performances.            conditions for an acceptable range of advance coefficient
+     1 INTRODUCTION                                               around the design point, the increase in hardware
+The design and the analysis of modern, loaded and highly          resources leads to a shift towards viscous solvers for a
+skewed propellers is a primary aspect in the naval                more detailed propeller analysis. Major advantages of
+architecture field. The growing demand of heavily loaded,         these approaches include the modeling accuracy, the
+highly efficient propeller with request of very low noise         amount of detailed information extracted from the
+and vibration levels onboard makes the design of marine           simulations and the possibility of full scale analysis.
+propellers more and more conditioned by the analysis of           The Potsdam Propeller Test Case within the SMP
+inception and developed cavitation. Cavitation, in fact, is       Workshop on Cavitation and Propeller Performances
+the more important inhibitor to the propulsion system. If         represents an excellent chance to test and to validate the
+not specifically scheduled, as in the case of                     capabilities of the University of Genova, together with its
+supercavitating propellers, cavitation can generate a             numerical tools, in predicting propeller open water
+number of problems, like additional noise, vibrations and         performances and cavitation. In particular two different
+erosions as well as variations in the developed thrust and        approaches and three different solvers have been applied
+torque. Moreover, on modern propellers design, midchord           for the computation of open water propeller performances
+bubble cavitation may also appears and face cavitation is         and cavitation prediction. The first approach is a potential
+very common, especially if the propeller operates behind          based boundary element method developed at the
+a strong nonuniform wake or in inclined shaft conditions.         University of Genova by Gaggero (2010), widely
+Propeller performances, in addition, affect the efficient         validated in steady and unsteady conditions
+(Gaggero, 2008, 2010), including also cavitation. This         distance between points p and q, SB is the fully wetted
+approach will be adopted for the prediction only of the        surface, SW is the wake surface and SCB is the projected
+Potsdam Propeller open water curves and of the cavity          cavitating surface on the solid boundaries. This approach
+extension. The approximate hypothesis on which the             can be addressed as a partial nonlinear approach that takes
+solver is based, in fact, does not make it suitable for a      into account the weakly nonlinearity of the boundary
+reliable prediction of the induced velocities and tip          conditions (the dynamic boundary condition on the
+vortex, especially close to the mathematically “singular”      cavitating part of the blade and the closure condition at its
+trailing vortical wake, where a complex viscous                trailing edge) without the need to collocate the
+interaction takes place. The second approach is based on       singularities on the effective cavity surface. The set of
+the solutions of Reynolds Averaged Navier-Stokes               required boundary conditions for the steady problem is:
+equations through two different solvers. In the first case a
+commercial RANS solver, StarCCM+ v. 5.06 (CD-                   Kinematic boundary condition on the wetted solid
+Adapco, 2010), has been applied for all the required             boundaries:
+computations: open water performances prediction,
+evaluation of downstream velocities and cavity extension.                    (   )
+In the second case the open source CFD package                                                    (   )                  (3)
+OpenFOAM (OpenCFD, 2010) has been adopted for the
+computation, due to computational an time resources             Kutta condition at blade trailing edge:
+limitations, only of propeller open water characteristics.
+                                                                             (   )        (   )           (   )          (4)
+     2 NUMERICAL SOLVERS
+        2.1 Panel Method                                        Dynamic boundary condition on the cavitating
+Panel/boundary elements methods model the flowfield              surfaces:
+around a solid body by means of a scalar function, the
+perturbation potential ( ), whose spatial derivatives                                                                    (5)
+represent the component of the perturbation velocity
+                                                                Kinematic boundary condition on the cavitating
+vector. Irrotationality, incompressibility an absence of
+                                                                 surfaces (where n is the normal vector and th is the
+viscosity are the hypothesis needed in order to write the
+                                                                 local cavity bubble thickness):
+more general continuity and momentum equations as a
+Laplace equation for the perturbation potential itself:                          ( )       ( )                           (6)
+                          ( )                            (1)    Cavity closure condition at cavity bubble trailing
+                                                                 edge.
+For the more general problem of cavitating flow, Green‟s
+third identity allows to solve the three dimensional
+differential problem as a simpler integral problem written     Arbitrary detachment line, on the back and/or on the face
+for the surfaces that bound the domain. The solution is        sides of the blade can be found, iteratively, applying a
+found as the intensity of a series of mathematical             criteria equivalent, in two dimensions, to the Villat-
+singularities (sources and dipoles) whose superposition        Brillouin cavity detachment condition, as in Mueller
+models the inviscid cavitating flow on and around the          (1999). Starting from a detachment line obtained from the
+body.                                                          initial wetted solution (and identified as the line that
+                                                               separates zones with pressures higher than the vapor
+    (   )          ∫      (     )                              tension from zones subjected to pressure equal or lower
+                                                               pressures) or an imposed one (typically the leading edge),
+                                                               the detachment line is iteratively moved according to:
+                                (   )
+                      ∫                                  (2)    If the cavity at that position has negative thickness, the
+                                                                 detachment location is moved toward the trailing edge
+                                                                 of the blade.
+                  ∫       (     )                               If the pressure at a position upstream the actual
+                                                                 detachment line is below vapor pressure, then the
+                                                                 detachment location is moved toward the leading edge
+Neglecting the supercavitating case (computation is              of the blade.
+stopped when the cavity bubble reaches the blade trailing
+edge) and assuming that the cavity bubble thickness is         The numerical solution consists in an iterative scheme
+small with respect to the profile chord, (Gaggero, 2009)       delegated to solve the nonlinearities connected with the
+singularities that model cavity bubble can be placed on        Kutta, the dynamic and the kinematic boundary
+the blade surface instead than on the real cavity surface,     conditions on the unknown cavity surfaces until the cavity
+leading to an integral equation in which the subscript q       closure condition has been satisfied. Viscous forces,
+corresponds to the variable point in the integration, n is     neglected by the potential approach, can be computed
+the unit normal to the boundary surfaces and rpq is the        following two different approaches. In the first case, as
+proposed by Hufford (1992) and Gaggero (2010), a thin                 2.2 RANS Solver – StarCCM+ and OpenFOAM
+boundary layer solver can be coupled, through                  Analysis of open water propeller characteristics has been
+transpiration velocities, to the inviscid solution, in order   carried out through StarCCM+, a commercial finite
+to obtain a local estimation of the frictional coefficient     volume RANS solver and by OpenFOAM, an open source
+computed in accordance to the integral approach of Curle       CFD package. Continuity and momentum equation, for an
+(1967) (for the laminar boundary layer) and Nash (1969)        incompressible flow, are expressed by:
+(for the turbulent boundary layer). This approach, though
+being applied successfully for the analysis of
+conventional propellers, poses some problems of                      {   ̇                                             (9)
+convergence in very off design conditions and suffers
+from the tip influence on streamlines on which the             in which      is the averaged velocity vector,        is the
+boundary layer calculation is performed. As                a   averaged pressure field, is the dynamic viscosity,         is
+consequence in the present work a local estimation of          the momentum sources vector and             is the tensor of
+frictional coefficient has been carried out applying a         Reynold stresses. Cavitation is computed using a volume
+standard frictional line. In particular, the VanOossanen       of fluid approach for the vapor fraction inside the domain,
+formulation, based on local chord and thickness/chord          thus requiring the solution of a further transport equation
+ratio, has been employed:                                      for the percentage of vapor inside each cell. The bubble
+                                                               growth rate is based on the extended Rayleigh-Plesset
+                                 ( )                           equation (CD-Adapco, 2010).
+              ( )        (           )   ( )             (7)
+                                 ( )                           Two turbulence closure equations models have been
+                                                               selected within StarCCM+. The                    and the
+A further force free condition for the trailing vortical              models have been adopted for the computation of
+wake can be employed, at least for the steady                  open water and induced velocity propeller characteristics,
+computations, requiring that each points move, from a          in order to investigate the influence of the turbulence
+Lagrange point of view, following:                             model on the non cavitating solution. For the
+                                                               computations in cavitating regime, only the more stable
+       ( ̂)         (̂   )   (           ) ̂             (8)                        has been applied. OpenFOAM
+                                                               computations, instead, have been carried out adopting
+                                                               only the        closure equations.
+                                                               The StarCCM+ computational domain, by means of the
+                                                               symmetries, is represented by an angular sector of
+                                                               amplitude      ⁄ around a single blade, discretized with
+                                                               unstructured meshes of polyhedral cells. OpenFOAM
+                                                               domain, due to the selected simulation model, instead is
+                                                               represented by a cylindrical region surrounding the entire
+                                                               propeller, discretized also in this case, using polyhedral
+                                                               elements. All the simulations, for both the solvers, have
+                                                               been carried out as steady, using the Moving Reference
+                                                               Frame approach. SIMPLE algorithm links pressure with
+                                                               velocity fields.
+
+
+
+
+Figure 1: Panel Method propeller surface mesh.
+
+
+In present work, however, only an approximate
+description of the trailing vortical wake dynamics has
+been adopted, and the trailing vortical wake has been
+modeled as a steady helicoidal surface whose pitch equals
+the local blade pitch.
+The discretized surface mesh consists of 2500
+hyperboloidal panels for each blade. The trailing vortical
+wake extends for five complete revolutions and it is
+discretized with a time equivalent angular step of 6°, as in   Figure 2: Typical unstructured Mesh for Open Water
+figure 1.                                                      Computations. 1.25M/blade.
+Depending on the peculiarities of the problem, different       method prediction, instead, is a bit overestimated with
+numbers of cells have been adopted. For the open water         respect to the StarCCM+ computations, with some major
+computations (case 2.1), the number of cells varies            differences at the lower value of advance coefficient. Due
+between 1.25M (StarCCM+, single blade, as in figure 2)         to the lack of leading edge separation forces prediction
+to 1.4M (OpenFOAM, entire propeller). Due to some              capabilities and the approximate viscous model, potential
+preliminary results, OpenFOAM computations have been           computations, as widely demonstrated (Gaggero, 2008,
+performed on the sealed blade/hub configurations,              2010), tend to be underestimated in working conditions
+neglecting the gap at the blade root (figure 3).               (like lower advance coefficient conditions) in which
+                                                               viscous and separation effects are predominant.
+                                                               OpenFOAM predictions, unexpectedly for a viscous
+                                                               solver, are more close to the panel method results than to
+                                                               the StarCCM+ computations. Also for OpenFOAM it is
+                                                               possible to identify a slightly underprediction of thrust
+                                                                  0.8
+                                                                                                          STARCCM+ v.5 k-e
+                                                                                                          STARCCM+ v.5 k-o
+                                                                  0.6                                     Panel Method
+                                                                                                          OpenFOAM
+
+
+
+
+                                                               KT
+                                                                  0.4
+
+
+
+                                                                  0.2
+
+
+
+                                                                      0
+                                                                       0.6   0.7   0.8   0.9   1    1.1      1.2    1.3      1.4
+                                                                                               J
+                                                               Figure 3: Open Water propeller characteristics. Comparison
+                                                               between Panel Method and RANS approaches (Thrust).
+
+Figure 3: Typical unstructured Mesh for Open Water
+OpenFOAM Computations. 1.4M/entire propeller.                     1.4
+
+
+                                                                  1.2
+For the computation of induced velocities (case 2.2) a
+similar number of cells has been adopted. Moreover some
+                                                               10KQ
+
+
+
+
+                                                                      1
+refinements in the regions in which the velocity
+evaluation is required have been applied, increasing the          0.8
+number of cells up to 1.5M (StarCCM+). Finally for the
+cavitating flow (case 2.3) the solution has been computed         0.6
+
+on two different cells arrangements: a coarse grid,
+                                                                  0.4
+consisting in 1M elements for each blade, and a fine grid            0.6     0.7   0.8   0.9   1    1.1      1.2    1.3      1.4
+of about 2.4 million cells surrounding each blade. Also                                        J
+different meshing strategies, especially for what regard       Figure 4: Open Water propeller characteristics. Comparison
+the prism layer thickness and discretization, have been        between Panel Method and RANS approaches (Torque).
+selected, in order to reach satisfactory values for the        coefficient for the lower advance value. Up to
+parameter (generally lower than 30) and sufficient             OpenFOAM results are comparable with the Panel
+resolution for the cavitation model (between 3 and 10 on       Method solution, while at higher value of advance, they
+the blade).                                                    are closer to StarCCM+. Also the slope of the curves
+     3 RESULTS                                                 (Panel Method vs. OpenFOAM) is similar and slightly
+       3.1 Open Water – Case 2.1                               different from the StarCCM+ ones.
+Open water computations have been carried out with all         For what regard the torque prediction, as presented in
+the available computational tools. Prediction of thrust and    figure 4, it is possible to highlight some major differences
+torque are reported in figures 3 (thrust) and 4 (torque). It   between potential and viscous solutions. As for the thrust
+is worth to note that, for the thrust prediction, all the      prediction, Panel Method solution is affected at lower
+methodologies predict very close results. Only slight          values of advance coefficient by the limitations of the
+differences can be highlighted. StarCCM+ computations          leading edge and viscous phenomena treatment.
+(despite the different      and         turbulence models)     StarCCM+ results are very close, and also in this case the
+are almost overlapped, and their slope is the same. Panel      turbulence modelling seems not to have a significant
+influence on the propeller hydrodynamic forces, with          potential solution, the Panel Method predicts the
+differences lower to 3% for almost all the advance range.     inversion of the angle of incidence, with negative values
+OpenFOAM predictions, instead, have a different curve         of pressure coefficient on the face side on the outermost
+slope (more similar to the potential computations)            strip of panels. Also for higher advance coefficient
+together with very overpredicted values (with respect to      numerical solutions agree well. In this case, instead, it is
+the average value computed by StarCCM+ and as well by         the Panel Method pressure peak that is a bit
+the panel method) of torque. A fine grid, even if a           underestimated at the blade leading edge (on the suction
+preliminary analysis with a different mesh arrangements       side, due to negative angle of attack) with respect to the
+did not show any significant improvement, could fill the      viscous solutions. Also near the blade trailing edge there
+gap with the other computational tools. In terms of           are some major differences, especially of the Panel
+pressure coefficient distribution, figures 5 and 6 compare    Method and OpenFOAM solutions with respect to
+the results from Panel Method (top), StarCCM+ (middle)        StarCCM+, for which the pressure increase on the face
+                                                              side (from ⁄          to the tip) is more emphasized.
+
+
+
+
+Figure 5: Pressure Coefficient distribution ( ⁄        ) at   Figure 6: Pressure Coefficient distribution ( ⁄          ) at
+       .                                                             .
+
+
+and OpenFOAM (bottom). As for the hydrodynamic                       3.2 Velocity Evaluation – Case 2.2
+coefficients, the agreement between computed values of        Evaluation of downstream induced velocities has been
+pressure is good. At the lower advance coefficient            performed only with StarCCM+. Panel Methods and,
+(        ), where the load on the propeller is higher, the    more in general potential theories (Gaggero, 2008), can be
+pressure peak on the face side predicted by the Panel         applied for the computations of the downstream velocity
+Method is a bit overestimated (with respect to the            field. Their accuracy, however, due to the singular
+StarCCM+ RANS solution). Also on the suction side             behavior of the trailing vortical wake if the induction
+Panel Method solution presents lower values of pressure,      point falls onto a trailing vortical panel, the neglecting of
+especially at the blade root where a clear difference in      viscous effects and the lack of capabilities in modeling
+pressure distribution can be identified. In general RANS      the tip vortex, can be considered sufficient only if an
+computations (StarCCM+ and OpenFOAM) are close                initial estimation of the mean downstream inflow
+each other, with some more evident differences with           characteristics is required.
+respect to the potential solution. At the blade tip, due to
+the lower accuracy of very skewed panels adopted for the
+                 0.6                                                                              0.6
+                                                      STARCCM+ v.5 k-e 1-VX/V                                                          STARCCM+ v.5 k-e 1-VX/V
+                 0.5                                  STARCCM+ v.5 k-e VT                         0.5                                  STARCCM+ v.5 k-e VT
+                                                      STARCCM+ v.5 k-e VR                                                              STARCCM+ v.5 k-e VR
+                 0.4                                                                              0.4
+                                                      STARCCM+ v.5 k-o 1-VX/V                                                          STARCCM+ v.5 k-o 1-VX/V
+                 0.3                                  STARCCM+ v.5 k-o VT                         0.3                                  STARCCM+ v.5 k-o VT
+                                                      STARCCM+ v.5 k-o VR                                                              STARCCM+ v.5 k-o VR
+1-VX/V, VT, VR
+
+
+
+
+                                                                                 1-VX/V, VT, VR
+                 0.2                                                                              0.2
+
+                 0.1                                                                              0.1
+
+                   0                                                                                0
+
+                 -0.1                                                                             -0.1
+
+                 -0.2                                                                             -0.2
+
+                 -0.3                                                                             -0.3
+
+                 -0.4                                                                             -0.4
+                    -50   -40   -30   -20       -10        0        10      20                       -50   -40   -30   -20       -10        0        10      20
+                                                                                                                            
+Figure 7: Axial, Tangential and Radial non dimensional                           Figure 10: Axial, Tangential and Radial non dimensional
+velocity distributions at r/R = 0.7 and x/D = 0.1.                               velocity distributions at r/R = 0.97 and x/D = 0.2.
+                 0.6                                                                              0.6
+                                                      STARCCM+ v.5 k-e 1-VX/V                                                          STARCCM+ v.5 k-e 1-VX/V
+                 0.5                                                                              0.5
+                                                      STARCCM+ v.5 k-e VT                                                              STARCCM+ v.5 k-e VT
+                                                      STARCCM+ v.5 k-e VR                         0.4                                  STARCCM+ v.5 k-e VR
+                 0.4
+                                                      STARCCM+ v.5 k-o 1-VX/V                                                          STARCCM+ v.5 k-o 1-VX/V
+                                                      STARCCM+ v.5 k-o VT                         0.3                                  STARCCM+ v.5 k-o VT
+                 0.3
+                                                      STARCCM+ v.5 k-o VR                                                              STARCCM+ v.5 k-o VR
+1-VX/V, VT, VR
+
+
+
+
+                                                                                 1-VX/V, VT, VR
+                                                                                                  0.2
+                 0.2
+                                                                                                  0.1
+                 0.1
+                                                                                                    0
+                   0
+                                                                                                  -0.1
+                 -0.1
+                                                                                                  -0.2
+                 -0.2                                                                             -0.3
+                 -0.3                                                                             -0.4
+
+                 -0.4                                                                             -0.5
+                    -50   -40   -30   -20       -10        0        10      20                       -50   -40   -30   -20       -10        0        10      20
+                                                                                                                            
+Figure 8: Axial, Tangential and Radial non dimensional                           Figure 11: Axial, Tangential and Radial non dimensional
+velocity distributions at r/R = 0.7 and x/D = 0.2.                               velocity distributions at r/R = 1.0 and x/D = 0.1.
+                 0.6
+                                                      STARCCM+ v.5 k-e 1-VX/V                     0.6                                  STARCCM+ v.5 k-e 1-VX/V
+                                                      STARCCM+ v.5 k-e VT                                                              STARCCM+ v.5 k-e VT
+                 0.4                                  STARCCM+ v.5 k-e VR                         0.5                                  STARCCM+ v.5 k-e VR
+                                                      STARCCM+ v.5 k-o 1-VX/V                                                          STARCCM+ v.5 k-o 1-VX/V
+                                                      STARCCM+ v.5 k-o VT                         0.4                                  STARCCM+ v.5 k-o VT
+                 0.2                                  STARCCM+ v.5 k-o VR                                                              STARCCM+ v.5 k-o VR
+1-VX/V, VT, VR
+
+
+
+
+                                                                                 1-VX/V, VT, VR
+
+
+
+
+                                                                                                  0.3
+
+                   0                                                                              0.2
+
+                                                                                                  0.1
+                 -0.2
+                                                                                                    0
+
+                                                                                                  -0.1
+                 -0.4
+                                                                                                  -0.2
+                 -0.6                                                                             -0.3
+                    -50   -40   -30   -20       -10        0        10      20                       -50   -40   -30   -20       -10        0        10      20
+                                                                                                                            
+
+Figure 9: Axial, Tangential and Radial non dimensional                           Figure 12: Axial, Tangential and Radial non dimensional
+velocity distributions at r/R = 0.97 and x/D = 0.1.                              velocity distributions at r/R = 1.0 and x/D = 0.2.
+On the contrary, if the detailed solution of the tip vortex is                   reported in figure 13 to 16. As for the propeller
+the objective of the analysis, only RANS approach can                            performances prediction, the application of different
+provide reliable information. As suggested, all the                              turbulence models, as embedded in StarCCM+, does not
+computations have been carried out as steady and in                              change significantly the velocity distributions and the
+accordance with thrust identity (              ) with a fixed                    relative difference between the two computations is
+rate of revolution equals to 23 rps. Both the                                    hardly distinguishable. The presence of the tip vortex is
+                     and          turbulence models have                         clearly identifiable, from the sudden variation of all the
+been applied. Non dimensional axial, tangential and radial                       components of the velocity, close to the -30° position (at
+velocities distributions downstream the propeller plane                            ⁄        ) and to +10° position (at ⁄            ). The
+( ⁄                   ) at ⁄                   and        are                    non-smoothness of the distributions, especially close to
+shown in figures from 7 to 12. Velocity distributions on                         the propeller plane, suggest the need of even more fine
+the entire plane       and       aft the propeller origin are                    grid arrangements.
+                                                        3.3 Cavitation – Case 2.3
+                                                 Propeller performances and bubble extension evaluation
+                                                 in cavitating conditions has been carried out for three
+                                                 different cavitation indexes. Thrust identity has been
+                                                 selected in order to replicate the same tunnel measured
+                                                 flow conditions. As reported in the following tables,
+                                                 analyzed noncavitating thrust coefficients are 0.387,
+                                                 0.245 and 0.167, with prescribed cavitation index
+                                                 (respectively 2.024, 1.424 and 2.000) and inflow velocity
+                                                 free to alter to match the thrust equivalence. As for the
+                                                 computations of induced velocities, all the calculations
+                                                 have been carried out in steady flow conditions, even if
+Figure 13: Velocity distribution at x/D = 0.1.   the experimental measures have been performed with the
+turbulence model. From aft.                      propeller inside a non-axial symmetric tunnel cross
+                                                 section. A cylindrical, same cross sectional area, section
+                                                 and the thrust identity hypothesis should, however,
+                                                 approximate accurately the real flow field. The initial
+                                                 coarse mesh (1M/blade) has been used to identify the
+                                                 regions subjected to cavitation. Refinements of the mesh
+                                                 (up to 2.4M/blade) have been applied locally on the light
+                                                 of the previous results and all the computations have been
+                                                 carried out with the finer discretization.
+                                                 The analysis of the results for all the three conditions
+                                                 suggests some common consideration about the
+                                                 application of the selected flow solver for the non
+                                                 cavitating and the cavitating cases.
+Figure 14: Velocity distribution at x/D = 0.1.   The predicted non cavitating pressure distributions by the
+turbulence model. From aft.                      Panel Method and by the RANS solver are in very well
+                                                 agreement. The only remarkable differences, as already
+                                                 highlighted in Gaggero (2008, 2010), can be identified at
+                                                 the blade leading and trailing edge. Absence of viscous
+                                                 effects and the application of the Kutta condition
+                                                 produces, for the Panel Method, higher values of pressure
+                                                 at the blade trailing edge, that slightly influence the
+                                                 pressure distribution also upstream on the profile. Near
+                                                 the leading edge difference between the two
+                                                 methodologies are less evident, especially for ⁄            .
+                                                 If, instead, sections closer to the blade tip ( ⁄
+                                                 and ⁄              ) are considered, differences become
+                                                 (mainly for a cavitating analysis) non negligible. In this
+Figure 15: Velocity distribution at x/D = 0.2.   case the geometrical approximations of the panel
+turbulence model. From aft.                      description of the blade surface are responsible of these
+                                                 discrepancies: higher pressure peak at leading edge (as in
+                                                 figure 31, 32, 33 and 41, 42, 43) and local inversion of the
+                                                 incidence angle (figure 5). If cylindrical sections are
+                                                 adopted for the discretization of propeller blade, at blade
+                                                 tip hyperboloidal panels, especially if tip chord is zero,
+                                                 have very high aspect ratio and skewness factors, whose
+                                                 effect is to reduce the accuracy in the calculation of
+                                                 influence coefficients and, in turn, in the prediction of
+                                                 potential pressure distribution.
+                                                 Also in the case of cavitating flow the comparison
+                                                 between Panel Method and RANS computations shows a
+                                                 general good agreement. Except some differences in term
+Figure 16: Velocity distribution at x/D = 0.2.   of cavity extension, both the solvers in each of the three
+turbulence model. From aft.                      considered conditions predict similar cavity pattern. In
+Table 1: Case 2.3.1 propeller performances                         kind of phenomena higher, both the solvers detect a
+                         Tunnel        RANS           Panel
+                                                                   region with pressure below the vapour tension with a
+                                                                   cavity bubble which extension is similarly computed in
+                         1.019          1.011         1.009        the radial and in the chordwise direction. Also at the tip
+                         2.024          2.024         2.024        the Panel Method is affected by some limitations
+                                                                   regarding the capability of capturing tip vortex cavitation
+   (non cav.)            0.3870        0.3870        0.3870
+                                                                   that, instead, can be deal within the RANS approach.
+      (non cav.)                       0.9876        0.9679        However, if cavity bubble thickness at blade tip (for
+   (cav.)                              0.3782        0.3922        instance that of figure 18) can be considered a measure of
+                                                                   the risk of tip vortex cavitation, also Panel Method can
+      (cav.)                           0.9724        1.0023
+                                                                   give an estimation of this phenomena.
+
+
+
+
+Figure 17: RANS Cavitation on the suction (left) and               Figure 19: RANS Cavitation on the suction (left) and
+pressure (right) side.                       ,                 .   pressure (right) side.                       ,                 .
+Increasing (from top, 0.2, to bottom, 0.8) fraction of vapour.     Increasing (from top, 0.2, to bottom, 0.8) fraction of vapour.
+
+
+
+
+Figure 18: Cavitation on the suction side. Panel (left) vs.        Figure 20: Cavitation on the pressure side. Panel (left) vs.
+RANS (right).                ,             .                       RANS (right).                ,              .
+
+
+figures 18 and 20 the cavity extension computed by the             In terms of leading edge back sheet cavitation, instead,
+Panel Method for case 2.3.1 is compared with the 50%               computed cavity extension is almost equivalent, with a
+isosurface of vapor fraction predicted by StarCCM+.                slightly overestimation of the Panel Method solution in
+Also if bubble cavitation is not specifically addressed by         chord direction. The first cavitating section, in radial
+the Panel Method and its presence is treated with the              direction, instead, is pretty the same.
+hypothesis of sheet cavitation, near the blade root, where
+thickness is greater and, consequently, the risk of this
+      0.8
+                                                                      0.4
+      0.6
+
+      0.4                                                             0.2
+
+      0.2                                                               0
+-CP
+
+
+
+
+                                                                -CP
+        0
+                                                                      -0.2
+      -0.2
+                                                                      -0.4
+      -0.4
+                                                Panel                 -0.6                                     Panel
+      -0.6
+                                                StarCCM+                                                       StarCCM+
+      -0.8                                                            -0.8
+             0   0.2      0.4         0.6     0.8          1                 0   0.2    0.4         0.6    0.8            1
+                                x/c                                                           x/c
+
+Figure 21: Non cavitating pressure distribution. ⁄              Figure 24: Cavitating pressure distribution.         ⁄
+               .                                                             ,             .
+
+
+      0.6                                                             0.4
+
+
+      0.4
+                                                                      0.2
+
+      0.2
+-CP
+
+
+
+
+                                                                -CP
+
+
+                                                                        0
+        0
+
+
+      -0.2                                                            -0.2
+                                                Panel                                                          Panel
+      -0.4                                      StarCCM+                                                       StarCCM+
+                                                                      -0.4
+             0   0.2      0.4         0.6     0.8          1                 0   0.2    0.4         0.6    0.8            1
+                                x/c                                                           x/c
+
+Figure 22: Non cavitating pressure distribution. ⁄              Figure 25: Cavitating pressure distribution.         ⁄
+               .                                                             ,             .
+
+
+      0.6                                                             0.6
+
+
+      0.4                                                             0.4
+
+
+      0.2                                                             0.2
+                                                                -CP
+-CP
+
+
+
+
+        0                                                               0
+
+
+      -0.2                                                            -0.2
+                                                Panel                                                          Panel
+                                                StarCCM+                                                       StarCCM+
+      -0.4                                                            -0.4
+             0   0.2      0.4         0.6     0.8          1                 0   0.2    0.4         0.6    0.8            1
+                                x/c                                                           x/c
+
+Figure 23: Non cavitating pressure distribution. ⁄              Figure 26: Cavitating pressure distribution.     ⁄
+               .                                                              ,            .
+
+
+The agreement between cavity extensions is confirmed by         leading edge and the second, close to the trailing edge,
+the analysis of pressure distributions. For both the solvers,   detaching aft midchord.
+at ⁄              and ⁄            , the constant      vapor    As Panel Method has been developed, it lacks in the
+pressure region develops for about the 20% of the local         capability of computing simultaneous (on the same radial
+blade chord and only the pressure recovery at the bubble        section) leading edge and midchord cavity bubbles. As a
+trailing edge is overpredicted by the Panel Method. Close       consequence, also if leading edge bubble (and pressure
+to the tip RANS solution is characterized by two different      distribution) is well in agreement with the viscous
+cavitating regions: the first, as usual, from the blade
+Table 2: Case 2.3.2 propeller performances                         sheet cavity bubble from blade leading edge. Also for this
+                         Tunnel        RANS           Panel
+                                                                   inflow condition, results from the two approaches, as
+                                                                   presented in the comparison of figures 28 and 30 (cavity
+                         1.269          1.256         1.278        extension, 50% vapour fraction) and of figures 31 to 36
+                         1.424          1.424         1.424        (pressure distributions), indirectly validate the numerical
+                                                                   computations. Both the solvers, in fact, although being
+   (non cav.)            0.2450        0.2450        0.2450
+                                                                   based on very different theoretical basis, predict almost
+      (non cav.)                       0.7014        0.7067        the same cavity features, even on the back than on the
+   (cav.)                              0.2035        0.2369        face side. A larger midchord cavitating region on the
+                                                                   suction side extends up to the blade trailing edge from the
+      (cav.)                           0.6365        0.7047
+                                                                   blade root to ⁄            .
+
+
+
+
+Figure 27: RANS Cavitation on the suction (left) and               Figure 29: RANS Cavitation on the suction (left) and
+pressure (right) side.                       ,                 .   pressure (right) side.                       ,                 .
+Increasing (from top, 0.2, to bottom, 0.8) fraction of vapour.     Increasing (from top, 0.2, to bottom, 0.8) fraction of vapour.
+
+
+
+
+Figure 28: Cavitation on the pressure side. Panel (left) vs.       Figure 30: Cavitation on the suction side. Panel (left) vs.
+RANS (right).                 ,             .                      RANS (right).                ,             .
+
+
+solution, at midchord the developed potential code could           Also on the face side midchord root bubble is calculated
+not include in the computations the presence of a newly            by the two methodologies, with very similar extension
+detached bubble even if the resulting pressure distribution        and detachment line. Sheet cavitation on the pressure side
+is characterized by values of pressure lower than the              is also predicted. As for case 2.3.1, Panel Method
+vapour tension (figure 26).                                        computations are a bit overestimated with respect to
+Case 2.3.2, instead, is numerically characterized by               RANS results, especially for what regards the radial
+simultaneous back midchord cavitation and a thinner face           extension of the cavity bubble, that in the Panel Method
+      0.8
+                                                                    0.4
+      0.6
+
+      0.4                                                           0.2
+
+      0.2                                                             0
+-CP
+
+
+
+
+                                                              -CP
+        0
+                                                                    -0.2
+      -0.2
+                                                                    -0.4
+      -0.4
+                                               Panel                -0.6                                     Panel
+      -0.6
+                                               StarCCM+                                                      StarCCM+
+      -0.8                                                          -0.8
+             0   0.2     0.4         0.6     0.8          1                0   0.2     0.4         0.6    0.8           1
+                               x/c                                                           x/c
+
+Figure 31: Non cavitating pressure distribution. ⁄            Figure 34: Cavitating pressure distribution.          ⁄
+               .                                                           ,             .
+
+
+      0.6                                                           0.4
+
+
+      0.4
+                                                                    0.2
+
+      0.2
+-CP
+
+
+
+
+                                                              -CP
+
+
+                                                                      0
+        0
+
+
+      -0.2                                                          -0.2
+                                               Panel                                                         Panel
+      -0.4                                     StarCCM+                                                      StarCCM+
+                                                                    -0.4
+             0   0.2     0.4         0.6     0.8          1                0   0.2     0.4         0.6    0.8           1
+                               x/c                                                           x/c
+
+Figure 32: Non cavitating pressure distribution. ⁄            Figure 35: Cavitating pressure distribution.          ⁄
+               .                                                           ,             .
+
+
+      0.4                                                           0.4
+
+
+
+
+      0.2                                                           0.2
+-CP
+
+
+
+
+                                                              -CP
+
+
+
+
+        0                                                             0
+
+
+                                               Panel                                                         Panel
+                                               StarCCM+                                                      StarCCM+
+      -0.2                                                          -0.2
+             0   0.2     0.4         0.6     0.8          1                0   0.2     0.4         0.6    0.8           1
+                               x/c                                                           x/c
+
+Figure 33: Non cavitating pressure distribution. ⁄            Figure 36: Cavitating pressure distribution.      ⁄
+               .                                                            ,            .
+
+
+reaches sections close to the blade tip, while in the         leading (higher pressure peak) and trailing (Kutta
+viscous computations it is limited to about ⁄    .            condition) edge. The lower values of pressure calculated
+The analysis of cavitating pressure distributions             by the Panel Method, especially close to the blade tip, are
+highlights, once more, the sufficient level of accuracy       responsible of the higher amount of sheet cavitation
+provided by the potential approach. As in the non             predicted by this approach.
+cavitating case, pressure distributions are almost
+overlapped, with noticeable differences only at the blade
+Table 3: Case 2.3.3 propeller performances                         distributions show a strong overprediction of the low
+                         Tunnel        RANS           Panel
+                                                                   pressure peak with respect to the RANS computation. As
+                                                                   a consequence the risk of cavitation increases and the
+                         1.408          1.387         1.422        Potential Panel Method cavity prediction results in a
+                         2.000          2.000         2.000        slightly overestimation of the cavity extension. The
+                                                                   analysis of the pressure distribution shows, moreover, the
+   (non cav.)            0.1670         0.167         0.167
+                                                                   presence (on the Panel Method computations) of
+      (non cav.)                       0.5396        0.5412        midchord cavitation not only at the blade root but also
+   (cav.)                              0.1306        0.1378        close to the tip ( ⁄                ). Near 80% of chord
+                                                                   (from profile leading edge) it is possible to note a sudden
+      (cav.)                           0.4826        0.4939
+                                                                   increase of pressure, typical of the cavity trailing edge
+
+
+
+
+Figure 37: RANS Cavitation on the suction (left) and               Figure 39: RANS Cavitation on the suction (left) and
+pressure (right) side.                        ,                .   pressure (right) side.                        ,                .
+Increasing (from top, 0.2, to bottom, 0.8) fraction of vapour.     Increasing (from top, 0.2, to bottom, 0.8) fraction of vapour.
+
+
+
+
+Figure 38: Cavitation on the suction side. Panel (left) vs.        Figure 40: Cavitation on the suction side. Panel (left) vs.
+RANS (right).                ,            .                        RANS (right).                ,            .
+
+
+If at ⁄           (figure 31) the non cavitating pressure          recovery region. Local pressure distribution is very close
+distributions computed by the two solvers are very close,          to the cavitation index but, at the same time, the pressure
+(especially for what regard the magnitude of the peak)             gradient is adverse to the cavity growth. Moreover the
+and the corresponding cavity extensions, evaluable from            local discretization of the blade surface is such that the
+the constant pressure regions of figure 34, are identical,         length of the local bubble is lower than the chordwise size
+moving towards the blade tip potential pressure                    of panels. As a consequence only one point on the
+      0.8
+                                                                    0.4
+      0.6
+
+      0.4                                                           0.2
+
+      0.2                                                             0
+-CP
+
+
+
+
+                                                              -CP
+        0
+                                                                    -0.2
+      -0.2
+                                                                    -0.4
+      -0.4
+                                               Panel                -0.6                                     Panel
+      -0.6
+                                               StarCCM+                                                      StarCCM+
+      -0.8                                                          -0.8
+             0   0.2     0.4         0.6     0.8          1                0   0.2     0.4         0.6    0.8           1
+                               x/c                                                           x/c
+
+Figure 41: Non cavitating pressure distribution. ⁄            Figure 44 Cavitating pressure distribution.           ⁄
+               .                                                          ,           .
+
+      0.6                                                           0.4
+
+
+      0.4
+                                                                    0.2
+
+      0.2
+-CP
+
+
+
+
+                                                              -CP
+
+                                                                      0
+        0
+
+
+      -0.2                                                          -0.2
+                                               Panel                                                         Panel
+      -0.4                                     StarCCM+                                                      StarCCM+
+                                                                    -0.4
+             0   0.2     0.4         0.6     0.8          1                0   0.2     0.4         0.6    0.8           1
+                               x/c                                                           x/c
+
+Figure 42: Non cavitating pressure distribution. ⁄            Figure 45: Cavitating pressure distribution.          ⁄
+               .                                                           ,           .
+
+      0.4                                                           0.4
+
+
+
+
+      0.2                                                           0.2
+-CP
+
+
+
+
+                                                              -CP
+
+
+
+
+        0                                                             0
+
+
+                                               Panel                                                         Panel
+                                               StarCCM+                                                      StarCCM+
+      -0.2                                                          -0.2
+             0   0.2     0.4         0.6     0.8          1                0   0.2     0.4         0.6    0.8           1
+                               x/c                                                           x/c
+
+Figure 43: Non cavitating pressure distribution. ⁄            Figure 46: Cavitating pressure distribution.      ⁄
+               .                                                            ,           .
+
+
+pressure diagrams falls into the cavitating region, local     methodologies, cavitation is mainly of sheet type at
+cavity thickness is not computed (as in figure 28) and the    pressure side blade leading edge. As for the previous
+presence of midchord bubble is recognizable only through      computations Panel Method predictions tend to slightly
+pressure distribution and not through cavity thickness on     overestimate (with respect to RANS) cavity extension,
+the blade. Figures from 37 to 46, finally, compare cavity     especially in the radial direction. Non cavitating and
+bubble extensions and pressure distributions for the flow     cavitating pressure distributions confirm this peculiarity,
+conditions of case 2.3.3. At this higher value (1.408) of     with inviscid pressure peaks (and resulting risk of
+advance coefficient the risk of negative angle of attack is   cavitation) at leading edge strongly overestimated with
+very high. In fact, as predicted similarly by the two         respect to viscous computations. Back midchord root
+cavitation is also similarly predicted by the two                reliable. Non cavitating pressure distribution are in well
+approaches. In terms of propeller performances                   agreement, with minor differences at blade leading and
+differences between Panel Method and RANS solver are             trailing edge. Also in cavitating conditions viscous and
+more important, not specifically for the absolute values         potential computations are very close. Except tip vortex
+(that, really, are close), but for their different behavior as   cavitation both the solvers predict comparable cavity
+they are calculated by the two solvers in cavitating             bubble extension, not only for the more typical leading
+conditions. In particular for case 2.3.1 (higher propeller       edge back cavitation, but also for the face and midchord
+load), while the RANS solution predicts a slightly lower         root cases. Cavitating performances predictions seem
+value of thrust coefficient with respect to the non              reliable.
+cavitating one, Panel Method estimates a propeller               All the methodologies can be considered, in conclusion,
+delivered thrust slightly higher than the non cavitating         appropriate solvers for dedicated problems. Panel Method
+reference value. In the other two cases, instead, the            results in a fast and overall accurate solver, reliable in the
+tendency is the same for both the solvers. Even if for case      design and optimization stage. RANS solvers, instead,
+2.3.2 the RANS cavitating thrust coefficient is sensibly         due to not yet common required computation resources,
+lower than that in non cavitating conditions (while the          can be applied for the final design analysis, in order to
+difference, noncavitating/cavitating, computed by the            better understand flow phenomena (tip/hub vortex
+Panel Method is not so strong), both the solvers estimate        cavitation, for instance) responsible of noise and
+values of thrust in cavitating conditions lower than the         vibrations. OpenFOAM, on the other hand, represents a
+corresponding thrust in non cavitating flow. For case            valid free alternative in the framework of viscous flow
+2.3.3 even the reduction, with respect to the reference non      solvers. An accurate preliminary validation of the code
+cavitating condition, computed by the two methodologies          and a more extensive training is still required.
+is very similar, with relative differences around 5%. A
+reason for these differences, at least for what regards the           REFERENCES
+developed panel method, for which a complete control on          CD-Adapco (2010). StarCCM+ v5 User‟s Manual.
+the solution, not allowed in a commercial solver, is             Curle, H. (1967). „A two Parameter Method for
+possible, can be identified on the pressure recovery law            Calculating the two dimensional incompressible
+adopted at the bubble trailing edge. Numerically, and               Laminar Boundary Layer‟. J.R. Aero Soc.
+depending on the flow conditions (angle of attack, non           Gaggero, S., Villa, D. & Brizzolara, S. (2008). „A
+cavitating pressure distribution), the potential solution can       systematic comparison between RANS and panel
+be characterized by a constant vapor pressure region                method for propeller analysis‟. Proceedings of the 8th
+suddenly matched with the non cavitating pressure                   International Conference on Hydrodynamics, Nantes,
+distribution downstream the bubble trailing edge. This              France.
+sudden change in pressure is unrealistic: re-entrant jets
+and local condensation (that cannot be deal with a               Gaggero, S. & Brizzolara, S. (2009). „A Panel Method for
+potential approach for with cavity bubble is a                      Trans-Cavitating Marine Propellers‟. Proceedings of
+streamsurface of the flow) locally change the pressure              the 7th International Symposium on Cavitation, Ann
+distribution (and, as a consequence, forces) on the profile.        Arbor, Michigan, USA.
+Pressure recovery laws are approximate ways to model             Gaggero, S., Villa, D. & Brizzolara, S. (2010). „RANS
+these effects, but they are mainly based on empirical               and Panel Method for Unsteady Flow Propeller
+factors, whose choice could alter the solution, especially          Analysis‟. Proceedings of     the 9th International
+in the transition regime between non cavitating and fully           Conference on Hydrodynamics, Shanghai, China.
+developed cavity bubble, in correspondence of which              Gaggero, S. (2010). „A Potential Panel Method for the
+higher values of thrust and torque, with respect to the non         Analysis of Cavitating and Supercavitating Marine
+cavitating regime, can be computed. Also the                        Propellers‟. Ph.D. thesis, University of Genova.
+approximation in the calculation of bubble close to the tip
+(figure 26) can explain some of the differences.                 Hufford, G.S. (1992). „Viscous Flow Around Marine
+                                                                    Propellers using Boundary Layer Strip Theory‟. Ph.D.
+     4 CONCLUSIONS                                                  Thesis, Massachusetts Institute of Technology, USA.
+Potential based panel methods and RANS viscous solvers
+have been applied for the computations of open water             Mueller, A.C. and Kinnas, S.A. (1999). „Propeller sheet
+propeller performances, downstream induced velocities              cavitation prediction using a panel method‟. Journal of
+and cavity extension. Satisfactory results have been               Fluid Engineering.
+obtained with both the methodologies. The systematic             Nash, J.F. and Hicks, J.G. (1969). „An Integral Method
+comparison of results highlight the peculiarities of such           including the effect of Upstream History on the
+different approaches. In open water conditions, at least for        turbulent shear stress for the computation of turbulent
+thrust prediction, all the employed numerical solvers               boundary layer‟. Proc. A FOSR-IFT Stanford
+predict very close results. Torque values are a bit more            Conference, Stanford University Press.
+scattered, but except for OpenFOAM and Panel Method              OpenCFD (2010). OpenFOAM User‟s Manual.
+at lower advance coefficient, all the approaches seem
+

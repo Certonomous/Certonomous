@@ -1,0 +1,369 @@
+                                                               Second International Symposium on Marine Propulsors
+                                                                             smp’11, Hamburg, Germany, June 2011
+                                                                                    Workshop: Propeller performance
+
+
+                                    Potsdam Propeller Test Case (PPTC)
+
+                                      Olof Klerebrant Klasson1, Tobias Huuva2
+
+                               1
+                                   Core Competence Team, Berg Propulsion AB, Hönö, Sweden
+                               2
+                                   Core Competence Team, Berg Propulsion AB, Hönö, Sweden
+
+
+
+       ABSTRACT                                                  greater understanding of the computational tools at hand
+The following manuscript describes the methods used,             when modeling propellers at Berg Propulsion.
+results of and conclusions from the smp’11 Workshop on                  1.2 Objective
+cavitation and Propeller Performance Case2: Potsdam              The objective of this study is to achieve greater
+Propeller Test Case (PPTC).                                      knowledge about the accuracy of the boundary element
+The purpose of the study was to validate the numerical           method PROCAL (PROCAL 2.06) and the CFD toolbox
+tools used at Berg Propulsion AB for propeller                   OpenFOAM (OpenFOAM 1.6).
+predictions. The main tools used for the study are the                  1.3 Method
+boundary element method PROCAL and the CFD toolbox               The method description explains the practice of cases 2.*.
+OpenFOAM.                                                        The meshes and similar topics are described under this
+The analyzed test cases consisted of one open water test,        section, but visualized under section 2.
+one velocity field measurement and three cavitation cases.               1.3.1 Open Water Tests
+The open water test case resulted in a predicted advance         A geometry including a propeller gap was used for the
+ratio at maximal open water efficiency,     =1.2, where          analysis of open water performance. The preprocessing
+ the open water efficiency       = 0.71. One of the main         tool used for the mesh was ANSA (ANSA 13.10). The
+conclusions from this test was that the grid dependence in       geometry was simplified by removing the gap between
+the used CFD setup was small. The velocity field                 the hub and the root and the gap in the intersection
+measurement resulted in an evident tip vortex, which was         between hub and shaft, see figure 1.
+possible to resolve. The cavitation test resulted in
+different cavitation patterns and   values.
+One already known conclusion is that the boundary
+element method used for the analysis cannot predict
+pressure side cavitation.
+The y+ in the near wall region was larger than 30 for all
+CFD setups.
+     Keywords
+OpenFOAM; PROCAL; Pressure                side   cavitation;
+Validate; Grid dependence;
+                                                                 Figure 1: The modified geometry. Note that the gaps
+     1 INTRODUCTION                                              between hub and shaft and hub and blade root are filled.
+       1.1 Background
+                                                                 Lines with no connections was pasted together and the tip
+To achieve better knowledge of the accuracy of a
+                                                                 length at r/R=1.0 was smoothened by a small cut yielding
+computational tool, it is essential with validation. One
+                                                                 better geometrical representation, see figure 2.
+excellent way of doing this is to compare between the tool
+and, not only model tests, but also other tools and setup
+techniques.
+Hence the following submission was made to achieve
+                                                              minimal amount of tetras and pyramids in the transition
+                                                              from the triad surface elements.
+                                                              The final course mesh resulted in 4.5 million elements for
+                                                              all four blades.
+                                                              As interpolation schemes, first order accurate schemes
+                                                              were used for the turbulent quantities kinetic energy,
+                                                              inverse turbulent time scale and the turbulent viscosity.
+                                                              For the velocity a second order upwind scheme was
+                                                              applied.
+                                                              To ensure grid independent results, the mesh was refined
+                                                              at regions with large gradients. The mesh was made larger
+Figure 2: The modification of the tip, where the sharp line   around shaft and hub, but refined with a factor of two at
+shows the new representation and the thinner one the old      blade corners and blade tip. The maximum volume
+representation                                                element length in the slip stream was also reduced by a
+The blade, hub and shaft were surface meshed with triads.     factor two. This finer mesh had 151000 surface elements,
+The triads were smaller at high curvature and larger near     605000 prism layer elements and a total amount of 11
+mid surface sections. For the course mesh, the smallest       million elements for all four blades. The contingent
+element length on the surface was 1 mm and the largest        difference between the course and the fine mesh should
+10 mm, resulting in a total of 100000 triad elements.         depend on the discretization error. Since a second order
+ As turbulence model, a high Reynolds number model of         accurate scheme was used, the error would reduce in the
+K-omega SST was applied. To model the boundary layer,         order of , if x is the cell length. (Versteeg 2007)
+wall functions were needed. Five prism layers with 1.2 as     The CFD package used was OpenFOAM (OpenFOAM
+growth ratio and a starting length of 0.5 mm were applied.    1.6) with the solver MRFSimpleFoam. The simulation
+For the course mesh, this resulted in 503000 elements.        was of steady Reynolds Averaged Navier-Stokes, RANS,
+The rotation was modeled with Multi Reference Frames,         type. The forces and moments were computed on the
+MRF. To make use of MRF, a volume surrounding the             blades only.
+rotating parts was needed. This volume was made               As boundary conditions, the no-slip condition was applied
+cylindrical with a radius 59 mm larger than the propeller     on the surface. The outlet was set as pressure outlet with
+radius. The length of the volume was 69 mm upstream           zero gradient for the remaining quantities. The inlet was
+and 2442mm downstream. Within this volume, all parts          set up with uniform velocity inlet and the remaining
+are rotating. The propeller inside this volume is shown in    quantities calculated in accordance with equation 1-4.
+figure 3.                                                     (Davidsson 2003)
+
+                                                                                                                     (1)
+
+                                                                                                                     (2)
+
+
+                                                                                                                     (3)
+
+
+                                                                                                                     (4)
+Figure 3: The propeller inside the MRF-zone
+                                                              Where k = the turbulent kinetic energy;    = the advance
+As domain, a larger cylinder was used. This cylinder was
+                                                              velocity; I = the turbulent intensity;    = the turbulent
+made with 1261 mm upstream, 3000 mm downstream and
+                                                              viscosity;     = the fluid viscosity;    = the turbulent
+1261 mm diameter.
+                                                              dissipation;    = the density of the fluid and     = the
+The inner volume is, except for being the MRF reference       specific dissipation.
+zone, representing the slipstream. The surface of this
+cylinder was meshed with triads of 1-10 mm. The
+maximum volume element length was set to 10 mm. The           For the domain, wall functions were used and the pressure
+surface of the domain was meshed with 50 mm triads.           was of zero gradient type here.
+The maximum volume element length of the domain was           The results from RANS computations were compared to a
+set to 75 mm. The interior of both the inner volume and       boundary element prediction made in PROCAL and the
+the domain was meshed with hexahedrals, allowing a            Wageningen series.
+       1.3.2 Velocity Field Measurement                               1.3.4 Post Processing
+The velocity field computation was performed in the            When the CFD-computations had reached final
+same way as for the open water test, see section 4.1. The      convergence, they were stopped. Final convergence was
+domain and inner volume were rotated and elongated to          considered to be achieved when all residuals of pressure,
+fit the new arrangement and the longer shaft.                  velocity and turbulent quantities were below     .
+The course mesh had 83000 surface-, 414000 layer- and a        The open water diagram was computed from the
+total number of 4.6 million elements for all four blades.      integrated forces along and moments around the x-axis.
+The corresponding numbers of elements for the fine mesh        Equation 6-8 were used for this purpose. (Dyne 2005)
+were 203000, 1015000 and 13.8 million.
+To comply with the thrust identity, the speed had to be                                                               (6)
+lowered somewhat. Two different speeds were tested and
+then the linear relationship between J and       was used to                                                          (7)
+find the proper velocity yielding the correct thrust.
+                                                                                                                     (8)
+       1.3.3 Cavitation Tests
+For the cavitation analysis the boundary element method
+PROCAL was used. The analysis was performed by first           Where       = dimensionless thrust;    = dimensionless
+generating a mesh of quadrilaterals with negligible            torque; T = the thrust; Q = the torque;     = the fluid
+skewness. A short grid dependence study was performed          density; D = the propeller diameter; n = the number of
+to ascertain good result quality. A finite tip length was      revolutions per second;     = the open water efficiency
+applied to comply with the Kutta-condition. The tip chord      and J = the advance ratio
+fraction was set to 0.6.                                       The RANS results were post processed in FieldView
+For the cavitation free analysis, the number of panels         (FieldView 12). The velocity field was extracted using the
+leading edge to trailing edge and root to tip were 30*30.      sampleDict in OpenFOAM. A cloud of points were
+The spacing at leading edge was set to 0.003. The tip          picked from the input file demands. The input file
+spacing was 0.003, the root spacing 0.0078 and the             requested the tangential, radial and axial velocity at a
+trailing edge spacing 0.00126.                                 given and r/R. is defined as the angle between dead
+The analyzed number of revolutions was 6 and the               top centre and current blade position. It is positive in
+number of steps between blades was 12.                         clockwise direction. Hence it can be described by the
+                                                               relationship in equation 9.
+The Kutta condition was 0.001 and the jacobian
+disturbance value was set to 0.0001.                                                                                   (9)
+                                                                                               ( )
+When the Kutta-condition had converged and the radial
+wake panel and axial force distribution were smooth, the       The given radial section can be described in terms of
+computation was considered converged.                          Cartesian coordinates as in equation 10. This is since the
+The speeds had to be altered to match the thrust identity.     equation will yield a cylinder cutting through the given
+This was done in the same way as for the velocity field        radial section.
+measurement, see section 1.3.2.
+The atmospheric pressure was computed from the                                         √( )     ( )                   (10)
+cavitation number using equation 5. (Dyne 2005)
+                        (   )                            (5)   Where r = the radial coordinate and R = the propeller
+                                                               radius
+Where       = the atmospheric pressure;     = the fluid
+density; n = number of revolutions per seconds; D = the         Rewriting gives the Cartesian coordinates as in equation
+propeller diameter; = the cavitation number;      = the        11 and 12
+vapor pressure; g = 9.81         and H = the propeller
+submergence                                                                                   ( )                    (11)
+Finally, a cavitation mesh was set up. When cavitation
+                                                                                                                     (12)
+should be solved in a boundary element method, the                                       √    ( )
+solution is very leading edge sensitive. (Bosschers 2009)
+For this reason, the number of panels leading edge to          By sampling the requested points, results of velocity in x,
+trailing edge was increased to 70 panels. The number of        y and z direction were attained. To convert y- and z-
+panels root to tip were decreased to 20. The leading edge      direction into radial and tangential velocities the
+spacing was reduced to 0.001.                                  relationship described by equation 13 and 14 were used.
+                         ( )          ( )           (13)     The grid dependence comparison from J=0.6 to J=1.2 is
+                                                             presented in table 1. The results are also plotted in figure
+                         ( )          ( )           (14)     6.
+
+Where        = the radial velocity;      = the tangential
+velocity;     = the velocity in z-direction and    is the
+velocity in y-direction
+For the cavitaional analysis, the values of          were
+attained at a given radial section by linear interpolation
+between the nodes. The reason for this was that the nodes
+that contain the values are located on the cell edges.
+(Bosschers 2009). To find the radial section requested in
+the result files, a cylindrical cut was described by the
+mathematical relationship in equation 10.
+Since the boundary element method matches pressures on
+the blades with the vapor pressure and do not consider
+vapor content, all cavitation predicted were assumed to      Figure 6: A comparison between the course and the fine
+have a vapor content of 50%. PROCAL cannot predict           mesh for the CFD simulation
+pressure side cavitation. (Bosschers 2009) The predicted
+    was calculated, but no pictures of cavitation for case   Table 1: A comparison between the course and the fine mesh
+2.3.3 were presented for this reason.                        for the open water simulation
+
+
+     2 RESULTS
+Under this result section, the yielding y+, grid
+dependence results, velocity plots and similar are
+presented. The requested input files of case 2.* are
+attached separately and will not be included here.           The y+ values for the course and the fine mesh is
+       2.1 Open Water Tests                                  presented in table 2.
+The final course and fine mesh for the open water test are   Table 2: The y+-value of the course and fine mesh at
+visualized with a centre plane cut in figure 4 and 5.        corresponding advance ratio.
+
+
+
+
+                                                             The axial velocity distribution of the open water test at
+                                                             J=0.6 is visualized in figure 7.
+
+
+
+
+Figure 4: The course mesh for the open water test
+
+
+
+
+                                                             Figure 7: The axial velocity distribution for the open water
+                                                             test at J=0.6
+
+
+
+
+Figure 5: The fine mesh for the open water test
+The pressure distribution of the blades and hub in the         Table 3: Velocities and corresponding J,     and y+ for the
+open water test at J=0.6 is visualized in figure 8.            fine mesh of the velocity field measurement.
+
+
+
+
+                                                                             was chosen as working point.
+                                                               In figure 11 an iso-surface with helicity of 150        is
+                                                               shown to visualize the generated tip vortex. The axial
+                                                               velocity field is shown in figure 12. Figure 13 shows the
+                                                               pressure distribution of the propeller suction side.
+
+
+
+Figure 8: Pressure distribution of the suction side from the
+open water test at J=0.6
+The open water test results of the CFD are compared to
+results from PROCAL and the Wageningen series in
+figure 9.
+
+
+
+
+                                                               Figure 11: Tip vortex with helicity of 150           at the
+                                                               working point
+
+
+
+
+Figure 9: Open water curves from Wageningen, PROCAL
+and the fine CFD results
+
+
+         2.2 Velocity Field Measurement                        Figure 12: The axial velocity field at the working point for
+The fine mesh used in the velocity field measurement is        the velocity field measurement
+shown in figure 10.
+
+
+
+
+Figure 10: The fine mesh used for the velocity field           Figure 13: Pressure distribution of the suction side at the
+measurement                                                    working point for the velocity field measurement
+The velocity, corresponding        and corresponding y+ are
+tabulated in table 3. The results are from the fine mesh.
+        2.3 Cavitation tests
+The non-cavitating mesh used for finding the thrust
+identity is shown in figure 14. The cavitation mesh is
+shown in figure 15.
+
+
+
+
+                                                                   Figure 16: Radial axial force distribution at     for case
+                                                                   2.3.1
+
+
+
+
+Figure 14: The non cavitating mesh for the cavitational
+analysis
+
+
+                                                                   Figure 17: Radial wake strength distribution at        for
+                                                                   case 2.3.1
+
+
+
+
+                                                                   Figure 18: Radial axial force distribution at     for case
+                                                                   2.3.2
+Figure 15: The cavitation mesh for the cavitational analysis
+The velocity, corresponding J and resulting       to fulfill
+the thrust identity are tabulated in table 4. This is for a
+cavitation free computation.
+
+
+Table 4: Velocities, corresponding J and corresponding
+to fulfill the thrust identity of the cavitation free condition.
+
+
+
+                                                                   Figure 19: Radial wake strength distribution at        for
+                                                                   case 2.3.2
+The radial axial force and wake strength distribution at
+       for case 2.3.1 are shown in figure 16 and 17. The
+same distributions, but for case 2.3.2 and 2.3.3 are shown
+in figure 18-21.
+                                                             The velocity field evaluation gives results that look
+                                                             intuitive. A tip vortex is generated, the solution look
+                                                             symmetrical and the       matches the thrust identity with a
+                                                             very slight velocity change. The resolution further
+                                                             downstream in the slip stream could be improved,
+                                                             resolving the tip vortex even further.
+                                                             If the vorticity is studied, it dies out rather quickly, which
+                                                             could be avoided if the large gradients wasn’t evened out
+                                                             to the extent they are in this computation. The reason for
+Figure 20: Radial axial force distribution at     for case   this is the restriction in computational power. With more
+2.3.3                                                        CPU cores and more random access memory it would of
+                                                             course be possible to analyze with more cells. This should
+                                                             have a small effect on the velocity field at 0.1D and 0.2D
+                                                             upstream and downstream the propeller disc, where the
+                                                             cell length is very small, though.
+                                                             If a fully hexahedral mesh would be applied and the wall
+                                                             would be entirely resolved, the results could be improved
+                                                             even further. The reason for not doing this is that the
+                                                             program is used for commercial purposes. Making such a
+                                                             mesh and resolving the wall is too time-consuming.
+                                                             The cavitational analysis should be reliable for the first
+Figure 21: Radial wake strength distribution at        for   and the second case. This can be concluded since the
+case 2.3.3                                                   computations are converged with no problem and
+                                                             showing a cavitation pattern that is stable.
+The zero degree position is characteristic for the rest of
+the radial results, which hence would be inadequate to       The third case should be handled with care, since pressure
+include.                                                     side cavitation cannot be predicted in PROCAL.
+
+     3 CONCLUSIONS                                                REFERENCES
+The open water test CFD results are reliable. This can be    Versteeg, H.K. & Malalasekera, W. (2007) ‘An
+said knowing that the Results are similar to the PROCAL         Introduction to Computational Fluid Dynamics The
+and the Wageningen prediction. The          is higher from      Finite Volume Method’ 2nd ed, Harlow, England
+the PROCAL simulation compared to the CFD, but this is       Davidsson, L (2003) ‘An introduction to turbulence
+a known delimitation of the software. The Wageningen            models’. Department of Thermo and Fluid Dynamics,
+propeller has a smaller hub size, and for that reason a         Chalmers University of Technology, Göteborg,
+different geometry, since the blade area is the same. The       Sweden
+geometry would also differ in terms of profile camber and
+pitch distribution. This results in lower     and    . The   Dyne, G. & Bark, G. (2005). ‘Ship Propulsion’. Shipping
+CFD-results has been accurate in comparison to model           and Marine Technology, Division of Hydrodynamics,
+tests before.                                                  Chalmers University of Technology, Göteborg,
+                                                               Sweden
+The y+ is larger than 30 and smaller than 100 for all
+simulations, which is preferable when wall functions are     Bosschers, J. (2009) ‘PROCAL v2.0 User Guide’,
+used. (Versteeg 2007) This is valid for both the open           Maritime Research Institute, Wageningen,
+water simulation and the velocity field measurement.            Netherlands
+
+The discretization error in the computations is small. If    PROCAL 2.06 – a boundary element method for steady
+we study       at J=0.6 and J=0.8 in table 1 e.g. The        and unsteady propeller computations with or without
+differences between the points from the course and the       cavitation developed for CRS. It includes both pre and
+fine mesh are:                                               post processor and solver.
+                                                             OpenFOAM 1.6 – an open source CFD toolbox
+                                                             ANSA 13.10 – a preprocessing tool for geometry
+                                                             manipulation and mesh-generation for CFD and FEM-
+This is very small differences. Reducing the mesh size       computations
+even further would give almost no noticeable effect. As
+previously stated, the error is reduced by the decrease in   FieldView 12       –   a   standalone    postprocessor    for
+cell length squared. The discretization error must be very   OpenFOAM
+small already at the course mesh for this reason.
+
