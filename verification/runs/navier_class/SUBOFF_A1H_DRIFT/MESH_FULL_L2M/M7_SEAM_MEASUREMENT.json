@@ -1,0 +1,55 @@
+{
+  "M7_clauses": {
+    "seam_max_nonortho_within_70": true,
+    "seam_min_volume_positive": true,
+    "seam_no_worse_than_whole_mesh": true
+  },
+  "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/MESH_FULL_L2M",
+  "fields_time": "constant",
+  "gate": "M-7 (frozen \u00a72.1)",
+  "generated_utc": "2026-09-13T06:19:39Z",
+  "measurements": {
+    "cellVolume": {
+      "n_seam_cells": 261024,
+      "seam_max": 0.0001543835535,
+      "seam_min": 9.56232599e-14,
+      "whole_mesh_max": 0.00015500667,
+      "whole_mesh_min": 5.166831581e-14
+    },
+    "nonOrthoAngle": {
+      "n_seam_cells": 261024,
+      "seam_max": 63.70247604,
+      "seam_min": 0.0,
+      "whole_mesh_max": 64.90583165,
+      "whole_mesh_min": 0.0
+    }
+  },
+  "mesh": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/MESH_FULL_L2M/constant/polyMesh",
+  "n_cells": 18242474,
+  "n_cells_derived_from_connectivity": 18242474,
+  "n_cells_from_checkMesh": 18242474,
+  "n_faces": 56083012,
+  "n_seam_cells": 261024,
+  "n_seam_points": 136316,
+  "plant_S_A_selector": {
+    "at_impossible_plane": 0,
+    "at_z0": 136316,
+    "points_total": 19632596,
+    "verdict": "PASS"
+  },
+  "plant_S_B_cellVolume": {
+    "at_cell": 0,
+    "planted": -9.87e-30,
+    "returned": -9.87e-30,
+    "verdict": "PASS"
+  },
+  "plant_S_B_nonOrthoAngle": {
+    "at_cell": 0,
+    "planted": 123.456,
+    "returned": 123.456,
+    "verdict": "PASS"
+  },
+  "reason": "seam min cellVolume 9.56232599e-14 m^3; seam max nonOrthoAngle 63.70247604 deg against whole-mesh 64.90583165 deg and the 70.0 deg ceiling",
+  "seam_tolerance_m": 1e-06,
+  "verdict": "PASS"
+}
