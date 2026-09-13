@@ -28989,6 +28989,19 @@ Extrusion is refused wherever quality constraints cannot be met. **The layer fai
 symptom of an unclean snapped mesh rather than of the cyclic mechanism previously proposed —
 which is accordingly WITHDRAWN, not defended.**
 
+**SAME-DAY SECOND INSTANCE, IN THE SAME INSTRUMENT, AND IT IS A DISTINCT FAILURE MODE.** The
+corrected parser was then pointed at a genuinely bad mesh and **REFUSED — because it could only
+read `checkMesh`'s PASSING form.** `Max skewness = 0.27 OK.` and
+`***Max skewness = 305.39, 94 highly skew faces` are different sentences, and it knew only the
+first. **An instrument that can parse only the passing form of its input is blind on exactly the
+cases it exists to judge** — it looks correct on every good mesh and abstains on every bad one,
+which is the worst possible distribution of its coverage.
+
+**So plant both forms.** A control that feeds an instrument only well-formed input has tested
+the happy path and nothing else. The rule generalises past meshing: any parser of tool output —
+residuals, force tables, `checkMesh`, solver banners — needs a fixture of the FAILING spelling,
+because the failing spelling is the one that carries the finding.
+
 *Read with L-577, L-581…L-585, L-587: every one is a reader that cannot see what it claims to
 check. This is the purest case — clean exit code, plausible number, truthful-looking table, and
 a fully armed gate reading the wrong field.*
