@@ -48,13 +48,24 @@ LAYER_RECIPE = """    relativeSizes       false;
 
 # Volume-refinement boxes.  Authored by this lane; the registration sets the
 # 15-20 M GATE and mandates volume refinement but does not specify the geometry.
-# Sized so the CASTELLATED count lands near 11.5 M and the final layered mesh,
-# which gained 31 % from layers on r2_medium, lands inside 15-20 M.
+#
+# SIZED FROM A MEASURED POINT, NOT FROM THE ANALYTIC ESTIMATE.  The first sizing
+# probe (R5_SIZING_PROBE, castellation only) returned 12,541,747 cells against a
+# 12.96 M estimate -- 3.3 % high.  It also refuted the layer-gain assumption the
+# first sizing used: r2_medium gained 31 % from layers, but that mesh was small
+# relative to its wall area.  Measured on r2_medium's own log, snapping changes
+# the cell count by ZERO (748,658 -> 748,658; it moves points, it does not add
+# cells) and layers added 234,448 cells on 64,470 extruded faces.  R5's SURFACE
+# refinement is identical to r2_medium's, so its wall-face count is too (~80,974)
+# and 8 layers at ~90 % extrusion add only ~0.58 M cells -- +4.7 %, not +31 %.
+# Final = castellated + ~0.58 M, so the castellated target is ~16.4 M for a
+# ~17.0 M final, and box4 is scaled to that from the probe's measured point at
+# 56,000 net cells per m3 transferred from level 3 to level 4.
 BOXES = {
     "box1": ((-8.0, -6.5, -0.319), (30.0, 6.5, 7.4), 1),
     "box2": ((-5.5, -4.5, -0.319), (24.0, 4.5, 5.7), 2),
     "box3": ((-3.5, -3.0, -0.319), (17.0, 3.0, 4.2), 3),
-    "box4": ((-1.8, -2.0, -0.319), (11.5, 2.0, 2.05), 4),
+    "box4": ((-2.0, -2.2, -0.319), (15.0, 2.2, 2.30), 4),
 }
 
 
@@ -167,8 +178,21 @@ def main() -> int:
               f"shell {shell:8.1f} m3  -> {shell/c**3/1e6:6.3f} M cells")
         prev = vol[nm]
     est += (12480.0 - vol["box1"]) / 0.4 ** 3
+    # Layer gain is NOT a volume fraction.  Snapping adds zero cells (measured
+    # on r2_medium: 748,658 -> 748,658) and the wall-face count is fixed by the
+    # SURFACE refinement, which R5 leaves identical to r2_medium's ~80,974
+    # extrudable faces.  So layers add ~faces x extruded_frac x nLayers cells,
+    # independent of how much volume refinement was added.
+    WALL_FACES, EXTRUDED_FRAC, N_LAY = 80974, 0.90, 8
+    gain = WALL_FACES * EXTRUDED_FRAC * N_LAY
+    # the first probe measured this estimator 3.3 % high at 12.96 M -> 12.54 M
+    corr = est * 0.967
     print(f"  ESTIMATED castellated total ~ {est/1e6:.2f} M cells "
-          f"(+31 % layer gain measured on r2_medium -> ~{1.31*est/1e6:.2f} M final)")
+          f"({corr/1e6:.2f} M after the probe's measured -3.3 % bias)")
+    print(f"  layer gain is face-driven, NOT volume-driven: "
+          f"{WALL_FACES:,} wall faces x {EXTRUDED_FRAC:.0%} x {N_LAY} = "
+          f"{gain/1e6:.2f} M cells -> PREDICTED FINAL ~{(corr+gain)/1e6:.2f} M "
+          f"against the 15-20 M M1 gate")
     return 0
 
 
