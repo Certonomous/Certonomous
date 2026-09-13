@@ -1162,3 +1162,107 @@ addendum.
 
 *Nothing in this rung is sent, filed, uploaded, registered, posted or commented
 outside this box (rule 7).*
+
+---
+
+## ADDENDUM 8 — 2026-09-13 ~00:25Z: AD7.2's GROUND IS CORROBORATED BY A THIRD CALL SITE NOBODY WENT LOOKING FOR, AND THE WINDOW'S TRUE START IS STATED TO THE TIMESTEP
+
+**Version 1.8 → 1.9. Dated post-freeze addendum. Appended at the foot; lines
+whose number changed above this section: 0. NO gate, threshold, band, label or
+registered sentence is altered — AD7.4's disclosure text is NOT edited.**
+
+### AD8.1 THE CORROBORATION, AND WHY IT MATTERS MORE THAN ITS SIZE
+
+**AD7 is a PERMISSIVE ruling, so its defence is the whole of its worth.** AD7.2
+rested on **two** OpenFOAM call sites using a half-timestep tolerance —
+`Time::run()` and `Time::end()`. **A THIRD has now been found, and it was found
+from a direction neither the lane nor I was looking: the `fieldAverage`
+accumulator's own start time.** `timeControlFunctionObject.C:93-95`, read at the
+installed source:
+
+```
+bool inTime =
+    time_.value() >= (timeStart_ - 0.5*time_.deltaTValue())
+ && time_.value() <= (timeEnd_   + 0.5*time_.deltaTValue());
+```
+
+**OpenFOAM applies `0.5*deltaT` in `Time::run()`, in `Time::end()`, AND in the
+`functionObject` `timeStart`/`timeEnd` gate.** ***AD7 is therefore reading a
+convention the solver applies THROUGHOUT its time comparisons, not a tolerance
+this lab picked for one clause.*** **That is a materially stronger defence than
+the two sites AD7.2 cited, and it did not come from anyone trying to defend
+AD7.**
+
+**ONE HONEST QUALIFICATION, because an overclaim would undo the point.** The
+three sites share the half-timestep WINDOW but not the boundary STRICTNESS:
+`inTime` uses `>=`, `Time::end()` uses `>`. **AD7.3 implements the STRICT form
+because that is the one governing the clause it replaces** — and the
+implementation was driven on the exact boundary, which returns **NOT REACHED**.
+
+### AD8.2 MEASURED: BOTH ENDS ARE SHORT BY THE IDENTICAL AMOUNT
+
+- Averaging's **first included step**: `45 - 508*deltaT` = **41.99763593**.
+  The step before it, 41.99172577, **fails** `inTime` (needs ≥ 41.99704492);
+  41.99763593 **passes**. Verified by arithmetic here, not inferred.
+- The run's **final step**: **111.99763593**.
+- **Start shortfall 0.00236407. End shortfall 0.00236407. IDENTICAL to 3e-10** —
+  because `deltaT` is constant and the same half-timestep rule governs both ends.
+
+### AD8.3 THE WINDOW'S TRUE EXTENT, AND TWO NUMBERS THAT ARE BOTH RIGHT
+
+**A back-calculation of the averaging start gives two different answers and both
+are correct, of different objects. Stating only one would be a small false
+precision:**
+
+- **first step INCLUDED in the mean**: `45 - 508*deltaT` = **41.99763593**;
+- **start of the ACCUMULATED INTERVAL**: `45 - totalTime` = **41.99172577**,
+  because `fieldAverage` sums the **FULL `deltaT` of every step it includes**,
+  so the first included step contributes its whole interval.
+
+**They differ by exactly one `deltaT` (checked: 0.00591016530, equal to `deltaT`
+to 1e-9).**
+
+**INDEPENDENT ARITHMETIC ON THE ACCUMULATOR, which is a stronger statement than
+rank agreement and is the one to reach for if anyone ever doubts the mean:**
+`509 × deltaT` = **3.008274232** against the recorded `totalTime`
+**3.008274231677844** — **agreeing to 1.87e-10**. ***`totalTime` is therefore
+EXACTLY the sum of 509 consecutive timesteps: every step since averaging began
+is counted, none skipped and none double-counted.*** All four ranks carry the
+block **byte-identical**, `totalIter` **509** and that `totalTime` on `p_rgh`,
+`T` and `U` alike.
+
+### AD8.4 WHAT THE GRADE RECORD MUST SAY, AND WHAT IT MUST NOT
+
+**AD7.4's sentence is FIXED VERBATIM by that ruling and is NOT edited here.** The
+lane correctly declined to make a registered disclosure "more precise" on its own
+authority, and that judgement is upheld: **a registered sentence is not improved
+by a lane, and a ruling is not quietly tightened by the instrument that
+implements it.**
+
+**Instead, the grade record carries this BESIDE it, as measurement:**
+
+> **Averaging's first included step was t = 41.99763593, not 42 — 0.00236407 s
+> early, 0.400 of one timestep, by OpenFOAM's own `timeStart - 0.5*deltaT` gate.
+> The accumulated interval therefore begins at 41.99172577. The direction is
+> MORE coverage, not less: 0.003 % of the 70 s window, four orders of magnitude
+> below the ≈2 s shortfall at the other end that AD7.4 already discloses.**
+
+***It changes nothing and it is stated anyway. A window whose true start is
+41.99764 and whose record says 42 is a small false statement, and small false
+statements are the ones that survive into papers.***
+
+### AD8.5 ONE NUMBER THAT IS NOT A RESULT AND IS NOT REPORTED AS ONE
+
+At the first accumulator write the partial mean over ≈42 → 45 s, read through
+the **FROZEN** reader, is **`DPbar` = 27.980518789 m²/s²**, inside `G-DPBAR`
+[27.9699, 28.0901]. ***THIS IS NOT A RESULT.*** It is **3 s of a ≈68 s window**
+on a run **40 % complete**, and the value can still move anywhere. **It is
+recorded for one reason only: it is the first evidence that the averaging
+machinery produces a number in the physical range rather than a zero or a NaN.**
+**Rule 3 also fired on the MEAN field for the first time — something impossible
+before t = 45: planted 1.234e-03 into `p_rghMean` on the `return` patch, read
+back to 1e-15.** **The reader can see a non-zero in the ACTUAL GRADED ARTIFACT,
+so that artifact's structural zero is evidence.**
+
+*Nothing in this rung is sent, filed, uploaded, registered, posted or commented
+outside this box (rule 7).*
