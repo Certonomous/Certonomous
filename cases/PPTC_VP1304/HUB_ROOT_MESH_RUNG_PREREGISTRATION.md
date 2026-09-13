@@ -286,3 +286,85 @@ generated dictionary against the pre-edit generator's output. The rung's build s
 
 **Pre-build. No gate, threshold, cap or label is altered.** Disclosed before the build so the
 second dictionary line is **scope**, not a change discovered in a log afterwards.
+
+---
+
+## ADDENDUM 2 — 2026-09-13, before the rung's first build. TWO REFUSAL LIMBS ON THE §3.2 INSTRUMENT, AND WHY THE GATE'S EXPECTED ANSWER WAS THE DANGEROUS ONE
+
+*lines whose number changed above this section: 0*
+
+**Version 1.2.** This addendum **alters no gate, threshold, cap or label.** Both limbs below
+are **REFUSAL-ONLY**: each can turn a verdict into `NOT A RESULT`/VOID and **neither can
+produce, improve or rescue one.** That is the only direction CLAUDE.md rule 5 permits a check
+to move a verdict, and it is why these are legal as an addendum at all. The §3.2 gate, §3.2a
+assert, P1–P7 and the 924 core-min cap are untouched.
+
+### A2.1 What happened, stated against the instrument rather than around it
+
+Driven at the known-bad `F360_coarse` as §3.2 requires, the gate returned **GATE FAIL — the
+expected direction — and the verdict was VOID.** The geometry control caught it; the verdict
+did not.
+
+| control quantity | value |
+|---|---|
+| max relative difference in cell volume vs OpenFOAM `0/cellVolume` | **2.144e+09** |
+| negative-volume cells, this instrument | **9,809,857** |
+| negative-volume cells, OpenFOAM | **316** |
+| internal faces flagged `w_f ≤ 0` | 29,417,841 of 59,079,066 (**49.8%**) |
+| cells flagged `A_PP ≤ 0` | 9,809,842 of 19,700,035 (**49.8%**) |
+
+**No mesh fails half its cells. 49.8% is the signature of a reader, not of a mesh.**
+
+**Cause.** §3.2 registers the instrument to read `constant/polyMesh/{points,faces,owner,
+neighbour}`. In `F360_coarse` that `points` is the **stale snapped array of 20,518,324
+entries** (mtime 11:17:38) while `faces` and `owner` beside it are the layer-phase arrays
+referencing **20,507,704**. Every index past the first merged point addresses the wrong
+coordinate, **and no index is out of range, so nothing errors.** This lane found and reported
+that defect earlier the same day, repaired it in the staging path, did not repair it at the
+source, and then registered a gate whose input path **is** the source.
+
+### A2.2 THE STOP-RULE WAS ONE-DIRECTIONAL, AND THAT IS THE FINDING
+
+The supervising instruction read: *"If it returns PASS on `F360_coarse`, stop — that means
+the gate is broken."* **It returned FAIL, and under that rule as written the build would have
+proceeded on a void verdict.**
+
+> **A gate that gives the EXPECTED answer from garbage is worse than one that gives the wrong
+> answer, because the expected answer is the one nobody checks.**
+
+**Widened, binding on this rung: STOP UNLESS THE GEOMETRY CONTROL PASSES — IN EITHER
+DIRECTION.** A confirming result gets the same scrutiny as a surprising one.
+
+### A2.3 The two limbs
+
+**LIMB 1 — points/faces consistency.** `nPoints` must equal `max(face vertex index) + 1`;
+otherwise **REFUSE (exit 2), never grade.** Measured: `F360_coarse/constant` carries **10,620
+orphan points** → REFUSE; `SMOKE360_J0.7985/constant` carries exactly **20,507,704** →
+consistent, may grade. **Checked at header level, so the limb is provable without parsing
+2.2 GB** — a control nobody can afford to run is a control nobody runs.
+
+**LIMB 2 — the geometry control is promoted to BLOCKING** (exit 2, verdict VOID) on a max
+relative cell-volume difference above `1e-6` or a negative-volume count disagreeing with
+OpenFOAM's. **It was informational, and it printed AFTER the verdict — the worst possible
+placement for the only check that worked.** A supporting check found to be load-bearing is
+moved in front of the thing it protects.
+
+**Re-armed after both limbs:** valid two-cell mesh PASS, deliberately inverted mesh GATE FAIL
+with witness cell 0, `A_PP = −8.842105263e-01` — **unchanged**, which is what makes the limbs
+safe to add.
+
+### A2.4 Cost of the void run, named not absorbed
+
+**301 s serial = 5.0 core-min, peak RSS 33.4 GB, charged as WASTE**
+(`COMPUTE_BUDGET_CHARTER` §6 — waste is named, never absorbed into a ratio). §5 registered
+the gate at 20 core-min and **declared no memory footprint at all**, unlike §9.1 of the act
+pre-registration which declares one for every solver and mesher run. **That omission is a gap
+in the estimate, disclosed before the run rather than after it**, and it lands in the
+calibration row with the measured figure beside it.
+
+### A2.5 Status
+
+**Pre-build. Refusal-only. No gate, threshold, cap or label is altered.** The baseline is
+being re-driven on `SMOKE360_J0.7985`, whose `constant/polyMesh` is the same geometry with
+`0/polyMesh/points` staged over the stale array. **No build starts until the baseline fires
+on geometry the control accepts.**
