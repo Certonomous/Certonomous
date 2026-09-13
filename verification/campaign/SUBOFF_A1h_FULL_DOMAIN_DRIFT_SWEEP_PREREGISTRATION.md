@@ -643,3 +643,68 @@ Frozen at the commit adding this file, before any compute at this condition and 
 mirrored mesh exists. No band, threshold, condition, normalisation, grading path or run path
 above may be altered afterwards; departures land as dated addenda that strike the original
 legibly and cannot move a gate, a threshold, a cap or a label.
+
+---
+
+# ADDENDUM 1 — 2026-09-13, cfd-supervisor. §2.1's M-1…M-7 CARRY NO DETERMINANT LIMB, AND WOULD HAVE CERTIFIED A MESH THIS LAB HAS REFUSED. DISCLOSED, NOT ALTERED.
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+
+**THIS ADDENDUM ALTERS NO GATE, THRESHOLD, CAP OR LABEL. It adds none and relaxes none.**
+Compute has occurred against this registration, so under rule 2 the gate set is closed and
+**this addendum may only disclose.** M-1…M-7 stand exactly as frozen.
+
+## A1.1 THE GAP, MEASURED
+
+**`grep -ci determinant` over this document returns 0.** §2.1's seven mesh gates test cell
+count, `symm` emptiness, z-symmetry, closure, non-orthogonality, skewness, and the seam —
+**and no minimum cell determinant.**
+
+**Consequence, established before it could do harm:** a proposed relocation of the sweep onto a
+**mirrored SUBOFF L1** was measured against M-1…M-7 and **passes M-1, M-2, M-3, M-5 (64.95° ≤ 70)
+and M-6 (2.913 ≤ 4).** It would have been reported as **"M-gates PASS."**
+
+**`SUBOFF_A1b_PREREGISTRATION.md` line 60, frozen, says otherwise:**
+`| L1 | 3,268,613 | 8.6227045e-04 ❌ | … | NOT ADMITTED — GATE FAIL on M-d |`
+against a floor of `1.0e-03`. A1b forecloses the escape in its own words: *"L1 is **not**
+promoted to admitted by any argument about how small the failure is."*
+
+**And `mirrorMesh` is an isometry, which is why the L2 mirror was admissible and why the L1
+mirror is not: the determinant is preserved to ten significant figures — 0.0008622704491 —
+and the mirror did not repair the bad cell. It made two of them.**
+
+## A1.2 THE CONSEQUENCE FOR THIS ACT
+
+**Any mesh admitted under §2.1 must ALSO be checked against A1b's M-d floor of 1.0e-03
+separately, because §2.1 cannot see it.** The L2 mirror this act actually runs on passes both —
+L2's determinant is 1.5198839e-03, above the floor — so **no number already produced by this act
+is affected.** The gap is forward-looking and it is disclosed here so a successor cannot walk
+into it.
+
+## A1.3 WHOSE FAULT, AND TWO ERRORS OF THE SUPERVISOR'S IN THE SAME EXCHANGE
+
+**The missing limb is the drafting lane's and it reported it unprompted**, having found it only
+because it checked A1b before executing an instruction from me. **Its own words: it would
+otherwise have reported "M-gates PASS" on a mesh this lab has refused, and the failure would
+have been invisible inside its own gate set.**
+
+**Two errors in that exchange are mine and are recorded here rather than in a message:**
+
+**(a) I built a rate table from DEAD LOGS.** I reported six sweep points at 51–63 h against
+β = 0 at 7.2 h and called β = 0 "the outlier by seven to nine times." **The six processes had
+been stopped ~37 minutes earlier** — logs frozen at 08:49:32Z, zero live ranks — so the
+`ExecutionTime` series I differenced was static. **That is the dead-log trap I repaired in
+`evaluate_m6i_level.sh` at `0bc8fd09d` seven hours earlier and catalogued as L-585's family.**
+
+**(b) The comparison was also unlike-for-unlike.** β = 0 runs at **28 ranks (0.651 M cells/rank)**;
+the six ran at **4 (4.561 M cells/rank)**. **The "anomaly" was the variable I had changed.** A
+symmetric-case conditioning effect may exist, but this data cannot see it under a 7× shape
+difference; measuring it needs one yawed point at 28 ranks.
+
+## A1.4 WHAT IS NOT DECIDED HERE
+
+Whether Sanaa's *"L1 stall fix and blended-wall arm first"* names **this sweep's mesh level** or
+**the A1b `CT` ladder's `SOLVE_L1` stall** (A1b §10.4 quotes her: *"Triage the L1 stall (pinned at
+iteration 368)"*). **That is a reading of her words and no agent may make it.** It is on her desk
+with both readings and the measurement above, and **the L1 route is barred by A1b's refusal
+regardless of which reading is hers.**
