@@ -1,0 +1,13 @@
+FoamFile{version 2.0;format ascii;class dictionary;location "system";object fvSolution;}
+// CRM-WB D8G -- STAGE 0, potentialFoam initialisation (ADDENDUM 5, the A3.4 rung).
+// Produces a DIVERGENCE-FREE velocity field that already goes AROUND the aircraft, so the first
+// RANS pressure solve starts from a field the geometry admits. Solves for the velocity potential
+// only: it sets no thermodynamic state and grades nothing.
+solvers
+{
+    Phi { solver GAMG; smoother DIC; tolerance 1e-08; relTol 0.01; }
+}
+potentialFlow
+{
+    nNonOrthogonalCorrectors 10;   // max non-orthogonality on this family is 89.5 deg
+}

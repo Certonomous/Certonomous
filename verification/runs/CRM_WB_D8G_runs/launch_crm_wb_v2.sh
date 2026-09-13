@@ -101,6 +101,34 @@ run_solver () {
 }
 
 RC=0
+# ---- STAGE 0: potentialFoam initialisation (ADDENDUM 5, the A3.4 rung, fired on the supervisor's
+# ---- ruling). The violence comes from solving a pressure equation on a uniform freestream WITH A
+# ---- WING-BODY IN IT: that field is not merely inaccurate, it is inconsistent with the geometry,
+# ---- and the first solve must invent the whole flow at once. potentialFoam produces a
+# ---- divergence-free velocity field that already goes AROUND the aircraft.
+# ---- REGISTERED PREDICTION, ABLE TO REFUTE THE REASON FOR FIRING: with this initialisation
+# ---- stage 1's first pressure solve COMPLETES. If it still faults before emitting a line, the
+# ---- hypothesis is wrong, the rung was mis-aimed, and the ladder climbs elsewhere.
+if [ "$RESUME" = "no" ] && [ "${POTENTIAL_INIT:-yes}" = "yes" ]; then
+  [ -f system/fvSolution.potential ] || fail "no system/fvSolution.potential"
+  [ -f system/fvSchemes.potential ]  || fail "no system/fvSchemes.potential"
+  echo "=== STAGE 0: potentialFoam initialisation ==="
+  cp system/fvSchemes.potential  system/fvSchemes
+  cp system/fvSolution.potential system/fvSolution
+  mpirun -np "$RANKS" potentialFoam -parallel -writePhi >> log.potentialFoam 2>&1
+  RC0=$?
+  echo "STAGE 0 rc=$RC0"
+  case "$RC0" in ''|*[!0-9]*) fail "stage 0 returned a non-numeric rc";; esac
+  if [ "$RC0" -ne 0 ]; then
+    echo "RC=$RC0" > RC.txt
+    echo "STAGE 0 FAILED -- no ramp, no graded stage. potentialFoam could not initialise the field."
+    exit "$RC0"
+  fi
+  # a zero exit is not evidence of output: the initialised U must be back in processor*/0
+  grep -q 'End' log.potentialFoam || fail "stage 0 exited 0 but log.potentialFoam has no End line"
+  echo "STAGE 0 complete: divergence-free U written into processor*/0"
+fi
+
 if [ "$RESUME" = "no" ] && [ "$STARTUP_ITERS" -gt 0 ]; then
   echo "=== STAGE 1: ramp, $STARTUP_ITERS iterations, first-order, heavy relaxation ==="
   cp system/fvSchemes.startup  system/fvSchemes

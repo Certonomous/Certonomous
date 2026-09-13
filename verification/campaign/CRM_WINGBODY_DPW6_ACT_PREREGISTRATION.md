@@ -858,3 +858,93 @@ process*, and anything else on stdout is not the rc.
   test has not yet been run without a confound. **The `potentialFoam` rung of A3.4 stays
   registered and unfired**, and its firing condition is unchanged.
 - The run is `NOT A RESULT`. No force, coefficient or field from it is graded.
+
+---
+
+# ADDENDUM 5 — 2026-09-13, THE A3.4 TRIGGER IS AMENDED AND THE RUNG FIRES. Version 1.5.
+
+**lines whose number changed above this section: 0**
+
+**Alters no gate, no threshold on a graded quantity, no cap and no label.** A3.4 is a
+**LADDER-RUNG TRIGGER, not a grading gate**: it decides which remedy is tried next. Rule 2 closes
+gates after first compute; it does not freeze the ladder.
+
+## A5.1 🔴 WHY THE ORIGINAL TRIGGER COULD NOT BE READ — A NEW FAILURE CLASS
+
+A3.4 fired on *"a pressure excursion of the same order — `p max` above ~10× p∞"*. Run
+`CRM-WB-D8G-SMOKE-T-V3-RAMP` (00:02:49Z, pid 154457), the first ramp attempt without the `maxIter`
+confound, produced **zero `Solving for p` lines and zero `pressureControl: p max` readings**: it
+faulted *inside* the first pressure solve, and `pressureControl` reports only *after* a solve
+returns.
+
+> **THE THRESHOLD WAS WRITTEN ON A QUANTITY THAT THE FAILURE MODE IT WAS MEANT TO DETECT
+> DESTROYS. The more severe the fault, the less readable the trigger.**
+
+This is a distinct failure class from the three inert-instrument episodes already recorded
+(A2.1, A3.2, A4.1): those were instruments reporting a *proxy*; this is **a registered threshold
+aimed at a reading the fault suppresses.** Pre-registration was the protection, and the
+protection was pointed at something the failure removes.
+
+**RULE ESTABLISHED: when registering a trigger, ask what the failure mode does to the quantity
+being triggered on. A threshold that degrades gracefully as the fault worsens is usable; one that
+vanishes at the moment it is needed is not.**
+
+## A5.2 THE AMENDED TRIGGER, AND THE GROUND FOR FIRING
+
+> **A3.4 TRIGGER, AMENDED:** the rung fires if **stage 1's first pressure solve fails to
+> complete**, *or* if it reports `p max` above 10× p∞.
+
+The registered *question* was always *"is the initial field the problem?"*; `p max` was one
+readable symptom of a yes. That symptom is unavailable, and the question is answered by a
+different channel, **measured not inferred** — in the **same iteration**:
+
+| equation | initial → final residual | outcome |
+|---|---|---|
+| Ux | 0.99935 → 2.74×10⁻⁴ | converged |
+| Uy | 1.00000 → 3.36×10⁻⁴ | converged |
+| Uz | 0.99892 → 2.97×10⁻⁴ | converged |
+| h | 0.99915 → 3.37×10⁻⁴ | converged |
+| **p** | **no line emitted** | **faulted before starting** |
+
+**Three equations converge three orders and the fourth cannot start.** That localises the fault
+to the pressure equation exclusively — the one equation that must reconcile a uniform initial
+field with a geometry it does not fit.
+
+*Ruled by `cfd-supervisor`. The lane referred it rather than deciding: a lane ruling that its own
+unreadable threshold should be read as satisfied is the move the freeze exists to prevent,
+and it matters most exactly when the merits are good.*
+
+## A5.3 THE RUNG — `potentialFoam` INITIALISATION AS STAGE 0
+
+`potentialFoam -parallel -writePhi` runs before the ramp, on `system/{fvSchemes,fvSolution}.potential`
+(solves for the velocity potential only; sets no thermodynamic state and grades nothing;
+`nNonOrthogonalCorrectors 10` for a family whose max non-orthogonality is 89.5°). It writes a
+**divergence-free velocity field that already goes around the aircraft**, so the first RANS
+pressure solve starts from a field the geometry admits. Stage 0 **fails closed**: a non-zero rc,
+a non-numeric rc, or a `log.potentialFoam` without an `End` line stops the run before the ramp.
+
+## A5.4 🔴 REGISTERED PREDICTION — IT CAN REFUTE THE REASON FOR FIRING
+
+> **If the initial field is the problem, a `potentialFoam`-initialised stage 1 will COMPLETE ITS
+> FIRST PRESSURE SOLVE.**
+>
+> **If it still faults before emitting a line, the hypothesis is WRONG, the rung was mis-aimed,
+> and the ladder climbs elsewhere.** This is what makes A5.2 a rung rather than a judgement: the
+> next run can overturn the ruling that fired it.
+
+## A5.5 THE ONE REAL RESULT OF THE FIVE RUNS SO FAR
+
+Promoted out of the incident narrative because it stands on its own. **Within one run, on one
+mesh, one minute apart, as a single-variable controlled comparison:**
+
+| stage | pressure solve | outcome |
+|---|---|---|
+| 1, `maxIter 50` | 0.999995 → **5.127×10⁸** | diverged |
+| 2, **uncapped** | 0.999993 → **9.947×10⁻³ in 231 iterations** | converged, ×100 |
+
+**For this family, a `maxIter` cap on the pressure solve must NEVER be registered.** 231
+iterations is simply what this pressure equation costs on this mesh.
+
+**And the honest ledger: the ramp has still never been tested. Every run before V3 measured
+something other than the question; V3 is the first that got far enough to fail in the right
+place.**
