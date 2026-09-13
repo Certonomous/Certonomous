@@ -1,0 +1,136 @@
+Common research model (CRM) wing | DAFoam
+-->
+Toggle navigation
+DAFoam
+Nav
+Announcements
+Discussions
+GitHub
+Slack
+YouTube
+Subscribe
+Documentation v5.1.1
+Get started
+Overview
+Download docker image
+Run optimization
+Post-processing
+Details of run scripts
+FAQ
+Installation
+Compile from source (Gcc)
+Compile from source (Intel)
+Build Docker images
+Tutorials
+Overview
+Aerodynamics
+NACA0012 airfoil (low speed)
+NACA0012 airfoil (subsonic)
+NACA0012 airfoil (transonic)
+NACA0012 airfoil (multipoint)
+Cylinder (unsteady flow)
+30N30P multi-element airfoil
+Onera M6 wing
+ADODG3 wing
+CRM wing
+Prowim wing propeller
+DPW4 aircraft
+Rotor37 compressor
+NREL6 wind turbine
+Aerostructural
+MACH tutorial wing
+UAV propeller
+Aerothermal
+U-bend channel
+U-bend pipe CHT
+Solid mechanics
+Plate hole
+Hydrodynamics
+JBC hull
+Topology optimization
+pitzDaily (flow only)
+Channel (conjugate heat)
+Field inversion ML
+Periodic hill
+Ramp
+Airfoil Dynamic Stall
+Data assimilation
+NACA0012 (steady/unsteady)
+Ramp (steady)
+Surrogate Based Optimization
+NACA0012 incompressible
+User Guide
+Overview
+Chapter 1 Background
+Chapter 2 OpenFOAM
+Chapter 3 OpenMDAO
+Chapter 4 NACA0012 2D airfoil
+Chapter 5 NACA0012 variations
+Chapter 6 ADODG3 3D wing
+Chapter 7 UAV propeller
+Chapter 8 Cylinder unsteady
+Chapter 9 Ramp FIML
+Chapter 10 Aerostructural
+Chapter 11 Aerothermal (CHT)
+Chapter 12 Surrogate based optimization (SBO)
+Appendix
+Developer Guide
+Overview
+Background
+DAFoam Code Structure
+Python Layer
+OpenFOAM Layer
+Add New Features
+V&V
+Verification - Overview
+Verification - DASimpleFoam
+Validation - Overview
+Validation - RAE2822 airfoil
+AI Agents
+Overview
+Installation
+Tutorial: Airfoil Agent
+Tutorial: Wing Agent
+Tutorial: Aircraft Agent
+Information
+DAFoam publications
+DAFoam doxygen
+Workshops
+Governance
+Acknowledgement
+Older Docs
+v4 docs
+v3 docs
+Collapse All | Expand All
+-->
+Latest Announcements
+06/10/2026. 2026 DAFoam Workshop Registration. Details
+05/05/2026. DAFoam v5 has been released!. Details
+12/04/2025. New DAFoam AI agents for conversational design workflow have been released!. Details
+10/21/2025. DAFoam v4.0.3 has been released!. Details
+09/19/2025. Have 30 minutes? Meet with us to share your DAFoam feedback!. Details
+Common research model (CRM) wing
+Edit me
+The following is an aerodynamic shape optimization case for the common research model (CRM) wing at transonic condition.
+Case: Wing aerodynamic optimization
+Geometry: CRM wing
+Objective function: Drag coefficient (CD)
+Lift coefficient (CL): 0.5
+Design variables: 192 FFD points moving in the z direction, seven twists, and one angle of attack.
+Constraints: volume, thickness, LE/TE, and lift constraints (total number: 768)
+Mach number: 0.85
+Reynolds number: 5 million
+Mesh cells: ~579K
+Solver: DARhoSimpleCFoam
+Fig. 1. Mesh and FFD points for the CRM wing.
+The “runScript.py” is similar to that used in the Onera M6 wing .
+To run this case, first download tutorials and untar it. Then go to tutorials-main/CRM_Wing and run the “preProcessing.sh” script to generate the mesh:
+./preProcessing.sh
+Then, use the following command to run the optimization (we recommend using 64 cores):
+mpirun -np 64 python runScript.py 2>&1 | tee logOpt.txt
+The case ran for 160 optimization iterations, the original CD was 0.02090 and the optimized CD was 0.01932 (7.6% drag reduction).
+The evolution of pressure and shape during the optimization is as follows.
+Fig. 2. Pressure and shape evolution during the optimization process
+©2026 DAFoam. All rights reserved.
+Site last generated: Sep 10, 2026
+Powered by documentation-theme-jekyll

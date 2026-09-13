@@ -45,7 +45,13 @@ VERSION = "D6R3-INRUN-DRAFT-1"
 
 # "useRotations True and LdefFact 1.0 are the two IDWarp mechanisms rule 6 names, verified at
 #  UnstructuredMesh.py:138/:1058 -> kd_tree.F90:1110,:1339 and :133/:1053 -> warpMesh.F90:39."
-R6_REQUIRED_WARP = {"useRotations": True, "LdefFact": 1.0, "evalMode": "exact"}
+# Sanaa s.M, 2026-09-13: the CRM_Wing case is cloned VERBATIM and the in-run checks are
+# OBSERVERS AND STOPS, never changes to the published physics.  The published meshOptions
+# (CRM_Wing/runScript.py:97-102) sets NO IDWarp option, so every one runs at its own default:
+# useRotations True, LdefFact 1.0, evalMode "fast".  THIS GUARD ASSERTS THE PUBLISHED DEFAULTS
+# ARE STILL IN FORCE.  R3 had registered evalMode "exact" as a deviation; that would have CHANGED
+# the warp and is STRUCK under her ruling.
+R6_REQUIRED_WARP = {"useRotations": True, "LdefFact": 1.0, "evalMode": "fast"}
 
 # "max non-orthogonality <= 70.0 -- the published DAFoam mesh-quality CONSTRAINT bound,
 #  UBend_Channel/runScript_meshQualityConstraint_v2.py:213 (optProb.addCon nonOrtho upper=70.0).
@@ -54,7 +60,19 @@ R6_REQUIRED_WARP = {"useRotations": True, "LdefFact": 1.0, "evalMode": "exact"}
 #  lane from the logs named in PREREGISTRATION R2 section 9.7: the solver's own non-orthogonality
 #  clause NEVER REFUSES on this family -- O_mp printed 'Non-orthogonality check OK.' in all 202
 #  mesh-check blocks while 76 of them measured above 70.0, worst 80.90429398."
-R7_MAX_NONORTHO = 70.0
+# MEASURED 2026-09-13 BY BUILDING THE MESH, and it forced this clause to be rewritten: the
+# PUBLISHED CRM mesh, freshly extruded and UNDEFORMED, already measures maxNonOrtho 70.44640458.
+# A flat bound of 70.0 would have been INFEASIBLE AT THE BASELINE -- the optimiser would start
+# outside its own constraint.  The clause is therefore TWO clauses, and the binding one is
+# DERIVED FROM THE BASELINE IN THIS SAME INVOCATION (rule 23) rather than written down:
+#   absolute : <= 75.0, the PUBLISHED CRM abort threshold, CRM_Wing/runScript.py:82
+#   relative : <= baseline_maxNonOrtho + 1.0 deg
+# Why 1.0 deg: on the MACH wing the as-extruded baseline measured 66.32299475 and the as-run
+# meshes measured 71.23798136 (+4.915), 79.21261137 (+12.890) and 80.90429398 (+14.581).
+# 1.0 deg is ONE FIFTH of the smallest real degradation ever measured on this family, so it
+# catches every known-bad input with a factor-5 margin while admitting an as-built baseline.
+R7_MAX_NONORTHO_ABS = 75.0
+R7_NONORTHO_RISE = 1.0
 # "worst-cell skewness <= 4.0 -- the published DAFoam mesh-quality CONSTRAINT bound,
 #  UBend_Channel/runScript_meshQualityConstraint_v2.py:212."
 R7_MAX_SKEWNESS = 4.0
@@ -171,9 +189,10 @@ def guard7_quality_budget(q, baseline, wall_resolved=True):
     missing = [k for k in need if k not in q]
     if missing:
         raise Refusal("guard7: quantities not measured: %s" % missing)
-    for k in ("minH1", "minVol"):
+    for k in ("minH1", "minVol", "maxNonOrtho"):
         if k not in baseline:
-            raise Refusal("guard7: baseline lacks %s, so no ratio can be formed" % k)
+            raise Refusal("guard7: baseline lacks %s, so the derived bound cannot be formed "
+                          "(rule 23: derive the constant from the thing under test)" % k)
 
     # THE BUDGET IS OUR INSTRUMENT, NOT THE SOLVER'S VERDICT LINE.  A budget that delegates its
     # stop to checkMesh's own "Mesh OK." has already been MEASURED not to stop: 76 of O_mp's 202
@@ -197,7 +216,8 @@ def guard7_quality_budget(q, baseline, wall_resolved=True):
             "as-built against 79.21 as-run)" % (float(q["checkmesh_mtime"]), float(q["dv_apply_mtime"])))
 
     _finite(q["maxNonOrtho"], q["maxSkewness"], q["maxAspect"], q["minH1"], q["minVol"],
-            q["yPlusMedian"], q["yPlusMax"], baseline["minH1"], baseline["minVol"])
+            q["yPlusMedian"], q["yPlusMax"],
+            baseline["minH1"], baseline["minVol"], baseline["maxNonOrtho"])
 
     # Rule 23: the two ratio thresholds are DERIVED from the baseline in this same invocation.
     if float(baseline["minH1"]) <= 0.0 or float(baseline["minVol"]) <= 0.0:
@@ -206,8 +226,14 @@ def guard7_quality_budget(q, baseline, wall_resolved=True):
     vol_ratio = float(q["minVol"]) / float(baseline["minVol"])
 
     yp_max_limit = R7_YPLUS_MAX_MAX if wall_resolved else R7_YPLUS_MAX_WALLFN
+    # Rule 23: the binding non-orthogonality bound is DERIVED here, in this invocation, from the
+    # baseline actually handed in -- never a pinned number.
+    nonortho_derived = float(baseline["maxNonOrtho"]) + R7_NONORTHO_RISE
     checks = [
-        ("maxNonOrtho", float(q["maxNonOrtho"]) <= R7_MAX_NONORTHO, q["maxNonOrtho"], R7_MAX_NONORTHO),
+        ("maxNonOrtho_abs", float(q["maxNonOrtho"]) <= R7_MAX_NONORTHO_ABS,
+         q["maxNonOrtho"], R7_MAX_NONORTHO_ABS),
+        ("maxNonOrtho_rise", float(q["maxNonOrtho"]) <= nonortho_derived,
+         q["maxNonOrtho"], nonortho_derived),
         ("maxSkewness", float(q["maxSkewness"]) <= R7_MAX_SKEWNESS, q["maxSkewness"], R7_MAX_SKEWNESS),
         ("maxAspect", float(q["maxAspect"]) <= R7_MAX_ASPECT, q["maxAspect"], R7_MAX_ASPECT),
         ("minH1_ratio", h1_ratio >= R7_MIN_H1_RATIO, h1_ratio, R7_MIN_H1_RATIO),
@@ -223,7 +249,10 @@ def guard7_quality_budget(q, baseline, wall_resolved=True):
     verdict = "STOP" if crossed else "OK"
     return {"verdict": verdict, "rule": 7, "crossed": crossed, "counts": counts,
             "h1_ratio": h1_ratio, "vol_ratio": vol_ratio,
-            "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"}
+            "nonortho_bound_derived": nonortho_derived,
+            "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + %.1f "
+                            "deg) are all derived from the baseline in this invocation"
+                            % R7_NONORTHO_RISE}
 
 
 # =============================================================================================
@@ -413,20 +442,26 @@ def selftest(verbose=True):
     res = []
 
     # ---- GUARD 6 -------------------------------------------------------------------------
-    good6 = {"useRotations": True, "LdefFact": 1.0, "evalMode": "exact", "aExp": 3.0}
+    good6 = {"useRotations": True, "LdefFact": 1.0, "evalMode": "fast", "aExp": 3.0}
     res.append(_c("G6.clean -- the registered warp settings are in force",
                   lambda: guard6_warp_in_force(good6), "OK"))
     res.append(_c("G6.KNOWN-BAD -- useRotations silently False (rule 6's named mechanism off)",
                   lambda: guard6_warp_in_force(dict(good6, useRotations=False)), "STOP"))
     res.append(_c("G6.KNOWN-BAD -- LdefFact moved to 0.5 without registration",
                   lambda: guard6_warp_in_force(dict(good6, LdefFact=0.5)), "STOP"))
-    res.append(_c("G6.KNOWN-BAD -- evalMode back to the published 'fast' approximation",
-                  lambda: guard6_warp_in_force(dict(good6, evalMode="fast")), "STOP"))
-    res.append(_c("G6.BLIND -- the option is absent from the live dict (IDWarp on its own default)",
-                  lambda: guard6_warp_in_force({"LdefFact": 1.0, "evalMode": "exact"}), "REFUSE"))
+    res.append(_c("G6.KNOWN-BAD -- evalMode silently changed away from the published 'fast': a "
+                  "verbatim reproduction must STOP on a changed warp, in either direction",
+                  lambda: guard6_warp_in_force(dict(good6, evalMode="exact")), "STOP"))
+    res.append(_c("G6.BLIND -- the option is absent from the live dict, so the record cannot say "
+                  "what IDWarp actually used",
+                  lambda: guard6_warp_in_force({"LdefFact": 1.0, "evalMode": "fast"}), "REFUSE"))
 
     # ---- GUARD 7 -------------------------------------------------------------------------
-    base7 = {"minH1": 1.0e-4, "minVol": 1.0e-12}
+    # base7 is the MACH-wing AS-EXTRUDED baseline: maxNonOrtho 66.32299475 is the only quotable
+    # "Mesh OK." in that family (rule 31).  base7crm is the CRM L2 baseline MEASURED by this lane
+    # on 2026-09-13 by building it: checkMesh reports 70.44640458682032.
+    base7 = {"minH1": 1.0e-4, "minVol": 1.0e-12, "maxNonOrtho": 66.32299475}
+    base7crm = {"minH1": 1.0e-4, "minVol": 1.0e-12, "maxNonOrtho": 70.44640458682032}
     good7 = {"source": "as_run_mesh_measurement",
              "maxNonOrtho": 66.32, "maxSkewness": 1.9, "maxAspect": 684.4,
              "minH1": 0.98e-4, "minVol": 0.9e-12, "yPlusMedian": 0.47, "yPlusMax": 0.998,
@@ -447,8 +482,28 @@ def selftest(verbose=True):
     res.append(_c("G7.KNOWN-BAD/REAL -- 70.01418200, the SMALLEST of O_mp's 76 over-70 values: the "
                   "budget must catch the marginal breach too",
                   lambda: guard7_quality_budget(dict(good7, maxNonOrtho=70.014182), base7), "STOP"))
-    res.append(_c("G7.REAL/boundary -- 66.96543422, an O_mp block genuinely under 70.0, must NOT fire",
+    res.append(_c("G7.REAL/boundary -- 66.96543422, an O_mp block 0.64 deg above its own baseline, "
+                  "must NOT fire",
                   lambda: guard7_quality_budget(dict(good7, maxNonOrtho=66.96543422), base7), "OK"))
+    res.append(_c("G7.MEASURED/BASELINE -- the PUBLISHED CRM mesh as freshly built, 70.44640458682032, "
+                  "against ITS OWN baseline: must NOT fire, or the optimiser starts outside its "
+                  "own constraint",
+                  lambda: guard7_quality_budget(dict(good7, maxNonOrtho=70.44640458682032),
+                                                base7crm), "OK"))
+    res.append(_c("G7.MEASURED/DERIVED -- the SAME 70.44640458682032 against the MACH-wing baseline "
+                  "66.32299475 DOES fire: the bound is derived from the baseline handed in, not "
+                  "pinned (rule 23)",
+                  lambda: guard7_quality_budget(dict(good7, maxNonOrtho=70.44640458682032),
+                                                base7), "STOP"))
+    res.append(_c("G7.MEASURED/CRM -- a CRM mesh degraded to 76.0 breaches the PUBLISHED absolute "
+                  "75.0 as well as the derived rise",
+                  lambda: guard7_quality_budget(dict(good7, maxNonOrtho=76.0), base7crm), "STOP"))
+    res.append(_c("G7.MEASURED/CRM -- a CRM mesh at 71.6, inside the published 75.0 but 1.15 deg "
+                  "above its own baseline, fires on the DERIVED clause alone",
+                  lambda: guard7_quality_budget(dict(good7, maxNonOrtho=71.6), base7crm), "STOP"))
+    res.append(_c("G7.BLIND -- the baseline carries no maxNonOrtho, so no bound can be derived",
+                  lambda: guard7_quality_budget(dict(good7, maxNonOrtho=71.0),
+                                                {"minH1": 1.0e-4, "minVol": 1.0e-12}), "REFUSE"))
     res.append(_c("G7.DELEGATION -- handed the solver's own verdict line instead of a measurement, "
                   "the budget must REFUSE: that channel was measured never to refuse",
                   lambda: guard7_quality_budget(dict(good7, source="solver_verdict"), base7), "REFUSE"))

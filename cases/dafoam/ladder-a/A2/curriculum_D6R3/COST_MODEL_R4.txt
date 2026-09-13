@@ -1,0 +1,25 @@
+cell factor 579,072 / 41,760 = 13.8667
+per condition-primal 64.19 core-min   per flow adjoint 252.51 core-min (k_adj=1.5 ASSUMED)
+
+=== SINGLE POINT, as published (1 condition), optimisation on the PUBLISHED 579,072-cell mesh
+   OBJECTIVE evaluation     64.2 core-min   (1 primals)
+   GRADIENT  evaluation    505.0 core-min   (2 flow adjoints: CD + CL per condition)
+   per major               748.6
+   P0 (1 primal + 2 adjoints, published mesh)    569.2
+   S2 optimisation, 100 majors                  74860.2
+   rules 8/9 checkpoints x8                     7161.3
+   A12 fresh mesh, matched lift (rule 12)        385.1
+   TOTAL (+5%)                                   88293 core-min   cap(3x) 264900   $75.49 derived
+
+=== MULTIPOINT, deviation D1 (3 conditions), optimisation on the PUBLISHED 579,072-cell mesh
+   OBJECTIVE evaluation    192.6 core-min   (3 primals)
+   GRADIENT  evaluation   1515.1 core-min   (6 flow adjoints: CD + CL per condition)
+   per major              2245.8
+   P0 (1 primal + 2 adjoints, published mesh)    569.2
+   S2 optimisation, 100 majors                 224580.6
+   rules 8/9 checkpoints x8                    21403.8
+   A12 fresh mesh, matched lift (rule 12)       1155.4
+   TOTAL (+5%)                                  261263 core-min   cap(3x) 783900   $223.38 derived
+
+MULTIPOINT COSTS 2.96x THE SINGLE-POINT REPRODUCTION AT THE SAME MESH (88293 -> 261263 core-min)
+registered: 261300 core-min, cap 783900, $223.41 derived

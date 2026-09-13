@@ -1,7 +1,7 @@
 {
  "version": "D6R3-INRUN-DRAFT-1",
- "n_total": 48,
- "n_pass": 48,
+ "n_total": 53,
+ "n_pass": 53,
  "n_fail": 0,
  "controls": [
   {
@@ -51,7 +51,7 @@
    }
   },
   {
-   "control": "G6.KNOWN-BAD -- evalMode back to the published 'fast' approximation",
+   "control": "G6.KNOWN-BAD -- evalMode silently changed away from the published 'fast': a verbatim reproduction must STOP on a changed warp, in either direction",
    "want": "STOP",
    "got": "STOP",
    "PASS": true,
@@ -60,15 +60,15 @@
     "rule": 6,
     "bad": {
      "evalMode": [
-      "fast",
-      "exact"
+      "exact",
+      "fast"
      ]
     },
     "derived_from": "R6_REQUIRED_WARP, PREREGISTRATION R2 section 9.6"
    }
   },
   {
-   "control": "G6.BLIND -- the option is absent from the live dict (IDWarp on its own default)",
+   "control": "G6.BLIND -- the option is absent from the live dict, so the record cannot say what IDWarp actually used",
    "want": "REFUSE",
    "got": "REFUSE",
    "PASS": true,
@@ -87,7 +87,8 @@
     "crossed": [],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -100,14 +101,20 @@
     "rule": 7,
     "crossed": [
      [
-      "maxNonOrtho",
+      "maxNonOrtho_abs",
       80.90429398,
-      70.0
+      75.0
+     ],
+     [
+      "maxNonOrtho_rise",
+      80.90429398,
+      67.32299475
      ]
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -120,14 +127,20 @@
     "rule": 7,
     "crossed": [
      [
-      "maxNonOrtho",
+      "maxNonOrtho_abs",
       79.21261137,
-      70.0
+      75.0
+     ],
+     [
+      "maxNonOrtho_rise",
+      79.21261137,
+      67.32299475
      ]
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -140,14 +153,15 @@
     "rule": 7,
     "crossed": [
      [
-      "maxNonOrtho",
+      "maxNonOrtho_rise",
       71.23798136,
-      70.0
+      67.32299475
      ]
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -160,18 +174,19 @@
     "rule": 7,
     "crossed": [
      [
-      "maxNonOrtho",
+      "maxNonOrtho_rise",
       70.014182,
-      70.0
+      67.32299475
      ]
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
-   "control": "G7.REAL/boundary -- 66.96543422, an O_mp block genuinely under 70.0, must NOT fire",
+   "control": "G7.REAL/boundary -- 66.96543422, an O_mp block 0.64 deg above its own baseline, must NOT fire",
    "want": "OK",
    "got": "OK",
    "PASS": true,
@@ -181,7 +196,100 @@
     "crossed": [],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.MEASURED/BASELINE -- the PUBLISHED CRM mesh as freshly built, 70.44640458682032, against ITS OWN baseline: must NOT fire, or the optimiser starts outside its own constraint",
+   "want": "OK",
+   "got": "OK",
+   "PASS": true,
+   "detail": {
+    "verdict": "OK",
+    "rule": 7,
+    "crossed": [],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "nonortho_bound_derived": 71.44640458682032,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.MEASURED/DERIVED -- the SAME 70.44640458682032 against the MACH-wing baseline 66.32299475 DOES fire: the bound is derived from the baseline handed in, not pinned (rule 23)",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxNonOrtho_rise",
+      70.44640458682032,
+      67.32299475
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.MEASURED/CRM -- a CRM mesh degraded to 76.0 breaches the PUBLISHED absolute 75.0 as well as the derived rise",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxNonOrtho_abs",
+      76.0,
+      75.0
+     ],
+     [
+      "maxNonOrtho_rise",
+      76.0,
+      71.44640458682032
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "nonortho_bound_derived": 71.44640458682032,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.MEASURED/CRM -- a CRM mesh at 71.6, inside the published 75.0 but 1.15 deg above its own baseline, fires on the DERIVED clause alone",
+   "want": "STOP",
+   "got": "STOP",
+   "PASS": true,
+   "detail": {
+    "verdict": "STOP",
+    "rule": 7,
+    "crossed": [
+     [
+      "maxNonOrtho_rise",
+      71.6,
+      71.44640458682032
+     ]
+    ],
+    "h1_ratio": 0.9799999999999999,
+    "vol_ratio": 0.9,
+    "nonortho_bound_derived": 71.44640458682032,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
+   }
+  },
+  {
+   "control": "G7.BLIND -- the baseline carries no maxNonOrtho, so no bound can be derived",
+   "want": "REFUSE",
+   "got": "REFUSE",
+   "PASS": true,
+   "detail": {
+    "refusal": "guard7: baseline lacks maxNonOrtho, so the derived bound cannot be formed (rule 23: derive the constant from the thing under test)"
    }
   },
   {
@@ -204,7 +312,8 @@
     "crossed": [],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -224,7 +333,8 @@
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -244,7 +354,8 @@
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -264,7 +375,8 @@
     ],
     "h1_ratio": 0.5,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -289,7 +401,8 @@
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": -0.01,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
@@ -309,7 +422,8 @@
     ],
     "h1_ratio": 0.9799999999999999,
     "vol_ratio": 0.9,
-    "derived_from": "h1_ratio and vol_ratio derived from the baseline in this invocation"
+    "nonortho_bound_derived": 67.32299475,
+    "derived_from": "h1_ratio, vol_ratio and the non-orthogonality bound (baseline + 1.0 deg) are all derived from the baseline in this invocation"
    }
   },
   {
