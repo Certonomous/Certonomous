@@ -1,0 +1,16 @@
+D6R3 LAUNCH-PRECONDITION CONTROLS
+  PASS  rc=0   clean: a complete case tree passes every precondition and stops at DRYRUN
+  PASS  rc=7   KNOWN-BAD/G-INPUTS: 0.orig removed -- the exact P0 18:58:42Z defect, which must now REFUSE
+  PASS  rc=7   KNOWN-BAD/G-INPUTS: constant/polyMesh/points removed
+  PASS  rc=7   KNOWN-BAD/G-INPUTS: system/fvSchemes removed
+  PASS  rc=7   KNOWN-BAD/G-INPUTS: one initial field (p) removed from 0.orig
+
+G-DATUM -- the empty-age-datum refusal, driven on the launcher's own case statement
+  PASS  rc=8   KNOWN-BAD/MEASURED: DATUM EMPTY -- exactly what the failed P0 printed, and it did NOT stop
+  PASS  rc=8   KNOWN-BAD: DATUM whitespace
+  PASS  rc=8   KNOWN-BAD: DATUM non-numeric
+  PASS  rc=0   clean: a real epoch datum passes
+  PASS  rc=0   boundary: DATUM=0 is numeric and passes -- the guard tests readability, not value
+
+D6R3_LAUNCH_CONTROLS n_total=10 n_pass=10 n_fail=0
+D6R3_LAUNCH_CONTROLS PASS

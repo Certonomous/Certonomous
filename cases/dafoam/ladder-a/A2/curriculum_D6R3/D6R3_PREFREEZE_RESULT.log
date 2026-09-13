@@ -5,7 +5,7 @@ CLAUSE 1 -- EVERY INSTRUMENT NAMED IN THE FROZEN TABLE EXISTS AT ITS STATED md5
 ===================================================================
   EXISTS  d6r3_opt_runScript.py              efc3e62699690edd32e4ee910aad09c8
   EXISTS  d6r3_p0_arm.sh                     4bab810a2e363f0c1e9f6dd4c423b967
-  EXISTS  d6r3_run_arm.sh                    29599c6225fcf9c7e65fdad908eddb5b
+  EXISTS  d6r3_run_arm.sh                    4dfc0758427f6fe8895e6bc532f03914
   EXISTS  d6r3_grade.py                      51bdf8ea7354de8d3346ed8956332453
   EXISTS  d6r3_prefreeze.sh                  e398541cdd4d5b657ba90ea16cc968bb
   EXISTS  d6r3_inrun_guards.py               22757db8d9ec646172e416578c426ee6

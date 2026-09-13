@@ -50,6 +50,12 @@ say G-CORES "free=$FREE of $NPROC, ranks=$RANKS"
 mkdir -p "$ARMDIR"
 cp -r "$CASE/." "$ARMDIR/"
 rm -rf "$ARMDIR"/processor* "$ARMDIR"/[1-9]* "$ARMDIR"/OptView.hst "$ARMDIR"/opt_SLSQP.txt
+# REPAIR 1 (ADDENDUM 1, 2026-09-13): instantiate the initial fields.  VERBATIM from the published
+# pipeline -- CRM_Wing/preProcessing.sh:29 is `cp -r 0.orig 0`.  Its absence is what killed P0 at
+# 18:58:42Z: no 0/, so no processor*/0/p, so PETSc SEGV and MPI_ABORT 59, rc=59, 21.467 core-min
+# of WASTE and no measurement.  The fix is the published line, not an invention.
+[ -d "$ARMDIR/0.orig" ] || { say REFUSE "G-INPUTS: no 0.orig/ to instantiate the fields from"; exit 7; }
+rm -rf "$ARMDIR/0"; cp -r "$ARMDIR/0.orig" "$ARMDIR/0"
 cp "$HERE/d6r3_opt_runScript.py" "$ARMDIR/runScript.py"
 cp "$HERE/d6r3_inrun_guards.py" "$HERE/d6r3_mesh_read_gate.py" "$ARMDIR/"
 cp -r "$CASE/../../../../dafoam-tutorials/CRM_Wing/FFD" "$ARMDIR/" 2>/dev/null || \
@@ -79,8 +85,35 @@ functions
 }
 FO
 done
+# --- G-INPUTS (ADDENDUM 1) -- a LAUNCH PRECONDITION, not a grading gate.  It can only prevent a
+# --- run from starting; it never changes how a completed run is graded.  G-IMG, G-FREEZE and
+# --- G-CORES all passed cleanly on the failed P0 and NONE of them looks at whether the case can
+# --- actually be read.  Refuses on any absence, naming the missing path.
+GINPUTS_MISSING=""
+for f in "$ARMDIR/constant/polyMesh/points" "$ARMDIR/constant/polyMesh/faces"          "$ARMDIR/constant/polyMesh/owner" "$ARMDIR/constant/polyMesh/neighbour"          "$ARMDIR/constant/polyMesh/boundary"          "$ARMDIR/constant/thermophysicalProperties" "$ARMDIR/constant/turbulenceProperties"          "$ARMDIR/system/controlDict" "$ARMDIR/system/fvSchemes" "$ARMDIR/system/fvSolution"          "$ARMDIR/system/decomposeParDict" "$ARMDIR/FFD/wingFFD.xyz" "$ARMDIR/runScript.py"          "$ARMDIR/d6r3_inrun_guards.py" "$ARMDIR/d6r3_mesh_read_gate.py"; do
+  [ -r "$f" ] || [ -r "$f.gz" ] || GINPUTS_MISSING="$GINPUTS_MISSING $f"
+done
+for fld in T U alphat nuTilda nut p; do
+  for d in "$ARMDIR" "$ARMDIR/mp04" "$ARMDIR/mp05" "$ARMDIR/mp06"; do
+    [ -r "$d/0/$fld" ] || GINPUTS_MISSING="$GINPUTS_MISSING $d/0/$fld"
+  done
+done
+if [ -n "$GINPUTS_MISSING" ]; then
+  say REFUSE "G-INPUTS: the arm cannot be read; missing:$GINPUTS_MISSING"; exit 7
+fi
+say G-INPUTS "all inputs present and readable"
+
 touch "$ARMDIR/0/U"                                  # THE AGE DATUM, set last
-DATUM=$(stat -c%Y "$ARMDIR/0/U"); say AGE_DATUM "$DATUM"
+DATUM=$(stat -c%Y "$ARMDIR/0/U" 2>/dev/null)
+# --- REPAIR 2 (ADDENDUM 1) -- AN EMPTY AGE DATUM REFUSES THE LAUNCH.  On the failed P0 the ledger
+# --- printed `D6R3_AGE_DATUM ` with NO VALUE and NOTHING STOPPED: a reader with no writer, the
+# --- precise disease of s22.4 clause (c) and of primal_residual.json, relocated into the launcher.
+# --- Had it refused, that arm would have cost ZERO instead of 21.467 core-min.  MEASURED FAILING
+# --- TO FIRE on that run, which is why it exists.
+case "$DATUM" in
+  ''|*[!0-9]*) say REFUSE "G-DATUM: the age datum is EMPTY or non-numeric ('$DATUM') -- the age guard has no reference and a run without one cannot be graded complete"; exit 8 ;;
+esac
+say AGE_DATUM "$DATUM"
 
 case "$ARM" in
   P0)   TASK="compute_totals" ;;
@@ -89,6 +122,11 @@ case "$ARM" in
 esac
 say ARM "$ARM task=$TASK ranks=$RANKS cpuset=$CPUSET mem=${MEMG}g stamp=$STAMP"
 echo "D6R3_DEADLINE_IN_CONTAINER_S: NONE" | tee -a "$LEDGER"
+
+if [ "${D6R3_DRYRUN:-0}" = "1" ]; then
+  say DRYRUN "every launch precondition passed; stopping before the container"
+  exit 0
+fi
 
 T0=$(date +%s)
 sudo -n docker run --rm --name "d6r3_${ARM}_${STAMP}" \

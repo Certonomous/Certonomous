@@ -816,3 +816,198 @@ NOT FILED anywhere**; no filing is drafted or pending. **Filing is Sanaa's alone
 ### T.7 — Δ1's costed plan is **NOT struck**; it is **DEFERRED** and carried in §4 for the successor.
 
 **SUBMISSIONS PARKED.**
+
+---
+---
+
+# ADDENDUM 1 — 2026-09-13, THE RANK COUNT, A CORRECTION I OWE ON `numberOfSubdomains`, AND A LAUNCHER DEFECT THAT COST `P0` 21.467 CORE-MIN AND PRODUCED NOTHING
+
+**Version 1.1.** **Lines whose number changed above this section: 0.** Appended, never inserted;
+nothing above it is edited (rule 6). Proved append-only by **prefix byte-identity against the
+pre-append bytes** — `cmp -n 62585` — **never a bare `git diff`**, which compares against the
+shared index and answers differently depending on when a peer last staged (L-594).
+
+**IT ALTERS NO GATE, NO THRESHOLD, NO CAP AND NO LABEL** (rule 2). `G1`, `BAND-CL05`'s `7.6 %` and
+`0.02090`, its `± 2 %` / `± 2` points, `G-J`'s `BAND: NOT AVAILABLE`, `G3`'s `1.0e-3` and
+`1.0e-4`, `A12`, `P0-G1`–`P0-G4`, the six in-run instruments' thresholds, rule 17's exact equality
+and every cap in §7c stand **exactly as frozen at `4f3fc77d2`**.
+
+**WHAT IT ADDS ARE LAUNCH PRECONDITIONS, NOT GRADING GATES — and the distinction is the reason an
+addendum may carry them.** `G-INPUTS` and `G-DATUM` **can only prevent a run from starting. They
+never change how a completed run is graded.** No grading gate is added, moved or relaxed.
+
+---
+
+## A1.1 THE VERDICT THAT STANDS
+
+**`P0` at `20260913T185842Z` is `NOT A RESULT`.** Ledger row, verbatim:
+`arm=P0 rc=59 wall_s=46 ranks=28 core_min=21.467 root_owned=0`. §7a's `P0-G1` requires `rc = 0`,
+`Main iteration > 0` and `KSP Residual > 0`; the run produced **`rc = 59`, `Main iteration = 0`,
+`KSP Residual = 0`**. *A run that never attempted a linear solve is not a fast adjoint.* **That row
+is closed at `NOT A RESULT` and this addendum does not touch it.**
+
+## A1.2 A CORRECTION I OWE, AND IT IS AGAINST AN ARGUMENT MADE IN THIS ITEM'S OWN SUPERVISION
+
+**`72` IS THE PUBLISHED RANK COUNT.** `/home/ubuntu/dafoam-tutorials/CRM_Wing/system/decomposeParDict`
+**line 18** reads `numberOfSubdomains     72;` and **line 20** `method                 scotch;`.
+Read from the file by this lane, twice — at R4 §2 row 45 and again at this addendum.
+
+An argument was put during supervision that 72 was "chosen for speed", reasoned from **8,043 cells
+per rank**. **That argument is STRUCK.** It was an inference from a quantity rather than a reading
+of the instrument, and §22.6 exists for exactly that: *a number enters a record from an instrument,
+never from a sentence.* **Row 45 is and remains a `SAME` row**, and `P0` at 72 ranks was verbatim.
+
+## A1.3 **DEVIATION D2 — THE RANK COUNT.** The reason is the owner's allocation ruling, and nothing else
+
+| | published | D6R3 |
+|---|---|---|
+| `numberOfSubdomains` | **`72`** (`system/decomposeParDict:18`) | **the largest count measurably free at launch that does not overlap the reserved lanes** |
+
+**HER RULING, read from the directive by this lane** (`docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md:311`, byte-exact):
+
+> *"yes, and nobody touches or steals the propeller's cores or the drivaer ones. (20) bc i want them"*
+
+and, on sizing: *"dont wait for the ranks to free up use whats available"*.
+
+**THE ARITHMETIC IS DECISIVE AND IS STATED HERE RATHER THAN INFERRED:**
+
+```
+96 cores total
+- 48  propeller lane   RESERVED, never lent
+- 20  DrivAer lane     RESERVED, never lent
+= 28  the ceiling available to D6R3 while those lanes are reserved
+```
+
+**The published 72 CANNOT fit, ever, while those two lanes are reserved.** `72 > 28`. **The reason
+for D2 is her allocation ruling — not speed, not efficiency, and not the struck cells-per-rank
+argument of A1.2.**
+
+**MEASURED, not remembered:** at 18:58:42Z the launcher's own `G-CORES` refused 72 with
+`D6R3_REFUSE G-CORES: 28 measurably free of 96, need 72` and spent **zero** core-minutes; it then
+passed at `free=31 of 96, ranks=28`. At 19:00:45Z this lane measured `load1 = 68.39` → **28 free**.
+**The count is sized at launch from `/proc/loadavg`, never from a number written here.**
+
+### A1.3a The two honest consequences, one line each
+
+- **The parallel decomposition is not the published one.** `scotch` partitions 579,072 cells into
+  28 subdomains instead of 72, so the halo structure, the reduction order and the preconditioner's
+  block structure all differ from the published case. **It changes no physics, no scheme and no
+  design variable — and it is still a real departure**, which is why it is a numbered deviation and
+  not a footnote.
+- **The calendar changes.** Core-minutes are rank-invariant and stay anchored at **261,300**; the
+  wall time is not: `261,300 / 72 = 3,629 wall-min = 2.52 days` against
+  **`261,300 / 28 = 9,332 wall-min = 155.5 h = 6.48 days`**. **The registered wall estimate at the
+  registered rank count is ~6.5 days**, and that is before any contention.
+
+### A1.3b **A GAP IN THE GUARD, NAMED RATHER THAN CLAIMED AS COMPLIANCE**
+
+**`G-CORES` CHECKS LOAD, NOT ALLOCATION.** It measures `nproc − load1` and knows nothing about which
+physical cores the reserved 48 and 20 hold. **A lane that is idle but reserved is indistinguishable
+from a lane that is free**, so her instruction *"never borrow from 48 or 20"* **is not enforceable
+by the launcher as frozen** — it is satisfied only by whoever picks the `cpuset` by hand. **This
+registration does not claim the guard enforces it.** Closing it needs a lane-allocation file the
+guard can read, and that is a separate registered item.
+
+## A1.4 THE DEFECT THAT KILLED `P0`, AND IT IS IN THIS ITEM'S OWN LAUNCHER
+
+**Root cause, read from the log and the disk by this lane.** The published pipeline instantiates the
+initial fields at **`CRM_Wing/preProcessing.sh:29` — `cp -r 0.orig 0`**. **`d6r3_mesh_family`'s
+build staged `0.orig/` and never ran that line, and `d6r3_run_arm.sh` never created `0/`.**
+The chain, each link measured:
+
+1. `P0/0` does not exist; the tree carries `0.orig/` only.
+2. `d6r3_run_arm.sh:57`'s `cp -r "$ARMDIR/0" …` copied nothing, so `mp04/processor0/` holds
+   **only `constant`** — no `0/` time directory and no fields.
+3. `[13] --> FOAM FATAL ERROR: cannot find file "/work/mp04/processor13/0/p"`
+   (`uncollatedFileOperation.C:629`), on every rank.
+4. PETSc `SEGV` on ranks 7 and 16; **rank 11 `MPI_ABORT … errorcode 59`**; `rc = 59` at 46 wall s.
+
+**It is not a physics failure, not a memory failure and not a rank-count failure. It is a missing
+input**, and every one of `G-IMG`, `G-FREEZE` and `G-CORES` passed cleanly on the way to it because
+**none of them looks at whether the case can actually be read.**
+
+### A1.4a **THE WORSE HALF: `D6R3_AGE_DATUM` PRINTED EMPTY AND NOTHING STOPPED**
+
+`d6r3_run_arm.sh:82`'s `touch "$ARMDIR/0/U"` failed — no `0/` directory — and the ledger line reads
+**`D6R3_AGE_DATUM ` with no value.** **The completion rule's age guard had no reference written, and
+the launch proceeded anyway.**
+
+**That is a channel with a reader and no writer — the precise disease of §22.4 clause (c) and of
+`primal_residual.json`, relocated into our own launcher.** The pre-freeze check verified that every
+instrument *exists at its md5* and that every *CLI* refuses correctly; **it never executed the
+launcher's staging path**, and a `touch` into a missing directory leaves no trace in a green
+selftest. **Had an empty datum refused, this arm would have cost zero instead of 21.467 core-min.**
+
+### A1.4b THE REPAIR, UNDER `VERIFICATION_CHARTER` §2d.1's DISCIPLINE
+
+The grading path (`d6r3_grade.py` `51bdf8ea…`, `d6r3_mesh_read_gate.py` `8398dcbf…`,
+`d6r3_inrun_guards.py` `22757db8…`) is **UNTOUCHED**. The launcher is a **launch precondition**, so
+§2d does not strictly bind; **its discipline is invoked anyway as the conservative choice**, exactly
+as the parent's ADDENDUM 1 did.
+
+1. **Demonstrable error, not preference** — `cannot find file ".../0/p"` on every rank, and an empty
+   `AGE_DATUM` in the ledger. Arithmetic and artefacts, not taste.
+2. **Established by an instrument independent of the hypothesis** — the frozen `P0-G1` produced the
+   **least convenient outcome available: `NOT A RESULT` on this item's own first arm.**
+3. **Disclosed here, instrument named, movement quantified** — this section.
+4. **Pre-repair values recorded beside the published ones** — the ledger row and the empty datum.
+
+**THREE REPAIRS, and the first is itself verbatim rather than invented:**
+
+- **R1 — instantiate the fields.** `rm -rf "$ARMDIR/0"; cp -r "$ARMDIR/0.orig" "$ARMDIR/0"`,
+  **the published `preProcessing.sh:29` line**.
+- **R2 — `G-DATUM`: an empty or non-numeric age datum REFUSES the launch (exit 8).**
+- **R3 — `G-INPUTS`: before the container starts**, every input the arm needs is asserted present
+  and readable — the five `polyMesh` files, both `constant/` dictionaries, four `system/`
+  dictionaries, the FFD file, the producer, both guard modules, and the six initial fields in `0/`
+  **of the arm and of all three condition directories** — refusing (exit 7) and **naming the
+  missing path**.
+
+**CONTROLS — 10, ALL PASS**, `D6R3_LAUNCH_CONTROLS.log`, and every one driven to its **failing**
+side against a known-bad case tree:
+
+| control | want | got |
+|---|---|---|
+| clean: a complete tree passes every precondition and stops at `DRYRUN` | `rc 0` | **`0`** |
+| **KNOWN-BAD: `0.orig` removed — the exact `P0` 18:58:42Z defect** | `rc 7` | **`7`** |
+| KNOWN-BAD: `constant/polyMesh/points` removed | `rc 7` | **`7`** |
+| KNOWN-BAD: `system/fvSchemes` removed | `rc 7` | **`7`** |
+| KNOWN-BAD: one initial field (`p`) removed from `0.orig` | `rc 7` | **`7`** |
+| **KNOWN-BAD/MEASURED: `DATUM` EMPTY — exactly what the failed `P0` printed, and it did NOT stop** | `rc 8` | **`8`** |
+| KNOWN-BAD: `DATUM` whitespace | `rc 8` | **`8`** |
+| KNOWN-BAD: `DATUM` non-numeric | `rc 8` | **`8`** |
+| clean: a real epoch datum passes | `rc 0` | **`0`** |
+| boundary: `DATUM=0` is numeric and passes — the guard tests readability, not value | `rc 0` | **`0`** |
+
+**`G-DATUM` is driven on the launcher's own `case` statement, extracted from the file**, because
+`G-INPUTS` now guarantees `0/U` exists and the tree controls can no longer reach it.
+
+## A1.5 THE COST ROW OWED (rule 12, rule 30)
+
+| | value | tag |
+|---|---|---|
+| predicted `P0` | **569.2 core-min** | `REGISTERED`, §7c at `4f3fc77d2` |
+| **actual** | **21.467 core-min** | `MEASURED`, ledger `arm=P0` |
+| ratio actual/predicted | **0.0377** | `DERIVED` |
+| cap | not crossed | |
+| dollars | **$0.0184** | **`DERIVED`, never measured** |
+
+**ALL 21.467 core-min IS WASTE and is named as waste, never absorbed into the ratio**
+(`COMPUTE_BUDGET_CHARTER.md` §6). **The ratio 0.0377 is NOT a calibration of the prediction:
+the prediction was never exercised** — the arm died on a missing input before a single linear solve.
+Attributed to **the missing input**, not to misprediction, not to contention.
+
+## A1.6 WHAT THIS ADDENDUM DOES NOT CLAIM
+
+- **It does not rewrite the `NOT A RESULT` verdict** of A1.1, and no number from the 46-second run
+  is quoted as a result.
+- **It does not add, move or relax a grading gate.** `G-INPUTS` and `G-DATUM` are launch
+  preconditions and can only stop a run from starting.
+- **It does not claim the reserved-lane instruction is enforced by the guard** (A1.3b).
+- **It does not claim the pre-freeze check would have caught this.** It would not have: it checks
+  existence, md5s and CLI exit codes, and **never executes the launcher's staging path.** That gap
+  is this lane's, and naming it is the point of A1.4a.
+- **It does not re-price the item.** Core-minutes stay at **261,300**; only the **wall** estimate is
+  restated, at **~6.5 days** at 28 ranks against 2.52 days at the published 72.
+
+**SUBMISSIONS PARKED.**
