@@ -267,3 +267,141 @@ Process-static agglomeration state making multi-mesh results order-dependent is 
 process plural. It is recorded as a finding note and **`NOT FILED`**. **SUBMISSIONS ARE PARKED
 (rule 7); filing is Sanaa's decision alone and is taken by her.** No agent's message is her
 consent. The four upstream classes stay `NOT FILED`.
+
+---
+
+## ADDENDUM 1 — 2026-09-13 — RESULT, ARM `FIX_RELTOL1`. **THE FIX DOES NOT WORK, AND IT IS WORSE THAN THE BASELINE.**
+## No gate, threshold, cap or label above is altered by this addendum. Originals stand as written.
+
+Log `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/FIX_RELTOL1_20260913T202543Z.log`.
+Freeze sha `ff271fd0205b11aa60119f2f1c6e732b16456689`; `G-PREREG` verified this file, the stager, the
+grader and the launcher against their committed `HEAD` blobs before the container started.
+Ledger row `D6R3_FIX_ROW arm=FIX_RELTOL1 rc=1 wall_s=720 ranks=28 core_min=336.000`.
+
+### 1. VERDICT, from the grading path frozen at the pre-registration commit: **`NOT A RESULT`**
+
+`d6r3_fix_grade.py` passed 7 of 9 checks and failed two: **IC-3** (`CD(cl04)` printed
+`0.02090512806637335` against the registered `0.02090109066417552` — they differ in the fourth
+significant figure) and **IC-4** (`rc = 1`).
+
+**IC-4 IS DEFECTIVE AS REGISTERED, AND THE DEFECT IS THIS LANE'S.** `rc = 0` cannot serve as an
+instrument control in an arm whose *predicted failure mode* is a non-zero `rc`: DAFoam raises
+`AnalysisError("Primal solution failed!")` exactly when the gate is missed, so IC-4 converts every
+`GATE FAIL` into a `NOT A RESULT` and makes the `GATE FAIL` branch of §4.2 unreachable. IC-3 has the
+same shape of flaw: it compares a converged `CD` against the `CD` of a primal that **did not
+converge**, where no agreement is owed. **Both are disclosed, neither is repaired here**: a gate is
+closed at first compute (rule 2), the verdict stands as the frozen path returned it, and a
+re-grading of this arm to a friendlier label after seeing the answer is precisely the move the
+freeze exists to prevent.
+
+### 2. WHAT WAS MEASURED — and it is decisive whatever the label
+
+The instrument controls that were sound all passed, so the numbers below are about the arm that
+was registered:
+
+- **IC-1 held bit-for-bit.** At `Time = 1`, instance 1 printed `U0 initRes: 0.9999999999999968
+  finalRes: 0.0944846591692384 nIters: 2`, `U1 initRes: 1 finalRes: 0.01212907860710623 nIters: 2`,
+  `U2 initRes: 1 finalRes: 0.09448777862426254 nIters: 2`, `he initRes: 0.999999999993853 finalRes:
+  0.08587891623171072 nIters: 2` and `p initRes: 0.9999999999942178` — every digit the registration
+  demanded. Nothing upstream of the `p` solve moved.
+- **IC-2 held: the change reached the solver and was read back.** Step-1 `p finalRes
+  0.001998751422359818` (registered: `< 2.008039e-03`) at `nIters 320` (registered: `> 24`).
+
+**The gate, measured.** Instance 1 (`cl04`, position 1) at `Time = 2000`:
+
+| field | `initRes` | multiple of `primalMinResTol` |
+|---|---|---|
+| U0 | `2.929055550529289e-07` | 29.3× |
+| U1 | `2.584843663213218e-06` | 258.5× |
+| U2 | `1.138165293022058e-06` | 113.8× |
+| he | `1.197023710292814e-06` | 119.7× |
+| **p** | **`7.600678874731434e-06`** | **760.07×** |
+| nuTilda | `2.001527779331585e-07` | 20.0× |
+
+`Primal solution failed!` was raised at **`cl04`** — **position 1, the position that PASSED at the
+published `relTol`**. The job aborted there, so **position 2 and position 3 never ran** and this arm
+produces **no** position-2 floor.
+
+**THE RESPONSE IS INVERTED, NOT MERELY NON-LINEAR.** Against the baseline `P0`/`P00` position-1
+floor (`p 5.678212567273067e-08`, max `nuTilda 1.194718885139746e-07` = 11.95×):
+
+- `p` floor **raised by 133.86×** (`7.600678874731434e-06 / 5.678212567273067e-08`);
+- max residual **raised by 63.62×** (`7.600678874731434e-06 / 1.194718885139746e-07`), carrying
+  position 1 from **11.95×** to **760.07×**, across the `100×` threshold.
+
+The registered prediction was position-2 `p ≤ 1.0e-07` with position 1 staying in
+`[1.0e-08, 3.0e-07]`. Position 1 came in at `7.6e-06` — **25× above the top of its own predicted
+band**, in the wrong direction.
+
+**It is a parked state, not a slow decay.** From `Time = 800` to `Time = 2000` instance 1's `p
+initRes` ranges over `7.010002e-06` to `7.600679e-06` — an **8.43 % spread across 1200 steps** —
+while `nIters` sits at 39–44. The outer loop is sitting on a level, not approaching one.
+
+### 3. §5's FIRST FALSIFIER IS TRIGGERED — said loudly, as registered
+
+§5 wrote: *"`FIX_RELTOL1` is `GATE FAIL` (position 2 still floors ≥ 1.0e-06 with IC-1/IC-2 passing):
+the floor is not set by the pressure linear solve's tolerance, §3(b)'s linear response is wrong."*
+**The measurement is stronger than the falsifier anticipated.** The floor *is* controlled by the
+pressure linear solve's tolerance — tightening it moved the floor by two orders of magnitude — but
+**the sign is opposite to §3(b)'s model**. `floor ∝ relTol` is **WRONG**, and so is the reading it
+carried, that a tighter linear solve lowers the floor for both positions. The `DIAG_AGGLOM1` chain
+stands up to and including *different hierarchy → different V-cycle count → differently
+partially-converged `p` → different SIMPLE trajectory*; its **final link — that the elevated floor
+follows from the `p` solve being under-converged — does not carry.** Under-convergence of `p` is not
+what raises the floor; at this `relTol` *over*-convergence raises it far more.
+
+**A HYPOTHESIS, NAMED AND NOT ADOPTED.** `system/fvSolution` sets `relaxationFactors { fields {
+"(p|rho)" 1.0 } equations { p 1.0 } }` — **no under-relaxation on pressure anywhere**. A SIMPLE
+loop run with unrelaxed pressure takes part of its damping from the pressure equation *not* being
+solved exactly; the published `relTol 0.1` supplies that damping, and removing it can leave the
+outer map parked at a higher level. That is consistent with everything above — an inverted response,
+a flat parked state, an unchanged `CD` to ~4 figures — but **no experiment in this arm isolates it**,
+and it must not be relayed as a finding. The experiment that would isolate it is an arm that varies
+`relaxationFactors` `p` at the published `relTol`, and it is not registered here.
+
+### 4. THE COST MODEL OF §2 IS FALSIFIED, AND ITS "FOUR FOR FOUR" VALIDATION WAS CIRCULAR
+
+Registered: step-1 `nIters` **65** for instance 1. Measured: **320** — wrong by **4.92×**. The
+registered V-cycle multiplier `ln(r)/ln(0.1) = 2.697` is wrong; the measured step-1 multiplier is
+`320/24 = 13.33×`.
+
+**The cause is a methodological error, not bad luck.** §2 fitted `f = (finalRes/initRes)^(1/n)` from
+runs at `relTol 0.1` and then "validated" `nIters(0.1) = ln(0.1)/ln(f)`. Substituting the fit back:
+
+    ln(0.1)/ln(f) = n · ln(0.1) / ln(finalRes/initRes)
+
+and at `relTol 0.1` the solver stops as soon as `finalRes/initRes ≲ 0.1`, so that ratio is ≈ 1 and
+the expression returns `n` **by algebra**. The four agreements — 24, 21, 2, 7, each to the exact
+printed integer — were an **identity, not a test**, and they carried no information about
+extrapolating to a different `relTol`. The true asymptotic contraction measured over the 320 cycles
+actually run is **`0.980765` per V-cycle**, against the `0.907534` the first 24 cycles implied:
+GAMG's rate degrades as the easy modes are removed, which a constant-`f` model cannot see.
+
+**A model fitted at one operating point and checked only at that same point is not validated for
+any other point, however many digits agree.** That is the lesson of this arm and it is offered for
+`docs/LESSONS.md` at the supervisor's discretion; it is not filed here.
+
+### 5. COST — estimate versus actual (rule 12)
+
+- Registered: **780 core-min** predicted, **1050 core-min** upper bound, for **3** instances.
+- Actual: **336.000 core-min** = `720 wall s × 28 ranks / 60` [`ledger.txt`, `D6R3_FIX_ROW
+  arm=FIX_RELTOL1 rc=1 wall_s=720 ranks=28 core_min=336.000`]. = 5.600 core-h →
+  **$0.2873 DERIVED, NOT MEASURED** (c7a.4xlarge $0.0513/core-h, owner-stated; the box cannot read
+  its own billing, `COMPUTE_BUDGET_CHARTER.md` §5). **= gross**; 720 s, nowhere near the 3600-s
+  stall rule.
+- **Ratio 0.431× — and it is NOT a calibration.** Only **1** of the 3 registered instances ran; the
+  arm aborted at `cl04`. The comparable figure is per-instance: registered ≈ **247 core-min** per
+  instance against **299.3 core-min** measured (`641.36 s ExecutionTime × 28 / 60`) — **1.21×** over,
+  and *that* is the honest number. The registered total came in low only because the arm died early.
+- **No waste**: the abort at `cl04` is the measurement, not a loss. The 336 core-min bought the
+  falsification of §3(b) and of §2's cost law, which is what the arm was for.
+- Cores: 28 ranks on cpuset `1,2,3,5,6,7,8,9,11,13,14,16,18,19,20,21,23,24,25,27,28,29,31,32,33,34,
+  35,36`, chosen from 67 cores measured ≥ 85 % idle over a 5 s window at launch. No overlap with the
+  reserved 48-core propeller lane or the 20-core DrivAer lane. No cap stopped anything (directive #17).
+
+### 6. WHAT THIS ARM DOES NOT ESTABLISH
+
+- **Nothing about position 2 or position 3 at this `relTol`** — they never ran.
+- **Nothing about whether a `relTol` between `0.1` and `2.008e-03` behaves differently.** The
+  response is now known to be non-monotone somewhere in that interval; where, is unmeasured.
+- **Nothing about the carrier of the hierarchy difference.** That is `FIX_NONGAMG1`'s question.
