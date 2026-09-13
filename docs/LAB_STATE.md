@@ -45877,6 +45877,127 @@ CFD LIVE 02:05Z: M6I L1-TVD-RESUME2 ~3600/8000, lands ~05:00Z. MRF R4 fine, SUBO
 SOLVE_L2 advancing. CRM partition REGISTERED AND QUEUED, held on cores, expected to launch ~02:07Z.
 PPTC gmsh running in scratch, still no queue entry, still no compute.
 
+<!-- BOARD-BLOCK-ID: 198-FOUR-LANES-REFUTED-MY-OWN-INSTRUCTIONS-AND-THAT-WAS-THE-NIGHTS-BEST-WORK -->
+### Block 198 — post-fleet-death resume; six lanes, eight commits, and three of my own rulings overturned by the lanes carrying them out, 2026-09-13T04:35Z
+
+**LAST COMMIT:** `daa551da3` — cfd L-577, OpenFOAM bashrc executes your script's argv[1].
+Preceding, all mine this session: `a3fe48897` (M6I L1 graded), `9d1bcd902` (DrivAer continuation
+registration), `0bc8fd09d` (M6I driver fix + my own overstatement corrected), `27a491e77` (M6I R5
+frozen), `56f273ce2` (y+ reader guard), `1ba860253` (M6I R5 addendum 1), `d7fa960a0` (DrivAer
+amendment 1). Every one via the private-index protocol with a post-commit verify; **the shared
+index carries staged DELETIONS including the DrivAer registration — a bare `git commit` destroys it.**
+
+### RUNNING
+| item | state |
+|---|---|
+| **MRF R4 fine** (t/D 0.0155) | pid 23103, 6 ranks, ~4,900 of 8,000, ETA ~07:40Z. **Already entitled to `NOT A RESULT`** — see below |
+| **SUBOFF SOLVE_L2** | pid 27208, 4 ranks, ~1,000 of 3,000, 20.12 s/it measured, ETA ~15:22Z |
+| **DrivAer r2c_medium_blended_R3** | pid 570686, 4 ranks, launched 04:30:27Z, endTime 10000, ETA ~11:55Z. Advancing on the FORCE channel (Cd 0.472→0.305 over 36 rows) |
+| **PPTC** | coarse mesh building, 8 ranks, from 19,032 background cells |
+| **M6I L2_PHIDP** | **DEAD** — SIGFPE rc=136 at Time 6290. Triaged, see below |
+| **CRM-WB** | **IDLE, 32 ranks. Launch permission-denied. Sanaa's.** |
+
+### VERDICTS
+- **M6I L1 `GATE FAIL`** (`m6i_grade_L1.json`, a3fe48897). 12/12 B1 rows **monotone decreasing**
+  L3>L2>L1; span-avg rms 0.3328→0.2045→0.1423; **η0.65-lower 0.0494 is the first row in band.**
+  Plant fired 0.0984 vs 0.0617. Cost 1,098.07 core-min vs 1,092.30 registered, **ratio 1.005**,
+  waste 114.47 named separately, $0.939 derived.
+- **Reference-pressure hypothesis REFUTED**: regressing dev on Cp_exp, additive `a` ≤ 0.032 at every
+  level while slope `b` halves −0.530→−0.221. Suction peak recovers 37%→62%→82% of AGARD's −1.181.
+  **NOT claimed:** that `a` is zero (−0.027 at L1, unmeasured below that).
+- **NO SHOCK AT ANY LEVEL.** `cfd_cp_rise` ×1.528 per grid halving → reaching experiment needs
+  **8.0e11 cells.** Not reachable by refinement on this discretisation.
+- **M6I L2_PHIDP `NOT A RESULT`** — rc=136 SIGFPE, 4 of 5 completion clauses fail. 12.87 core-min,
+  **all waste.** No Cp extracted from the diverged field.
+- **SUBOFF L1_R3**: completion PASS all clauses + age guard (+19,002 s). **Gate W `GATE FAIL`**
+  (hull y+ max 342.87 vs 300). **Gate D2 `NOT A RESULT`** — CT 0.00328310 sits *inside* the frozen
+  band but two levels give no order. Cost ratio 0.2015.
+- **DrivAer ×3 `GATE FAIL`** on Gate A1 (not converged/plateaued), graded 21:59:14Z at `1505d14e4`,
+  reproduced independently. Cd 0.35525/0.35516/0.31507 vs DrivAerML 0.2758368. Mesh **non-conforming**
+  (skew 5.450 vs 4.0) so no number here is ever a credential.
+- **MRF: 9 landed levels, 9 graded, 3 verdicts, all `NOT A RESULT`.** All three Roache triples
+  **DIVERGENT** (p = −5.2311, −5.7784, −0.2971). No GCI quoted. Np mid-flight 5.1333 vs Beshay 5.41;
+  thickness mechanism confirmed at **+15.73%** vs Bujalski's predicted +20.31%.
+- **SUBOFF A1f `BLOCKED` and STOOD DOWN; A1e likewise. A1g unaffected.**
+
+### 🔴 RUNGS WITHOUT VERDICTS
+**MRF R4** — lands ~07:40Z and is **already entitled to `NOT A RESULT`**: IC-1 registers zero
+bounding events after warm-up with a pinned left edge ("once failed, failed forever") and there are
+**four**, at iterations 2352/3085/3358/3845. Knowable three hours early. **CRM-WB** — ~20 attempts,
+none reached a graded state, all `NOT A RESULT`. **PPTC** — no KT yet. **DrivAer R3**, **SUBOFF L2**,
+**M6I R5 retry** — all pending.
+
+### 🔴 INSTRUMENT DEFECTS FOUND TONIGHT
+1. **`postProcess -func yPlus` returns zero on 53/53 patch readings**, two solvers, two cases,
+   exits clean. Solver spelling returns real values. **Audit: NO graded record contaminated.**
+   Guard landed at `56f273ce2`, **wired into nothing** — must NOT go into `grade_drivaer.py`
+   (hash pinned) or SUBOFF's pinned comparator (rule 6). **NOT an upstream defect report; unresearched.**
+2. **`evaluate_m6i_level.sh`** would have graded L1 — the best level — as `NOT A RESULT` with no Cp
+   row. Fixed at `0bc8fd09d` after I read it as a diff.
+3. **`analyse_m6i.py`** carries TWO defects: Form-A `n_exec == endTime` (refuses any resume) AND a
+   hard-coded `log.solver` **that matches none of L1's nine logs**.
+4. **`grade_mrf_r4.py:94`** — `"Floating point exception" in t` matches the `trapFpe` banner every
+   log prints at line 29, so **`GATE REACHED` and `GATE FAIL` are unreachable on any run**; and
+   `split("floating")[0]` truncates at that line so a real NaN at iteration 3000 is invisible.
+   **Frozen path — needs a VERIFICATION_CHARTER §2d.1 ruling, not a patch.**
+5. **L-577**: OpenFOAM's bashrc executes argv[1] when it is a file, and eval-exports it when it is
+   `name=value`. **300 of 331 scripts unguarded** — unguarded CALL SITES, not 300 live defects.
+
+### WHERE I WAS WRONG, AND A LANE CAUGHT IT
+- I ordered the **mesh rung** on M6I. Killed by my own criterion: **zero >70° faces in the shock
+  window at all six stations**, 84.13% on the tip cap.
+- I ruled M6I's **numerics rung spent**. It was never aimed: `div(phid,p)` ran **first-order upwind
+  on every level**, and under `transonic yes` that is the only term teaching the pressure equation
+  the flow is supersonic.
+- I told a lane to **extrapolate a Cd decay**. There is none — 95% CI contains zero; my instruction
+  would have produced "endTime 2671" fitted to one flattering outlier.
+- I called CRM's 89.87° and M6I's 87.66° **a cross-case pattern**. A lane refused: CRM fails to
+  START (stability); M6I converges to 1e-7 and converges to the WRONG ANSWER. **I re-checked and
+  confirmed the split myself**: `pMaxFactor 2.0` sits **26.1% ABOVE stagnation** (Cp 2.027 vs 1.189),
+  so M6I's runaway is real divergence, while CRM's clamps sit INSIDE the physics at 92.19% of cells.
+- I **overstated a commit title** ("bit-identical across an 8× refinement" for a quantity quantised
+  to 14 midpoints). Corrected on the record at `0bc8fd09d`.
+- I **froze a self-contradictory document** (R5 §3: 3,000 iterations AND endTime unchanged from 5000
+  = zero iterations). My check verified gates, cost and the pre-compute condition and **NOT internal
+  consistency.** Addendum at `1ba860253`; **the fault is mine, not the lane's.**
+- **But I was right twice against a lane**: M6I L1 DID finish (in `resume.2`, 7,200 exec lines) —
+  the lane read the dead stage log, the very trap I had just fixed; and the lane's tutorial
+  refutation (28 bounded vs 18 upwind) is **96.6% NON-TRANSONIC** and therefore confounded —
+  on transonic cases only it is **1 bounded vs 2 upwind**, and the one steady `rhoSimpleFoam`
+  transonic case uses upwind.
+
+### NEXT ACTIONS
+1. **M6I R5 retry**: one more registered change on the pressure rung — `div(phid,p)` and
+   `div((phi|interpolate(rho)),p)` → **`Gauss vanLeer`**, with the refutation condition written in
+   that a second divergence **spends the rung and climbs to SST**. `limitedLinear 1` is already the
+   most limiting member of its family, so a softer coefficient is not available.
+2. **A1h**: read the 823-line comparator as a diff (**check 1, mine, NOT DONE**), then freeze.
+   Draft + comparator ready, 15-mutant test (11 killed by refusal, 1 by crash, 3 equivalent).
+   Registered run path `verification/runs/navier_class/SUBOFF_A1H_DRIFT/`, all nine paths ABSENT at
+   04:17:05Z with a positive control. Cost **56,336 core-min, $48.17 derived**, 7×4 in one wave.
+3. **Land D631** (draft at `verification/runs/navier_class/DRIVAER/DOCKET_D631_DRAFT_rule4_resume_hole.md`)
+   under `check_docket_reconciliation.py`. **Next number is D631** — max 630, count 634.
+4. **Disk**: ~220 GB of dead CRM probe field data reclaimable (PROBE_NOTRANSONIC_T 122 GB,
+   DIAG_EARLY_T 42 GB). **Keep all logs, dictionaries and registrations permanently.**
+
+### ON SANAA'S DESK
+1. **The CRM launch is permission-denied** ("Modify Shared Resources"), twice. Case staged and
+   registered at `/home/ubuntu/certonomous-runs/CRM_WB_D8G/SOLVE_T_R1`. **A lane's denial is not
+   cleared by a supervisor performing the same action.** 32 ranks idle until she or the permission
+   system clears it.
+2. **Her §5 CRM grid family is not what §5 assumed.** T/C/M = **20,657,615 / 26,271,819 / 33,683,206**
+   against an expected 2/6/16 M. Tiny is **10× larger**; ratios **r = 1.084 and 1.086**, far too close
+   to carry a defensible GCI, so her §8 family band is at risk. Both committee families are on disk.
+3. **Rule 4's `ExecutionTime` clause has a resume-shaped hole** — D631. **Verification's to propose,
+   hers to rule. Nobody patches a comparator on it.**
+
+### BLOCKED
+**CRM-WB** on the permission denial — nothing else unblocks it. **A1h** on my comparator read.
+**MRF R4's §2d.1 referral** on a verification ruling.
+
+**VERIFY at next session:** MRF R4's landing verdict; whether PPTC's mesh cleared Sanaa's §5 gates;
+DrivAer R3's falsifier. **Disk 76%, 230 GB free. Load ~20/96. SUBMISSIONS PARKED.**
+
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
