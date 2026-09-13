@@ -55,6 +55,12 @@ def read_internal(path):
 def write_scalar_nonuniform(path, values):
     """Replace internalField in an existing scalar field file, keeping its boundaryField."""
     d = open(path, "rb").read()
+    # The decomposed 0/ files carry `format binary;` in their FoamFile header, inherited from
+    # writeFormat binary. Writing ASCII values into a file that DECLARES binary makes OpenFOAM
+    # read the digits as a binaryBlock -- "Expected a ')' while reading binaryBlock". The header
+    # must be switched to ascii in the same edit that changes the payload: a declared format that
+    # the payload does not match is the file-level version of a flag that is set and never read.
+    d = re.sub(rb"(\bformat\s+)binary\s*;", rb"\1ascii;", d, count=1)
     body = b"internalField   nonuniform List<scalar>\n%d\n(\n" % len(values)
     body += b"\n".join(b"%.10g" % v for v in values)
     body += b"\n)\n;\n"
