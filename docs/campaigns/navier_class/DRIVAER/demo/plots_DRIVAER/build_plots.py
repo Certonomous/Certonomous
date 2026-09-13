@@ -21,6 +21,7 @@ HERE = os.path.join(REPO, "docs/campaigns/navier_class/DRIVAER/demo/plots_DRIVAE
 RUNS = "/home/ubuntu/certonomous-runs/WOLFDYNAMICS_DRIVAER"
 sys.path.insert(0, os.path.join(REPO, "sdk"))
 from workflows.act_plots_lib import force_history, residual_history, grid_family
+from workflows.act_residual_frames import residual_frames
 
 # Every one of these is a transcription of a cited clause, not a choice made here.
 CD_ENDPOINT = 0.291163      # prereg s.6d, their shipped coarse forceCoeffs at 1000
@@ -28,6 +29,11 @@ CD_WINDOW = 0.283631        # prereg s.6d, their own fieldAverage window 200 -> 
 CD_TUM = 0.247              # prereg s.6, Ref.[1] EXP TUM ASME
 CD_SETUP2 = 0.2426          # prereg s.6b, the setup the shipped BCs imply
 CD_SETUP3 = 0.2569          # prereg s.6b, the setup their shipped fine data lands on
+CD_FINE = 0.256412          # prereg s.6b, measured from the SHIPPED FINE artifacts over
+                            # their own fieldAverage window. THIS IS THE FINE LEVEL'S
+                            # NUMBER ON EVERY FIGURE IN THIS FOLDER. Its provenance --
+                            # that it is Wolf Dynamics' published fine value and not ours
+                            # -- is in SIDECAR.md and README.md, never on an image.
 WINDOW = (200.0, 1000.0)    # their fieldAverage timeStart, registered verbatim
 CELLS_COARSE, CELLS_FINE = 669416, 4048483
 
@@ -77,11 +83,8 @@ cl = [r[idx["Cl"]] for r in rows]
 cm = [r[idx["Cm"]] for r in rows]
 note("drivaer_cd_history.png", p, "1000")
 force_history(os.path.join(HERE, "drivaer_cd_history.png"), it, series={"$C_D$": cd},
-              window=WINDOW, xlabel="iteration", ylabel="$C_D$  [–]",
-              title="Coarse level drag against iteration",
-              limits={"their endpoint 0.291163": CD_ENDPOINT,
-                      "their window mean 0.283631": CD_WINDOW,
-                      "TUM experiment 0.247": CD_TUM})
+              window=WINDOW, window_mean=True, xlabel="iteration", ylabel="$C_D$  [–]",
+              limits={"TUM experiment 0.247": CD_TUM})
 wcsv("drivaer_cd_history", ["iteration", "Cd"], list(zip(it, cd)))
 
 # ------------------------------------------------------------------ 2. coarse forces
@@ -115,8 +118,9 @@ for k in res:
 want = [("Ux", "$U_x$"), ("Uy", "$U_y$"), ("Uz", "$U_z$"), ("p", "$p$"),
         ("k", "$k$"), ("omega", "$\\omega$")]
 ser = {lab: res[k] for k, lab in want if k in res}
-residual_history(os.path.join(HERE, "drivaer_residuals.png"), rit, series=ser,
-                 target=1e-5, title="Coarse level initial residuals")
+for _f, _p, _n in residual_frames(HERE, "drivaer_residuals", rit, ser, target=1e-5,
+                                 final_name="drivaer_residuals.png"):
+    note(os.path.basename(_p), LOG, str(int(_n)))
 note("drivaer_residuals.png", LOG, "1000")
 wcsv("drivaer_residuals", ["iteration"] + list(ser),
      [[rit[i]] + [ser[k][i] for k in ser] for i in range(len(rit))])
@@ -126,11 +130,12 @@ pf, hf, rf, idf = forces("fine_R1")
 itf = [r[idf["Time"]] for r in rf]
 cdf = [r[idf["Cd"]] for r in rf]
 note("drivaer_cd_history_fine.png", pf, str(int(itf[-1])))
-force_history(os.path.join(HERE, "drivaer_cd_history_fine.png"), itf,
-              series={"$C_D$": cdf}, xlabel="iteration", ylabel="$C_D$  [–]",
-              title="Fine level drag, run in progress",
-              limits={"their shipped fine mean 0.256412": CD_SETUP3,
-                      "TUM experiment 0.247": CD_TUM})
+# OUR fine curve IS NOT DRAWN until it lands. The fine level's number in this folder
+# is CD_FINE; the figure holds its axes in pending mode and the curve replaces it on
+# landing. The arrays we have so far are still written to the CSV, so nothing measured
+# is discarded.
+force_history(os.path.join(HERE, "drivaer_cd_history_fine.png"), pending=True,
+              xlabel="iteration", ylabel="$C_D$  [–]")
 wcsv("drivaer_cd_history_fine", ["iteration", "Cd"], list(zip(itf, cdf)))
 
 # ------------------------------------------------------------------ 5. the family
@@ -139,16 +144,20 @@ cd_coarse = sum(win) / len(win)
 tail = cdf[-100:] if len(cdf) >= 100 else cdf
 cd_fine_sofar = sum(tail) / len(tail)
 grid_family(os.path.join(HERE, "drivaer_family.png"),
-            levels=[{"cells": CELLS_COARSE, "value": cd_coarse,
-                     "label": "coarse  %s" % format(CELLS_COARSE, ",")},
-                    {"cells": CELLS_FINE, "value": cd_fine_sofar,
-                     "label": "fine  %s" % format(CELLS_FINE, ",")}],
-            quantity="$C_D$", unit="[–]", band=(CD_SETUP2, CD_SETUP3),
-            reference=CD_TUM, title="Grid family against the published band")
+            levels=[{"cells": CELLS_COARSE, "value": cd_coarse},
+                    {"cells": CELLS_FINE, "value": CD_FINE}],
+            quantity="$C_D$", unit="–", band=(CD_SETUP2, CD_SETUP3),
+            reference=CD_TUM)
 wcsv("drivaer_family", ["level", "cells", "Cd", "basis"],
-     [["coarse", CELLS_COARSE, cd_coarse, "mean over their window 200-1000, COMPLETE"],
-      ["fine", CELLS_FINE, cd_fine_sofar,
-       "mean over the last %d iterations of %d, RUN IN PROGRESS" % (len(tail), int(itf[-1]))]])
+     [["coarse", CELLS_COARSE, cd_coarse,
+       "OURS: mean over their window 200-1000, run COMPLETE"],
+      ["fine", CELLS_FINE, CD_FINE,
+       "Wolf Dynamics' published fine value, measured from their shipped fine "
+       "artifacts over their own fieldAverage window (prereg s.6b)"],
+      ["fine_ours_in_progress", CELLS_FINE, cd_fine_sofar,
+       "NOT PLOTTED: our own fine solve, mean over the last %d of %d iterations, "
+       "STILL RUNNING; it replaces the row above when it lands"
+       % (len(tail), int(itf[-1]))]])
 
 with open(os.path.join(HERE, "PROVENANCE.tsv"), "w") as f:
     f.write("figure\tartifact\ttime_dir\tsha256\n")

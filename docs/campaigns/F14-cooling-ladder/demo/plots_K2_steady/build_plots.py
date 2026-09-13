@@ -17,12 +17,13 @@ HERE = os.path.join(REPO, "docs/campaigns/F14-cooling-ladder/demo/plots_K2_stead
 F14 = os.path.join(REPO, "verification/runs/F14-cooling-ladder")
 sys.path.insert(0, os.path.join(REPO, "sdk"))
 sys.path.insert(0, os.path.join(F14, "K2g_runs"))
+from workflows.act_residual_frames import residual_frames
 from workflows.act_plots_lib import (grid_family, residual_history, vertical_profiles,
                                      metric_bars, sweep_curve, envelope_map, cost_vs_setpoint)
 import foam_patch_reader as R
 
 BAND_DP = (27.9699, 28.0901)          # K2g_PREREGISTRATION.md section 5, G-DP
-LIM = {"recommended 27 °C": 27.0, "allowable 32 °C": 32.0}
+LIM = {"limit 27 °C": 27.0}   # ONE limit, the user's. No "recommended", no "allowable", no 32.
 K = 273.15
 prov = []
 
@@ -88,8 +89,9 @@ for k in res:
     res[k] += [float("nan")] * (n - len(res[k]))
 want = [("Ux", "$U_x$"), ("Uz", "$U_z$"), ("T", "$T$"), ("p_rgh", "$p_{rgh}$")]
 ser = {lab: res[k] for k, lab in want if k in res}
-residual_history(os.path.join(HERE, "k2_residuals.png"), it, series=ser, target=1e-5,
-                 title="Initial residuals, fine level")
+for _f, _p, _n in residual_frames(HERE, "k2_residuals", it, ser, target=1e-5,
+                                 final_name="k2_residuals.png"):
+    note(os.path.basename(_p), LOG, str(int(_n)))
 note("k2_residuals.png", LOG, "803")
 wcsv("k2_residuals", ["iteration"] + list(ser), [[it[i]] + [ser[k][i] for k in ser] for i in range(len(it))])
 

@@ -55,7 +55,7 @@ from each level's grade file: **0.2355 → 0.0948 → 0.0465** on 15,360 → 122
 | `m6_forces.png` | Cd and Cl against iteration, restarts stitched (later segment wins on overlap) | `M6J_L1/postProcessing/forceCoeffs/{0,200,3800}/coefficient.dat` |
 | `m6_residuals.png` | initial residuals Ux, Uy, Uz, e, p, target 1e-6 | `M6J_L1/postProcessing/residuals/{0,200,3800}/solverInfo.dat` |
 | `m6_mesh.png` | the **coarse** level's wall patch, per the owner's ParaView rule | `M6J_L3` polyMesh, 480 wall faces, guard PASS |
-| `m6_surface_pressure.png` | static pressure on the **fine** level's wall patch | `M6J_L1` at t = 8000, 7,680 wall faces, guard PASS |
+| `m6_p_upper_top.png`, `m6_p_oblique.png` | static pressure on the **fine** level's wall patch, from above and obliquely | `M6J_L1` at t = 8000, 7,680 wall faces |
 
 | `m6_p_upper_top.png` | surface pressure from above, the shock visible | `M6J_L1` at t = 8000 |
 | `m6_p_oblique.png` | the same surface obliquely, FINE-level mesh edges drawn | `M6J_L1` at t = 8000 |
@@ -63,10 +63,11 @@ from each level's grade file: **0.2355 → 0.0948 → 0.0465** on 15,360 → 122
 | `m6_mach_eta065.png`, `m6_mach_eta090.png` | Mach on the spanwise plane through each graded station | `M6J_L1` `U` and `T` at t = 8000 |
 | `m6_umag_eta065.png`, `m6_umag_eta090.png` | velocity magnitude on the same two planes | `M6J_L1` `U` at t = 8000 |
 
-`m6_mesh.png` and `m6_surface_pressure.png` were drawn by
-`scripts/render_openfoam_3d_paraview.py`, whose per-patch face-count guard PASSED
-and which proved the graded tree unchanged; their own `.json` sidecars sit beside
-them. The seven panels above were drawn by `render_field_panels.py` in this folder.
+**Every ParaView panel in this folder is now `render_field_panels.py`'s.** The two
+`scripts/render_openfoam_3d_paraview.py` panels that used to sit here — a dark
+background with an orientation triad — were **deleted** when v2 fixed the look, and
+`m6_surface_pressure.png` with them: `m6_p_upper_top.png` is the same field on the
+same patch, white-ground and triad-free.
 
 ## The field panels: what is measured and what is chosen
 
@@ -104,8 +105,8 @@ surface panels are also measured on an interior-only mask at threshold 0.25 and
 ## Ordered figures this folder does NOT contain, and why
 
 * **`m6_cp_upper.png`** (upper-surface **Cp** in ParaView) — no `Cp` field is
-  written to disk by this family; the solver writes `p` in Pa. `m6_surface_pressure.png`
-  is the same picture in the field that exists, and is named for what it shows.
+  written to disk by this family; the solver writes `p` in Pa. `m6_p_upper_top.png`
+  is the same picture in the field that exists.
 * **`m6_geometry.png`** (the admitted STL) — this family is an **imported reference
   grid family**. There is no admitted surface tessellation under
   `models/onera_m6/`; the wall patch in `m6_mesh.png` is the only geometry the run
@@ -115,3 +116,39 @@ surface panels are also measured on an interior-only mask at threshold 0.25 and
   are in `m6_cp_stations.csv` and are graded in the grade files.
 * **Station η = 0.95** — the registered station is **η = 0.96**; the orders' 0.95 is
   not a station this campaign grades. η = 0.99 is registered as EXCLUDED.
+
+---
+
+## v2 REGENERATION — 2026-09-13
+
+Everything above still holds. What changed is the DRAWING, not a number.
+
+* **Plot library v2** (`docs/plot_orders/README_PLOT_LIBRARY_V2.md`), installed by the
+  owner. Math only: no English on any figure, no titles, no verdict words, no band
+  named in words. **v2 already carries both library changes this lane had made** —
+  `%` in place of the word, and a registered `band=(lo, hi)` on `grid_family` — in a
+  better form, so neither was re-applied. **One minimal change was added:**
+  `residual_history` gained `xlim`/`ylim`, because the residual-evolution frames below
+  are only comparable if the axes do not move; without pinned axes each frame
+  autoscales to its own data, every frame looks identical, and the descent that is the
+  whole point of the series is invisible.
+* **Residual evolution.** `sdk/workflows/act_residual_frames.py` cuts the run at
+  **10, 25, 50, 75 and 100 %** and writes one frame per cut on ONE set of axes, so the
+  act can step through them and the curves are seen to go down. The 100 % frame keeps
+  the ordered file name; the others are `*_f10 … _f75`.
+* **ParaView panels re-rendered to v2 §13:** white ground, **no orientation triad**,
+  **one colour bar a quarter of the frame high** titled by symbol and unit, and
+  **nothing written on the image**. The case, the time, the geometry and the verdict
+  now live HERE and in the act beside the figure. **The verdict guard was not dropped
+  with the caption**: `demo3d_render_common.assert_stamp` still runs on the stamp each
+  driver WOULD have drawn, before any pixel, so a verdict word a case does not own is
+  still refused. What moved is where the sentence is printed, not whether it is checked.
+
+* **The mesh figure is now the FINE level.** The owner: *"the 480-face coarse
+  wall patch reads as a toy"*. `m6_mesh.png` is a **cut at the η = 0.65 station**,
+  framed on the leading edge, showing the cells across the nose and the wall
+  layers — 28,048 cells in that plane; `m6_mesh_surface.png` is the fine level's
+  own 7,680-face wall patch. The coarse level keeps a mesh figure only where a
+  snappy mesh is genuinely illegible, and this structured O-grid is not.
+* `m6_geometry.png` is the imported grid's wall patch, the geometry **as meshed**;
+  there is no admitted STL for this family and none was invented.

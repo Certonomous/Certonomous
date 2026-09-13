@@ -1,9 +1,10 @@
 # ONERA M6 — demo plot folder
 
-Thirteen figures, built 2026-09-13 from the M6J run tree with **zero solver compute**.
+Seventeen figures, built 2026-09-13 from the M6J run tree with **zero solver compute**,
+under plot library **v2**: math only on the figures, and ParaView panels that are
+white-ground, triad-free and carry no text at all.
 Regenerate with `python3 build_plots.py` (matplotlib figures) and
-`scripts/render_openfoam_3d_paraview.py` (mesh and surface pressure) and
-`xvfb-run -a pvpython render_field_panels.py` (the seven field panels).
+`xvfb-run -a pvpython render_field_panels.py` (every ParaView panel).
 
 | File | Verdict of its source |
 |---|---|
@@ -11,7 +12,6 @@ Regenerate with `python3 build_plots.py` (matplotlib figures) and
 | `m6_family.png` | all three levels — **GATE FAIL** |
 | `m6_forces.png` | `M6J_L1` — **GATE FAIL** |
 | `m6_residuals.png` | `M6J_L1` — **GATE FAIL** |
-| `m6_surface_pressure.png` | `M6J_L1` — **GATE FAIL** |
 | `m6_mesh.png` | `M6J_L3` mesh — **GATE FAIL** (the coarse level, per the ParaView rule) |
 
 `GATE FAIL` is the registered B1 Cp band of 0.050 being missed, not a broken run.

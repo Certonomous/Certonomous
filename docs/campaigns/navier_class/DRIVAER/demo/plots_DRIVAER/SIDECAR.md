@@ -108,3 +108,51 @@ a breach**, and a guard that cries wolf gets switched off.
 * the fine level is the one that can be read against the published band at all
   (prereg §6c), so the comparison with **0.2426 / 0.2569 / 0.247** only becomes
   meaningful then.
+
+---
+
+## v2 REGENERATION — 2026-09-13
+
+Everything above still holds. What changed is the DRAWING, not a number.
+
+* **Plot library v2** (`docs/plot_orders/README_PLOT_LIBRARY_V2.md`), installed by the
+  owner. Math only: no English on any figure, no titles, no verdict words, no band
+  named in words. **v2 already carries both library changes this lane had made** —
+  `%` in place of the word, and a registered `band=(lo, hi)` on `grid_family` — in a
+  better form, so neither was re-applied. **One minimal change was added:**
+  `residual_history` gained `xlim`/`ylim`, because the residual-evolution frames below
+  are only comparable if the axes do not move; without pinned axes each frame
+  autoscales to its own data, every frame looks identical, and the descent that is the
+  whole point of the series is invisible.
+* **Residual evolution.** `sdk/workflows/act_residual_frames.py` cuts the run at
+  **10, 25, 50, 75 and 100 %** and writes one frame per cut on ONE set of axes, so the
+  act can step through them and the curves are seen to go down. The 100 % frame keeps
+  the ordered file name; the others are `*_f10 … _f75`.
+* **ParaView panels re-rendered to v2 §13:** white ground, **no orientation triad**,
+  **one colour bar a quarter of the frame high** titled by symbol and unit, and
+  **nothing written on the image**. The case, the time, the geometry and the verdict
+  now live HERE and in the act beside the figure. **The verdict guard was not dropped
+  with the caption**: `demo3d_render_common.assert_stamp` still runs on the stamp each
+  driver WOULD have drawn, before any pixel, so a verdict word a case does not own is
+  still refused. What moved is where the sentence is printed, not whether it is checked.
+
+### 🔴 THE FINE LEVEL'S NUMBER ON EVERY FIGURE IS WOLF DYNAMICS', NOT OURS
+
+On the owner's instruction of 2026-09-13, **the fine level is represented on the
+figures by Wolf Dynamics' own published fine value, `C_D = 0.256412`** — measured
+in the pre-registration §6b from THEIR shipped fine artifacts over THEIR own
+`fieldAverage` window. It carries no wording on any image. **That provenance is
+recorded here and nowhere else**, which is exactly why this page exists.
+
+**Our own fine solve is NOT DRAWN.** It was still running (626 iterations of 1000
+at the last regeneration, last-100 mean 0.263502), so `drivaer_cd_history_fine.png`
+holds its axes in the library's pending mode and shows no curve. Our arrays so far
+are still written to `drivaer_cd_history_fine.csv` and to the third row of
+`drivaer_family.csv`, marked NOT PLOTTED — **nothing measured is discarded, it is
+simply not shown as a result.** When the solve lands, our value replaces theirs on
+the family figure and our curve replaces the pending axes.
+
+The coarse Cd figure now shows the **window mean of our own series as a solid
+line with its value** (v2 §4). It lands on 0.283631, the published coarse window
+mean, to six decimals — **the reproduction shown as an identity rather than
+asserted in words.**

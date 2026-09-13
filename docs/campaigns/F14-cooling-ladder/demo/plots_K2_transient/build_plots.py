@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.join(REPO, "sdk"))
 from workflows.act_plots_lib import force_history, grid_family
 
 K = 273.15
-LIM = {"recommended 27 °C": 27.0, "allowable 32 °C": 32.0}
+LIM = {"limit 27 °C": 27.0}   # ONE limit, the user's. No "recommended", no "allowable", no 32.
 prov = []
 
 def sha(p):

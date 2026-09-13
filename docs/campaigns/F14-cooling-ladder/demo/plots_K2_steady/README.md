@@ -1,6 +1,8 @@
 # K2 steady, the four-rack row — demo plot folder
 
-Built 2026-09-13 from the K2f / K2g / K2b run trees with **zero solver compute**.
+Built 2026-09-13 from the K2f / K2g / K2b run trees with **zero solver compute**,
+under plot library **v2**: math only on the figures, one limit line `T_lim = 27 °C`,
+and ParaView panels that are white-ground, triad-free and carry no text at all.
 Regenerate the matplotlib figures with `python3 build_plots.py`; three ParaView panels are the committed output of
 `../render_K2f_rackset_paraview/render_k2f_rackset.py` and three more come from
 `xvfb-run -a pvpython ../render_K2_field_panels.py`.

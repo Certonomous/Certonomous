@@ -1,7 +1,8 @@
 # DrivAer — demo plot folder
 
-Fourteen figures, built 2026-09-13 from the Wolf Dynamics reproduction runs with
-**zero solver compute**. Regenerate with `python3 build_plots.py` and
+Eighteen figures, built 2026-09-13 from the Wolf Dynamics reproduction runs with
+**zero solver compute**, under plot library **v2**: math only on the figures, and
+ParaView panels that are white-ground, triad-free and carry no text at all. Regenerate with `python3 build_plots.py` and
 `xvfb-run -a pvpython render_field_panels.py`.
 
 | File | Verdict of its source |
@@ -10,8 +11,14 @@ Fourteen figures, built 2026-09-13 from the Wolf Dynamics reproduction runs with
 | `drivaer_p_side.png`, `drivaer_p_top.png`, `drivaer_p_rear.png` | `coarse_R1` — **PASS** |
 | `drivaer_umag_symmetry.png`, `drivaer_umag_midheight.png`, `drivaer_umag_wake.png`, `drivaer_streamlines.png` | `coarse_R1` — **PASS** |
 | `drivaer_mesh_coarse.png` | `coarse_R1` mesh — the coarse level, per the ParaView rule |
-| `drivaer_cd_history_fine.png`, `drivaer_mesh_fine.png` | `fine_R1` — **PENDING**, the solve was still running |
-| `drivaer_family.png` | coarse **PASS** against fine **PENDING** |
+| `drivaer_mesh_fine.png` | `fine_R1` mesh — **PENDING**, the solve is still running |
+| `drivaer_cd_history_fine.png` | **PENDING** — axes only. Our fine curve is not drawn until it lands |
+| `drivaer_family.png` | our coarse **PASS** against the fine level's number |
+
+**🔴 The fine level's number on the figures is Wolf Dynamics' published fine value,
+`C_D = 0.256412`, not ours** — our own fine solve was still running and is not drawn.
+The provenance is in `SIDECAR.md`; no image says it. Our arrays so far are kept in
+the CSVs, marked NOT PLOTTED.
 
 **🔴 The coarse result is a REPRODUCTION, not a validation.** Our force output is
 byte-identical to Wolf Dynamics' shipped file because the case ran verbatim; that

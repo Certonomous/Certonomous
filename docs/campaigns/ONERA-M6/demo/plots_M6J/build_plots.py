@@ -20,6 +20,7 @@ RUNS = os.path.join(REPO, "verification/runs/M6J_runs")
 sys.path.insert(0, os.path.join(REPO, "sdk"))
 sys.path.insert(0, os.path.join(REPO, "scripts"))
 from workflows.act_plots_lib import cp_stations, grid_family, force_history, residual_history
+from workflows.act_residual_frames import residual_frames
 import grade_m6_agard_cp as G
 
 LEVELS = [("M6J_L3", 15360, "L3"), ("M6J_L2", 122880, "L2"), ("M6J_L1", 983040, "L1")]
@@ -144,9 +145,14 @@ for d in rdirs:
     note("m6_residuals.png", p, d)
 lab = {"Ux_initial": "$U_x$", "Uy_initial": "$U_y$", "Uz_initial": "$U_z$",
        "e_initial": "$e$", "p_initial": "$p$"}
-residual_history(os.path.join(HERE, "m6_residuals.png"), rit,
-                 series={lab[k]: series[k] for k in want}, target=1e-6,
-                 title="Initial residuals, fine level")
+# RESIDUAL EVOLUTION: five frames on ONE set of axes, so a viewer stepping
+# through them sees the curves descend rather than five identical pictures.
+for _f, _p, _n in residual_frames(HERE, "m6_residuals", rit,
+                                  {lab[k]: series[k] for k in want}, target=1e-6,
+                                  final_name="m6_residuals.png"):
+    note(os.path.basename(_p),
+         os.path.join(RUNS, FINE, "postProcessing/residuals", rdirs[-1], "solverInfo.dat"),
+         str(int(_n)))
 wcsv("m6_residuals", ["iteration"] + [lab[k] for k in want],
      [[rit[i]] + [series[k][i] for k in want] for i in range(len(rit))])
 

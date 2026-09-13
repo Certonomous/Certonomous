@@ -38,12 +38,15 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 sys.path.insert(0, os.path.join(REPO, "docs/campaigns/F14-cooling-ladder/demo/render_K2bU3R3_paraview"))
 sys.path.insert(0, os.path.join(REPO, "verification/runs/F14-cooling-ladder/K2h_runs"))
 import demo3d_render_common as C
+sys.path.insert(0, os.path.join(REPO, "sdk"))
+from workflows.act_paraview_style import style_view, colour_bar
 import render_k2h_l3 as K2H
 
 COARSE, COARSE_T = "WD_DRIVAER_COARSE", "1000"
 FINE, FINE_T = "WD_DRIVAER_FINE", "0"
 BODY = ["patch/body2", "patch/ruotaant", "patch/ruotapost"]
 CONTROL_MARGIN = 8.0
+MIN_FIELD_PX = 20000       # see _assert_painted: the colour bar alone is about 4,600 px
 PCT_LO, PCT_HI = 2.0, 98.0
 PRESET_P, PRESET_U = "Cool to Warm", "Viridis (matplotlib)"
 
@@ -59,9 +62,7 @@ REPRO = ("REPRODUCTION of their shipped case, NOT an independent validation: our
 
 def _view(size=(1600, 1000)):
     from paraview.simple import CreateRenderView, Render
-    v = CreateRenderView(); v.ViewSize = list(size)
-    v.OrientationAxesVisibility = 0
-    C.white_background(v); Render(v)
+    v = CreateRenderView(); style_view(v, size); Render(v)
     return v
 
 
@@ -70,11 +71,8 @@ def _flat(disp):
 
 
 def _bar(view, lut, label):
-    from paraview.simple import GetScalarBar
-    b = GetScalarBar(lut, view)
-    b.Visibility = 1; b.Title = label; b.ComponentTitle = ""
-    b.TitleColor = [0.15, 0.15, 0.15]; b.LabelColor = [0.15, 0.15, 0.15]
-    b.TitleFontSize = 11; b.LabelFontSize = 10
+    return colour_bar(view, lut, label)
+
 
 
 def _percentiles(src, name):
@@ -121,10 +119,28 @@ def _spread_core(path, thr=0.25):
 
 
 def _assert_painted(pos, neg, field):
+    """MEASURED HOLE, CLOSED 2026-09-13. On the SUBOFF driver's first run both
+    velocity panels came out BLANK -- the slice drew nothing and only the colour bar
+    was on the frame -- and the control PASSED anyway, at 49.7x and then at 4.6e8x,
+    because the bar is itself a two-ended ramp and the all-white negative arm had a
+    spread of exactly zero. A ratio test cannot see a blank frame: 0.45 over nothing
+    is still infinitely more than 0. Two clauses close it, and both REFUSE:
+      * the positive arm must cover at least MIN_FIELD_PX pixels (the bar alone is
+        about 4,600, so an undrawn field cannot reach 20,000);
+      * the negative arm must not have a spread of exactly zero, because a control
+        that measures nothing is not a control (CLAUDE.md rule 3).
+    """
     p, npx = K2H._colour_spread(pos)
     n, _ = K2H._colour_spread(neg)
     cp, ncp = _spread_core(pos)
     cn, _ = _spread_core(neg)
+    if npx < MIN_FIELD_PX:
+        C.refuse("BLANK FRAME for %r: the positive arm covers only %s pixels, below "
+                 "the %s floor -- the field was not drawn"
+                 % (field, format(npx, ","), format(MIN_FIELD_PX, ",")))
+    if n <= 0.0 or cn <= 0.0:
+        C.refuse("NO CONTROL for %r: the constant-array arm spread is exactly zero"
+                 % field)
     C.announce("      colour control %s: full-body %.5f over %s px against %.5f "
                "(%.1fx) ; interior %.5f over %s px against %.5f (%.1fx) ; floor %gx"
                % (field, p, format(npx, ","), n, p / max(n, 1e-9),
@@ -173,11 +189,14 @@ def _render_with_control(view, src, disp, out, field, add_caption):
 
 
 def _caption(view, case, stamp, second):
-    C.caption(view, stamp, case, position=(0.02, 0.055), size=10)
-    C.caption(view, second, case, position=(0.02, 0.018), size=8, check_stamp=False)
+    """NOTHING IS WRITTEN ON THE IMAGE (v2 section 13). The case, the time,
+    the geometry and the verdict live in the folder SIDECAR.md and in the act
+    beside the figure. `C.assert_stamp` still ran on `stamp` before any pixel
+    was drawn, so the verdict guard is kept and only its printing is dropped."""
+    return None
 
 
-# ---------------------------------------------------------------------------
+
 def surface_panel(reader, out, direction, up, note, prange):
     from paraview.simple import (MergeBlocks, Show, Render, ColorBy,
                                  GetColorTransferFunction, UpdatePipeline)
@@ -196,7 +215,7 @@ def surface_panel(reader, out, direction, up, note, prange):
     ColorBy(d, ("CELLS", "p"))
     lut = GetColorTransferFunction("p"); lut.ApplyPreset(PRESET_P, True)
     lut.RescaleTransferFunction(*prange)
-    _bar(v, lut, "p  (m2/s2)")
+    _bar(v, lut, "p  [m2/s2]")
     b = info.GetBounds()
     C.frame_by_extent(v, [(b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2],
                       direction, up=up, bounds=b, pad=1.10, bottom_band=0.12)
@@ -228,7 +247,7 @@ def plane_panel(reader, out, origin, normal, direction, up, bounds, note, urange
     ColorBy(d, ("POINTS", "Umag"))
     lut = GetColorTransferFunction("Umag"); lut.ApplyPreset(PRESET_U, True)
     lut.RescaleTransferFunction(*urange)
-    _bar(v, lut, "U magnitude  (m/s)")
+    _bar(v, lut, "|U|  [m/s]")
     C.frame_by_extent(v, [(bounds[0] + bounds[1]) / 2, (bounds[2] + bounds[3]) / 2,
                           (bounds[4] + bounds[5]) / 2], direction, up=up,
                       bounds=bounds, pad=1.06, bottom_band=0.12)
@@ -266,7 +285,7 @@ def streamline_panel(reader, out, bbox, note, urange):
     ColorBy(d, ("POINTS", "Umag"))
     lut = GetColorTransferFunction("Umag"); lut.ApplyPreset(PRESET_U, True)
     lut.RescaleTransferFunction(*urange)
-    _bar(v, lut, "U magnitude  (m/s)")
+    _bar(v, lut, "|U|  [m/s]")
     C.frame_by_extent(v, [(bbox[0] + bbox[1]) / 2, 0.6, (bbox[4] + bbox[5]) / 2],
                       (0.55, -0.80, 0.35), up=(0.0, 0.0, 1.0),
                       bounds=(bbox[0] - 2.0, bbox[1] + 4.0, 0.0, 2.0, 0.0, 2.2),

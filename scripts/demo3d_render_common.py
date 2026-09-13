@@ -136,6 +136,37 @@ SAFE_CAPTION_CHARS = set(
 
 CASE_FACTS = {
     # ---------------------------------------------------------------------
+    # THE SUBOFF A1h FULL-DOMAIN DRIFT SWEEP, added 2026-09-13. BOTH ENTRIES OWN
+    # EXACTLY ONE VERDICT WORD, "PENDING": all seven sweep points were still
+    # running when these rows were written (about 2,450 to 2,640 of a registered
+    # endTime 3000), and the registration forbids a derivative, a neutral point
+    # or any gate verdict until the whole sweep lands. assert_stamp therefore
+    # refuses a PASS, a GATE FAIL or a NOT A RESULT on any figure of this act.
+    "SUBOFF_L1M_BETA_P00": {
+        "case_dir": os.path.join(REPO, "verification", "runs", "navier_class",
+                                 "SUBOFF_A1H_DRIFT", "L1M_SWEEP", "BETA_p00"),
+        "cells": 6537226,                # constant/polyMesh/owner note: nCells:6537226
+        "mesh_words": "6537226 cells, the mirrored L1 full domain",
+        "solver": "simpleFoam",          # SOLVE_MANIFEST.json
+        "end_time": "3000",              # SOLVE_MANIFEST.json endTime; NOT reached yet
+        "fields": ("p", "U", "k", "omega", "nut"),
+        "allowed_verdicts": {"PENDING"},
+        "verdict_stamp": "PENDING",
+        "source": "the sweep is live; no grading record exists yet",
+    },
+    "SUBOFF_L1M_MESH": {
+        "case_dir": os.path.join(REPO, "verification", "runs", "navier_class",
+                                 "SUBOFF_A1H_DRIFT", "MESH_FULL_L1M"),
+        "cells": 6537226,                # log.checkMesh.FULLFLAG: "cells: 6537226"
+        "mesh_words": "6537226 cells, the L1 mirror",
+        "solver": "none -- this directory is a mesh, not a solve",
+        "end_time": "constant",
+        "fields": (),
+        "allowed_verdicts": {"PENDING"},
+        "verdict_stamp": "PENDING",
+        "source": "MESH_FULL_L1M/M_GATES_RESULT.md",
+    },
+    # ---------------------------------------------------------------------
     # THE WOLF DYNAMICS DrivAer REPRODUCTION, added 2026-09-13. The case trees
     # live OUTSIDE the repository, under /home/ubuntu/certonomous-runs, which is
     # why these two entries carry an absolute case_dir rather than one built

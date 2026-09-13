@@ -10,7 +10,10 @@ SIX PANELS, on the owner's 2026-09-13 instruction:
     m6_mach_eta090.png        Mach on the spanwise plane through eta = 0.90
     m6_umag_eta065.png        velocity magnitude on the same plane
     m6_umag_eta090.png        velocity magnitude on the same plane
-    m6_geometry.png           the imported grid's wall patch, captioned "as meshed"
+    m6_geometry.png           the imported grid's wall patch, "as meshed"
+    m6_mesh_surface.png       the FINE level's wall patch with its own edges
+    m6_mesh.png               a cut at the eta = 0.65 station, framed on the nose,
+                              showing the cells across it and the wall layers
 
 FIELDS FROM THE FINE LEVEL, MESH FROM THE COARSE LEVEL (`m6_mesh.png`, rendered
 separately by `scripts/render_openfoam_3d_paraview.py`).
@@ -43,11 +46,14 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 sys.path.insert(0, os.path.join(REPO, "docs/campaigns/F14-cooling-ladder/demo/render_K2bU3R3_paraview"))
 sys.path.insert(0, os.path.join(REPO, "verification/runs/F14-cooling-ladder/K2h_runs"))
 import demo3d_render_common as C
+sys.path.insert(0, os.path.join(REPO, "sdk"))
+from workflows.act_paraview_style import style_view, colour_bar
 import render_k2h_l3 as K2H       # for its COMMITTED colour-control measurement
 
 FINE, FINE_END = "M6J_L1", "8000"
 VERDICT = "GATE FAIL"          # m6j_grade_M6J_L1.json "verdict"
-CONTROL_MARGIN = 8.0           # the DrivAer floor, carried unchanged
+CONTROL_MARGIN = 8.0
+MIN_FIELD_PX = 20000       # see _assert_painted: the colour bar alone is about 4,600 px           # the DrivAer floor, carried unchanged
 STATIONS = ("0.65", "0.9")
 
 EXT = json.load(open(os.path.join(REPO, "verification/runs/M6J_runs",
@@ -108,8 +114,26 @@ def _spread_core(path):
 
 
 def _assert_painted(pos_path, neg_path, field, core=False):
+    """MEASURED HOLE, CLOSED 2026-09-13. On the SUBOFF driver's first run both
+    velocity panels came out BLANK -- the slice drew nothing and only the colour bar
+    was on the frame -- and the control PASSED anyway, at 49.7x and then at 4.6e8x,
+    because the bar is itself a two-ended ramp and the all-white negative arm had a
+    spread of exactly zero. A ratio test cannot see a blank frame: 0.45 over nothing
+    is still infinitely more than 0. Two clauses close it, and both REFUSE:
+      * the positive arm must cover at least MIN_FIELD_PX pixels (the bar alone is
+        about 4,600, so an undrawn field cannot reach 20,000);
+      * the negative arm must not have a spread of exactly zero, because a control
+        that measures nothing is not a control (CLAUDE.md rule 3).
+    """
     pos, npos = _spread(pos_path)
     neg, _ = _spread(neg_path)
+    if npos < MIN_FIELD_PX:
+        C.refuse("BLANK FRAME for %r: the positive arm covers only %s pixels, below "
+                 "the %s floor -- the field was not drawn"
+                 % (field, format(npos, ","), format(MIN_FIELD_PX, ",")))
+    if neg <= 0.0:
+        C.refuse("NO CONTROL for %r: the constant-array arm spread is exactly zero, "
+                 "i.e. it drew nothing" % field)
     C.announce("  COLOUR CONTROL %s: %.5f over %s px against a CONSTANT array's "
                "%.5f, ratio %.1fx (floor %gx)"
                % (field, pos, format(npos, ","), neg, pos / max(neg, 1e-9),
@@ -134,30 +158,21 @@ def _assert_painted(pos_path, neg_path, field, core=False):
 
 def _view(size=(1600, 1000)):
     from paraview.simple import CreateRenderView, Render
-    v = CreateRenderView()
-    v.ViewSize = list(size)
-    v.OrientationAxesVisibility = 0
-    C.white_background(v)
-    Render(v)
+    v = CreateRenderView(); style_view(v, size); Render(v)
     return v
 
 
 def _bar(view, lut, label):
-    from paraview.simple import GetScalarBar
-    b = GetScalarBar(lut, view)
-    b.Visibility = 1
-    b.Title = label
-    b.ComponentTitle = ""
-    b.TitleColor = [0.15, 0.15, 0.15]
-    b.LabelColor = [0.15, 0.15, 0.15]
-    b.TitleFontSize = 11
-    b.LabelFontSize = 10
+    return colour_bar(view, lut, label)
+
 
 
 def _stamp(view, second):
-    C.caption(view, STAMP, FINE, position=(0.02, 0.055), size=10)
-    C.caption(view, second, FINE, position=(0.02, 0.018), size=8,
-              check_stamp=False)
+    """NOTHING IS WRITTEN ON THE IMAGE (v2 section 13). The case, the time, the
+    geometry and the verdict live in SIDECAR.md and in the act beside the figure.
+    `C.assert_stamp(STAMP, FINE)` still runs in `main` before any pixel is drawn,
+    so the verdict guard is kept and only its printing is dropped."""
+    return None
 
 
 def _flat_lighting(disp):
@@ -252,7 +267,7 @@ def surface_panel(reader, path, direction, up, note, edges=False,
     lut.ApplyPreset("Cool to Warm", True)
     lut.RescaleTransferFunction(*prange)
     d.SetScalarBarVisibility(v, True)
-    _bar(v, lut, "p  (Pa)")
+    _bar(v, lut, "p  [Pa]")
     b = info.GetBounds()
     C.frame_by_extent(v, [(b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2],
                       direction, up=up, bounds=b, pad=1.10, bottom_band=0.10)
@@ -288,11 +303,11 @@ def station_panel(reader, path, y_cut, eta, kind, rng):
     if kind == "mach":
         calc.ResultArrayName = "Mach"
         calc.Function = MACH_EXPR
-        name, label = "Mach", "Mach  (-)"
+        name, label = "Mach", "M  [-]"
     else:
         calc.ResultArrayName = "Umag"
         calc.Function = "mag(U)"
-        name, label = "Umag", "U magnitude  (m/s)"
+        name, label = "Umag", "|U|  [m/s]"
     UpdatePipeline(time=float(FINE_END), proxy=calc)
 
     s = Slice(Input=calc)
@@ -439,6 +454,78 @@ def _shared_range(reader, cuts, kind):
     return (lo, hi)
 
 
+def mesh_panels(reader, out_body, out_cut, y_cut, eta):
+    """The FINE level's wall patch, and a cut through the eta = 0.65 station.
+
+    Sanaa, 2026-09-13: *"the 480-face coarse wall patch reads as a toy … show the
+    fine-level wall patch plus a cut through 65 % span showing the cells across the
+    nose and the wall layers"*. The coarse level keeps the mesh figure only where a
+    snappy mesh is genuinely illegible, and this is a structured O-grid that is not.
+
+    Both panels are GEOMETRY, so they carry an ink guard and not a colour control: a
+    plain mesh has no field to be told apart from a constant.
+    """
+    from paraview.simple import (MergeBlocks, Slice, Show, Render, UpdatePipeline,
+                                 CellDatatoPointData)
+    # (a) the fine wall patch
+    v = _view()
+    reader.MeshRegions = ["patch/wing"]
+    UpdatePipeline(time=float(FINE_END), proxy=reader)
+    surf = MergeBlocks(Input=reader); UpdatePipeline(time=float(FINE_END), proxy=surf)
+    info = surf.GetDataInformation()
+    if info.GetNumberOfCells() != 7680:
+        C.refuse("the fine wing patch rendered %d cells, not 7680"
+                 % info.GetNumberOfCells())
+    d = Show(surf, v); _flat_lighting(d)
+    d.ColorArrayName = [None, ""]
+    d.DiffuseColor = [0.66, 0.69, 0.74]; d.AmbientColor = [0.66, 0.69, 0.74]
+    d.Representation = "Surface With Edges"
+    d.EdgeColor = [0.12, 0.12, 0.12]; d.LineWidth = 0.3
+    b = info.GetBounds()
+    C.frame_by_extent(v, [(b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2],
+                      (0.75, -0.55, 0.60), up=(0.0, 0.0, 1.0), bounds=b, pad=1.06)
+    Render(v)
+    n1 = C.save_screenshot(v, out_body, size=(1600, 1000))
+    _, px1 = _spread(out_body)
+    if px1 < 20000:
+        C.refuse("%s drew only %d body pixels" % (os.path.basename(out_body), px1))
+    C.announce("  wrote %s (%s bytes, 7680 faces, %s body px)"
+               % (os.path.basename(out_body), format(n1, ","), format(px1, ",")))
+
+    # (b) the cut at the eta = 0.65 station, framed on the nose and its layers
+    v2 = _view()
+    reader.MeshRegions = ["internalMesh"]
+    UpdatePipeline(time=float(FINE_END), proxy=reader)
+    s2 = Slice(Input=reader)
+    s2.SliceType = "Plane"
+    s2.SliceType.Origin = [0.0, y_cut, 0.0]
+    s2.SliceType.Normal = [0.0, 1.0, 0.0]
+    UpdatePipeline(time=float(FINE_END), proxy=s2)
+    ncut = s2.GetDataInformation().GetNumberOfCells()
+    if ncut == 0:
+        C.refuse("the eta = %s cut is empty" % eta)
+    C.announce("  eta = %s cut: %s cells in the plane" % (eta, format(ncut, ",")))
+    d2 = Show(s2, v2); _flat_lighting(d2)
+    d2.ColorArrayName = [None, ""]
+    d2.DiffuseColor = [0.90, 0.91, 0.93]; d2.AmbientColor = [0.90, 0.91, 0.93]
+    d2.Representation = "Surface With Edges"
+    d2.EdgeColor = [0.10, 0.10, 0.10]; d2.LineWidth = 0.35
+    st = EXT["stations"][eta]
+    c = st["local_chord"]; x0 = st["x_le"]
+    # the nose and the layers, not the farfield: a quarter chord about the LE
+    bnds = (x0 - 0.10 * c, x0 + 0.22 * c, y_cut, y_cut, -0.16 * c, 0.16 * c)
+    C.frame_by_extent(v2, [x0 + 0.06 * c, y_cut, 0.0], (0.0, -1.0, 0.0),
+                      up=(0.0, 0.0, 1.0), bounds=bnds, pad=1.02)
+    Render(v2)
+    n2 = C.save_screenshot(v2, out_cut, size=(1600, 1000))
+    _, px2 = _spread(out_cut)
+    if px2 < 20000:
+        C.refuse("%s drew only %d body pixels" % (os.path.basename(out_cut), px2))
+    C.announce("  wrote %s (%s bytes, %s body px)"
+               % (os.path.basename(out_cut), format(n2, ","), format(px2, ",")))
+    return n1 + n2
+
+
 def main():
     C.assert_paraview_version()
     cdir = C.facts(FINE)["case_dir"]
@@ -473,6 +560,9 @@ def main():
             GEOM + " ; oblique view, FINE-level mesh edges drawn ; colour bar "
                    "%.0f to %.0f Pa, ends clamped" % prange, edges=True, prange=prange)
         total += geometry_panel(reader, os.path.join(HERE, "m6_geometry.png"))
+        total += mesh_panels(reader, os.path.join(HERE, "m6_mesh_surface.png"),
+                             os.path.join(HERE, "m6_mesh.png"),
+                             EXT["stations"]["0.65"]["y_cut_target"], "0.65")
 
         # ONE Mach range and ONE velocity range for BOTH stations, MEASURED over
         # the two station planes themselves rather than assumed. A per-panel

@@ -40,7 +40,7 @@ record is `k2t_dp_history.png`.
 
 | Figure | What it is | Source |
 |---|---|---|
-| `k2t_ride_through.png` | inlet temperature of each of the four racks against time, ASHRAE A1 recommended 27 °C and allowable 32 °C drawn | `K2bU3R3_D59/postProcessing/T_rack{0..3}_in_mdot/0/surfaceFieldValue.dat` |
+| `k2t_ride_through.png` | inlet temperature of each of the four racks against time, the single limit T_lim = 27 °C drawn | `K2bU3R3_D59/postProcessing/T_rack{0..3}_in_mdot/0/surfaceFieldValue.dat` |
 | `k2t_2d_vs_3d.png` | hottest rack inlet against time: the 3-D room against the 2-D slice, to the slice's own end at 44.0 s | `K2bU3R3_D59` (max over the four racks) and `K2bU3_L025/postProcessing/T_rack_in_mdot` |
 | `k2t_dp_history.png` | module Δp through the whole transient record, the registered 42 → 112 s averaging window shaded | `K2h_L3/postProcessing/dp_tile/{0,10}/surfaceFieldValue.dat`, 18,950 steps, t = 0.0059 → 111.998 |
 | `k2t_TMean_field.png` | time-averaged temperature on the y–z aisle plane | `K2h_L3` at t = 110, committed render |
@@ -105,3 +105,50 @@ folder was **deleted rather than shipped** through that function, and so were tw
 panels re-rendered from the steady `K2f_L3`. Both were then produced correctly by
 `../render_K2_field_panels.py`, which derives its caption from the field it is
 handed rather than from a constant.
+
+---
+
+## v2 REGENERATION — 2026-09-13
+
+Everything above still holds. What changed is the DRAWING, not a number.
+
+* **Plot library v2** (`docs/plot_orders/README_PLOT_LIBRARY_V2.md`), installed by the
+  owner. Math only: no English on any figure, no titles, no verdict words, no band
+  named in words. **v2 already carries both library changes this lane had made** —
+  `%` in place of the word, and a registered `band=(lo, hi)` on `grid_family` — in a
+  better form, so neither was re-applied. **One minimal change was added:**
+  `residual_history` gained `xlim`/`ylim`, because the residual-evolution frames below
+  are only comparable if the axes do not move; without pinned axes each frame
+  autoscales to its own data, every frame looks identical, and the descent that is the
+  whole point of the series is invisible.
+* **Residual evolution.** `sdk/workflows/act_residual_frames.py` cuts the run at
+  **10, 25, 50, 75 and 100 %** and writes one frame per cut on ONE set of axes, so the
+  act can step through them and the curves are seen to go down. The 100 % frame keeps
+  the ordered file name; the others are `*_f10 … _f75`.
+* **ParaView panels re-rendered to v2 §13:** white ground, **no orientation triad**,
+  **one colour bar a quarter of the frame high** titled by symbol and unit, and
+  **nothing written on the image**. The case, the time, the geometry and the verdict
+  now live HERE and in the act beside the figure. **The verdict guard was not dropped
+  with the caption**: `demo3d_render_common.assert_stamp` still runs on the stamp each
+  driver WOULD have drawn, before any pixel, so a verdict word a case does not own is
+  still refused. What moved is where the sentence is printed, not whether it is checked.
+
+* **THE MODULE IS THE FOUR-RACK ROW, NOT ONE CABINET — measured, not assumed.**
+  `constant/polyMesh/boundary` of BOTH `K2f_L1` and `K2h_L3` carries
+  `rack0_in/out … rack3_in/out`: **four racks**, on a 0.6 m pitch, the row spanning
+  x = 0.6 → 3.0 m of a 3.6 × 3.5 × 2.7 m room. The y–z aisle panels
+  (`k2_plane_hot`, `k2t_*_field`) are a **cross-section THROUGH the row at x = 1.5 m**,
+  which is why one cabinet face is what a viewer sees; the whole row is visible in the
+  mid-height horizontal planes (`k2_plane_mid`, `k2t_plane_mid`) and in the
+  streamline and mesh panels. Nothing needed re-rendering over a wider extent — the
+  act should be worded as a four-rack row cut through its middle.
+* **ONE LIMIT, and it is the user's: `T_lim = 27 °C`.** Every "recommended",
+  "allowable" and every 32 °C line is gone from the figures and from this page.
+* **`k2t_mesh`, `k2t_TMean_field`, `k2t_p_rghMean_field` and `k2t_UMean_field` are
+  re-rendered here caption-free** rather than copied from `render_k2h_l3.py`. The
+  constant-caption finding recorded above is therefore no longer carried by any
+  image in this folder: the averaging window lives on this page, not on the
+  picture, so it cannot be wrong on a panel it does not describe.
+* **No residual-evolution frames exist for this folder**: `K2h_L3` writes no
+  `solverInfo` series, only `dp_tile`/`dp_return`. The steady folder carries the
+  residual series for this module.

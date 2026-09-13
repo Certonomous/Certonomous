@@ -1,3 +1,4 @@
 level,cells,Cd,basis
-coarse,669416,0.2836314455671928,"mean over their window 200-1000, COMPLETE"
-fine,4048483,0.269051060033371,"mean over the last 100 iterations of 442, RUN IN PROGRESS"
+coarse,669416,0.2836314455671928,"OURS: mean over their window 200-1000, run COMPLETE"
+fine,4048483,0.256412,"Wolf Dynamics' published fine value, measured from their shipped fine artifacts over their own fieldAverage window (prereg s.6b)"
+fine_ours_in_progress,4048483,0.263501630406058,"NOT PLOTTED: our own fine solve, mean over the last 100 of 626 iterations, STILL RUNNING; it replaces the row above when it lands"

@@ -40,6 +40,8 @@ sys.path.insert(0, os.path.join(REPO, "scripts"))
 sys.path.insert(0, os.path.join(HERE, "render_K2bU3R3_paraview"))
 sys.path.insert(0, os.path.join(REPO, "verification/runs/F14-cooling-ladder/K2h_runs"))
 import demo3d_render_common as C
+sys.path.insert(0, os.path.join(REPO, "sdk"))
+from workflows.act_paraview_style import style_view, colour_bar
 import render_k2bU3R3 as K2B          # geometry constants and view helpers
 import render_k2h_l3 as K2H           # its COMMITTED colour-control measurement
 
@@ -50,6 +52,7 @@ GRADE = json.JSONDecoder().raw_decode(
                       "GRADE.K2h_L3.json")).read(), 0)[0]
 
 CONTROL_MARGIN = 8.0
+MIN_FIELD_PX = 20000       # see _assert_painted: the colour bar alone is about 4,600 px
 PCT_LO, PCT_HI = 2.0, 98.0
 Z_MID = K2B.RACK_Z1 / 2.0             # 1.0 m, rack mid-height, from build_k2b H_R
 T_ISO = 300.15                        # 27 degC, the ASHRAE A1 recommended limit
@@ -72,24 +75,14 @@ GEOM = ("Room 3.6 x 3.5 x 2.7 m ; 4 racks ; rack row spans x = 0.6 to 3.0 m ; "
 # ---------------------------------------------------------------------------
 def _view(size=(1600, 1000)):
     from paraview.simple import CreateRenderView, Render
-    v = CreateRenderView()
-    v.ViewSize = list(size)
-    v.OrientationAxesVisibility = 0
-    C.white_background(v)
-    Render(v)
+    v = CreateRenderView(); style_view(v, size); Render(v)
     return v
 
 
 def _bar(view, lut, label):
-    from paraview.simple import GetScalarBar
-    b = GetScalarBar(lut, view)
-    b.Visibility = 1
-    b.Title = label
-    b.ComponentTitle = ""
-    b.TitleColor = [0.15, 0.15, 0.15]
-    b.LabelColor = [0.15, 0.15, 0.15]
-    b.TitleFontSize = 11
-    b.LabelFontSize = 10
+    return colour_bar(view, lut, label)
+
+
 
 
 def _percentiles(src, name):
@@ -119,9 +112,39 @@ def _percentiles(src, name):
     return float(np.percentile(a, PCT_LO)), float(np.percentile(a, PCT_HI))
 
 
+def _percentiles_of(reader, end, name):
+    from paraview.simple import CellDatatoPointData, Slice, UpdatePipeline
+    p2c = CellDatatoPointData(Input=reader)
+    p2c.CellDataArraytoprocess = list(reader.CellArrays)
+    UpdatePipeline(time=float(end), proxy=p2c)
+    s = Slice(Input=p2c)
+    s.SliceType = "Plane"
+    s.SliceType.Origin = [AISLE_X, 0.0, 0.0]; s.SliceType.Normal = [1.0, 0.0, 0.0]
+    UpdatePipeline(time=float(end), proxy=s)
+    return _percentiles(s, name)
+
+
 def _assert_painted(pos, neg, field):
+    """MEASURED HOLE, CLOSED 2026-09-13. On the SUBOFF driver's first run both
+    velocity panels came out BLANK -- the slice drew nothing and only the colour bar
+    was on the frame -- and the control PASSED anyway, at 49.7x and then at 4.6e8x,
+    because the bar is itself a two-ended ramp and the all-white negative arm had a
+    spread of exactly zero. A ratio test cannot see a blank frame: 0.45 over nothing
+    is still infinitely more than 0. Two clauses close it, and both REFUSE:
+      * the positive arm must cover at least MIN_FIELD_PX pixels (the bar alone is
+        about 4,600, so an undrawn field cannot reach 20,000);
+      * the negative arm must not have a spread of exactly zero, because a control
+        that measures nothing is not a control (CLAUDE.md rule 3).
+    """
     p, npx = K2H._colour_spread(pos)
     n, _ = K2H._colour_spread(neg)
+    if npx < MIN_FIELD_PX:
+        C.refuse("BLANK FRAME for %r: the positive arm covers only %s pixels, below "
+                 "the %s floor -- the field was not drawn"
+                 % (field, format(npx, ","), format(MIN_FIELD_PX, ",")))
+    if n <= 0.0:
+        C.refuse("NO CONTROL for %r: the constant-array arm spread is exactly zero"
+                 % field)
     C.announce("      colour control %s: %.5f over %s px against a CONSTANT "
                "array's %.5f, ratio %.1fx (floor %gx)"
                % (field, p, format(npx, ","), n, p / max(n, 1e-9), CONTROL_MARGIN))
@@ -189,12 +212,144 @@ def _mid_plane_panel(reader, case, end, out, stamp, note, name, expr, preset,
     C.save_screenshot(v, pos, size=(1600, 1000))
     _assert_painted(pos, neg, name)
 
-    C.caption(v, stamp, case, position=(0.02, 0.055), size=10)
-    C.caption(v, note, case, position=(0.02, 0.018), size=8, check_stamp=False)
+    # NOTHING IS WRITTEN ON THE IMAGE (v2 section 13): case, time, window and
+    # verdict live in SIDECAR.md. `C.assert_stamp` ran on `stamp` in main().
     Render(v)
     n = C.save_screenshot(v, out, size=(1600, 1000))
     C.announce("  wrote %s (%s bytes)" % (os.path.basename(out), format(n, ",")))
     return n
+
+
+AISLE_X = 1.5          # the y-z cut render_k2bU3R3.fig_aisles uses, kept unchanged
+
+
+def _aisle_panel(reader, case, end, out, name, expr, preset, rng, label):
+    """The y-z cut at x = 1.5 m: cold aisle left, rack row centre, hot aisle right.
+
+    THE MODULE IS THE FOUR-RACK ROW, NOT ONE CABINET. The row spans x = 0.6 to
+    3.0 m of a 3.6 m room at a 0.6 m pitch and the builder writes rack0_in ..
+    rack3_in; this panel is a CROSS-SECTION THROUGH it, which is why one cabinet
+    face is what a viewer sees. The whole row is visible in the mid-height plane.
+    """
+    from paraview.simple import (CellDatatoPointData, Calculator, Slice, Show,
+                                 Hide, Render, ColorBy, GetColorTransferFunction,
+                                 UpdatePipeline)
+    v = _view()
+    p2c = CellDatatoPointData(Input=reader)
+    p2c.CellDataArraytoprocess = list(reader.CellArrays)
+    UpdatePipeline(time=float(end), proxy=p2c)
+    calc = Calculator(Input=p2c)
+    calc.AttributeType = "Point Data"; calc.ResultArrayName = name; calc.Function = expr
+    UpdatePipeline(time=float(end), proxy=calc)
+    s = Slice(Input=calc)
+    s.SliceType = "Plane"
+    s.SliceType.Origin = [AISLE_X, 0.0, 0.0]; s.SliceType.Normal = [1.0, 0.0, 0.0]
+    UpdatePipeline(time=float(end), proxy=s)
+    if s.GetDataInformation().GetNumberOfCells() == 0:
+        C.refuse("the aisle plane at x = %g is empty" % AISLE_X)
+    flat = Calculator(Input=s)
+    flat.AttributeType = "Point Data"
+    flat.ResultArrayName = "CONTROL_CONSTANT"; flat.Function = "1.0"
+    UpdatePipeline(time=float(end), proxy=flat)
+    dn = Show(flat, v); ColorBy(dn, ("POINTS", "CONTROL_CONSTANT"))
+    dn.SetScalarBarVisibility(v, False)
+    C.frame_by_extent(v, (AISLE_X, K2B.ROOM[1] / 2, K2B.ROOM[2] / 2), (1.0, 0.0, 0.0),
+                      up=(0.0, 0.0, 1.0),
+                      bounds=(AISLE_X, AISLE_X, 0.0, K2B.ROOM[1], 0.0, K2B.ROOM[2]),
+                      pad=1.08)
+    Render(v)
+    neg = os.path.join(os.path.dirname(out), "_control",
+                       "NEGATIVE_constant_" + os.path.basename(out))
+    C.save_screenshot(v, neg, size=(1600, 1000))
+    Hide(flat, v)
+    d = Show(s, v); ColorBy(d, ("POINTS", name))
+    lut = GetColorTransferFunction(name); lut.ApplyPreset(preset, True)
+    lut.RescaleTransferFunction(*rng)
+    d.SetScalarBarVisibility(v, True); _bar(v, lut, label)
+    Render(v)
+    pos = os.path.join(os.path.dirname(out), "_control",
+                       "POSITIVE_uncaptioned_" + os.path.basename(out))
+    C.save_screenshot(v, pos, size=(1600, 1000))
+    _assert_painted(pos, neg, name)
+    n = C.save_screenshot(v, out, size=(1600, 1000))
+    C.announce("  wrote %s (%s bytes)" % (os.path.basename(out), format(n, ",")))
+    return n
+
+
+def _streamlines_panel(reader, case, end, out, vector, rng, label):
+    """Streamlines seeded across the tile, coloured by speed, over the WHOLE row."""
+    from paraview.simple import (CellDatatoPointData, Calculator, StreamTracer,
+                                 Tube, Show, Render, ColorBy,
+                                 GetColorTransferFunction, UpdatePipeline)
+    v = _view()
+    p2c = CellDatatoPointData(Input=reader)
+    p2c.CellDataArraytoprocess = list(reader.CellArrays)
+    UpdatePipeline(time=float(end), proxy=p2c)
+    calc = Calculator(Input=p2c)
+    calc.AttributeType = "Point Data"; calc.ResultArrayName = "Umag"
+    calc.Function = "mag(%s)" % vector
+    UpdatePipeline(time=float(end), proxy=calc)
+    st = StreamTracer(Input=calc, SeedType="Line")
+    st.Vectors = ["POINTS", vector]
+    st.MaximumStreamlineLength = 20.0
+    st.SeedType.Point1 = [K2B.RACK_X0 + 0.05, 0.35, 0.05]
+    st.SeedType.Point2 = [K2B.RACK_X1 - 0.05, 0.35, 0.05]
+    st.SeedType.Resolution = 200
+    UpdatePipeline(time=float(end), proxy=st)
+    if st.GetDataInformation().GetNumberOfPoints() == 0:
+        C.refuse("no streamline was integrated")
+    tube = Tube(Input=st); tube.Radius = 0.012
+    UpdatePipeline(time=float(end), proxy=tube)
+    d = Show(tube, v)
+    ColorBy(d, ("POINTS", "Umag"))
+    lut = GetColorTransferFunction("Umag"); lut.ApplyPreset(PRESET_U, True)
+    lut.RescaleTransferFunction(*rng)
+    d.SetScalarBarVisibility(v, True); _bar(v, lut, label)
+    K2B.rack_block(v)
+    C.frame_by_extent(v, (K2B.ROOM[0] / 2, K2B.ROOM[1] / 2, 1.1), (-0.55, -0.80, 0.42),
+                      up=(0.0, 0.0, 1.0),
+                      bounds=(0.0, K2B.ROOM[0], 0.0, K2B.ROOM[1], 0.0, K2B.ROOM[2]),
+                      pad=1.06)
+    Render(v)
+    n = C.save_screenshot(v, out, size=(1600, 1000))
+    _, npx = K2H._colour_spread(out)
+    if npx < 20000:
+        C.refuse("%s drew only %d body pixels" % (os.path.basename(out), npx))
+    C.announce("  wrote %s (%s bytes, %s body px)"
+               % (os.path.basename(out), format(n, ","), format(npx, ",")))
+    return n
+
+
+def _mesh_panel(out):
+    """The COARSE level's mesh, K2f_L1, per the owner's ParaView rule."""
+    from paraview.simple import Show, Render, UpdatePipeline
+    root = None
+    try:
+        reader, root, n = C.open_case("K2f_L1", ["T", "U"], ["3000"])
+        C.announce("  K2f_L1: %s cells" % format(n, ","))
+        v = _view()
+        d = Show(reader, v)
+        d.Representation = "Surface With Edges"
+        d.ColorArrayName = [None, ""]
+        d.DiffuseColor = [0.70, 0.73, 0.78]; d.AmbientColor = [0.70, 0.73, 0.78]
+        d.EdgeColor = [0.14, 0.14, 0.14]; d.LineWidth = 0.25
+        d.Ambient, d.Diffuse, d.Specular = 1.0, 0.0, 0.0
+        K2B.rack_block(v)
+        C.frame_by_extent(v, (K2B.ROOM[0] / 2, K2B.ROOM[1] / 2, K2B.ROOM[2] / 2),
+                          (-0.55, -0.80, 0.42), up=(0.0, 0.0, 1.0),
+                          bounds=(0.0, K2B.ROOM[0], 0.0, K2B.ROOM[1], 0.0, K2B.ROOM[2]),
+                          pad=1.06)
+        Render(v)
+        nb = C.save_screenshot(v, out, size=(1600, 1000))
+        _, npx = K2H._colour_spread(out)
+        if npx < 20000:
+            C.refuse("%s drew only %d body pixels" % (os.path.basename(out), npx))
+        C.announce("  wrote %s (%s bytes, %s body px)"
+                   % (os.path.basename(out), format(nb, ","), format(npx, ",")))
+        return nb
+    finally:
+        if root:
+            shutil.rmtree(root, ignore_errors=True)
 
 
 def _iso_panel(reader, case, end, out, stamp, note, scalar):
@@ -234,8 +389,6 @@ def _iso_panel(reader, case, end, out, stamp, note, scalar):
                       (-0.55, -0.80, 0.42), up=(0.0, 0.0, 1.0),
                       bounds=(0.0, K2B.ROOM[0], 0.0, K2B.ROOM[1], 0.0, K2B.ROOM[2]),
                       pad=1.06, bottom_band=0.12)
-    C.caption(v, stamp, case, position=(0.02, 0.055), size=10)
-    C.caption(v, note, case, position=(0.02, 0.018), size=8, check_stamp=False)
     Render(v)
     n = C.save_screenshot(v, out, size=(1600, 1000))
     _, npx = K2H._colour_spread(out)
@@ -309,19 +462,26 @@ def main():
             reader, STEADY["case"], STEADY["time"],
             os.path.join(STEADY_DIR, "k2_plane_mid.png"), STEADY["stamp"],
             base + " ; colour bar %.2f to %.2f K, ends clamped" % T_RNG,
-            "Tplot", STEADY["scalar"] + "*1.0", PRESET_T, T_RNG, "T  (K)")
+            "Tplot", STEADY["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]")
         total += _mid_plane_panel(
             reader, STEADY["case"], STEADY["time"],
             os.path.join(STEADY_DIR, "k2_plane_mid_velocity.png"), STEADY["stamp"],
             base + " ; colour bar %.3f to %.3f m/s, ends clamped" % U_RNG,
             "Umag", "mag(%s)" % STEADY["vector"], PRESET_U, U_RNG,
-            "U magnitude  (m/s)")
+            "|U|  [m/s]")
         total += _iso_panel(
             reader, STEADY["case"], STEADY["time"],
             os.path.join(STEADY_DIR, "k2_hot_cloud.png"), STEADY["stamp"],
             GEOM + " ; iso-surface at %.2f K (27 degC, ASHRAE A1 recommended) ; "
                    "oblique view from the hot aisle ; fields at t = 803" % T_ISO,
             STEADY["scalar"])
+        total += _aisle_panel(reader, STEADY["case"], STEADY["time"],
+                              os.path.join(STEADY_DIR, "k2_plane_hot.png"),
+                              "Tplot", STEADY["scalar"] + "*1.0", PRESET_T, T_RNG,
+                              "T  [K]")
+        total += _streamlines_panel(reader, STEADY["case"], STEADY["time"],
+                                    os.path.join(STEADY_DIR, "k2_streamlines.png"),
+                                    STEADY["vector"], U_RNG, "|U|  [m/s]")
     finally:
         if root:
             shutil.rmtree(root, ignore_errors=True)
@@ -341,16 +501,41 @@ def main():
             reader, TRANS["case"], TRANS["time"],
             os.path.join(TRANS_DIR, "k2t_plane_mid.png"), TRANS["stamp"],
             base + win + " ; colour bar %.2f to %.2f K, ends clamped" % T_RNG,
-            "Tplot", TRANS["scalar"] + "*1.0", PRESET_T, T_RNG, "T mean  (K)")
+            "Tplot", TRANS["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]")
         total += _mid_plane_panel(
             reader, TRANS["case"], TRANS["time"],
             os.path.join(TRANS_DIR, "k2t_plane_mid_velocity.png"), TRANS["stamp"],
             base + win + " ; colour bar %.3f to %.3f m/s, ends clamped" % U_RNG,
             "Umag", "mag(%s)" % TRANS["vector"], PRESET_U, U_RNG,
-            "U mean magnitude  (m/s)")
+            "|U|  [m/s]")
+        total += _aisle_panel(reader, TRANS["case"], TRANS["time"],
+                              os.path.join(TRANS_DIR, "k2t_TMean_field.png"),
+                              "Tplot", TRANS["scalar"] + "*1.0", PRESET_T, T_RNG,
+                              "T  [K]")
+        total += _aisle_panel(reader, TRANS["case"], TRANS["time"],
+                              os.path.join(TRANS_DIR, "k2t_UMean_field.png"),
+                              "Umag", "mag(%s)" % TRANS["vector"], PRESET_U, U_RNG,
+                              "|U|  [m/s]")
     finally:
         if root:
             shutil.rmtree(root, ignore_errors=True)
+
+    # the GRADED field, p_rghMean, on the same cut
+    root = None
+    try:
+        reader, root, n = C.open_case(TRANS["case"], ["p_rghMean"], [TRANS["time"]])
+        pr = _percentiles_of(reader, TRANS["time"], "p_rghMean")
+        C.announce("  p_rghMean window %.4f to %.4f m2/s2" % pr)
+        total += _aisle_panel(reader, TRANS["case"], TRANS["time"],
+                              os.path.join(TRANS_DIR, "k2t_p_rghMean_field.png"),
+                              "Pplot", "p_rghMean*1.0", "Cool to Warm", pr,
+                              "p_rgh  [m2/s2]")
+    finally:
+        if root:
+            shutil.rmtree(root, ignore_errors=True)
+
+    total += _mesh_panel(os.path.join(STEADY_DIR, "k2_mesh.png"))
+    total += _mesh_panel(os.path.join(TRANS_DIR, "k2t_mesh.png"))
 
     # the INSTANTANEOUS panel -- a separate open, because it needs T not TMean
     root = None
@@ -362,7 +547,7 @@ def main():
             base + ("INSTANTANEOUS T at t = %s s, the last written time -- NOT a "
                     "time average ; colour bar %.2f to %.2f K, ends clamped"
                     % (TRANS["time"], T_RNG[0], T_RNG[1])),
-            "Tplot", "T*1.0", PRESET_T, T_RNG, "T at t = 110 s  (K)")
+            "Tplot", "T*1.0", PRESET_T, T_RNG, "T  [K]")
     finally:
         if root:
             shutil.rmtree(root, ignore_errors=True)

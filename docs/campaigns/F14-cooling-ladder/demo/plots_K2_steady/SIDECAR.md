@@ -60,7 +60,7 @@ L1 and L2 reproduce `K2g_PREREGISTRATION.md` §7's f1 and f2 exactly.
 | `k2_mesh.png` | the **coarse** level's mesh, per the owner's ParaView rule | `K2f_L1`, 58,368 cells, committed render |
 | `k2_plane_mid.png` | temperature on the **horizontal** plane at rack mid-height, z = 1.0 m | `K2f_L3` at t = 803 |
 | `k2_plane_mid_velocity.png` | velocity magnitude on the same plane | `K2f_L3` at t = 803 |
-| `k2_hot_cloud.png` | oblique 3-D view, the **300.15 K (27 degC) iso-surface** above the rack row, with the rack block and the room outline | `K2f_L3` at t = 803, 25,228 triangles |
+| `k2_hot_cloud.png` | oblique 3-D view, the **300.15 K (27 °C) iso-surface** above the rack row, with the rack block and the room outline | `K2f_L3` at t = 803, 25,228 triangles |
 
 The last three were drawn by `../render_K2_field_panels.py`, which renders BOTH K2
 folders in one run so that the colour windows really are shared: measured at the
@@ -86,7 +86,8 @@ arithmetic can be checked:
 * rack outlet `T` = area average of `T` on `rack<i>_out` at t = 80
 * **recirculation %** = 100 (T_in − T_supply) / (T_out − T_supply)
 * **capture index %** = 100 − recirculation %
-* **RCI high %** = 100 [1 − max(T_in − 27 °C, 0) / (32 − 27)] — ASHRAE A1 limits
+* **RCI high %** = 100 [1 − max(T_in − 27 °C, 0) / 5] — the 5 K denominator is the
+  index's own definition and is NOT drawn as a second limit anywhere
 * **RTI %** = 100 (T_return − T_supply) / mean(T_out − T_in) — one room value,
   drawn on every rack group because it is a room index, not a rack index
 
@@ -130,3 +131,46 @@ re-rendered that way from `K2f_L3` (a temperature plane and a velocity plane) we
 folder was dropped for the same reason. The `k2_plane_hot.png` that IS shipped here
 is the committed `render_k2f_rackset.py` output, whose caption is correct:
 *"fields NOT rule-4 complete ; no graded verdict ; NOT A RESULT"*.
+
+---
+
+## v2 REGENERATION — 2026-09-13
+
+Everything above still holds. What changed is the DRAWING, not a number.
+
+* **Plot library v2** (`docs/plot_orders/README_PLOT_LIBRARY_V2.md`), installed by the
+  owner. Math only: no English on any figure, no titles, no verdict words, no band
+  named in words. **v2 already carries both library changes this lane had made** —
+  `%` in place of the word, and a registered `band=(lo, hi)` on `grid_family` — in a
+  better form, so neither was re-applied. **One minimal change was added:**
+  `residual_history` gained `xlim`/`ylim`, because the residual-evolution frames below
+  are only comparable if the axes do not move; without pinned axes each frame
+  autoscales to its own data, every frame looks identical, and the descent that is the
+  whole point of the series is invisible.
+* **Residual evolution.** `sdk/workflows/act_residual_frames.py` cuts the run at
+  **10, 25, 50, 75 and 100 %** and writes one frame per cut on ONE set of axes, so the
+  act can step through them and the curves are seen to go down. The 100 % frame keeps
+  the ordered file name; the others are `*_f10 … _f75`.
+* **ParaView panels re-rendered to v2 §13:** white ground, **no orientation triad**,
+  **one colour bar a quarter of the frame high** titled by symbol and unit, and
+  **nothing written on the image**. The case, the time, the geometry and the verdict
+  now live HERE and in the act beside the figure. **The verdict guard was not dropped
+  with the caption**: `demo3d_render_common.assert_stamp` still runs on the stamp each
+  driver WOULD have drawn, before any pixel, so a verdict word a case does not own is
+  still refused. What moved is where the sentence is printed, not whether it is checked.
+
+* **THE MODULE IS THE FOUR-RACK ROW, NOT ONE CABINET — measured, not assumed.**
+  `constant/polyMesh/boundary` of BOTH `K2f_L1` and `K2h_L3` carries
+  `rack0_in/out … rack3_in/out`: **four racks**, on a 0.6 m pitch, the row spanning
+  x = 0.6 → 3.0 m of a 3.6 × 3.5 × 2.7 m room. The y–z aisle panels
+  (`k2_plane_hot`, `k2t_*_field`) are a **cross-section THROUGH the row at x = 1.5 m**,
+  which is why one cabinet face is what a viewer sees; the whole row is visible in the
+  mid-height horizontal planes (`k2_plane_mid`, `k2t_plane_mid`) and in the
+  streamline and mesh panels. Nothing needed re-rendering over a wider extent — the
+  act should be worded as a four-rack row cut through its middle.
+* **ONE LIMIT, and it is the user's: `T_lim = 27 °C`.** Every "recommended",
+  "allowable" and every 32 °C line is gone from the figures and from this page.
+* **`k2_plane_hot`, `k2_streamlines` and `k2_mesh` are no longer the committed
+  `render_k2f_rackset.py` copies.** They are re-rendered here caption-free, which
+  also retires the mis-captioned-constant finding for these panels: nothing is
+  written on them at all.
