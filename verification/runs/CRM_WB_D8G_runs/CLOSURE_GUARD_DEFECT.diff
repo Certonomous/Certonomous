@@ -1,0 +1,55 @@
+# CLOSURE GUARD DEFECT -- launch_crm_wb_v2.sh line 84. NOT APPLIED; handed to cfd-supervisor.
+#
+# THE REPORTED CLAIM WAS WRONG IN ITS PARTICULARS AND THE REAL DEFECT IS WORSE.
+# Reported: 'the launcher hard-codes the string SA in LAUNCH.log line 3, so a run on any
+# other closure logs the wrong model; behaviour is correct, the log lies.' CHECKED:
+#   grep -cnE '\bSA\b' launch_crm_wb_v2.sh            -> 0 occurrences
+#   grep -nE 'Spalart|kOmega|SST' launch_crm_wb_v2.sh  -> line 84 ONLY
+#   head -3 PARTITION_T/LAUNCH.log                     -> carries NO model name at all
+# There is no SA string in either launcher and LAUNCH.log line 3 names no model. The log
+# does not lie; it is SILENT. The actual defect is at line 84 and it is not cosmetic:
+#
+#   grep -qE 'RASModel +SpalartAllmaras;' constant/turbulenceProperties || fail ...
+#
+# THIS IS A HARD REFUSAL OF EVERY CLOSURE EXCEPT SPALART-ALLMARAS. Behaviour is NOT
+# correct. Sanaa section C.6 registers k-omega SST as the second closure, section C.7.4
+# requires it on Coarse and Medium for the junction-bubble comparison, and ADDENDUM 12's
+# exhaustion clause climbs to SST if P1 and P2 both fail. The launcher would refuse the
+# very successor run its own act registers -- and would refuse it with a message about
+# the dictionary, so the reader would go looking at the case rather than at the guard.
+#
+# The patch reads the closure from the environment (default: the primary), checks it
+# against a closed set, asserts it against the dictionary that will run, and LOGS it --
+# which also gives LAUNCH.log the model name it has never carried.
+#
+# bash -n on the patched copy: OK. Applies with: patch -p0 < this file, from repo root.
+# Launcher sha256 before patch: bf6d262c93650b6e63a941afbb325eb5d6228617c027f6f9cd7f7c63a4c80b01
+#
+# NOT A BLOCKER FOR CRM-WB-D8G-SOLVE-T-R1, which runs SpalartAllmaras and passes the guard
+# as written. It is a blocker for that run's SST successor.
+#
+--- verification/runs/CRM_WB_D8G_runs/launch_crm_wb_v2.sh	2026-09-13 01:34:27.576916376 +0000
++++ /tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/launch_crm_wb_v2.sh.PATCHED	2026-09-13 06:53:53.512002516 +0000
+@@ -81,7 +81,21 @@
+ { [ -n "$PW" ] && { [ "$PW" -eq 0 ] || [ "$PW" -ge 2 ]; }; } \
+   || fail "purgeWrite is ${PW:-unset}; must be 0 (keep all) or >= 2"
+ grep -q  '#include'                     system/controlDict || fail "controlDict lost its #include"
+-grep -qE 'RASModel +SpalartAllmaras;'   constant/turbulenceProperties || fail "model is not SpalartAllmaras"
++# THE CLOSURE IS REGISTERED, NOT HARD-CODED. Section C.6 registers Spalart-Allmaras as PRIMARY
++# and k-omega SST as the REGISTERED SECOND CLOSURE, and ADDENDUM 12's exhaustion clause climbs
++# to SST. A guard that names one model by literal REFUSES the other: the launcher would have
++# blocked the very successor its own act registers. The registered closure is therefore read
++# from the environment, defaulted to the primary, checked against a closed set, ASSERTED against
++# the dictionary that will run, and LOGGED -- so LAUNCH.log names what actually ran instead of
++# leaving its reader to assume the default.
++CLOSURE="${CLOSURE:-SpalartAllmaras}"
++case "$CLOSURE" in
++  SpalartAllmaras|kOmegaSST) ;;
++  *) fail "CLOSURE=$CLOSURE is not a closure section C.6 registers (SpalartAllmaras, kOmegaSST)";;
++esac
++grep -qE "RASModel +${CLOSURE};" constant/turbulenceProperties \
++  || fail "constant/turbulenceProperties does not carry RASModel $CLOSURE"
++echo "closure: $CLOSURE  (ASSERTED against constant/turbulenceProperties, not assumed)"
+ # `transonic yes` is the REGISTERED physics and is asserted for every graded run. A registered
+ # DIAGNOSTIC that deliberately turns it off must declare itself, exactly as the runner requires a
+ # `purge_waiver` for purgeWrite 0 -- A DECLARED EXCEPTION, NEVER A SILENT ONE. Without the

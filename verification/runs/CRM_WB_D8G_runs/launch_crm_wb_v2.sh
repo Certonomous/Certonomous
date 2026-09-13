@@ -81,7 +81,21 @@ PW=$(grep -oE '^purgeWrite +[0-9]+;' system/controlDict | grep -oE '[0-9]+')
 { [ -n "$PW" ] && { [ "$PW" -eq 0 ] || [ "$PW" -ge 2 ]; }; } \
   || fail "purgeWrite is ${PW:-unset}; must be 0 (keep all) or >= 2"
 grep -q  '#include'                     system/controlDict || fail "controlDict lost its #include"
-grep -qE 'RASModel +SpalartAllmaras;'   constant/turbulenceProperties || fail "model is not SpalartAllmaras"
+# THE CLOSURE IS REGISTERED, NOT HARD-CODED. Section C.6 registers Spalart-Allmaras as PRIMARY
+# and k-omega SST as the REGISTERED SECOND CLOSURE, and ADDENDUM 12's exhaustion clause climbs
+# to SST. A guard that names one model by literal REFUSES the other: the launcher would have
+# blocked the very successor its own act registers. The registered closure is therefore read
+# from the environment, defaulted to the primary, checked against a closed set, ASSERTED against
+# the dictionary that will run, and LOGGED -- so LAUNCH.log names what actually ran instead of
+# leaving its reader to assume the default.
+CLOSURE="${CLOSURE:-SpalartAllmaras}"
+case "$CLOSURE" in
+  SpalartAllmaras|kOmegaSST) ;;
+  *) fail "CLOSURE=$CLOSURE is not a closure section C.6 registers (SpalartAllmaras, kOmegaSST)";;
+esac
+grep -qE "RASModel +${CLOSURE};" constant/turbulenceProperties \
+  || fail "constant/turbulenceProperties does not carry RASModel $CLOSURE"
+echo "closure: $CLOSURE  (ASSERTED against constant/turbulenceProperties, not assumed)"
 # `transonic yes` is the REGISTERED physics and is asserted for every graded run. A registered
 # DIAGNOSTIC that deliberately turns it off must declare itself, exactly as the runner requires a
 # `purge_waiver` for purgeWrite 0 -- A DECLARED EXCEPTION, NEVER A SILENT ONE. Without the
