@@ -1067,3 +1067,63 @@ depends on it.**
 `rhoSimpleFoam` live, **32 ranks** (`ps -eo comm | grep -cx rhoSimpleFoam` = 32), iteration
 **1814 of 5000**. Ranks 0 and 31 hold `0 1000 1500`. **G0 `PASS`; G1 and G2 satisfied on disk
 per B1.6; G3–G7 not yet run.**
+
+---
+
+## ADDENDUM B3 — 2026-09-14, AFTER FIRST COMPUTE
+
+**Version 1.4 → 1.5. Lines whose number changed above this section: 0.**
+
+Gates remain **CLOSED**. **G4, G5, G6, G2a and the §6 cost band are untouched.**
+
+### B3.1 — **B2.1's SPARSE-FIELD ATTRIBUTION IS WRONG AND IS STRUCK. IT IS UPSTREAM'S, NOT D3's.**
+
+B2.1 closed with a note attributing sparse transient field data to **D3**. **That attribution
+is incorrect and is struck.** Verified against the hashed upstream file and the staged file:
+
+| | upstream `system/controlDict.tr` | staged, D3 applied | effect of D3 |
+|---|---|---|---|
+| `writeInterval` | **1.0e-01** | **2.5e-02** | **4× MORE often** |
+| `purgeWrite` | **1** | **2** | **2× MORE surviving** |
+
+Over the 2.5 s transient that is **upstream 25 writes with 1 surviving**, against **D3's 100
+writes with 2 surviving**. **On both axes D3 leaves MORE field data than the published setup,
+not less. The sparsity is UPSTREAM'S DESIGN, inherited; D3 did not create it and in fact
+halved it.**
+
+**Why the distinction is not cosmetic:** a successor reading "D3 cost us our visualisation
+data" would conclude our own deviation damaged the case and might reverse it — and
+**reversing D3 would make the field data sparser, not denser**, on top of removing the
+checkpointing it exists to provide.
+
+**Corrected statement, with D3 named as the mitigation it is:** *the published setup retains
+very few transient volume-field snapshots (`purgeWrite 1`, writes every 0.1 s); D3 relieves
+this to two snapshots 0.025 s apart, which is better but still sparse.*
+
+### B3.2 — WHAT IS AND IS NOT SPARSE, SO NOBODY DISCOVERS IT AT RENDER TIME
+
+**`purgeWrite` does not touch `postProcessing/`.** Verified in source: the purge loop removes
+`objectRegistry::path(previousWriteTimes_.pop())` — **the time directory in the registry
+path** (`<case>/<time>`, or `<case>/processorN/<time>`). Function-object output is written
+elsewhere, under `<case>/postProcessing/<name>/<time>/`, and is never a purge candidate.
+
+Therefore, concretely:
+
+- **SURVIVES IN FULL — the 2-D wake-plane series.** `system/cuttingPlane` writes `ensight`
+  surfaces of `(p pGauge U)` at `writeInterval 2.0e-04`, i.e. **every second time step,
+  ≈ 12,500 writes**, into `postProcessing/`. **None of it is purged.** (This is also the
+  disk driver registered at §A2.4.)
+- **SURVIVES IN FULL — every gate's input.** `forces`, `probes_pGauge` and the `noise` output
+  all live in `postProcessing/`. **This is why no registered gate depends on any of this:
+  G4, G5 and G6 read `postProcessing/`, not time directories.** That point from B2.1 stands
+  unchanged and is the reason the error above altered no verdict.
+- **SPARSE — the 3-D VOLUME field data.** Only **two** full field snapshots, 0.025 s apart,
+  survive at any moment. **A Q-criterion isosurface, a 3-D streamline render or any
+  volumetric post-processing is limited to those two instants**, and anyone planning such a
+  render should know it now rather than at render time.
+
+### B3.3 — STATE
+
+`rhoSimpleFoam` live, 32 ranks, G0 `PASS`, G1 and G2 satisfied on disk per B1.6, G3–G7 not
+yet run. **No gate, threshold, cap or label is altered by this addendum**; it corrects an
+attribution in B2.1 and adds no instrument.
