@@ -629,3 +629,20 @@ Every act gets a loadable geometry file through it: M6 and CRM wall patches extr
 **Chief's reading:**
 §AM's server endpoint and panel are withdrawn — the owner is building the control room herself, and no lane spends further effort on it; the deliverable is the geometry files only, one STL per act in metres plus the CAD originals where they exist, filed under `docs/campaigns/_geometry/<ACT>/` with a sidecar and a preview.
 Priority order is CRM wing (adjoint), K2 rack row, DrivAer, M6, then SUBOFF, MB13, PPTC; the chief notifies Sanaa with the sha when they land, for her own push to the repo.
+
+---
+
+## AO. CAD originals exist — CRM from NASA, M6 and DrivAer from the named sources — byte-exact, 2026-09-14 ~04:20-04:30Z (owner directive #55)
+
+> are we sure theres no cad file for crm ?
+
+> it seems there is here https://commonresearchmodel.larc.nasa.gov/geometry/original-cad-files/
+
+> and seems this is an onera m6 cad file too https://grabcad.com/library/onera-m6-1
+
+> drivaer cad : https://grabcad.com/library/drivaer-car-1
+
+**Chief's reading:**
+CAD originals are fetched per act: CRM from NASA's original-CAD page (authoritative); M6 from the NASA TMR IGES first, GrabCAD as a community reconstruction only if downloadable without an account; DrivAer from TU Munich's DrivAer page first, GrabCAD as community reconstruction the same way.
+No accounts or forms are created in Sanaa's name; each file is title-page verified (rule 15), with its sha256 and source URL in its sidecar, and its scale relation to the lab mesh measured.
+All of it lands under `docs/campaigns/_geometry/<ACT>/`.
