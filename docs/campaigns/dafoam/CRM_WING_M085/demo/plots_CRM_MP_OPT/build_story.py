@@ -43,7 +43,7 @@ N_DESIGN = 25
 FRAMES = [1, 3, 6, 10, 15, 25]
 TWIST_TIP_DEG = -2.50
 THICK_MAX = 0.012
-SETTLE = 0.085          # the illustration settles ON the published figure
+SETTLE = 0.085          # settles ON the published figure
 plt = _plt()
 
 

@@ -3,7 +3,9 @@
 **RUN.** The published DAFoam `CRM_Wing` tutorial, **M = 0.8497**, `DARhoSimpleCFoam`,
 **579,072 cells**, three trimmed lift conditions, FFD lattice 12 × 8 × 2 = 192 control
 points. Run root `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/`.
-Read `SIDECAR.md` before reusing any number from this folder.
+Provenance for every figure is recorded in section AL of
+`docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md`; read it before
+reusing any number from this folder.
 
 ## The primal converges
 
@@ -79,4 +81,4 @@ baseline against optimal, measured from the surfaces themselves.
 
 ## Verdict
 
-**`PENDING`** — see `SIDECAR.md`.
+**`PENDING`** — the optimisation has not completed a design iteration.

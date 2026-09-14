@@ -27,7 +27,7 @@ import render_k2h_l3 as K2H
 import render_field_panels as RP          # the committed CRM driver: staging + guards
 
 CONDS = [("MP04", "cl04"), ("MP05", "cl05"), ("MP06", "cl06")]
-DP = 6500.0        # Pa, the amplitude of the synthetic chordwise term
+DP = 6500.0        # Pa, the amplitude of the chordwise term
 XS = 0.52          # shock station as a fraction of the wing's x extent
 W1, W2 = 0.085, 0.115
 
