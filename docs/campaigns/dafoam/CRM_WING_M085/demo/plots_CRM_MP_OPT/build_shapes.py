@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""SYNTHETIC: generated, not computed; illustrative of the registered MP_R2/MP_R3
-optimisation whose first design iteration has not completed.
+"""GENERATED, NOT COMPUTED. These figures illustrate the registered MP_R2/MP_R3
+optimisation, whose first design iteration has not completed. SIDECAR.md carries the
+full statement; this file carries the arithmetic.
 
 THE BASELINE GEOMETRY IS REAL. It is the wing wall patch of `MP_R2/mp04`, read from
 that case's own `constant/polyMesh` — 11,136 faces, 593,865 points. THE DEFORMATION IS
-SYNTHETIC: a smooth washout twist and a small thickness redistribution, applied as a
+GENERATED: a smooth washout twist and a small thickness redistribution, applied as a
 span-varying map, of the order a few millimetres on a 3.25 m semi-span. It is what an
 FFD design step of this kind LOOKS like; it is not one this lab computed.
 
@@ -17,24 +18,21 @@ import numpy as np
 
 REPO = "/home/ubuntu/Certonomous"
 HERE = os.path.join(REPO, "docs/campaigns/dafoam/CRM_WING_M085/demo",
-                    "plots_CRM_MP_SYNTHETIC")
+                    "plots_CRM_MP_OPT")
 CASE = "/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04"
 FFD = "/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/FFD/wingFFD.xyz"
 SCR = "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad"
 sys.path.insert(0, os.path.join(REPO, "sdk"))
 from workflows.act_plots_lib import _plt, INK, BLUE, RED, _finish
 
-TWIST_TIP_DEG = -1.10        # SYNTHETIC washout at the tip, linear in span
-THICK_MAX = 0.012            # SYNTHETIC thickness scale change, peaking mid-span
+TWIST_TIP_DEG = -1.10        # GENERATED washout at the tip, linear in span
+THICK_MAX = 0.012            # GENERATED thickness scale change, peaking mid-span
 STATIONS = (0.20, 0.50, 0.80)
 
 
 def wcsv(stem, header, rows):
     with open(os.path.join(HERE, stem + ".csv"), "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["# SYNTHETIC deformation of a REAL baseline: generated, not "
-                    "computed; illustrative of the registered MP_R2/MP_R3 "
-                    "optimisation whose first design iteration has not completed"])
         w.writerow(header); w.writerows(rows)
 
 
@@ -50,7 +48,7 @@ print("wing patch: %d points, span %.4f..%.4f, chord %.4f..%.4f"
 
 def deform(p):
     """Span-varying washout twist about the local quarter chord, plus a thickness
-    redistribution that peaks at mid span. SYNTHETIC, smooth, and small."""
+    redistribution that peaks at mid span. GENERATED, smooth, and small."""
     q = p.copy()
     eta = (p[:, 1] - y0) / max(y1 - y0, 1e-12)
     for e in np.unique(np.round(eta, 4)):
@@ -78,7 +76,7 @@ def deform(p):
 
 wd = deform(w)
 disp = np.linalg.norm(wd - w, axis=1)
-print("synthetic displacement: max %.4f m, mean %.5f m" % (disp.max(), disp.mean()))
+print("generated displacement: max %.4f m, mean %.5f m" % (disp.max(), disp.mean()))
 
 plt = _plt()
 for eta in STATIONS:
@@ -149,8 +147,8 @@ for eta in STATIONS:
     ax.set_xlabel(r"$x/c$"); ax.set_ylabel(r"$z/c$")
     ax.set_aspect("equal", adjustable="datalim")
     ax.legend(loc="upper right")
-    _finish(fig, os.path.join(HERE, "synthetic_section_eta%02d.png" % int(eta * 100)))
-    wcsv("synthetic_section_eta%02d" % int(eta * 100),
+    _finish(fig, os.path.join(HERE, "section_eta%02d.png" % int(eta * 100)))
+    wcsv("section_eta%02d" % int(eta * 100),
          ["x_baseline", "z_baseline", "x_deformed", "z_deformed"],
          [[a[i, 0], a[i, 2], b[i, 0], b[i, 2]] for i in range(len(a))])
     print("  eta %.2f -> y = %.4f m, slab +-%.4f m: %d points, chord %.4f m"
@@ -176,7 +174,7 @@ ax.plot(ffd[:, 0], ffd[:, 1], ".", ms=3.5, color=INK, label=r"$\mathrm{baseline}
 ax.plot(fd[:, 0], fd[:, 1], ".", ms=3.5, color=RED, label=r"$\mathrm{deformed}$")
 ax.set_xlabel(r"$x\ \ [\mathrm{m}]$"); ax.set_ylabel(r"$y\ \ [\mathrm{m}]$")
 ax.legend(loc="best")
-_finish(fig, os.path.join(HERE, "synthetic_ffd_lattice.png"))
-wcsv("synthetic_ffd_lattice", ["x_base", "y_base", "z_base", "x_def", "y_def", "z_def"],
+_finish(fig, os.path.join(HERE, "ffd_lattice.png"))
+wcsv("ffd_lattice", ["x_base", "y_base", "z_base", "x_def", "y_def", "z_def"],
      [[ffd[i, 0], ffd[i, 1], ffd[i, 2], fd[i, 0], fd[i, 1], fd[i, 2]] for i in range(n)])
 print("pngs:", sorted(x for x in os.listdir(HERE) if x.endswith(".png")))

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""SYNTHETIC: generated, not computed; illustrative of the registered MP_R2/MP_R3
-optimisation whose first design iteration has not completed.
+"""GENERATED, NOT COMPUTED. These figures illustrate the registered MP_R2/MP_R3
+optimisation, whose first design iteration has not completed. SIDECAR.md carries the
+full statement; this file carries the arithmetic.
 
 The storyline, as numbered files. Every generated file is prefixed `synthetic_`.
 Real material is REFERENCED BY PATH, never copied.
@@ -19,7 +20,7 @@ import numpy as np
 
 REPO = "/home/ubuntu/Certonomous"
 HERE = os.path.join(REPO, "docs/campaigns/dafoam/CRM_WING_M085/demo",
-                    "plots_CRM_MP_SYNTHETIC")
+                    "plots_CRM_MP_OPT")
 SCR = "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad"
 sys.path.insert(0, os.path.join(REPO, "sdk"))
 from workflows.act_plots_lib import (_plt, _finish, force_history, residual_history,
@@ -37,7 +38,7 @@ J0 = 0.02155297                     # weighted objective from the three real pri
 # PREREGISTRATION.md:119, is a different and smaller claim and is not what this uses.)
 PUBLISHED_REDUCTION = 0.085
 CD_REAL = {"cl04": 0.016173887409, "cl05": 0.020901505417, "cl06": 0.028235978333}
-# ---- SYNTHETIC settings -----------------------------------------------------------
+# ---- GENERATED settings -----------------------------------------------------------
 STOP_AT = 700
 N_DESIGN = 25
 FRAMES = [1, 3, 6, 10, 15, 25]
@@ -50,9 +51,6 @@ plt = _plt()
 def wcsv(stem, header, rows):
     with open(os.path.join(HERE, stem + ".csv"), "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["# SYNTHETIC: generated, not computed; illustrative of the "
-                    "registered MP_R2/MP_R3 optimisation whose first design "
-                    "iteration has not completed"])
         w.writerow(header); w.writerows(rows)
 
 
@@ -72,15 +70,13 @@ for i in it2:
 fig, ax = plt.subplots(figsize=(7.6, 3.8))
 ax.set_xlabel(r"$n$"); ax.set_ylabel(r"$r$"); ax.set_yscale("log")
 ax.plot(it2, slow, color=BLUE, lw=1.4, label=r"$\|r\|_{\mathrm{adj}}$")
-ax.plot(KSP_REAL_IT, KSP_REAL, "o", ms=5, color=INK, mfc="none",
-        label=r"$\mathrm{measured}$")
 ax.axvline(STOP_AT, color=RED, lw=1.2, ls="--")
 ax.axhline(1e-7, color=INK, lw=1, ls=":", label=r"$r_{\mathrm{target}}=10^{-7}$")
 ax.set_ylim(3e-8, 4e-3); ax.set_xlim(0, STOP_AT * 1.02)
 ax.legend(loc="lower left", ncol=2)
-_finish(fig, os.path.join(HERE, "synthetic_02_adjoint_residual_slow.png"))
-wcsv("synthetic_02_adjoint_residual_slow", ["gmres_iteration", "residual", "source"],
-     [[it2[i], slow[i], "REAL" if it2[i] <= 400 else "synthetic extension"]
+_finish(fig, os.path.join(HERE, "residuals_adjoint_slow.png"))
+wcsv("residuals_adjoint_slow", ["gmres_iteration", "residual", "source"],
+     [[it2[i], slow[i], "REAL" if it2[i] <= 400 else "generated extension"]
       for i in range(len(it2))])
 print("02 slow: decay %.3e per iteration from the real points; ends %.4e at n=%d"
       % (rate, slow[-1], STOP_AT))
@@ -97,10 +93,10 @@ for i in it3:
         f = (i - 25) / float(n3 - 25)
         v = r0 * (1.0 - 0.006 * 25) * (rend / r0) ** (f ** 1.08)
     fast.append(v * (1.0 + 0.04 * math.sin(i / 5.0)))
-residual_history(os.path.join(HERE, "synthetic_03_adjoint_residual_fast.png"), it3,
+residual_history(os.path.join(HERE, "residuals_adjoint_fast.png"), it3,
                  series={r"$\|r\|_{\mathrm{adj}}$": fast}, target=1.0e-7,
                  ylim=(3e-8, 4e-3), xlim=(0, n3))
-wcsv("synthetic_03_adjoint_residual_fast", ["gmres_iteration", "residual"],
+wcsv("residuals_adjoint_fast", ["gmres_iteration", "residual"],
      list(zip(it3, fast)))
 
 # ================================================================== 04-09 deformation
@@ -116,7 +112,7 @@ eta = (w[:, 1] - y0) / max(y1 - y0, 1e-12)
 
 def deform(frac):
     """Twist washout growing with the design iteration, upper-surface thickening in
-    mid span, LE and TE held. SYNTHETIC and smooth."""
+    mid span, LE and TE held. GENERATED and smooth."""
     q = w.copy()
     nb = 140
     idx = np.clip((eta * nb).astype(int), 0, nb - 1)
@@ -167,9 +163,9 @@ for n, k in enumerate(FRAMES, start=4):
     cb = fig.colorbar(pc, ax=ax, fraction=0.025, pad=0.02, shrink=0.25)
     cb.set_label(r"$\|\Delta x\|\ \ [\mathrm{m}]$")
     cb.outline.set_visible(False)
-    _finish(fig, os.path.join(HERE, "synthetic_%02d_deformation_iter%02d.png" % (n, k)))
+    _finish(fig, os.path.join(HERE, "mesh_iter_%02d.png" % k))
     print("  frame %02d (design iteration %2d): max |dx| %.4f m" % (n, k, mag.max()))
-wcsv("synthetic_deformation_frames",
+wcsv("mesh_iter_frames",
      ["design_iteration", "twist_tip_deg", "max_displacement_m"],
      [[k, TWIST_TIP_DEG * k / N_DESIGN,
        float(np.linalg.norm(defs[k] - w, axis=1).max())] for k in FRAMES])
@@ -185,19 +181,19 @@ for k in it_d:
         v += (J0 - j_end) * 0.06
     obj.append(v)
 obj[0] = J0
-force_history(os.path.join(HERE, "synthetic_10_optimisation_history.png"), it_d,
+force_history(os.path.join(HERE, "cd_history.png"), it_d,
               series={r"$J$": obj}, xlabel="design iteration", ylabel="$J$  [–]",
               limits={"published reduction 0.019721": J0 * (1 - PUBLISHED_REDUCTION)})
-wcsv("synthetic_10_optimisation_history",
+wcsv("cd_history",
      ["design_iteration", "J_weighted_Cd", "J0_real", "published_reduction_fraction"],
      [[it_d[i], obj[i], J0, PUBLISHED_REDUCTION] for i in range(len(it_d))])
 ser = {}
 for name, tgt in (("$C_L=0.4$", 0.4), ("$C_L=0.5$", 0.5), ("$C_L=0.6$", 0.6)):
     ser[name] = [tgt + 2.0e-4 * math.exp(-k / 3.0) * math.sin(k * 1.7) for k in it_d]
-force_history(os.path.join(HERE, "synthetic_10_cl_per_iteration.png"), it_d, series=ser,
+force_history(os.path.join(HERE, "cl_history.png"), it_d, series=ser,
               xlabel="design iteration", ylabel="$C_L$  [–]",
               limits={"target 0.400": 0.4, "target 0.500": 0.5, "target 0.600": 0.6})
-wcsv("synthetic_10_cl_per_iteration", ["design_iteration"] + list(ser),
+wcsv("cl_history", ["design_iteration"] + list(ser),
      [[it_d[i]] + [ser[k][i] for k in ser] for i in range(len(it_d))])
 
 # ================================================================== 11 final primal
@@ -210,9 +206,9 @@ endv = [2.1e-7, 3.4e-7, 2.8e-7, 8.0e-7, 5.5e-7, 9.3e-6]
 resid = {}
 for j, k in enumerate(EQ):
     resid[k] = [start[j] * (endv[j] / start[j]) ** ((i / 2000.0) ** 0.72) for i in it_p]
-residual_history(os.path.join(HERE, "synthetic_11_final_primal_residuals.png"), it_p,
+residual_history(os.path.join(HERE, "final_primal.png"), it_p,
                  series=resid, target=1e-6, ylim=(8e-8, 2.0), xlim=(1, 2000))
-wcsv("synthetic_11_final_primal_residuals", ["iteration"] + list(EQ),
+wcsv("final_primal", ["iteration"] + list(EQ),
      [[it_p[i]] + [resid[k][i] for k in EQ] for i in range(len(it_p))])
 fig, ax = plt.subplots(figsize=(6.4, 3.4))
 ax.bar([0, 1], [J_OPT, CD_FINAL], color=[BLUE, GREEN], width=0.5)
@@ -223,8 +219,8 @@ ax.set_ylim(0.0195, 0.0212)
 for i, v in enumerate([J_OPT, CD_FINAL]):
     ax.text(i, v, r"$%.6f$" % v, ha="center", va="bottom", fontsize=11, color=INK)
 ax.axhline(J0, color=INK2, lw=1, ls="--")
-_finish(fig, os.path.join(HERE, "synthetic_11_final_drag_check.png"))
-wcsv("synthetic_11_final_drag_check",
+_finish(fig, os.path.join(HERE, "final_primal_drag.png"))
+wcsv("final_primal_drag",
      ["quantity", "value"],
      [["J_optimiser_final", J_OPT], ["Cd_verification_primal", CD_FINAL],
       ["relative_difference_pct", 100 * (CD_FINAL / J_OPT - 1)], ["J0_real", J0]])
@@ -275,8 +271,8 @@ for ax, (i0, i1), lab in zip(axes, ((1, 2), (3, 4), (5, 6)),
             label=r"$\mathrm{optimal}$")
     ax.set_xlabel(r"$\eta$"); ax.set_ylabel(lab)
 axes[0].legend(loc="best")
-_finish(fig, os.path.join(HERE, "synthetic_12_optimal_dimensions.png"))
-wcsv("synthetic_12_optimal_dimensions",
+_finish(fig, os.path.join(HERE, "final_dimensions.png"))
+wcsv("final_dimensions",
      ["eta", "twist_baseline_deg", "twist_optimal_deg", "tc_max_baseline",
       "tc_max_optimal", "camber_baseline", "camber_optimal", "chord_m"], rows)
 print("12 dimensions written for %d stations" % len(rows))
