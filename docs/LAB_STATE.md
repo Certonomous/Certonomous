@@ -33705,6 +33705,52 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 209-CORRECTION-TO-BLOCK-208-PRISM-A2-WILL-NOT-DIE-FROM-SIGHUP-AND-MUST-NOT-BE-RELAUNCHED-BLIND -->
+
+**Section last written:** 2026-09-14T01:23:56Z by a cfd `lab-lane` (Opus 5), via `scripts/lab_state_section.py` (`--selftest` PASS in the same session) + the rule-10 private-index protocol, rebuilt from the **committed blob** at HEAD `5ff9efbc6` — the worktree copy carries other lanes' uncommitted lines and was **never written**. **Newest block is 209, at the TOP of this section.** ⚠ **Trust the tail, never a header, never a count** — id re-derived in the same shell invocation as the commit (rule 11): **maximum existing id 208, so this block is 209.**
+
+### ⚠ CORRECTION TO BLOCK 208 — ONE SENTENCE, AND THE RELAUNCH COMMAND UNDER IT
+
+**Block 208 is NOT edited. It is quoted and corrected here.** The sentence being corrected, verbatim from block `208` (commit `4c74212e568f887f30528f8538c104aadced1842`):
+
+> ***It dies with this session.*** **A running process's session cannot be changed — `setsid` only works at spawn — so there is NO WAY TO RESCUE IT NOW.**
+
+**That is OVERSTATED, and the lane that wrote it is correcting its own words.** The second half is right: a running process's session genuinely cannot be changed, so PRISM-A2 cannot be retro-detached. The first half — a flat *"it dies with this session"* — **is not supported by what is on the machine.**
+
+**WHAT WAS MEASURED (field 7, `tty_nr`, of `/proc/<pid>/stat`, read directly by this lane at 2026-09-14T01:23:56Z):**
+
+| pid | role | `tty_nr` |
+|---|---|---|
+| **1768257** | `snappyHexMesh -overwrite` | **0** |
+| **1767981** | parent (`run_a2.sh` wrapper) | **0** |
+| **1767979** | session leader (the Claude session's own `bash -c`) | **0** |
+
+**All three: `tty_nr = 0` — NO CONTROLLING TERMINAL.** The usual "dies with the session" mechanism is the kernel SIGHUPing the foreground process group when a **controlling terminal** hangs up. **That mechanism cannot fire here, because there is no controlling terminal to hang up.**
+
+**What could still kill it** is the harness explicitly killing the process tree, or tearing down a cgroup, on exit. **Whether this harness does that is NOT KNOWN, and this block claims neither way.**
+
+**THE HONEST FORM, WHICH REPLACES THE QUOTED SENTENCE: PRISM-A2 is NOT protected by `setsid` and MAY die with this session; it will NOT die from SIGHUP.** The practical conclusion of block 208 is **unchanged** — PRISM-A2 cannot be relied on, and the cold-resume state in 208 is the right hedge. What changes is only that **"definitively gone" is wrong**, and a successor who believes it will act on a false certainty.
+
+### 🔴 BEFORE YOU RUN BLOCK 208's RELAUNCH COMMAND — ONE LINE, AND IT IS THE WHOLE POINT OF THIS BLOCK
+
+**CHECK `/proc/1768257` EXISTS AND IS STILL `snappyHexMesh -overwrite` WITH CWD `/home/ubuntu/certonomous-runs/PPTC_VP1304/PRISM_A2_absthick`:**
+
+```
+ls -d /proc/1768257 2>/dev/null && tr '\0' ' ' < /proc/1768257/cmdline; echo; readlink /proc/1768257/cwd
+```
+
+**IF IT IS ALIVE, DO NOT RELAUNCH.** Two `snappyHexMesh -overwrite` processes writing into the **same case directory** is **worse than the waste**: it **corrupts the case**, on top of spending **~560 core-min** re-deriving an answer already being computed. **A one-line existence check retires that risk entirely, and block 208's relaunch command must never be run without it.**
+
+### 📌 AND A SUCCESSOR SHOULD NOT RELAUNCH PRISM-A2 ON THEIR OWN INITIATIVE AT ALL
+
+**Sanaa has set PPTC aside.** Her words: *"Ok so for now set asside PPCT propeller and focus on MB13 since we have that"*. **PRISM-A2 holds 1 rank of 96** and is being allowed to finish **only because it is already running and costs nothing that MB13 needs.** If it dies, **it stays dead** unless Sanaa says otherwise — a successor **relaunching it on their own initiative would be spending against a case the owner has parked**, which no agent message authorises (rule 9).
+
+**Everything else in block 208 stands:** the mesh is written only at the end, so a kill still loses all of it; the rc capture still dies with the scratchpad wrapper (L-186); the four-line gate update is still owed the moment the layer phase ends; and **P2 still comes from the achievement table via `read_layer_achievement.py` with the plant printed beside it, NEVER from an `Extruding` line.**
+
+**Provenance of this block:** the three `tty_nr` values, the live `cmdline` and `cwd` of 1768257, and the block-id maximum were **read by this lane in this session**; the Sanaa quotation and the ~560 core-min figure were **handed to this lane and are marked VERIFY**. **No compute, no solver and no mesher was launched by this lane.**
+
+**SUBMISSIONS PARKED. `NOT FILED` stands on every upstream draft.**
+
 <!-- BOARD-BLOCK-ID: 208-COLD-RESUME-PRISM-A2-IS-NOT-DETACHED-AND-CANNOT-BE-RESCUED-PLUS-THE-MB13-ONE-CHARACTER-FINDING -->
 
 **Section last written:** 2026-09-14T01:15:44Z by a cfd lane (Opus 5, `lab-lane`) at HEAD `1db208798`, via `scripts/lab_state_section.py` + the rule-10 private-index protocol. **Newest block is 208, at the TOP of this section.** ⚠ **HEADER CORRECTION:** the stamp on block `169` at the head of this section claims *"Newest block is 207"* and it is **stale and wrong** — the true maximum on disk, re-derived from the tail in the same shell invocation as this commit (rule 11), was **207**. A stale header already produced one colliding id in this section tonight. **Trust the tail, never the header, never a block count** (186 blocks, max id 207, new id 208 — three different figures).
