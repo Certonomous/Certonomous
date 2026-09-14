@@ -88,8 +88,7 @@ for name, cells, lab in LEVELS:
     frows.append([name, cells, val, g["verdict"]])
     note("m6_family.png", gf, json.load(open(os.path.join(RUNS, name, "cp_extracted.json")))["vtp"].rsplit("/", 3)[1])
 grid_family(os.path.join(HERE, "m6_family.png"), levels=lv,
-            quantity="row RMS $C_p$ deviation", unit="[–]",
-            title="Grid family, Cp deviation from tunnel", band=(0.0, BAND_CP))
+            quantity=r"$\overline{|\Delta C_p|}$", unit="", band=(0.0, BAND_CP))
 wcsv("m6_family", ["level", "cells", "mean_row_rms_Cp_deviation", "verdict"], frows)
 
 # ------------------------------------------------------------------ 3. forces
