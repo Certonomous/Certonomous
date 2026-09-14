@@ -7250,6 +7250,81 @@ refuted; between → indeterminate at this budget. **gpu1 STOPPED by Sanaa
 
 ## dafoam
 
+### D6R3 MULTIPOINT — RESUME PATH, written 2026-09-14T01:18Z by the D6R3 lane at the subscription-switch warning. READ THIS FIRST IF YOU ARE COLD.
+
+> **THE ONE SENTENCE A COLD READER MOST NEEDS: NO DESIGN ITERATION HAS EVER COMPLETED IN THIS ITEM. `J0 = 0.02155297` IS ITERATION ZERO.**
+
+**LIVE RIGHT NOW (detached OS processes — they survive the fleet dying):**
+
+| what | value |
+|---|---|
+| arm | `MP_R2`, pid **1854058**, wrapper **1854057** (PPID 1, reparented to init) |
+| container | `d6r3_MP_R2_20260914T011050Z`, 20 ranks |
+| launched | **2026-09-14T01:10:50Z** |
+| freeze sha | **`55cf19702374c9f0b45fa28dc93b4e6dd8be848d`** |
+| run root | `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/` |
+| log | `MP_R2_20260914T011050Z.log` |
+| **watcher** | pid **1860615** (PPID 1, detached), `cases/dafoam/ladder-a/A2/curriculum_D6R3/d6r3_mp_r2_watch.sh` |
+| watcher writes | `MP_R2_GRADE.json`, `MP_R2_DESIGN_ITERATIONS.tsv`, `MP_R2_WATCHER.log` — all in the **run root**, never the scratchpad (L-186) |
+| registration | `cases/dafoam/ladder-a/A2/curriculum_D6R3/D6R3_MULTIPOINT_PREREGISTRATION.md` (+ Amendments 1–2) |
+
+**THE ONE CHANGE IN `MP_R2`, and it is a RETURN TO A DEFAULT rather than a deviation:**
+`jacMatReOrdering` **`"natural"` → `"rcm"`**. `pyDAFoam.py:530` sets `"rcm"` as **DAFoam's own default**;
+`CRM_Wing/runScript.py:66` is the **published override** to `"natural"` (= no reordering at all, the
+worst case for ILU fill-in and pivot stability). **`pcFillLevel` stays at the published 1** and
+`pcFillLevel 1 → 2` is the **DECLARED NEXT RUNG** if `rcm` does not hold — one change at a time so the
+acting change stays identifiable. Plus a **hot start** (an *initial-condition* change, not physics):
+`aoa0` per condition seeded from `MP_R1`'s converged trim **`[1.32496937, 2.11023869, 2.88211463]`**,
+with `findFeasibleDesign` **kept in the loop**.
+
+**L-40 IS THE GATE AND IT IS NOT CEREMONIAL.** An unrecognised ordering string falls through
+**silently** to nested dissection (`DALinearEqn.C:300-304`), so a typo would run a *third*
+configuration and look like a fix. The watcher therefore checks `Mat ReOrdering: rcm` **first** and
+grades **`NOT A RESULT`** on anything else, before reporting any other number. Driven against the dead
+`MP_R1` log it correctly returns `PROVEN WRONG / printed: ['natural']`.
+
+**WHAT `MP_R1` DIED OF:** PETSc **`-9`** (`DIVERGED_NANORINF`) in the ASM/ILU(1)-preconditioned GMRES
+at the **first adjoint**, on **`cl06`**, the highest-lift condition — KSP residual **bit-identical**
+across iterations 0 and 1 (`1.947951902925e-03` twice) then non-finite. `rc=1`, 9,549 s,
+**3,183.0 core-min, $2.72 derived, ZERO design iterations bought.** Not memory, not MPI, not the
+primal, **not** the registered parity hazard. **Distinct from the lab's existing `-9` note** (`ladder-b/B3/DEFECT_NOTE_ilu_zero_pivot.md`): that one is wall-resolved separated `kOmegaSST` failing at
+iteration 0; ours is wall-function Spalart–Allmaras transonic failing at iteration 1, and this image
+already applies `MAT_SHIFT_NONZERO` (`DALinearEqn.C:270-272`), so an exact zero pivot would already be
+shifted. **A third case for that unfiled family. SUBMISSIONS PARKED — still NOT FILED and undrafted.**
+
+**THE DECOMPOSITION SWEEP IS DONE AND IT DECIDED THE RANK COUNT** (`DECOMP_SWEEP_ROLLUP.json`,
+registration `D6R3_DECOMP_PREREGISTRATION.md` frozen at `c527036b`):
+
+| ranks | rc | position 1 | ×Tol | positions | position 2 |
+|---|---|---|---|---|---|
+| 28 | 1 | `1.194718885139746e-07` | 11.95 | 2 | `1.757696578179007e-06` **FAIL** |
+| **20** | **0** | `4.265593605364853e-08` | **4.27** | **3** | `4.265593605364853e-08` **PASS** |
+| 8 | 1 | `1.233169580459589e-07` | 12.33 | 2 | `1.981968888016819e-06` **FAIL** |
+
+`G-MOVE` **GATE FAIL** (2.891×), `G-PROD` **PASS**, `G-CD` **PASS** (4.43e-05), `G-ORD` **GATE FAIL**,
+`IC-G-cross` **PASS**. At 20 ranks all three conditions are **bit-identical across all 21 printed
+steps** — the correct behaviour, since they are the same physical problem. At 8 and 28 they are not.
+**The defect is present at 8 AND 28 and absent only at 20**, so 20 is the exceptional count.
+`N16`/`N12` are **`PENDING`** — a queue state, never run, not evidence of anything.
+
+**STANDING HAZARD, UNRESOLVED:** one rank count works and there is **no demonstrated theory why**. This
+is a shape optimisation whose mesh deforms every design iteration, and agglomeration is rebuilt from
+changing matrix coefficients, so the parity could flip at an iteration not yet reached.
+`pairGAMGAgglomeration::forward_` is **NAMED AND NOT ADOPTED** — consistent with 8 and 28 failing while
+20 does not, demonstrated by nothing.
+
+**OWNER DIRECTIVES BINDING THIS ITEM:** §M multipoint from the start; §P abort-ratio deviation
+authorised (`docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md:319`, committed
+`ceca3deee`) — **not used, because `MP_R2` needs no threshold change at all**; **no gradient work of any
+kind** (a scoped override of `DAFOAM_CHARTER` §2's bright line, D6R3 only) — so **the gradients driving
+this optimisation are UNVERIFIED and any result carries that on its face**.
+
+**VERIFY (not checked by me this session):** whether the owner still wants `pcFillLevel 1 → 2` as the
+next rung if `rcm` fails; whether `N16`/`N12` should ever be run; whether the reverse-mode
+`DerivativesWarning` (205 design vars vs 755 responses, dominated by the published 750 thickness
+constraints) is worth acting on — I inferred it is a published characteristic from constraint counts
+and did **not** confirm it by running the published case.
+
 **dafoam-supervisor, 2026-09-13 ~17:30Z — THE CAUSE CLASS IS NOT THE MESH, IT IS OUR OWN PRODUCER; THE OWNER'S SHAPE-OPT RULES ARE NOW CHARTER LAW.**
 
 - **Last commit:** `a2a1c9319` — *dafoam SHAPE-OPT STANDING RULES ADOPTED INTO THE CHARTER -- AND THE CAUSE CLASS IS NOT THE MESH, IT IS OUR OWN PRODUCER*. Two files, 93 insertions, additive only: `docs/dafoam/SHAPE_OPTIMIZATION_STANDING_RULES.md` (supervisor rules 17-32 appended BELOW the chief's reading, never inside her block; prefix byte-identity proved by `cmp -n 5774`, exit 0) and `docs/charters/DAFOAM_CHARTER.md` §22, v1.0g -> v1.0h (`cmp -n 148216`, exit 0; no gate, threshold, cap or label in §1-§21 altered).
