@@ -477,3 +477,13 @@ PPTC is set aside until after the demos — no lane effort goes to it; the runni
 **Chief's reading:**
 The plot lane renders, per plot library v2 conventions, the MP_R2 wing wall-patch mesh (as meshed, plus a symmetry-plane volume-mesh cut) and the wall pressure field for each of the three lift conditions (same camera, same colour range) from the six converged iteration-zero primals.
 These are demo panels.
+
+---
+
+## AF. SUBOFF act shows the hardest completed sweep; plot lane reports the CRM primal panels on completion — byte-exact, 2026-09-14 ~02:05Z (owner directive #48)
+
+> command to push to the repo 2. For dafoam three primals, are the plots complete ? if not plotting agent lets me know when these are complete, and for suboff the sweep that i want to show is whichever is the hardest sweep we have
+
+**Chief's reading:**
+This resolves the §Y question — the SUBOFF act shows the hardest completed sweep on disk, which is A1h, the seven-point yaw (β) sweep on the mirrored full L1 mesh (6.5M cells); the instructed α sweep (A1g) never ran and is not required for the act.
+The plot lane reports to the chief when the MP_R2 mesh and three per-condition pressure panels are committed.
