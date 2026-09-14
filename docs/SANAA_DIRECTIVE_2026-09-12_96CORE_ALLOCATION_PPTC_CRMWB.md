@@ -524,3 +524,22 @@ The lab's active fronts are D6R3 MP_R2 (dafoam) and MB13 marinePropeller (cfd), 
 "agreed with what u said" is the owner's consent to launch D6R3 MP_R3 — `pcFillLevel 2` + `jacMatReOrdering rcm`, hot-started, verbatim otherwise — NOW on 20 of the 48 idle propeller ranks, while MP_R2 continues to its own outcome.
 The plot lane stops the SUBOFF render and builds the CRM act folder: the six named board tiles (Baseline drag at the three lift conditions; Trimmed angle of attack; Decomposition study; C_D history; C_L history; Residuals), the ParaView mesh panels and the three-condition pressure panels of §AE, and a Report README in RUN | PROBLEM | SOLUTION | RESULT format.
 "The drop" the chief reported is the adjoint linear-solver residual decrease per 100 iterations — not drag.
+
+---
+
+## AJ. MP_R3 approved by the owner; the CRM plots as fast as possible — byte-exact, 2026-09-14 ~02:58Z (owner directive #52)
+
+> MP_R3 is approved by me. and plottign agent must make the plots asap and let me know
+
+**Chief's reading:**
+D6R3 MP_R3 — `pcFillLevel 2` + `jacMatReOrdering rcm`, hot-started, verbatim otherwise — carries the owner's explicit approval in her own words and runs at 20 ranks on the idle propeller ranks while the propeller family has not launched, alongside MP_R2, which continues to its own outcome.
+The plot lane delivers the CRM act folder of §AI as fast as possible — the six board tiles and the Report first, the ParaView panels second — and the chief notifies her as each lands, with its sha.
+
+---
+
+## AK. Chief's record, 2026-09-14 ~03:05Z — MP_R2 OOM-killed by the lab's own 120 GiB docker cap, a stop forbidden by #17; relaunched uncapped as MP_R2b beside MP_R3
+
+1. D6R3 MP_R2 (`jacMatReOrdering rcm`, `pcFillLevel 1`) was OOM-killed at adjoint KSP iteration ~400 by the lab's own 120 GiB docker memory limit while its residual was still descending. That is a cap stop, forbidden by owner directive #17 (no run stopped by time or budget cap), and it is an infrastructure failure, not physics: the registration is not voided.
+2. Chief rulings under #17: the 420 GiB container ceiling already set in place on MP_R3 stays and is not lowered; the arm script's `MEMG=120` is corrected for future instances only, never on a running one.
+3. MP_R2 is relaunched as MP_R2b on its own 20 ranks — same frozen registration, 420 GiB ceiling, hot-start — alongside MP_R3 (`pcFillLevel 2` + `rcm`, approved by the owner in §AJ), so the fill-level-1 question gets a measured answer rather than an inferred one. Ranks: MB13 32 + MP_R3 20 + MP_R2b 20 = 72 of 96.
+4. Standing result on the record: the `rcm` change removed the `-9` NANORINF failure. MP_R1 was dead at adjoint iteration 1; MP_R2 descended monotonically from 1.948e-3 to 1.722e-3 by iteration 300. The reordering, not the fill level, is what made the adjoint linear solve run at all.
