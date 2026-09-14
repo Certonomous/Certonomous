@@ -33630,6 +33630,69 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 208-COLD-RESUME-PRISM-A2-IS-NOT-DETACHED-AND-CANNOT-BE-RESCUED-PLUS-THE-MB13-ONE-CHARACTER-FINDING -->
+
+**Section last written:** 2026-09-14T01:15:44Z by a cfd lane (Opus 5, `lab-lane`) at HEAD `1db208798`, via `scripts/lab_state_section.py` + the rule-10 private-index protocol. **Newest block is 208, at the TOP of this section.** ⚠ **HEADER CORRECTION:** the stamp on block `169` at the head of this section claims *"Newest block is 207"* and it is **stale and wrong** — the true maximum on disk, re-derived from the tail in the same shell invocation as this commit (rule 11), was **207**. A stale header already produced one colliding id in this section tonight. **Trust the tail, never the header, never a block count** (186 blocks, max id 207, new id 208 — three different figures).
+
+### 🔴 RUNNING / AT RISK — **PRISM-A2 IS *NOT* DETACHED AND CANNOT BE RETROACTIVELY DETACHED. THIS IS THE HEADLINE.**
+`snappyHexMesh -overwrite`, **pid 1768257**, PPID 1767981, PGID 1767981, **SID 1767979**. **That SID is the Claude session's own `bash -c`** — ancestry `claude --resume` (1677737) → `-bash` (1676539) → `sshd`. ***It dies with this session.*** **A running process's session cannot be changed — `setsid` only works at spawn — so there is NO WAY TO RESCUE IT NOW.** Do not read this as safe; it is not.
+- **Run root:** `/home/ubuntu/certonomous-runs/PPTC_VP1304/PRISM_A2_absthick`
+- **Stage (read by me at 01:15Z):** layer phase, **`Layer addition iteration 14` of `nLayerIter 50`**, elapsed **02:41:35**, **~161.6 core-min** spent at 1 rank against a registered 180. **Recorded, NOT a stop** — Sanaa's NO-CAP directive #17.
+- **Wrapper `run_a2.sh` lives in the SHARED SCRATCHPAD**, which is wiped between sessions (L-186). **So the rc capture dies with it too** — the `RC/WALL_S/CORE_MIN/END_LINE` block it appends to `RUN_STATUS` will never be written. `RUN_STATUS` currently holds only `LAUNCH 2026-09-13T22:34:09Z`, `PRE_MESH_MTIME 1789300443`, `RANKS 1`.
+- 🔴 **THE MESH IS WRITTEN ONLY AT THE END, SO A KILL LOSES ALL OF IT: ~161.6 core-min lost, nothing salvageable from the run directory.**
+- **RELAUNCH, AS ONE COMMAND** (a cold session must re-detach it properly — `setsid` at spawn, rc captured INSIDE the wrapper, never around the `setsid` line):
+  ```
+  cd /home/ubuntu/certonomous-runs/PPTC_VP1304/PRISM_A2_absthick && \
+  mv -n log.snappyHexMesh log.snappyHexMesh.PRISM_A2_killed_by_session_end 2>/dev/null; \
+  setsid bash -c '. /usr/lib/openfoam/openfoam2606/etc/bashrc; cd /home/ubuntu/certonomous-runs/PPTC_VP1304/PRISM_A2_absthick; T0=$(date +%s); snappyHexMesh -overwrite > log.snappyHexMesh 2>&1; rc=$?; T1=$(date +%s); { echo "RC $rc"; echo "WALL_S $((T1-T0))"; echo "CORE_MIN $(python3 -c "print(round($((T1-T0))*1/60.0,2))")"; echo "END_LINE $(tail -1 log.snappyHexMesh)"; date -u +"FINISH %Y-%m-%dT%H:%M:%SZ"; } >> RUN_STATUS' < /dev/null > /dev/null 2>&1 &
+  ```
+  **The successor must re-copy the wrapper OUT of scratch and under the case directory before relying on it** — a repository document never cites a scratch path, and the scratch copy will not exist.
+- **IN-FORCE DICTIONARY VALUES, confirmed on disk in the LIVE `system/snappyHexMeshDict`:** `relativeSizes false`; `nSurfaceLayers 2` on **all four** patches; `expansionRatio 1.2`; `finalLayerThickness` **2.7068e-4** blades / **5.4136e-4** hub / **5.4136e-4** cap / **1.0827e-3** shaft; `minThickness` **one tenth of each**. Registered at `PPTC_PRISM_A2_PREREGISTRATION_DRAFT.md` §5, Amendment 2 A2.4.
+
+### 🟢 DETACHED AND SAFE — the SUBOFF grader
+`grade_watch_a1h_l1m_v2.sh`, **pid 1821447, SID 1821447 — its own session leader**, so it survives this session's teardown (I read `ps -o pid,sid,ppid` myself at 01:15Z: elapsed 56:35, **PPID 1821443**, which was still alive at my read — the "reparented to init" reading I was handed is **not what I measured**; the SID is what makes it safe, not the PPID). **VERIFY the PPID if it matters.**
+- **Run root:** `/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_GRADE/`
+- It waits on **`last Time == 3000 AND solve_rc == 0`**, which **the stopped runs cannot satisfy**, with a **48 h grade-anyway deadline that stops nothing**. It will sit there. That is expected, not a hang.
+
+### 🔴 BLOCKED — MB13 marinePropeller at gate **G2a `BLOCKED`**. **NOTHING RUNNING.**
+Run root `/home/ubuntu/certonomous-runs/MB13_MARINE_PROPELLER/nref1_n32`.
+**THE NIGHT'S BEST RESULT, AND IT MUST SURVIVE — a one-character dictionary typo that 32 ranks FATALed on:**
+- `log.snappyHexMesh.rotor` **FATALed on all 32 ranks** with `Entry 'minMedialAxisAngle' not found in dictionary "stream/addLayersControls"`.
+- **The rotor dict line 305 reads `minMedianAxisAngle 90;`; the main dict line 290 reads `minMedialAxisAngle 90;`.** ***Same value. One character. `Median` vs `Medial`.***
+- **The outer snappy in the SAME RUN added layers on 30,680 of 30,680 cells (100 %)** — so the binary is fine and the geometry is fine; the rotor dict alone is broken.
+- **Deviation 2 — the one-character fix, VALUE UNTOUCHED — is authorised on Sanaa's own words *"fixing these is fine"*.**
+- **Next session resumes at stage 8** with the FATAL log ***RENAMED, NOT DELETED*** (`runApplication` skips any stage whose log exists, so a surviving FATAL log silently skips the stage) **and excludes it from G2a's sweep BY NAME.**
+
+### 🔴🔴 **THE HAZARD THAT MUST NOT BE LOST — A POPULATED CELLZONE IS NOT EVIDENCE OF A SOUND MESH**
+**The zone prover returned `v_fluid_rotor 434160 cells rc=0` ON THE BROKEN MESH, plant seen.** ***A populated, correctly-named cellZone is NOT evidence a mesh is sound, and **G2a CANNOT be replaced by the zone proof.*** `topoSet`, `mergeMeshes`, `createPatch` and `extrudeMesh.step1` **all completed on a layerless rotor in 7 seconds** — because ***`runApplication` never tests exit status and `Allrun` has no `set -e`.*** This is the same shape as the DrivAer zero-layer defect: **a tool reporting success while doing nothing.**
+
+### 🔴 PPTC BLOCKERS — UNCHANGED
+- **No MRF cellZone on any production mesh.** Root cause: **`cases/PPTC_VP1304/mesh/build_level.sh:176`** runs `topoSet` where **`topoSetDict` was never staged**; `die()` exits **before** checkMesh and before the birth certificate.
+- **TWO SIGFPEs.** (1) **GAMG in `GAMGSolver::scale` (pressure) at `Time = 1` with HEALTHY residuals.** (2) **PCG in `symGaussSeidelSmoother::smooth` (momentum) at `Time = 5`.** **The first pressure solve amplified 1.79× on pristine fields — which a DIC-preconditioned CG CANNOT DO on an SPD matrix.**
+- **Same-mesh SPD evidence: witness cell 1,334,283, `A_PP` = −5.240107530e+01.** ***DO NOT GO SOLVER-SHOPPING ON THIS MESH.*** The matrix is not SPD; a different solver buys a different crash, not an answer.
+
+### ⚖️ SUBOFF VERDICT — **`NOT A RESULT`**, by two independent routes
+1. **Strict completion (rule 4):** stopped at **2670–2881 of 3000**. Not done, all-or-nothing.
+2. **§4.2's positive fit: `Y_v′ = +1.327616e-03` against Roddy's −0.023008.** Wrong sign.
+**`endTime` was NOT amended, deliberately:** the chief's operationalisation **is not Sanaa's consent (rule 9)**, and amending buys nothing — route 2 stands on its own.
+
+### 📋 OWED TO SANAA — the PRISM-A2 four-line gate update, **the moment the layer phase ends**
+Four lines, no more: (a) **faces extruded / total on blades, hub, shaft**; (b) **layers achieved**; (c) **the three-limb gate — negative volumes, wrong-oriented pyramids, SPD — each with its number**; (d) **if it fails, the mechanism in ONE plain sentence plus TWO candidate rungs.**
+- **Currently trending to ~60.9 % extruded** (I read `Extruding 441204 out of 724711 faces (60.879992%)` at iteration 14 myself), **inside §5's registered 40–90 % band.**
+- 🔴 ***BUT P2 COMES FROM THE ACHIEVEMENT TABLE via `read_layer_achievement.py`, WITH THE PLANT PRINTED BESIDE IT — NEVER FROM AN `Extruding` LINE.*** **The parent printed 71.99 % and then collapsed to ZERO at its very next print.** An `Extruding` line is a mid-iteration intention, not an achievement.
+
+### ✅ REGISTERED AND READY
+- **CFM-1** frozen **`937e0893c`** + amendments — **`BLOCKED`**: controls **A and C fail**. **Three reader repairs ruled by the supervisor:** (1) keep **C's max statistic** and fix the **PLANT**; (2) fix **`opposite()`**, *not* control A's threshold; (3) repair the **35.1 % `None` rate** before **G1** can grade.
+- **MB13** frozen **`64195e9b`** + **`cf67f8d7`** + **`524fef08`**.
+
+### ⚠ REGISTERS STILL BLOCKED AT EXIT 7 — **verification's to fix, NOT ours**
+`docs/LESSONS.md` (**3 ids**) and `docs/NUMERICS_KNOWLEDGE.md` (**1**). **A cfd lane must not "helpfully" repair these.**
+
+**Provenance of this block:** the process facts, the MB13 finding, the PPTC blockers, the SUBOFF verdict and the registered-and-ready list were **dictated to me by the cfd-supervisor**. What I personally verified in this session, at 01:15:44Z: the two `ps -o pid,sid,ppid,etime` readings; the PRISM-A2 run root contents, `RUN_STATUS`, the wrapper text in scratch, and the `Layer addition iteration 14` / `60.879992 %` lines in `log.snappyHexMesh`; the block-id maximum 207; HEAD `1db208798`. **Everything else in this block is marked VERIFY below.**
+**VERIFY (not confirmed by me this session):** the MB13 log lines and dict line numbers 305/290 and the 30,680/30,680 figure; the zone-prover output; the PPTC SIGFPE loci, the 1.79× amplification and `A_PP` = −5.240107530e+01; `build_level.sh:176`; the SUBOFF stop range and `Y_v′`; the CFM-1 and MB13 freeze shas; the register exit-7 counts; the snappyHexMeshDict values were read by the supervisor on disk, not re-read by me.
+
+**SUBMISSIONS PARKED. `NOT FILED` stands on every upstream draft.**
+
 <!-- BOARD-BLOCK-ID: 169-STATE-ONLY-PER-SANAAS-LESS-PLUMBING-DIRECTIVE -->
 
 **Section last written:** 2026-09-14T01:25Z by a cfd `lab-lane` (Opus 5). **Newest block is 207 at the FOOT of this section.** *(Block 206 corrected this line from a stale 2026-09-12 assertion; it is kept current here at every write.)*
