@@ -62,9 +62,21 @@ for eta in STATIONS:
     lo = G.cfd_curve(blk, "lower", blk.get("x_le"), blk.get("x_te"))
     rup = ref[(round(eta, 4), "upper")]
     rlo = ref[(round(eta, 4), "lower")]
+    # ALL TWELVE GRADED ROWS ARE ON THE FIGURE, not the six upper ones.
+    # Sanaa, 2026-09-14: the table this folder stands on is a TWELVE-row table
+    # (six stations x upper and lower), and the panel drew six of them. Each
+    # station is now the closed section loop -- lower surface from the trailing
+    # edge forward to the nose, then upper surface back to the trailing edge --
+    # so both graded surfaces of a station are one continuous curve, with the
+    # tunnel taps of both surfaces as markers. Nothing is re-extracted: these are
+    # the same `cfd_curve` and `read_reference` arrays the grader itself read.
+    loop_x = [t[0] for t in reversed(lo)] + [t[0] for t in up]
+    loop_c = [t[1] for t in reversed(lo)] + [t[1] for t in up]
+    exp_x = [q[0] for q in reversed(rlo)] + [q[0] for q in rup]
+    exp_c = [q[1] for q in reversed(rlo)] + [q[1] for q in rup]
     stations.append({"eta": eta,
-                     "xc": [t[0] for t in up], "cp_cfd": [t[1] for t in up],
-                     "xc_exp": [p[0] for p in rup], "cp_exp": [p[1] for p in rup]})
+                     "xc": loop_x, "cp_cfd": loop_c,
+                     "xc_exp": exp_x, "cp_exp": exp_c})
     for surf, cur, rr in (("upper", up, rup), ("lower", lo, rlo)):
         for x, c in cur:
             cprows.append([eta, surf, "cfd", x, c])

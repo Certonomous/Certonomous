@@ -160,3 +160,106 @@ Everything above still holds. What changed is the DRAWING, not a number.
   snappy mesh is genuinely illegible, and this structured O-grid is not.
 * `m6_geometry.png` is the imported grid's wall patch, the geometry **as meshed**;
   there is no admitted STL for this family and none was invented.
+
+---
+
+## ROUND 4 — 2026-09-14, THE OWNER'S FIGURE-BY-FIGURE NOTE
+
+Six of her points, executed. **No solver ran**; every panel is the same graded
+solution re-drawn. `PROVENANCE_PANELS.tsv` now carries a row per ParaView panel:
+case, cells, time directory, the patch or plane, the camera and the colour window
+with the basis it was chosen on.
+
+**The level, settled first, because her note and this folder name it differently.**
+She writes *"L3 (983k cells)"*. The 983,040-cell level is this family's **`M6J_L1`**
+— `constant/polyMesh/owner` reads `nCells:983040`, the `wing` patch **7,680 faces**;
+`M6J_L3` is the **15,360**-cell coarse level with **480** wall faces. The field
+panels were **already** on the 983,040-cell level and still are. What made them look
+coarse was the DRAWING: `p` was painted **per cell**, so 7,680 flat facets, with the
+**cell edges drawn on top**. Both are gone — `p` is interpolated to the points and
+the pressure panels carry no wireframe. The mesh panels keep their edges.
+
+| Her item | File | What changed |
+|---|---|---|
+| 1. surface pressure, oblique | `m6_p_oblique.png` | point-interpolated `p`, no cell edges, round five-tick bar |
+| 2. upper-surface pressure, plan | `m6_p_upper_top.png` | camera **along −z**, up +y, parallel projection, whole planform with a 5 % margin; same window as item 1 |
+| 3, 4. Mach at 65 % / 90 % span | `m6_mach_eta065.png`, `m6_mach_eta090.png` | **M fixed 0 to 1.4**, five ticks 0 / 0.35 / 0.70 / 1.05 / 1.40, **M = 1 drawn in black**, section outlined, window cut to the chord (−0.3 c to +1.3 c, ±0.6 c), bar lettering enlarged |
+| 5. mesh convergence | `m6_family.png` | unchanged |
+| 6. Cp at six stations | `m6_cp_stations.png` | **all twelve graded rows** — upper *and* lower at each station, both surfaces' taps |
+| support: force / residual / nose cut / surface mesh | unchanged | unchanged |
+| support: "wing surface as meshed" | `m6_geometry.png` | the **plain** surface: no field, and now no wireframe either, so it is not a second copy of `m6_mesh_surface.png` |
+
+### The colour windows, and the rule they were chosen by
+
+Her rule: *where the raw range is much wider than the field's 2nd–98th percentile
+band on the rendered surface, use the percentile band, rounded outward to round
+values with five round ticks.* "Much wider" is fixed at a quarter again as wide and
+is stated in the code, not left to the eye. Measured on this solution:
+
+* **surface `p`** — raw **37,677 to 147,233 Pa**, percentile band **43,734 to
+  140,055**. The raw range is **not** much wider, so the RAW range is the window,
+  rounded outward to **30,000 to 150,000 Pa**, ticks every 30,000. Shared by both
+  surface panels.
+* **Mach** — **FIXED 0 to 1.4 by her order**, whatever the data does. Measured for
+  the record: raw **0.00096 to 1.5272**, percentile band **0.0233 to 1.2302**. The
+  ends are clamped; nothing is removed from the data.
+* **|U|** — raw **0.347 to 467.8 m/s**, percentile **8.23 to 400.0**; raw again not
+  much wider, rounded to **0 to 500 m/s**, ticks every 125.
+
+### What the Mach panels actually show, stated here and not on the figure
+
+There **is** a supersonic pocket on the upper surface and the sonic line closes it.
+Measured from the graded Cp rows against this case's own critical pressure
+coefficient **Cp\* = −0.3282** (from γ = 1.399726, M∞ = 0.8395):
+
+| station | CFD pocket, x/c | tunnel taps below Cp\*, x/c |
+|---|---|---|
+| η = 0.65 | **0.009 – 0.500** | 0.020 – 0.450 |
+| η = 0.90 | **0.009 – 0.289** | 0.012 – 0.300 |
+
+So the pocket is there and it ends roughly where the tunnel's does. **What is not
+there is the lambda (double-shock) structure at η = 0.65**: the panel shows ONE
+continuous pocket closed by a single, gradual sonic front, not two. That is the
+solution, and the figure draws the solution. The same smearing is what the grade
+file reports as `cfd_cp_rise_at_shock` **0.109** against the experiment's **0.424**
+at η = 0.65.
+
+### The Cp panel and the twelve rows — READ THIS BEFORE QUOTING THE FIGURE
+
+The panel now draws **all twelve graded rows**: at each of the six stations the
+section loop runs lower surface from the trailing edge to the nose and upper
+surface back, with the tunnel taps of BOTH surfaces as markers. Nothing was
+re-extracted — these are the same `cfd_curve` and `read_reference` arrays the
+grader itself read, from `M6J_L1/cp_extracted.json` at `M6J_L1_8000`.
+
+**THE TWELVE ROWS ARE NOT ALL INSIDE THE BAND, AND NO SOLUTION IN THIS LAB HAS
+THEM ALL INSIDE.** Every M6 grade file on disk was re-read for this round — the
+three M6J levels, the eight M6I variants and the dafoam A3 primal — and the best
+any of them reaches is **7 of 12**. `m6j_grade_M6J_L1.json` is `GATE FAIL` with
+**7 of 12 inside**: all six lower surfaces, and **one of six uppers** (η = 0.80).
+"All twelve rows inside B1" is the **PASS RULE** written in
+`A3_M6_AGARD_CP_VALIDATION_PREREGISTRATION.md:197` and
+`M6I_R1_SOLVE_PREREGISTRATION.md:70` — a condition registered before the run, not
+an outcome any run has met. The figure therefore stands on the graded solution and
+shows the upper surface where it is.
+
+| row | RMS ΔCp | band | | row | RMS ΔCp | band | |
+|---|---|---|---|---|---|---|---|
+| η 0.20 lower | 0.0381 | 0.050 | inside | η 0.20 upper | 0.0708 | 0.050 | **miss** |
+| η 0.44 lower | 0.0328 | 0.050 | inside | η 0.44 upper | 0.0632 | 0.050 | **miss** |
+| η 0.65 lower | 0.0174 | 0.050 | inside | η 0.65 upper | 0.0686 | 0.050 | **miss** |
+| η 0.80 lower | 0.0190 | 0.050 | inside | η 0.80 upper | 0.0418 | 0.050 | inside |
+| η 0.90 lower | 0.0232 | 0.050 | inside | η 0.90 upper | **0.1046** | 0.050 | **miss** |
+| η 0.96 lower | 0.0209 | 0.050 | inside | η 0.96 upper | 0.0575 | 0.050 | **miss** |
+
+Worst row **η = 0.90 upper, RMS 0.1046 — 2.09× the band**, worst single orifice
+**0.4821** at x/c = 0.002.
+
+### Two renderer facts, recorded rather than worked around
+
+* ParaView 5.11.2 draws `[` and `]` in a scalar-bar title as parentheses, and drops
+  the `|` of `|U|`. The titles are written with the glyphs the orders ask for.
+* `pvpython` exits **rc = 1** on `GLXBadContext` **after** the driver has returned 0,
+  written every panel and proved the run tree unchanged. It is an X teardown in the
+  headless server, not a render failure; every figure in this round was written
+  before it.
