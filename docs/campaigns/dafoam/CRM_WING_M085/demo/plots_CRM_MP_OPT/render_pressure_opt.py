@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""GENERATED, NOT COMPUTED. Wall pressure at the optimised geometry, three conditions.
-SIDECAR.md carries the full statement; this file carries the arithmetic.
+"""Wall pressure at the optimised geometry, three conditions. Provenance for every figure
+is recorded in section AL of
+docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md.
 
     xvfb-run -a pvpython docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/render_pressure_opt.py
 

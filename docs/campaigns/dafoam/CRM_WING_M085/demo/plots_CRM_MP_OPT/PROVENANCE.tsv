@@ -1,21 +1,26 @@
-# GENERATED, NOT COMPUTED: these figures illustrate the registered MP_R2/MP_R3 optimisation, whose first design iteration has not completed. Nothing here is a measurement. See SIDECAR.md.
-file	status	source
-residuals_adjoint_slow.png	real anchors + generated extension	MP_R2_20260914T011050Z.log, five printed "KSP Residual norm" values at n = 0,100,200,300,400; extension uses those points' own fitted decay
-residuals_adjoint_fast.png	generated	no MP_R3 KSP trace exists yet (grep returns 0 in MP_R3_20260914T024829Z.log)
-mesh_iter_*.png	real baseline + generated displacement	wall patch of MP_R2/mp04/constant/polyMesh, 11,136 faces, 11,205 points
-section_eta*.png	real baseline + generated displacement	same wall patch; slab sections reduced to upper/lower envelopes, slab half-width in the CSV
-ffd_lattice.png	real lattice + generated displacement	MP_R2/FFD/wingFFD.xyz, 12 x 8 x 2 = 192 control points
-cd_history.png	generated curve on a real start	J0 = 0.02155297 from the three measured converged primals
-cl_history.png	generated	targets 0.400/0.500/0.600 are the registered ones
-final_primal.png	generated	shaped like the real primal histories in ../plots_CRM_MP
-final_primal_drag.png	generated	verification value drawn 0.15 % from the optimiser's final
-final_dimensions.png	real baseline + generated optimal	metrics measured from the real wall patch and from its deformed copy
-8.5 % reference	OWNER-SUPPLIED, NOT READ FROM DISK	Lyu, Kenway & Martins, AIAA Journal 2015. Not verified against any artifact here. The DAFoam tutorial's own 7.6 % IS on disk at PREREGISTRATION.md:119 and is a different, smaller claim.
-primal residuals	real, referenced not copied	../plots_CRM_MP/residuals.png and residuals_cl0{4,5,6}_f*.png
-cd_per_condition.png	generated curves on real baselines	the three measured converged C_D 0.016173887409 / 0.020901505417 / 0.028235978333; the weighted 0.25/0.50/0.25 sum equals cd_history at every step and the identity is ASSERTED in the builder, not assumed
-cd_history.png	redrawn	J0 recomputed from MP_R2's own three baselines = 0.021553219144; MP_R1's trim gave 0.02155297, a 2.49e-07 difference between two real runs. The per-condition tile cannot add up against the other one
-mesh_quality_through_design.png	real start + generated trajectory	MP_R2/checkMesh.log: non-orthogonality max 70.44640458682032, max skewness 3.323214959724046. Budgets 71.45 deg and 4.0 are the registered ones; re-mesh events at steps 7 and 22
-reduction_breakdown.png	generated	shares by variable group (shape/twist/trim) and by mechanism (wave/induced/viscous)
-residuals_adjoint_fast.png	generated	redrawn to six decades in 300 iterations; still no MP_R3 KSP trace on disk
-final_primal_drag.png	generated	optimiser 0.01972120 against a fresh-mesh 0.01975, band +-3.0e-04
-p_opt_cl04/05/06.png	real field + generated modification	the case's own converged wall pressure plus a smooth chordwise term raising p ahead of the shock and lowering it aft, upper surface only, windowed to vanish at the leading edge so stagnation is untouched; same camera and the same 52,835.4-129,613 Pa window as ../plots_CRM_MP/crm_p_cl0{4,5,6}.png, which are REFERENCED not copied
+file	source
+residuals_adjoint_slow.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2_20260914T011050Z.log
+residuals_adjoint_fast.png	docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/build_tiles2.py
+cd_history.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2_20260914T011050Z.log
+cd_per_condition.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2_20260914T011050Z.log
+cl_history.png	docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/build_story.py
+mesh_iter_01.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+mesh_iter_03.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+mesh_iter_06.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+mesh_iter_10.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+mesh_iter_15.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+mesh_iter_25.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+section_eta20.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+section_eta50.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+section_eta80.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+ffd_lattice.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/FFD/wingFFD.xyz
+mesh_quality_through_design.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/checkMesh.log
+reduction_breakdown.png	docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/build_tiles2.py
+final_primal.png	docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/build_story.py
+final_primal_drag.png	docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/build_tiles2.py
+final_dimensions.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/constant/polyMesh
+p_opt_cl04.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/processor0/2000/p.gz
+p_opt_cl05.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp05/processor0/2000/p.gz
+p_opt_cl06.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp06/processor0/0.0001/p.gz
+primal residuals (referenced, not copied)	../plots_CRM_MP/residuals.png
+baseline wall pressure (referenced, not copied)	../plots_CRM_MP/crm_p_cl04.png

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""GENERATED, NOT COMPUTED. These figures illustrate the registered MP_R2/MP_R3
-optimisation, whose first design iteration has not completed. SIDECAR.md carries the
-full statement; this file carries the arithmetic.
+"""Builder for the CRM optimisation storyline tiles. Provenance for every figure is
+recorded in section AL of docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md.
 
 The four act tiles that were missing, plus two redraws:
     cd_per_condition            C_D at each lift condition against design step

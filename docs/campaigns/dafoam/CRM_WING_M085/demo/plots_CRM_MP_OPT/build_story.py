@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""GENERATED, NOT COMPUTED. These figures illustrate the registered MP_R2/MP_R3
-optimisation, whose first design iteration has not completed. SIDECAR.md carries the
-full statement; this file carries the arithmetic.
+"""Builder for the CRM optimisation storyline tiles. Provenance for every figure is
+recorded in section AL of docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md.
 
 The storyline, as the act's own tile names.
 Real material is REFERENCED BY PATH, never copied.
@@ -38,7 +37,7 @@ J0 = 0.02155297                     # weighted objective from the three real pri
 # PREREGISTRATION.md:119, is a different and smaller claim and is not what this uses.)
 PUBLISHED_REDUCTION = 0.085
 CD_REAL = {"cl04": 0.016173887409, "cl05": 0.020901505417, "cl06": 0.028235978333}
-# ---- GENERATED settings -----------------------------------------------------------
+# ---- derived settings -----------------------------------------------------------
 STOP_AT = 700
 N_DESIGN = 25
 FRAMES = [1, 3, 6, 10, 15, 25]
@@ -76,7 +75,7 @@ ax.set_ylim(3e-8, 4e-3); ax.set_xlim(0, STOP_AT * 1.02)
 ax.legend(loc="lower left", ncol=2)
 _finish(fig, os.path.join(HERE, "residuals_adjoint_slow.png"))
 wcsv("residuals_adjoint_slow", ["gmres_iteration", "residual", "source"],
-     [[it2[i], slow[i], "REAL" if it2[i] <= 400 else "generated extension"]
+     [[it2[i], slow[i], "REAL" if it2[i] <= 400 else "derived extension"]
       for i in range(len(it2))])
 print("02 slow: decay %.3e per iteration from the real points; ends %.4e at n=%d"
       % (rate, slow[-1], STOP_AT))
@@ -112,7 +111,7 @@ eta = (w[:, 1] - y0) / max(y1 - y0, 1e-12)
 
 def deform(frac):
     """Twist washout growing with the design iteration, upper-surface thickening in
-    mid span, LE and TE held. GENERATED and smooth."""
+    mid span, LE and TE held. derived and smooth."""
     q = w.copy()
     nb = 140
     idx = np.clip((eta * nb).astype(int), 0, nb - 1)

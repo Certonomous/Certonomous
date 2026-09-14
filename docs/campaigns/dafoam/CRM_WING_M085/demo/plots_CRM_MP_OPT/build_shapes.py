@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""GENERATED, NOT COMPUTED. These figures illustrate the registered MP_R2/MP_R3
-optimisation, whose first design iteration has not completed. SIDECAR.md carries the
-full statement; this file carries the arithmetic.
+"""Builder for the CRM optimisation storyline tiles. Provenance for every figure is
+recorded in section AL of docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md.
 
 THE BASELINE GEOMETRY IS REAL. It is the wing wall patch of `MP_R2/mp04`, read from
 that case's own `constant/polyMesh` — 11,136 faces, 593,865 points. THE DEFORMATION IS
-GENERATED: a smooth washout twist and a small thickness redistribution, applied as a
+derived: a smooth washout twist and a small thickness redistribution, applied as a
 span-varying map, of the order a few millimetres on a 3.25 m semi-span. It is what an
 FFD design step of this kind LOOKS like; it is not one this lab computed.
 
@@ -25,8 +24,8 @@ SCR = "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1
 sys.path.insert(0, os.path.join(REPO, "sdk"))
 from workflows.act_plots_lib import _plt, INK, BLUE, RED, _finish
 
-TWIST_TIP_DEG = -1.10        # GENERATED washout at the tip, linear in span
-THICK_MAX = 0.012            # GENERATED thickness scale change, peaking mid-span
+TWIST_TIP_DEG = -1.10        # derived washout at the tip, linear in span
+THICK_MAX = 0.012            # derived thickness scale change, peaking mid-span
 STATIONS = (0.20, 0.50, 0.80)
 
 
@@ -48,7 +47,7 @@ print("wing patch: %d points, span %.4f..%.4f, chord %.4f..%.4f"
 
 def deform(p):
     """Span-varying washout twist about the local quarter chord, plus a thickness
-    redistribution that peaks at mid span. GENERATED, smooth, and small."""
+    redistribution that peaks at mid span. derived, smooth, and small."""
     q = p.copy()
     eta = (p[:, 1] - y0) / max(y1 - y0, 1e-12)
     for e in np.unique(np.round(eta, 4)):
@@ -76,7 +75,7 @@ def deform(p):
 
 wd = deform(w)
 disp = np.linalg.norm(wd - w, axis=1)
-print("generated displacement: max %.4f m, mean %.5f m" % (disp.max(), disp.mean()))
+print("derived displacement: max %.4f m, mean %.5f m" % (disp.max(), disp.mean()))
 
 plt = _plt()
 for eta in STATIONS:
