@@ -770,3 +770,192 @@ exists to accumulate.
 frozen.** `G2a` and the disk stop condition are **additions registered before first compute**,
 both of which can only produce `BLOCKED` — they can stop the act, and they cannot turn any
 `GATE FAIL` into a `PASS`. G0 remains `PASS`; every other gate remains not yet run.
+
+---
+
+## ADDENDUM B1 — 2026-09-14, **AFTER FIRST COMPUTE**
+
+**Version 1.2 → 1.3. Lines whose number changed above this section: 0.**
+
+**THIS IS AN ADDENDUM, NOT AN AMENDMENT.** First compute has occurred: the mesh
+pipeline ran and `rhoSimpleFoam` started **2026-09-14T01:21:03Z**. Under standing rule 2
+the gates are now **CLOSED**. Nothing below alters a gate, threshold, cap or label —
+**G4 (Fy 325 ± 20 N), G5 (|My| 18.0 ± 1.5 N·m), G6 (BPF 100 ± 3 Hz), G2a and the §6 cost
+band are untouched.** Originals are struck, never rewritten. Everything below was
+**re-derived on disk by this lane**, not accepted from the relay; where a relayed claim did
+not survive checking, that is said.
+
+### B1.1 — **§5's "APPLIED DICTIONARY DEVIATIONS: ZERO" IS STRUCK. THERE ARE FOUR.**
+
+Four published files were edited, **six lines total**. Verified by comparing the running
+tree `/home/ubuntu/certonomous-runs/MB13_MARINE_PROPELLER/nref1_n32` against the hashed
+upstream tree, file by file:
+
+| Dev | File:line | Change | Class |
+|---|---|---|---|
+| **D1** | — | `bash ./Allrun 32` | **invocation only, zero bytes** — as registered in §5 |
+| **D2** | `system/v_fluid_rotor/snappyHexMeshDict:305` | `minMedianAxisAngle` → `minMedialAxisAngle`, **one character**; value `90` untouched | **upstream typo** — this is §5's D5 remedy, fired exactly as pre-registered |
+| **D3** | `system/controlDict.st:24-25` and `system/controlDict.tr:25-26` | `.st` `writeInterval` 5000→**500**, `purgeWrite` 0→**2**; `.tr` `writeInterval` 1.0e-01→**2.5e-02**, `purgeWrite` 1→**2** | **checkpointing** — §5's D4a/D4b, authorised and applied |
+| **D4** | `system/fvSchemes.st:41` | **one line added**: `    div(phiMRF,p)   Gauss limitedLinear 1;` | **v2206→v2606 version drift** — a NEW deviation, not registered in §5 |
+
+**D3 sizing check, verified:** `5000 % 500 == 0`, so the directory named literally `5000`
+is still written **and is the last one**, therefore retained under `purgeWrite 2`. **D3
+does not break the `replace.sh` handoff** that §1.4 flagged as all-or-nothing.
+
+**D4 provenance, verified here and not taken on trust:** `grep -rn 'div(phiMRF'` over the
+**entire** v2606 tutorial tree returns **exactly one hit** —
+`tutorials/compressible/rhoPimpleFoam/RAS/mixerVessel2D/system/fvSchemes:32` — and the
+staged line at `system/fvSchemes.st:41` is that line's text. **There was no selection among
+candidates**, so this is a copy, not a choice. `phiMRF` is framework-constructed and appears
+nowhere in the published case. **`fvSchemes.tr` does NOT carry it and it was NOT added** —
+MRF is off for the transient (`Allrun:120`), confirmed on disk.
+
+**D2 and D4 are DIFFERENT DEFECT CLASSES and are filed separately.** D2 is an upstream
+typo that was never correct. D4 is genuine version drift: the published case ran on v2206
+and v2606 requires a scheme the case does not supply.
+
+### B1.2 — **A PLAIN `diff -r` SHOWS TWELVE FILES, AND EIGHT OF THEM ARE NOT DEVIATIONS**
+
+A successor who diffs the run tree against upstream will see **12 differing files** and must
+not read that as twelve hidden deviations. Eight are **upstream's own runtime rewrites**,
+verified:
+
+- `constant/MRFProperties`, `constant/turbulenceProperties`, `system/fvOptions`,
+  `system/extrudeMeshDict.step1`, `system/extrudeMeshDict.step2` — all rewritten in place by
+  `Allrun`'s own `foamDictionary -set` calls (lines 60-62, 90, 96, 105-107, 118-120).
+- `system/controlDict`, `system/fvSchemes`, `system/fvSolution` — pure `\cp` copies of their
+  `.st` siblings (`Allrun:57-59`). **Proven by `cmp`: each is byte-identical to its `.st`
+  file in the run tree.** They inherit D3 and D4 rather than adding anything.
+
+**Four edits, eight rewrites, twelve differing files.** Only the four are deviations.
+
+### B1.3 — THE AUTHORISATION FOR D2, RECORDED AS WHAT IT IS
+
+D2 was applied on an authorisation relayed by the cfd-supervisor as Sanaa's own words:
+*"it may be bc they were using an old openfoam version. fixing these is fine"*.
+
+**This lane cannot verify that utterance** — no agent's message is Sanaa's consent
+(standing rule 9), and the quote reaches this record through one relay. It is filed as
+**relayed, not verified**, and D2 was applied on that basis by the lane that applied it.
+
+**And the authorisation's stated reason does not fit D2.** Sanaa's quoted reasoning is about
+*an old OpenFOAM version* — which is **D4's** class, not D2's. D2 is an upstream typo that
+was wrong at every commit we hold, not version drift. The fix is still correct on its own
+evidence (below), but the record should not let the reasoning be transplanted.
+
+### B1.4 — A RELAYED SUB-CLAIM THAT DOES **NOT** SURVIVE CHECKING
+
+The relay states, as evidence that D2 is a typo rather than a setting, that *"upstream's git
+history shows the misspelling in the only commit that ever touched that file"*.
+
+**That is not verifiable from this box, and the evidence cited is an artifact.** The clone
+`/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc` **is shallow**
+(`.git/shallow` present). `git log -- <path>` returns a single commit **because the history
+is truncated, not because only one commit ever touched the file.** The sub-claim is
+**STRUCK from this record.**
+
+**What IS verifiable, and it is sufficient:**
+
+1. The misspelling is present at **both** commits we hold — `0d06b755` (Sanaa's) and
+   `84c2624` (the clone HEAD), line 305 in each.
+2. **The main dict spells it correctly, with the identical value `90`, in the same case at
+   the same commit** (`system/snappyHexMeshDict:290`). A setting deliberately different
+   between two regions would not coincide exactly in value with the correctly-spelled one.
+
+That second point carries the conclusion on its own and needs no history claim.
+
+### B1.5 — **G2a WAS NOT IMPLEMENTED AS REGISTERED. IT IS A BOUND, NOT A GATE.**
+
+§A2.2 registered **G2a** as a *blocking* sweep: no `rhoSimpleFoam` until every `log.*` is
+swept clean of FATAL. **That is not what was built, and the difference is recorded here
+rather than smoothed over.**
+
+`Allrun` runs straight through as one script; making a sweep *block* between its stages
+would require another deviation to `Allrun` itself. What exists instead is
+`mb13_guard.sh` (pid 1863689, confirmed running), which **kills the process group within
+~15 s of any FATAL appearing in any log**.
+
+- **On attempt 2 that bounded the waste to zero solver core-minutes** — the protective
+  outcome G2a was registered for was achieved.
+- **But it is a BOUND, NOT A GATE.** It acts *after* a FATAL, not *before* the next stage.
+  A successor must not cite G2a as a satisfied blocking precondition, and **no verdict may
+  rest on G2a having gated anything.**
+
+The relay states this was previously reported upward in the stronger form; correcting it
+here is the point of this clause.
+
+### B1.6 — WHAT THE MESH PIPELINE ACTUALLY PRODUCED
+
+- **All 17 mesh stages carry an `End` line with zero FATAL** (relayed; the guard's survival
+  to this point is consistent with it, and `log.checkMesh` is on disk).
+- **G2's launch precondition is SATISFIED, read off disk by this lane's own parser**, summed
+  across all `processor*/constant/polyMesh/cellZones` by name and by count:
+  **`v_fluid_rotor` 635,019** + **`v_fluid_tunnel` 3,438,798** = **4,073,817**, which equals
+  `log.checkMesh`'s `cells: 4073817` **exactly**. Not from a `topoSet` exit code, not from a
+  log line. G2's threshold was ≥100,000 in the rotor zone and an exact sum — **both met.**
+- **Built cell count 4,073,817 against the DECLARED 4.07 M** (§1.2) — inside G1's registered
+  [3.0 M, 5.5 M] band and within 0.1 % of upstream's declaration.
+- **Rank count verified as exactly 32** (`ps -eo comm | grep -cx rhoSimpleFoam` = 32). The
+  hard boundary held.
+
+### B1.7 — **THE MESH IS NOT BIT-REPRODUCIBLE. DO NOT USE A CELL COUNT AS AN IDENTITY CHECK.**
+
+Same dictionaries, same rank count, two runs:
+
+| Attempt | cells | artifact |
+|---|---|---|
+| 2 | **4,073,550** | `…/ATTEMPT2_SOLVER_FATAL_EVIDENCE/log.checkMesh.MESH_WAS_SOUND` |
+| 3 (live) | **4,073,817** | `…/nref1_n32/log.checkMesh` |
+
+**+267 cells, from parallel layer addition.** Registered explicitly so that no successor
+treats a cell count as a mesh identity check — that assumption is exactly the kind that
+becomes a false verdict later. **Any future reproduction gate on this case must tolerate a
+few hundred cells, or compare something else.**
+
+### B1.8 — THE THIRD SILENT-FAILURE DEFECT, AND WHY IT IS THE WORST
+
+§A2.2 registered two members of this family. There is a **third**, and it is of a different
+and worse kind:
+
+1. `runApplication`/`runParallel` **never test exit status** — *continues past failure*.
+2. `Allrun` has **no `set -e`** — *continues past failure*.
+3. **`system/replace.sh` has no existence guard.** After attempt 2's `rhoSimpleFoam` FATAL
+   it ran anyway; its `mv 5000 5000_steadyState` failed, and it then executed **`rm -rf 0`**
+   and symlinked `0 -> 5000_steadyState`, leaving `processorN/0` a **dangling symlink** —
+   **it destroyed the initial conditions it exists to preserve.**
+
+**Three instances in one published pipeline is a property of the pipeline, not three
+accidents.** The first two *continue*; the third **DESTROYS STATE**. Any successor running
+any HPC-TC case should expect this family.
+
+**Status of the damage: REPAIRED.** `processor0/0` is now a real directory (mtime
+2026-09-14T01:23Z), not a symlink — verified on disk by this lane. The defect is recorded as
+a past event with its mechanism, not as a live fault.
+
+### B1.9 — THE STEADY-PHASE RATE IS NOW **MEASURED**, AND THE MESH ESTIMATE WAS THE BAD ONE
+
+| | value | basis |
+|---|---|---|
+| Relayed 60-s window rate | 0.733 it/s (1.36 s/it) → **114 min / 3,638 core-min** | a 60-second window |
+| **This lane's whole-run average** | **221 iterations at `ExecutionTime` 328.4 s → 1.486 s/it → 123.8 min / 3,962 core-min** | `log.rhoSimpleFoam`, cumulative, **includes startup** |
+
+**Both are inside §6.2's predicted 1.3–6.3 h band and the relayed 42–125 min band — but the
+whole-run average sits at the very top of the latter, at 123.8 of 125 min.** The two differ
+because one is a recent-window rate and one includes mesh read and decomposition; **neither
+is wrong and the difference is stated rather than averaged away.**
+
+**The 45× miss named in the relay belongs to the MESH estimate, not the solver estimate** —
+the mesh figure was sized against the post-extrusion 4.07 M when `snappyHexMesh` only meshes
+~820 k. **§6.1's mesh cost is therefore struck as a prediction** and will be filed from the
+logs in the `docs/COST_CALIBRATION.md` row owed at completion.
+
+**The LES band 33,000–607,500 core-minutes (§A2.5) remains UNSETTLED**, and the
+first-50-steps rate probe fires when `rhoPimpleFoam` starts. **No cap and no kill point —
+directive #17 stands.**
+
+### B1.10 — STATE AT THIS ADDENDUM
+
+`rhoSimpleFoam` live, **32 ranks**, launcher pid 1863406 (SID 1863406, own session, PPID 1),
+`Allrun` pid 1863670, guard pid 1863689, watcher pid 1863405. Iteration **221 of 5000** at
+the time of writing. **G0 `PASS`; G1 and G2 satisfied on disk as recorded above; G3–G7 not
+yet run.** `PENDING` is used here only in its display sense.
