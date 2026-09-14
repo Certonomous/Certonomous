@@ -495,3 +495,14 @@ The plot lane reports to the chief when the MP_R2 mesh and three per-condition p
 > for the yaw sweep, we finished it bc it was already converged
 
 **Chief's reading:** the owner declares the residual-converged stop of the seven SUBOFF A1h β points (ordered under §V) to be the run end; cfd files the dated addendum quoting this line and re-grades completion; the physics grade against Roddy stays separate.
+
+---
+
+## AH. SUBOFF parked until after the demos; the active fronts are dafoam and MB13 — byte-exact, 2026-09-14 ~02:35Z (owner directive #50)
+
+> ok well get back tot hat suboff sweep after the demos. cfd parks it until further notice and focuses on MB13 instead. So now its dafoam and MB13. once we shoot and send the demos, well come back to pptc and suboff. how is dafoam doing and what is the plotting agent up to
+
+**Chief's reading:**
+SUBOFF A1h is PARKED until further notice — the physics grade is NOT A RESULT (Y_v' sign inverted and 17.3x low, N_v' 6.8x low, cause the registered slip farfield at +/-2.99 m on a 4.36 m body) and completion is NOT A RESULT under the addendum at 50bff7f4; the parked proposal is a re-run from a published OpenFOAM SUBOFF setup with a proper farfield.
+PPTC stays set aside (per §AC), and no lane effort goes to either case until the demos are shot and sent.
+The lab's active fronts are D6R3 MP_R2 (dafoam) and MB13 marinePropeller (cfd), plus the plot lane.
