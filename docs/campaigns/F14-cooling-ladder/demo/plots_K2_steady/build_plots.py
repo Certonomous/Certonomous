@@ -62,8 +62,7 @@ for case, cells, t, lab in LEV:
     rows.append([lab, cells, t, dp])
     note("k2_family.png", os.path.join(case, str(t), "p_rgh"), str(t))
 grid_family(os.path.join(HERE, "k2_family.png"), levels=lv,
-            quantity="module Δp", unit="[m²/s²]",
-            title="Grid family, module pressure drop", band=BAND_DP)
+            quantity=r"$\Delta p$", unit="m2/s2", band=BAND_DP)
 wcsv("k2_family", ["level", "cells", "time_dir", "DP_module_m2_s2"], rows)
 
 # ------------------------------------------------------------------ 2. residuals (fine level)
@@ -141,22 +140,18 @@ wcsv("k2_indices", ["rack", "T_inlet_degC", "T_outlet_degC", "RCI_high_pct",
 wcsv("k2_indices_room", ["T_supply_degC", "T_return_degC", "RTI_pct"],
      [[T_sup - K, T_ret - K, rti_val]])
 
-# ------------------------------------------------------------------ 5. sweeps -- NOT SOLVED
-# The eight setpoint/airflow solves the orders call for do not exist in the run tree.
-# The library's own registered placeholder is used: the axes and labels are the ordered
-# ones and the panel says "run in progress".  Nothing is invented.
-sweep_curve(os.path.join(HERE, "k2_map_setpoint.png"), pending=True,
-            xlabel="supply temperature  [°C]", ylabel="hottest inlet  [°C]",
-            title="Hottest rack inlet vs supply setpoint")
-sweep_curve(os.path.join(HERE, "k2_map_airflow.png"), pending=True,
-            xlabel="supply airflow  [%]", ylabel="hottest inlet  [°C]",
-            title="Hottest rack inlet vs supply airflow")
-envelope_map(os.path.join(HERE, "k2_envelope.png"), pending=True,
-             xlabel="supply temperature  [°C]", ylabel="supply airflow  [%]",
-             title="Operating envelope")
-cost_vs_setpoint(os.path.join(HERE, "k2_cost.png"), pending=True,
-                 ylabel="relative cost  [–]", xlabel="supply temperature  [°C]",
-                 title="Relative cooling cost vs setpoint")
+# ------------------------------------------------------------------ 5. sweeps
+# THE FOUR SWEEP TILES ARE NOT DRAWN AT ALL. They used to be rendered through the
+# library's `pending=True` path, which puts an axes and a "run in progress" mark on the
+# page. Rule 6 of the round-3 instructions is that no placeholder is drawn, so the
+# files are deleted rather than left as empty axes: the eight setpoint and airflow
+# solves do not exist, and an empty frame in an act folder is a figure a viewer has to
+# be told to ignore.
+for _stale in ("k2_map_setpoint.png", "k2_map_airflow.png", "k2_envelope.png",
+               "k2_cost.png"):
+    _p = os.path.join(HERE, _stale)
+    if os.path.exists(_p):
+        os.remove(_p)
 
 with open(os.path.join(HERE, "PROVENANCE.tsv"), "w") as f:
     f.write("figure\tartifact\ttime_dir\tsha256\n")
