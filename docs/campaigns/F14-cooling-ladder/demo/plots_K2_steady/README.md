@@ -11,7 +11,6 @@ Regenerate the matplotlib figures with `python3 build_plots.py`; three ParaView 
 |---|---|
 | `k2_family.png` | L1/L2 comparator **REFUSED**; L3 (t = 803 of 2000) **NOT A RESULT** |
 | `k2_residuals.png` | `K2f_L3` — **NOT A RESULT** |
-| `k2_inlet_profiles.png` | `K2bP_C3b_noplant` — pilot control twin, **ungraded** |
 | `k2_indices.png` | `K2bU3R3_D59` — **GATE REACHED** (indices themselves are DERIVED, NOT GRADED) |
 | `k2_plane_hot.png` | `K2f_L3` — **NOT A RESULT** |
 | `k2_streamlines.png` | `K2f_L3` — **NOT A RESULT** |

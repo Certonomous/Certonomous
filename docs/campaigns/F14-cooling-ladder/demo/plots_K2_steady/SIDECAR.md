@@ -53,7 +53,6 @@ L1 and L2 reproduce `K2g_PREREGISTRATION.md` §7's f1 and f2 exactly.
 |---|---|---|
 | `k2_family.png` | module Δp on three levels, registered band drawn | the three `p_rgh` files above |
 | `k2_residuals.png` | initial residuals Ux, Uz, T, p_rgh on the fine level, target 1e-5 | `K2g_runs/K2f_L3/log.solve`, 803 iterations |
-| `k2_inlet_profiles.png` | temperature against height on the cold-aisle and hot-aisle vertical lines | `K2bP_C3b_noplant/postProcessing/aisleProfiles/5000/*.xy`, 68 points per line |
 | `k2_indices.png` | RCI high, RTI, capture index, recirculation, per rack, in **%** | `K2bU3R3_D59` rack inlet series + `80/T` on the rack outlet, tile and return patches |
 | `k2_plane_hot.png` | temperature on the vertical y–z plane at x = 1.5 m: cold aisle left, rack row centre, hot aisle plume right | `K2f_L3` at t = 803, committed render |
 | `k2_streamlines.png` | recirculation over the rack row | `K2f_L3` at t = 803, committed render |
