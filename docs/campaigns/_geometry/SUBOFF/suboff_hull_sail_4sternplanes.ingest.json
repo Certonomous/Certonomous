@@ -1,0 +1,158 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:10:30Z",
+  "case_id": "SUBOFF",
+  "source_path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/hull.stl",
+  "source_name": "hull.stl",
+  "source_bytes": 67079251,
+  "source_sha256": "7185c45ed0869078b6961b11a779235e2f12bbec94e83c09947022f85e6f98f6",
+  "source_format": "stl",
+  "consumer": "snappy",
+  "conversion": {
+    "kind": "mesh re-encode",
+    "tool": "geometry_ingest (ascii reader, numpy 2.5.1)",
+    "seconds": 1.465
+  },
+  "source_encoding": "ascii",
+  "merged_parts": [
+    {
+      "path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/hull.stl",
+      "sha256": "7185c45ed0869078b6961b11a779235e2f12bbec94e83c09947022f85e6f98f6",
+      "triangles": 355840
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/sail.stl",
+      "sha256": "4fe939c36f6faf136001edf01e8fb0a378e9c3de572ac51248d3d4283c66589e",
+      "triangles": 225102
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/fin000_upper_rudder.stl",
+      "sha256": "4b3a9dce3c7e4152511d1260a921986a1914e582ed85b0f9aa1f2622f2b9316b",
+      "triangles": 155118
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/fin090_horizontal.stl",
+      "sha256": "2fe144645245d0bc3e03854202a327b8e5c0c42197f75bdef534396c5b2d2d88",
+      "triangles": 155118
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/fin180_lower_rudder.stl",
+      "sha256": "838b94dea5b6c77d2c5add76916896ef54c1e5e9da3d0b2f9842e11a7b9785ee",
+      "triangles": 155118
+    },
+    {
+      "path": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/fin270_horizontal.stl",
+      "sha256": "819b8b94335f4c07840646592e648b87dbf34962a3f0994bf795770e11891b57",
+      "triangles": 155118
+    }
+  ],
+  "merged_part_count": 6,
+  "units": {
+    "detected": "m",
+    "detection_basis": "bbox diagonal 4.446 < 100 \u2014 reads as metres (the same body in mm would be a 100 km object)",
+    "assumed": "m",
+    "assumed_from": "heuristic",
+    "scale_applied": 1.0,
+    "scaling": "none \u2014 coordinates written exactly as read",
+    "bbox_diagonal_as_read": 4.446002279857715
+  },
+  "geometry": {
+    "triangles": 1201414,
+    "vertices_welded": 600719,
+    "weld_tolerance": 4.446002279857715e-09,
+    "bbox_min": [
+      0.0,
+      -0.254,
+      -0.254
+    ],
+    "bbox_max": [
+      4.3561,
+      0.47625,
+      0.254
+    ],
+    "bbox_size": [
+      4.3561,
+      0.7302500000000001,
+      0.508
+    ],
+    "bbox_diagonal": 4.446002279857715,
+    "surface_area": 6.814001287178746,
+    "degenerate_triangles": 24,
+    "collapsed_edges": 0,
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "watertight": true,
+    "watertight_method": "edge-manifold (every live edge used exactly twice)",
+    "shells": 6,
+    "signed_volume": 0.7134996810842611,
+    "normals_outward": true
+  },
+  "bbox_min": [
+    0.0,
+    -0.254,
+    -0.254
+  ],
+  "bbox_max": [
+    4.3561,
+    0.47625,
+    0.254
+  ],
+  "triangles": 1201414,
+  "watertight": true,
+  "shells": 6,
+  "degenerate_triangles": 24,
+  "cross_check": {
+    "library": null,
+    "note": "trimesh not installed on this box; the edge-manifold test above is this tool's own and is what the verdict rests on"
+  },
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/SUBOFF/suboff_hull_sail_4sternplanes.stl",
+  "stl_bytes": 60070784,
+  "stl_sha256": "225bc1ceaa15fc7a34276c479cfa7691ce4e4794d37a282734aaf94d62a3f541",
+  "stl_encoding": "binary",
+  "case_reads_from": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/SUBOFF/suboff_hull_sail_4sternplanes.stl",
+  "preview": {
+    "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/SUBOFF/suboff_hull_sail_4sternplanes.preview.png",
+    "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
+    "faces_drawn": 600000,
+    "front_facing_fraction": 0.4565668672642978,
+    "subsampled_from": 1201410,
+    "rerendered_utc": "2026-09-14T04:24:01Z"
+  },
+  "seconds_total": 10.947,
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ],
+  "source_url": "verification/runs/navier_class/SUBOFF_HULL_SAIL_4STERNPLANES/geometry/",
+  "source_note": "DARPA SUBOFF, lab-generated surfaces (hull + sail + four stern planes), merged here into one STL. No CAD original on this box.",
+  "annotated_utc": "2026-09-14T04:28:15Z",
+  "annotated_fields": [
+    "source_url",
+    "source_note"
+  ]
+}

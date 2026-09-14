@@ -82,7 +82,9 @@
   "preview": {
     "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/K2H/k2h_rack_row_L3.preview.png",
     "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
-    "faces_drawn": 61884
+    "faces_drawn": 123768,
+    "front_facing_fraction": 0.5,
+    "rerendered_utc": "2026-09-14T04:23:43Z"
   },
   "seconds_total": 1.465,
   "cad_converters": [
@@ -111,5 +113,12 @@
       "available": false,
       "detail": "not importable (ModuleNotFoundError)"
     }
+  ],
+  "source_url": "verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/constant/polyMesh",
+  "source_note": "Whole enclosure: rack0-3 in/out, rack_sides, tile, return and walls. Closed. The K2 rack row is defined by blockMesh/topoSet in the campaign, not by any CAD file, so no CAD original exists to collect.",
+  "annotated_utc": "2026-09-14T04:28:16Z",
+  "annotated_fields": [
+    "source_url",
+    "source_note"
   ]
 }

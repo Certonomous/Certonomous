@@ -1,0 +1,64 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:25:32Z",
+  "case_id": "CRM_WING",
+  "source_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/CRM_WING/NASA_CRM_DPW4_wb_no_tail_v03.igs.gz",
+  "source_name": "NASA_CRM_DPW4_wb_no_tail_v03.igs.gz",
+  "source_bytes": 12729716,
+  "source_sha256": "5033db500c09a468b1dfb8c5e5142ea2a04e2500af459ae84c004b458b75c037",
+  "source_format": "igs",
+  "consumer": "snappy",
+  "source_url": "https://commonresearchmodel.larc.nasa.gov/wp-content/uploads/sites/7/2013/03/DPW4_wb_no_tail_v03.igs_1.gz",
+  "source_note": "NASA CRM wing/body IGES, offered as 'Wing/Body' on https://commonresearchmodel.larc.nasa.gov/geometry/iges-files/ . Filed as served (gzip). Not tessellated here: see the LH WING STEP for the converted geometry.",
+  "cad_title_block": {
+    "read_bytes": 4096,
+    "kind": "IGES",
+    "global_record": "1H,,1H;,24HC:\\Temp\\ka72117Dz15p.prt,68HC:\\Documents and Settings\\ka724c\\Desktop\\CRM\\DPW4-wb-no-tail_v03.igs,7HNX V5.0,16HUGS NX IGES V5.0,32,38,16,38,16,24HC:\\Temp\\ka72117Dz15p.prt,1.0,1,4HINCH,3,0.0,15H20081107.153250,3.937E-007,10000.0,,,11,0,15H20011107.153200;                        ",
+    "is_iges": true,
+    "units_declared": "INCH",
+    "sending_system": "24HC:\\Temp\\ka72117Dz15p.prt",
+    "preprocessor_version": "68HC:\\Documents and Settings\\ka724c\\Desktop\\CRM\\DPW4-wb-no-tail_v03.igs"
+  },
+  "record_only": true,
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": null,
+  "case_reads_from": null,
+  "preview": {
+    "path": null,
+    "renderer": "not rendered (--record-only)"
+  },
+  "conversion": {
+    "kind": "none -- CAD original filed unconverted",
+    "tool": null,
+    "seconds": 0.0
+  },
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ],
+  "seconds_total": 0.055
+}

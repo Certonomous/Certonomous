@@ -1,0 +1,66 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:26:11Z",
+  "case_id": "CRM_WING",
+  "source_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/CRM_WING/NASA_CRM_LH-WING-AS-BUILT-MODEL-SCALE.stp.zip",
+  "source_name": "NASA_CRM_LH-WING-AS-BUILT-MODEL-SCALE.stp.zip",
+  "source_bytes": 10926789,
+  "source_sha256": "c574de60c6c56a457aff4ee9d3be962f9f075e2b97f96f707e16b3b42e45c816",
+  "source_format": "zip",
+  "consumer": "snappy",
+  "source_url": "https://commonresearchmodel.larc.nasa.gov/wp-content/uploads/sites/7/2017/08/LH-WING-AS-BUILT-MODEL-SCALE.stp_.zip",
+  "source_note": "NASA CRM left-hand wing, as-built model scale, offered as 'LH WING-AS BUILT MODEL SCALE STP' on https://commonresearchmodel.larc.nasa.gov/geometry/original-cad-files/ . Filed as served (zip).",
+  "cad_title_block": {
+    "read_bytes": 4096,
+    "archive_member": "LH WING-AS BUILT MODEL SCALE.stp",
+    "kind": "STEP (ISO-10303-21)",
+    "is_step": true,
+    "file_description": "('CATIA V5 STEP Exchange'),'2;1'",
+    "file_name": "'Z:\\\\CAD_Data\\\\parts\\\\A Directory with TR job numbers\\\\TR004.1 CRM MODEL\\\\Engineering Models & Dwgs\\\\CAD Models\\\\STP Files\\\\LH WING-AS BUILT MODEL SCALE.stp','2011-08-11T22:46:06+00:00',('none'),('none'),'CATIA Version 5 Release 19 GA (IN-10)','CATIA V5 STEP AP203','none'",
+    "file_schema": "('CONFIG_CONTROL_DESIGN')",
+    "product": "LH WING-AS BUILT",
+    "units_declared": "not in the HEADER -- STEP carries units in the DATA section (SI_UNIT / CONVERSION_BASED_UNIT), so --units settles it here"
+  },
+  "record_only": true,
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": null,
+  "case_reads_from": null,
+  "preview": {
+    "path": null,
+    "renderer": "not rendered (--record-only)"
+  },
+  "conversion": {
+    "kind": "none -- CAD original filed unconverted",
+    "tool": null,
+    "seconds": 0.0
+  },
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ],
+  "seconds_total": 0.06
+}

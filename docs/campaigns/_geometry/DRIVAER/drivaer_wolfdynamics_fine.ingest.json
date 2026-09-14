@@ -100,7 +100,9 @@
   "preview": {
     "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/DRIVAER/drivaer_wolfdynamics_fine.preview.png",
     "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
-    "faces_drawn": 173969
+    "faces_drawn": 447743,
+    "front_facing_fraction": 0.3885577217287596,
+    "rerendered_utc": "2026-09-14T04:23:42Z"
   },
   "seconds_total": 4.252,
   "cad_converters": [
@@ -129,5 +131,12 @@
       "available": false,
       "detail": "not importable (ModuleNotFoundError)"
     }
+  ],
+  "source_url": "http://www.wolfdynamics.com/ (tutorial: tut_drivaer_v2.pdf; case at /home/ubuntu/upstream/published-openfoam-setups/wolfdynamics-drivaer/drivaer_fine)",
+  "source_note": "DrivAer FASTBACK with SMOOTH UNDERBODY, half model, with wheels -- variant stated verbatim in Wolf Dynamics' own tutorial PDF ('to the fastback and smooth underbody model'). Full scale: measured length 4.613 m. The upstream definition is TU Munich's DrivAer model (https://www.epc.ed.tum.de/en/aer/research-groups/automotive/drivaer/); TUM's STEP/IGES/STL downloads are behind a registration form and were NOT fetched -- no account was created.",
+  "annotated_utc": "2026-09-14T04:28:15Z",
+  "annotated_fields": [
+    "source_url",
+    "source_note"
   ]
 }

@@ -234,10 +234,19 @@ def cad_converters_available() -> list[dict[str, Any]]:
 
 
 def _cad_to_stl(source: Path, workdir: Path, clscale: float,
-                angle_deg: float) -> tuple[Path, str, float]:
-    """Tessellate STEP/IGES to STL.  Returns (stl path, tool name, seconds)."""
+                angle_deg: float, reuse: bool = False) -> tuple[Path, str, float]:
+    """Tessellate STEP/IGES to STL.  Returns (stl path, tool name, seconds).
+
+    ``reuse`` takes an intermediate already sitting in ``workdir`` instead of
+    meshing again. A CAD tessellation here runs into the tens of minutes, and
+    re-running one because a later step of the SAME ingest needed fixing is
+    pure waste. The sidecar says when an intermediate was reused, so a reader
+    can tell a measured conversion time from a borrowed one.
+    """
     workdir.mkdir(parents=True, exist_ok=True)
     target = workdir / (source.stem + "_cad.stl")
+    if reuse and target.is_file() and target.stat().st_size > 84:
+        return target, "reused intermediate (not re-tessellated)", 0.0
 
     # -- gmsh, python module first (it can drive the same OCC kernel in-process)
     try:  # pragma: no cover - not installed on this box
@@ -312,6 +321,140 @@ def _cad_to_stl(source: Path, workdir: Path, clscale: float,
     raise IngestError(
         "no CAD tessellator on this box. Probed, in order: "
         + "; ".join(f"{c['tool']}={c['detail']}" for c in cad_converters_available()))
+
+
+#: STEP SI prefix -> multiplier onto metres, for SI_UNIT(.<prefix>.,.METRE.)
+_STEP_SI_PREFIX = {"": 1.0, "MILLI": 1e-3, "CENTI": 1e-2, "DECI": 1e-1,
+                   "KILO": 1e3, "MICRO": 1e-6}
+#: What a declared unit name maps onto in UNIT_TO_METRE.
+_UNIT_ALIASES = {"INCH": "in", "IN": "in", "MM": "mm", "MILLIMETRE": "mm",
+                 "MILLIMETER": "mm", "M": "m", "METRE": "m", "METER": "m",
+                 "CM": "cm", "CENTIMETRE": "cm", "FT": "ft", "FOOT": "ft"}
+
+
+def cad_declared_unit(path: Path, scan_bytes: int = 64 << 20) -> dict[str, Any]:
+    """Read the length unit the CAD file declares about ITSELF.
+
+    This exists because the caller's ``--units`` is a belief and the file's own
+    declaration is evidence, and they can disagree by a factor of 25.4. The NASA
+    CRM wing STEP is the case in point: it comes from a NASA page whose sibling
+    IGES files are all in INCH, and the STEP itself declares
+    ``SI_UNIT(.MILLI.,.METRE.)``. Believing the page over the file would have
+    scaled that wing by 25.4.
+
+    STEP keeps the unit in the DATA section, not the header, so this scans (a
+    bounded prefix of) the file. IGES keeps it in Global parameter 14.
+    """
+    suffix = _effective_suffix(path)
+    out: dict[str, Any] = {"unit": None, "evidence": None, "source": None}
+    try:
+        with _open_maybe_gzip(path) as handle:
+            blob = handle.read(scan_bytes)
+    except Exception as exc:
+        out["evidence"] = f"unreadable: {exc}"
+        return out
+    text = blob.decode("utf-8", errors="replace")
+
+    if suffix in {".step", ".stp"}:
+        flat = re.sub(r"\s+", " ", text)
+        m = re.search(r"LENGTH_UNIT\s*\(\s*\)[^;]{0,200}?"
+                      r"SI_UNIT\s*\(\s*\.?([A-Z]*)\.?\s*,\s*\.METRE\.", flat)
+        if m:
+            prefix = m.group(1).strip(".") or ""
+            factor = _STEP_SI_PREFIX.get(prefix)
+            if factor is not None:
+                out.update(unit={1e-3: "mm", 1.0: "m", 1e-2: "cm"}.get(factor, None),
+                           evidence=m.group(0)[:200], source="STEP SI_UNIT")
+                if out["unit"] is None:
+                    out["unit_factor"] = factor
+                return out
+        m = re.search(r"CONVERSION_BASED_UNIT\s*\(\s*'([A-Z ]+)'", flat)
+        if m:
+            out.update(unit=_UNIT_ALIASES.get(m.group(1).strip().upper()),
+                       evidence=m.group(0)[:200],
+                       source="STEP CONVERSION_BASED_UNIT")
+            return out
+        out["evidence"] = "no LENGTH_UNIT found in the scanned prefix"
+        return out
+
+    if suffix in {".iges", ".igs"}:
+        glob = "".join(line[:72] for line in text.splitlines()
+                       if len(line) > 72 and line[72] == "G")
+        m = re.search(r"\d+H(INCH|IN|MM|M|CM|FT|MIL)\b", glob, re.I)
+        if m:
+            out.update(unit=_UNIT_ALIASES.get(m.group(1).upper()),
+                       evidence=m.group(0), source="IGES Global parameter 14")
+        else:
+            out["evidence"] = "no unit H-string in the Global record"
+        return out
+
+    out["evidence"] = f"not a CAD format ({suffix})"
+    return out
+
+
+def cad_title_block(path: Path) -> dict[str, Any]:
+    """Read a CAD file's own header and say what it claims to be.
+
+    L-144 in this lab: a retrieved file is verified from its title page, never
+    from its filename or its hash. For CAD that title page is the STEP HEADER
+    section or the IGES Start/Global records, which carry the originating
+    system, the author's own path for the part, the date and -- decisively for
+    a CFD ingest -- the **declared unit**. None of that can be forged by
+    renaming a download.
+    """
+    suffix = _effective_suffix(path)
+    member = None
+    if suffix == ".zip":
+        import zipfile
+        with zipfile.ZipFile(path) as archive:
+            names = [n for n in archive.namelist()
+                     if Path(n.lower()).suffix in CAD_SUFFIXES]
+            if not names:
+                return {"kind": "zip with no CAD member",
+                        "members": archive.namelist()[:20]}
+            member = sorted(names, key=lambda n: -archive.getinfo(n).file_size)[0]
+            with archive.open(member) as handle:
+                head = handle.read(4096).decode("utf-8", errors="replace")
+            suffix = Path(member.lower()).suffix
+    else:
+        with _open_maybe_gzip(path) as handle:
+            head = handle.read(4096).decode("utf-8", errors="replace")
+    info: dict[str, Any] = {"read_bytes": len(head)}
+    if member:
+        info["archive_member"] = member
+
+    if suffix in {".step", ".stp"}:
+        info["kind"] = "STEP (ISO-10303-21)"
+        info["is_step"] = head.lstrip().startswith("ISO-10303-21")
+        for field, pattern in (("file_description", r"FILE_DESCRIPTION\((.*?)\);"),
+                               ("file_name", r"FILE_NAME\((.*?)\);"),
+                               ("file_schema", r"FILE_SCHEMA\((.*?)\);")):
+            m = re.search(pattern, head, re.S)
+            if m:
+                info[field] = " ".join(m.group(1).split())[:600]
+        m = re.search(r"PRODUCT\('([^']*)'", head)
+        if m:
+            info["product"] = m.group(1)
+        info["units_declared"] = (
+            "not in the HEADER -- STEP carries units in the DATA section "
+            "(SI_UNIT / CONVERSION_BASED_UNIT), so --units settles it here")
+    elif suffix in {".iges", ".igs"}:
+        info["kind"] = "IGES"
+        glob = "".join(line[:72] for line in head.splitlines()
+                       if len(line) > 72 and line[72] == "G")
+        info["global_record"] = glob[:600]
+        fields = glob.split(",")
+        info["is_iges"] = bool(glob)
+        # IGES Global parameter 14 is the unit name, as an H-string.
+        m = re.search(r"\d+H(INCH|IN|MM|M|CM|FT|MIL|UM|KM|MIL)\b", glob, re.I)
+        if m:
+            info["units_declared"] = m.group(1).upper()
+        for label, idx in (("sending_system", 3), ("preprocessor_version", 4)):
+            if len(fields) > idx:
+                info[label] = fields[idx][:200]
+    else:
+        info["kind"] = f"not a CAD format ({suffix})"
+    return info
 
 
 # ---------------------------------------------------------------------------
@@ -521,23 +664,28 @@ def render_preview(tris: np.ndarray, path: Path, title: str,
     keep = lengths > 0
     normals = normals[keep] / lengths[keep, None]
     view = view[keep]
-    front = normals[:, 2] < 0                      # back-face cull
-    view, normals = view[front], normals[front]
     if view.shape[0] == 0:
-        note["renderer"] = "no front faces to draw"
+        note["renderer"] = "no non-degenerate faces to draw"
         return note
+    # NO back-face culling, and the shading is two-sided. A surface tessellated
+    # out of CAD by OCC/gmsh has ARBITRARY per-face orientation -- measured on
+    # the PPTC STEP: 48.7% of faces point one way, which is a coin flip -- so
+    # culling by normal sign deletes roughly half of every blade and draws a
+    # spiky ruin of a perfectly good surface. Depth sorting alone resolves
+    # occlusion; culling was only ever an optimisation.
+    note["front_facing_fraction"] = float((normals[:, 2] < 0).mean())
 
     if view.shape[0] > PREVIEW_MAX_FACES:
+        note["subsampled_from"] = int(view.shape[0])
         pick = np.random.default_rng(0).choice(
             view.shape[0], PREVIEW_MAX_FACES, replace=False)
         view, normals = view[pick], normals[pick]
-        note["subsampled_from"] = int(front.sum())
 
     # Key light slightly above and left of the camera, plus a constant fill, so
     # a dark-bodied surface still shows its curvature at 512 px.
     light = np.array([-0.35, 0.45, -0.82])
     light /= np.linalg.norm(light)
-    shade = np.clip(normals @ -light, 0.0, 1.0) ** 0.75 * 0.72 + 0.28
+    shade = np.abs(normals @ light) ** 0.75 * 0.72 + 0.28
 
     order = np.argsort(view[:, :, 2].mean(axis=1))[::-1]   # painter's algorithm
     polys = view[order][:, :, :2]
@@ -599,6 +747,11 @@ def ingest(source: str | Path, case_id: str, *,
            preview: bool = True,
            clscale: float = 1.0,
            angle_deg: float = 15.0,
+           source_url: str | None = None,
+           source_note: str | None = None,
+           record_only: bool = False,
+           force_units: bool = False,
+           reuse_tessellation: bool = False,
            workdir: str | Path | None = None) -> dict[str, Any]:
     """Ingest one geometry file for one case and return the sidecar dict.
 
@@ -611,7 +764,10 @@ def ingest(source: str | Path, case_id: str, *,
     if not source.is_file():
         raise IngestError(f"no such file: {source}")
     suffix = _effective_suffix(source)
-    if suffix not in ACCEPTED_SUFFIXES:
+    # --record-only files a CAD original for provenance rather than reading it,
+    # so it accepts the archive exactly as the publisher served it (.zip, .gz):
+    # re-packing a download would change the sha256 that ties the file to its URL.
+    if suffix not in ACCEPTED_SUFFIXES and not record_only:
         raise IngestError(
             f"{source.name}: unsupported extension {suffix!r}. Accepted: "
             + ", ".join(sorted(ACCEPTED_SUFFIXES)) + " (optionally .gz for mesh formats)")
@@ -627,7 +783,40 @@ def ingest(source: str | Path, case_id: str, *,
         "source_sha256": sha256_of(source),
         "source_format": suffix.lstrip("."),
         "consumer": consumer,
+        "source_url": source_url,
+        "source_note": source_note,
     }
+    if suffix in CAD_SUFFIXES or (record_only and suffix in {".zip", ".gz"}):
+        report["cad_title_block"] = cad_title_block(source)
+    if suffix in CAD_SUFFIXES:
+        # What the FILE says about its own unit, read before anything is scaled.
+        report["cad_declared_unit"] = cad_declared_unit(source)
+
+    if record_only:
+        # File a CAD original that is NOT being tessellated here: the sha256 and
+        # the file's own title block are recorded so the provenance stands on
+        # its own, and the sidecar says plainly that no STL was produced.
+        stem_ro = re.sub(r"[^A-Za-z0-9_.-]", "_",
+                         Path(name).stem if name else source.name.split(".")[0])
+        directory = (Path(out_dir).resolve() if out_dir
+                     else case_surface_dir(case_id, case_root, out_subdir))
+        directory.mkdir(parents=True, exist_ok=True)
+        report.update({
+            "record_only": True,
+            "accepted": True,
+            "refusal_reason": None,
+            "stl_path": None,
+            "case_reads_from": None,
+            "preview": {"path": None, "renderer": "not rendered (--record-only)"},
+            "conversion": {"kind": "none -- CAD original filed unconverted",
+                           "tool": None, "seconds": 0.0},
+            "cad_converters": cad_converters_available(),
+            "seconds_total": round(time.time() - started, 3),
+        })
+        sidecar_ro = directory / f"{stem_ro}.ingest.json"
+        sidecar_ro.write_text(json.dumps(report, indent=2) + "\n")
+        report["sidecar_path"] = str(sidecar_ro)
+        return report
 
     scratch = Path(workdir) if workdir else Path(
         os.environ.get("TMPDIR", "/tmp")) / f"geometry_ingest_{os.getpid()}"
@@ -635,7 +824,8 @@ def ingest(source: str | Path, case_id: str, *,
 
     # ---- read, converting CAD on the way in -------------------------------
     if suffix in CAD_SUFFIXES:
-        tess, tool, seconds = _cad_to_stl(source, scratch, clscale, angle_deg)
+        tess, tool, seconds = _cad_to_stl(source, scratch, clscale, angle_deg,
+                                          reuse=reuse_tessellation)
         report["conversion"] = {
             "kind": "CAD tessellation",
             "tool": tool,
@@ -691,7 +881,24 @@ def ingest(source: str | Path, case_id: str, *,
     # ---- units ------------------------------------------------------------
     raw = analyse(tris)
     detected, why = infer_units(raw["bbox_diagonal"])
+
+    # The file's own declaration outranks both the heuristic and the caller.
+    from_file = (report.get("cad_declared_unit") or {}).get("unit")
+    if from_file:
+        detected = from_file
+        why = ("declared by the CAD file itself ({}: {})".format(
+            report["cad_declared_unit"]["source"],
+            report["cad_declared_unit"]["evidence"]))
+
     declared = units.lower()
+    if from_file and declared not in ("auto", from_file) and not force_units:
+        raise IngestError(
+            f"--units {declared!r} contradicts the file's own declaration "
+            f"{from_file!r} ({report['cad_declared_unit']['source']}: "
+            f"{report['cad_declared_unit']['evidence']}). That is a factor of "
+            f"{UNIT_TO_METRE.get(declared, float('nan')) / UNIT_TO_METRE[from_file]:.6g} "
+            "on every coordinate. Drop --units to trust the file, or pass "
+            "--force-units to override it deliberately.")
     if declared == "auto":
         assumed = detected if detected in UNIT_TO_METRE else "unknown"
         source_of_units = "heuristic"
@@ -798,6 +1005,63 @@ def ingest(source: str | Path, case_id: str, *,
     return report
 
 
+def refresh_preview(sidecar: str | Path) -> dict[str, Any]:
+    """Re-render the preview of an already-ingested surface.
+
+    The point is to fix a rendering bug without paying for the conversion
+    again -- a CAD tessellation that cost twelve minutes of gmsh is not redone
+    to redraw a PNG. Only the ``preview`` block of the sidecar is rewritten;
+    every measured quantity in it is left exactly as it was.
+    """
+    path = Path(sidecar).resolve()
+    report = json.loads(path.read_text())
+    stl = report.get("stl_path")
+    if not stl or not Path(stl).is_file():
+        raise IngestError(f"{path.name}: names no STL on disk to re-render")
+    tris, _ = _read_stl(Path(stl))
+    g = report["geometry"]
+    png = Path(report["preview"]["path"]) if report.get("preview", {}).get("path") \
+        else path.with_suffix("").with_suffix(".preview.png")
+    report["preview"] = render_preview(
+        tris, png,
+        title=f"{report['case_id']} / {Path(stl).stem}\n"
+              f"{g['triangles']:,} tri  "
+              f"{'CLOSED' if g['watertight'] else 'OPEN'}")
+    report["preview"]["rerendered_utc"] = time.strftime(
+        "%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    path.write_text(json.dumps(report, indent=2) + "\n")
+    return report
+
+
+def annotate(sidecar: str | Path, *, source_url: str | None = None,
+             source_note: str | None = None) -> dict[str, Any]:
+    """Attach provenance to a sidecar that has already been written.
+
+    For the case where the conversion is expensive and the provenance arrives
+    afterwards -- a twelve-minute tessellation is not repeated to record a URL.
+    It writes ONLY the provenance fields and stamps when it did so; no measured
+    quantity is touched, and an existing value is not silently replaced.
+    """
+    path = Path(sidecar).resolve()
+    report = json.loads(path.read_text())
+    changed = []
+    for key, value in (("source_url", source_url), ("source_note", source_note)):
+        if value is None:
+            continue
+        if report.get(key) not in (None, "", value):
+            raise IngestError(
+                f"{path.name}: {key} is already {report[key]!r}; refusing to "
+                "overwrite provenance that is already on record")
+        report[key] = value
+        changed.append(key)
+    if not changed:
+        raise IngestError("--annotate needs --source-url and/or --source-note")
+    report["annotated_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    report["annotated_fields"] = changed
+    path.write_text(json.dumps(report, indent=2) + "\n")
+    return report
+
+
 def list_ingested(case_id: str, case_root: str | Path | None = None,
                   out_subdir: str = CASE_SURFACE_SUBDIR) -> list[dict[str, Any]]:
     """Every sidecar already written for a case, newest first."""
@@ -842,6 +1106,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--units", default="auto",
                         choices=["auto", *sorted(UNIT_TO_METRE)],
                         help="declare the source unit instead of guessing")
+    parser.add_argument("--force-units", action="store_true",
+                        help="let --units override the unit the CAD file declares "
+                             "about itself (refused by default)")
     parser.add_argument("--convert-to-m", action="store_true",
                         help="rescale into metres using the declared/detected unit")
     parser.add_argument("--scale", type=float, default=None,
@@ -854,8 +1121,24 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--clscale", type=float, default=1.0,
                         help="CAD tessellation length factor; smaller is finer")
     parser.add_argument("--workdir", default=None, help="scratch for CAD conversion")
+    parser.add_argument("--reuse-tessellation", action="store_true",
+                        help="take the intermediate STL already in --workdir "
+                             "instead of tessellating the CAD again")
+    parser.add_argument("--source-url", default=None,
+                        help="where the file was retrieved from; recorded in the sidecar")
+    parser.add_argument("--source-note", default=None,
+                        help="free text about provenance; recorded in the sidecar")
+    parser.add_argument("--record-only", action="store_true",
+                        help="file a CAD original with its sha256 and title block "
+                             "but do not tessellate it")
     parser.add_argument("--list", dest="list_case", default=None,
                         metavar="CASE_ID", help="list what a case already has")
+    parser.add_argument("--annotate", default=None, metavar="SIDECAR",
+                        help="attach --source-url / --source-note to an existing "
+                             "*.ingest.json without redoing the conversion")
+    parser.add_argument("--repreview", default=None, metavar="SIDECAR",
+                        help="re-render the preview named by an existing "
+                             "*.ingest.json, without redoing the conversion")
     parser.add_argument("--probe", action="store_true",
                         help="report which CAD converters this box has, and exit")
     parser.add_argument("--json", action="store_true", help="print the sidecar to stdout")
@@ -867,6 +1150,16 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.probe:
         print(json.dumps(cad_converters_available(), indent=2))
+        return 0
+    if args.annotate:
+        report = annotate(args.annotate, source_url=args.source_url,
+                          source_note=args.source_note)
+        print(f"annotated     {args.annotate}  ({', '.join(report['annotated_fields'])})")
+        return 0
+    if args.repreview:
+        report = refresh_preview(args.repreview)
+        print(f"preview       {report['preview'].get('path')}  "
+              f"({report['preview'].get('faces_drawn', 0):,} faces)")
         return 0
     if args.list_case:
         print(json.dumps(list_ingested(args.list_case, args.case_root,
@@ -884,13 +1177,24 @@ def main(argv: list[str] | None = None) -> int:
             out_subdir=args.out_subdir, name=args.name, units=args.units,
             convert_to_m=args.convert_to_m, scale=args.scale, consumer=args.consumer,
             allow_open=args.allow_open, preview=not args.no_preview,
-            clscale=args.clscale, workdir=args.workdir)
+            clscale=args.clscale, source_url=args.source_url,
+            source_note=args.source_note, record_only=args.record_only,
+            force_units=args.force_units,
+            reuse_tessellation=args.reuse_tessellation, workdir=args.workdir)
     except IngestError as exc:
         print(f"BLOCKED: {exc}", file=sys.stderr)
         return 2
 
     if args.json:
         print(json.dumps(report, indent=2))
+    elif report.get("record_only"):
+        print(f"source        {report['source_name']}  "
+              f"({report['source_format']}, {report['source_bytes']:,} B)")
+        print(f"sha256        {report['source_sha256']}")
+        print(f"url           {report['source_url']}")
+        for k, v in report.get("cad_title_block", {}).items():
+            print(f"  {k:<22} {v}")
+        print(f"sidecar       {report['sidecar_path']}  (CAD filed, not tessellated)")
     else:
         geometry = report["geometry"]
         lo, hi = geometry["bbox_min"], geometry["bbox_max"]

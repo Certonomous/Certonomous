@@ -82,7 +82,9 @@
   "preview": {
     "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/CRM_WING/crm_wing_mach085_MP_R2.preview.png",
     "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
-    "faces_drawn": 12252
+    "faces_drawn": 22272,
+    "front_facing_fraction": 0.5501077586206896,
+    "rerendered_utc": "2026-09-14T04:23:40Z"
   },
   "seconds_total": 0.758,
   "cad_converters": [
@@ -111,5 +113,12 @@
       "available": false,
       "detail": "not importable (ModuleNotFoundError)"
     }
+  ],
+  "source_url": "/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/constant/polyMesh (patch 'wing')",
+  "source_note": "The DAFoam CRM wing at the tutorial's own scale. The NASA CAD originals for the same aircraft are filed beside this file.",
+  "annotated_utc": "2026-09-14T04:28:16Z",
+  "annotated_fields": [
+    "source_url",
+    "source_note"
   ]
 }

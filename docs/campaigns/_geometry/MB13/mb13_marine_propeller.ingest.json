@@ -1,0 +1,147 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:10:31Z",
+  "case_id": "MB13",
+  "source_path": "/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc/compressible/rhoPimpleFoam/LES/marinePropeller/constant/triSurface/propellerTip.obj.gz",
+  "source_name": "propellerTip.obj.gz",
+  "source_bytes": 316815,
+  "source_sha256": "3eac598a0ba5983709ab052f70e3ee5bc7e014aa92e627ac1de69589b1bcb522",
+  "source_format": "obj",
+  "consumer": "snappy",
+  "conversion": {
+    "kind": "mesh re-encode",
+    "tool": "geometry_ingest (obj reader, numpy 2.5.1)",
+    "seconds": 0.091
+  },
+  "source_encoding": "obj",
+  "merged_parts": [
+    {
+      "path": "/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc/compressible/rhoPimpleFoam/LES/marinePropeller/constant/triSurface/propellerTip.obj.gz",
+      "sha256": "3eac598a0ba5983709ab052f70e3ee5bc7e014aa92e627ac1de69589b1bcb522",
+      "triangles": 33432
+    },
+    {
+      "path": "/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc/compressible/rhoPimpleFoam/LES/marinePropeller/constant/triSurface/propellerStem1.obj.gz",
+      "sha256": "4b0b9b82e6ac3f23901f3276593f7e03ff6ac0ff71d270f59988010696c8dc3f",
+      "triangles": 816
+    },
+    {
+      "path": "/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc/compressible/rhoPimpleFoam/LES/marinePropeller/constant/triSurface/propellerStem2.obj.gz",
+      "sha256": "bdb6ecd4ce3eb0a57f644ae789442943c0b17a24206977992ce650019d8a5072",
+      "triangles": 1494
+    },
+    {
+      "path": "/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc/compressible/rhoPimpleFoam/LES/marinePropeller/constant/triSurface/propellerStem3.obj.gz",
+      "sha256": "bd8d403996aa065048676d7278a2022513c896f1a90fec4f1e6362fb0f10baeb",
+      "triangles": 1632
+    }
+  ],
+  "merged_part_count": 4,
+  "units": {
+    "detected": "m",
+    "detection_basis": "bbox diagonal 0.3796 < 100 \u2014 reads as metres (the same body in mm would be a 100 km object)",
+    "assumed": "m",
+    "assumed_from": "heuristic",
+    "scale_applied": 1.0,
+    "scaling": "none \u2014 coordinates written exactly as read",
+    "bbox_diagonal_as_read": 0.3796121404466011
+  },
+  "geometry": {
+    "triangles": 37374,
+    "vertices_welded": 19097,
+    "weld_tolerance": 3.796121404466011e-10,
+    "bbox_min": [
+      -0.0974567,
+      -0.061,
+      -0.0974567
+    ],
+    "bbox_max": [
+      0.0974567,
+      0.2,
+      0.0974616
+    ],
+    "bbox_size": [
+      0.1949134,
+      0.261,
+      0.1949183
+    ],
+    "bbox_diagonal": 0.3796121404466011,
+    "surface_area": 0.11287759383087909,
+    "degenerate_triangles": 0,
+    "collapsed_edges": 0,
+    "boundary_edges": 816,
+    "nonmanifold_edges": 0,
+    "watertight": false,
+    "watertight_method": "edge-manifold (every live edge used exactly twice)",
+    "shells": 4,
+    "signed_volume": 0.0007499247504158096,
+    "normals_outward": null
+  },
+  "bbox_min": [
+    -0.0974567,
+    -0.061,
+    -0.0974567
+  ],
+  "bbox_max": [
+    0.0974567,
+    0.2,
+    0.0974616
+  ],
+  "triangles": 37374,
+  "watertight": false,
+  "shells": 4,
+  "degenerate_triangles": 0,
+  "cross_check": {
+    "library": null,
+    "note": "trimesh not installed on this box; the edge-manifold test above is this tool's own and is what the verdict rests on"
+  },
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/MB13/mb13_marine_propeller.stl",
+  "stl_bytes": 1868784,
+  "stl_sha256": "ccc00478bc345425d6b4144caf83be37307d7b7d6a6b84c9335ad91cfa7f2805",
+  "stl_encoding": "binary",
+  "case_reads_from": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/MB13/mb13_marine_propeller.stl",
+  "preview": {
+    "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/MB13/mb13_marine_propeller.preview.png",
+    "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
+    "faces_drawn": 37374,
+    "front_facing_fraction": 0.5617809172151763,
+    "rerendered_utc": "2026-09-14T04:23:45Z"
+  },
+  "seconds_total": 0.801,
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ],
+  "source_url": "/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc/compressible/rhoPimpleFoam/LES/marinePropeller/constant/triSurface/",
+  "source_note": "Published MB13 marine-propeller LES case. Body = propellerTip + propellerStem1/2/3 merged; the innerCylinder/outerCylinder/innerSphere/outerSphere OBJs in the same directory are MRF and refinement zones, not body geometry, and are deliberately excluded. No CAD original in the published case.",
+  "annotated_utc": "2026-09-14T04:28:15Z",
+  "annotated_fields": [
+    "source_url",
+    "source_note"
+  ]
+}

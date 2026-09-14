@@ -82,7 +82,9 @@
   "preview": {
     "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/M6J/onera_m6_wing_L3.preview.png",
     "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
-    "faces_drawn": 633
+    "faces_drawn": 936,
+    "front_facing_fraction": 0.6762820512820513,
+    "rerendered_utc": "2026-09-14T04:23:45Z"
   },
   "seconds_total": 0.434,
   "cad_converters": [
@@ -111,5 +113,12 @@
       "available": false,
       "detail": "not importable (ModuleNotFoundError)"
     }
+  ],
+  "source_url": "extracted from verification/runs/M6J_runs/M6J_L3/constant/polyMesh (patch 'wing')",
+  "source_note": "No CAD original: NASA TMR's ONERA M6 pages (turbmodels.larc.nasa.gov/onerawingnumerics_val.html and siblings) now return one identical 263,375-byte NASA landing page for EVERY path, including a deliberately nonsense control path -- so HTTP 200 there is not evidence of content and no M6 geometry file could be retrieved. GrabCAD (https://grabcad.com/library/onera-m6-1) answers HTTP 403 without a login; no account was created.",
+  "annotated_utc": "2026-09-14T04:28:15Z",
+  "annotated_fields": [
+    "source_url",
+    "source_note"
   ]
 }

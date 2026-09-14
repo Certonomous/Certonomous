@@ -82,7 +82,9 @@
   "preview": {
     "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/K2H/k2h_racks_only_L3.preview.png",
     "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
-    "faces_drawn": 11988
+    "faces_drawn": 29160,
+    "front_facing_fraction": 0.4111111111111111,
+    "rerendered_utc": "2026-09-14T04:23:44Z"
   },
   "seconds_total": 0.608,
   "cad_converters": [
@@ -111,5 +113,12 @@
       "available": false,
       "detail": "not importable (ModuleNotFoundError)"
     }
+  ],
+  "source_url": "verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/constant/polyMesh",
+  "source_note": "Rack bodies + perforated tile + return, without the room walls.",
+  "annotated_utc": "2026-09-14T04:28:16Z",
+  "annotated_fields": [
+    "source_url",
+    "source_note"
   ]
 }
