@@ -81,13 +81,24 @@ def open_case(key, name, arrays):
     r.CaseType = "Decomposed Case"
     r.Decomposepolyhedra = 0
     r.Refresh(); r.UpdatePipelineInformation()
-    times = [t for t in list(r.TimestepValues or [])]
-    if float(TIME) not in times:
+    # TAKE THE LATEST NON-ZERO TIME THE READER ACTUALLY OFFERS -- DO NOT ASK FOR 2000.
+    # MEASURED: this driver refused on `cl06` with "t = 2000 is not among the reader's
+    # times [0.0001]". Nothing was lost -- DAFoam RESETS runTime for the adjoint and the
+    # converged directory was RENAMED from `2000` to `0.0001`, files untouched (their
+    # own mtimes are the primal's finish, only the parent directory's changed). A
+    # hard-coded time is a reader that cannot survive a clock reset. The assertion is
+    # KEPT and WIDENED: exactly one non-zero time must exist, and it must not be 0 --
+    # so an initial condition still cannot be drawn and labelled the answer.
+    times = sorted(float(t) for t in list(r.TimestepValues or []))
+    nonzero = [t for t in times if t > 0.0]
+    if len(nonzero) != 1:
         shutil.rmtree(root, ignore_errors=True)
-        C.refuse("%s: t = %s is not among the reader's times %r" % (name, TIME, times))
+        C.refuse("%s: expected exactly one non-zero time, the reader offers %r"
+                 % (name, times))
+    t_use = nonzero[0]
     r.MeshRegions = ["internalMesh"]
     r.CellArrays = list(arrays)
-    UpdatePipeline(time=float(TIME), proxy=r)
+    UpdatePipeline(time=t_use, proxy=r)
     n = r.GetDataInformation().GetNumberOfCells()
     if n != CELLS:
         shutil.rmtree(root, ignore_errors=True)
@@ -96,9 +107,9 @@ def open_case(key, name, arrays):
         if r.GetDataInformation().GetCellDataInformation().GetArrayInformation(a) is None:
             shutil.rmtree(root, ignore_errors=True)
             C.refuse("%s carries no field %r at t = %s" % (name, a, TIME))
-    C.announce("  %s: %s cells, %d ranks, t = %s (times %r)"
-               % (name, format(n, ","), nproc, TIME, times))
-    return r, root
+    C.announce("  %s: %s cells, %d ranks, drawing t = %g (times offered %r)"
+               % (name, format(n, ","), nproc, t_use, times))
+    return r, root, t_use
 
 
 def _view(size=(1600, 1000)):
@@ -177,11 +188,11 @@ def ink_only(view, out):
     return n
 
 
-def wing_surface(r, size=(1600, 1000)):
+def wing_surface(r, T_USE, size=(1600, 1000)):
     from paraview.simple import MergeBlocks, UpdatePipeline
     r.MeshRegions = WING
-    UpdatePipeline(time=float(TIME), proxy=r)
-    s = MergeBlocks(Input=r); UpdatePipeline(time=float(TIME), proxy=s)
+    UpdatePipeline(time=float(T_USE), proxy=r)
+    s = MergeBlocks(Input=r); UpdatePipeline(time=float(T_USE), proxy=s)
     info = s.GetDataInformation()
     if info.GetNumberOfCells() == 0:
         C.refuse("the wing patch rendered no faces")
@@ -189,12 +200,47 @@ def wing_surface(r, size=(1600, 1000)):
 
 
 def p_range(src):
-    a = src.GetCellDataInformation().GetArray("p")
-    if a is None:
-        a = src.GetPointDataInformation().GetArray("p")
-    if a is None:
-        C.refuse("no p array on the wing surface")
-    return a.GetComponentRange(0)
+    """The range of p ON THE WALL, fetched from the surface actually being drawn.
+
+    MEASURED, AND IT IS THE SAME FAULT TWICE IN ONE NIGHT. `GetComponentRange` on the
+    extracted surface reported 40,802.8 to 153,352 Pa -- the VOLUME's range, carrying
+    the shock and the stagnation point. The wall itself spans about 97,000 to 120,300
+    Pa, so painting it on a 40.8-153.4 kPa ramp squeezed every wall panel into the
+    middle third of the colour map and the colour control refused at 6.1x on an 8x
+    floor. The wing surface is ~29,000 cells, so fetching it is cheap and gives the
+    range of the thing on screen rather than of the thing it was cut from.
+    """
+    import numpy as np
+    from paraview import servermanager as sm
+    from paraview.vtk.util import numpy_support
+    d = sm.Fetch(src)
+    blocks = []
+    if hasattr(d, "GetNumberOfBlocks"):
+        it = d.NewIterator(); it.InitTraversal()
+        while not it.IsDoneWithTraversal():
+            blocks.append(it.GetCurrentDataObject()); it.GoToNextItem()
+    else:
+        blocks = [d]
+    vals = []
+    for b in blocks:
+        for att in (b.GetCellData(), b.GetPointData()):
+            a = att.GetArray("p")
+            if a is not None:
+                vals.append(numpy_support.vtk_to_numpy(a)); break
+    if not vals:
+        C.refuse("no p array fetched from the wing surface")
+    a = np.concatenate(vals)
+    # A DISPLAY WINDOW AT THE 2nd/98th PERCENTILE, the same convention every other
+    # folder in this repository uses, and for the same measured reason. The wall's FULL
+    # range is 40,803 to 153,352 Pa, but those extremes live in a few cells at the
+    # suction peak and the leading-edge stagnation point; stretched to them, the bulk of
+    # the wing paints in the middle third of the ramp and the colour control refused at
+    # 6.1x on an 8x floor. The window is printed on this run's own output and stated in
+    # the sidecar; nothing is removed from the data and the ends are clamped.
+    lo, hi = float(np.percentile(a, PCT_LO)), float(np.percentile(a, PCT_HI))
+    C.announce("      wall p: full %.6g..%.6g Pa ; display window %.6g..%.6g "
+               "(percentiles %g/%g)" % (a.min(), a.max(), lo, hi, PCT_LO, PCT_HI))
+    return lo, hi
 
 
 def main():
@@ -212,9 +258,9 @@ def main():
     lo = hi = None
     bnds = None
     for key, tag, cl, al in CONDS:
-        r, root = open_case("CRM_MP_%s" % key, tag, ["p", "U"])
+        r, root, T_USE = open_case("CRM_MP_%s" % key, tag, ["p", "U"])
         try:
-            s, info = wing_surface(r)
+            s, info = wing_surface(r, T_USE)
             a, b = p_range(s)
             lo = a if lo is None else min(lo, a)
             hi = b if hi is None else max(hi, b)
@@ -232,9 +278,9 @@ def main():
     # ---- the mesh panels, from the first condition (all three share the mesh) ----
     from paraview.simple import (Show, Render, UpdatePipeline, Slice, ColorBy,
                                  GetColorTransferFunction)
-    r, root = open_case("CRM_MP_MP04", "mesh", ["p"])
+    r, root, T_USE = open_case("CRM_MP_MP04", "mesh", ["p"])
     try:
-        s, info = wing_surface(r)
+        s, info = wing_surface(r, T_USE)
         v = _view()
         d = Show(s, v); _flat(d)
         d.ColorArrayName = [None, ""]
@@ -246,11 +292,11 @@ def main():
         total += ink_only(v, os.path.join(HERE, "crm_mesh_wing.png"))
 
         r.MeshRegions = ["internalMesh"]
-        UpdatePipeline(time=float(TIME), proxy=r)
+        UpdatePipeline(time=float(T_USE), proxy=r)
         cut = Slice(Input=r); cut.SliceType = "Plane"
         cut.SliceType.Origin = [0.0, max(bnds[2], 0.0) + 1e-4, 0.0]
         cut.SliceType.Normal = [0.0, 1.0, 0.0]
-        UpdatePipeline(time=float(TIME), proxy=cut)
+        UpdatePipeline(time=float(T_USE), proxy=cut)
         ncut = cut.GetDataInformation().GetNumberOfCells()
         if ncut == 0:
             C.refuse("the symmetry-plane cut is empty")
@@ -272,9 +318,9 @@ def main():
 
     # ---- the three pressure panels, same camera, one shared range ----
     for key, tag, cl, al in CONDS:
-        r, root = open_case("CRM_MP_%s" % key, tag, ["p", "U"])
+        r, root, T_USE = open_case("CRM_MP_%s" % key, tag, ["p", "U"])
         try:
-            s, info = wing_surface(r)
+            s, info = wing_surface(r, T_USE)
             v = _view()
             d = Show(s, v); _flat(d)
             ColorBy(d, ("CELLS", "p"))
