@@ -390,3 +390,17 @@ The Wolf Dynamics fine run (4 ranks) is allowed to reach Time = 1000 — its con
 > i know but the reason i am saying that is bc if we get these ranks free, there is anoher already setup propeller case (less hard than pptc but still) that we can run and its already ready. But cfd first checks that its fine to kill the suboff if they are all cobverged. and since we are using the corret values for driaver plots anway we dont need that fine run to complete.
 
 **Chief's reading:** §W is withdrawn — the DrivAer fine run stops now (checkpoint first), not at 1000; the demo plots keep the published fine numbers per §S. SUBOFF's seven stop only after cfd's residual check, per §V. The freed ranks (28 + 4) run a second propeller case that is already set up on the box, less demanding than PPTC — cfd identifies it by name and path and confirms its registration is frozen before launch.
+
+---
+
+## Y. Chief's record, 2026-09-14 ~00:35Z — SUBOFF act registered as a yaw sweep, not the instructed incidence sweep; 32 ranks free; MB13 incoming
+
+Facts on the record: (1) SUBOFF's seven points were stopped converged (2671–2881 of 3000) per §V; the frozen grader wrote NOT A RESULT on the strict completion rule alone; the §V endTime addendum and re-grade are in progress. (2) The A1h registration is a horizontal-plane drift sweep in β (side force Y′, yaw moment N′ vs Roddy 1990; no fins on this body; no Z, M or neutral point by its §10), whereas her SUBOFF instruction (docs/SANAA_DIRECTIVE_2026-09-12_RUN_INSTRUCTIONS.md) specified α = −12…+12, Z, M, hull/fin split, Z_w, M_w, neutral point. The mismatch was not flagged to her before compute; it is put to her now for a ruling (accept the yaw sweep as the act, or run the α sweep). (3) The DrivAer fine run stopped at 879 (last-100 Cd mean 0.2554 vs published fine 0.2564; kept, not plotted). (4) 32 ranks free (28 + 4); Sanaa is sending a set-up propeller case "MB13" for them; no ready second propeller case exists on the box (cfd survey). Her words on the ranks: "now with subof and fine drivaer gone we have 32 ranks we can use right ? if so ill send the link of the case set up of another propeller (MB13)".
+
+---
+
+## Z. Second propeller case: OpenFOAM HPC committee marinePropeller, verbatim — byte-exact, 2026-09-14 ~00:40Z
+
+> CFD propeller case : https://develop.openfoam.com/committees/hpc/-/tree/0d06b7550061eb58b7857a6d6635cc10516707b4/compressible/rhoPimpleFoam/LES/marinePropeller everything is in there so to be cloned and repeated verbatim
+
+**Chief's reading:** the OpenFOAM HPC committee `compressible/rhoPimpleFoam/LES/marinePropeller` case at commit 0d06b755 is cloned, verified, hashed and run exactly as its own scripts run it (mesh pipeline included) on the 32 free ranks, through the runner with 30-min checkpoints; its own published quantities are the band to reproduce; any keyword translation forced by the box's OpenFOAM version is tabulated, nothing else deviates.
