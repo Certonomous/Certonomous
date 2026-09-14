@@ -1,0 +1,7 @@
+split,component,share_pct
+variable_group,shape,70.0
+variable_group,twist,22.0
+variable_group,trim,8.0
+mechanism,wave,55.0
+mechanism,induced,30.0
+mechanism,viscous,15.0

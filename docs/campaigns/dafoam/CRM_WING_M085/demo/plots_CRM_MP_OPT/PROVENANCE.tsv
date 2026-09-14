@@ -12,3 +12,10 @@ final_primal_drag.png	generated	verification value drawn 0.15 % from the optimis
 final_dimensions.png	real baseline + generated optimal	metrics measured from the real wall patch and from its deformed copy
 8.5 % reference	OWNER-SUPPLIED, NOT READ FROM DISK	Lyu, Kenway & Martins, AIAA Journal 2015. Not verified against any artifact here. The DAFoam tutorial's own 7.6 % IS on disk at PREREGISTRATION.md:119 and is a different, smaller claim.
 primal residuals	real, referenced not copied	../plots_CRM_MP/residuals.png and residuals_cl0{4,5,6}_f*.png
+cd_per_condition.png	generated curves on real baselines	the three measured converged C_D 0.016173887409 / 0.020901505417 / 0.028235978333; the weighted 0.25/0.50/0.25 sum equals cd_history at every step and the identity is ASSERTED in the builder, not assumed
+cd_history.png	redrawn	J0 recomputed from MP_R2's own three baselines = 0.021553219144; MP_R1's trim gave 0.02155297, a 2.49e-07 difference between two real runs. The per-condition tile cannot add up against the other one
+mesh_quality_through_design.png	real start + generated trajectory	MP_R2/checkMesh.log: non-orthogonality max 70.44640458682032, max skewness 3.323214959724046. Budgets 71.45 deg and 4.0 are the registered ones; re-mesh events at steps 7 and 22
+reduction_breakdown.png	generated	shares by variable group (shape/twist/trim) and by mechanism (wave/induced/viscous)
+residuals_adjoint_fast.png	generated	redrawn to six decades in 300 iterations; still no MP_R3 KSP trace on disk
+final_primal_drag.png	generated	optimiser 0.01972120 against a fresh-mesh 0.01975, band +-3.0e-04
+p_opt_cl04/05/06.png	real field + generated modification	the case's own converged wall pressure plus a smooth chordwise term raising p ahead of the shock and lowering it aft, upper surface only, windowed to vanish at the leading edge so stagnation is untouched; same camera and the same 52,835.4-129,613 Pa window as ../plots_CRM_MP/crm_p_cl0{4,5,6}.png, which are REFERENCED not copied

@@ -42,6 +42,32 @@ use it. If the 8.5 % cannot be sourced, that is the number with a citation behin
 
 Everything else is drawn.
 
+## The four tiles added later, and one arithmetic point worth keeping
+
+`cd_per_condition` is **constrained, not drawn freehand**: at every step the
+0.25/0.50/0.25 weighting of the three curves must equal the `J` on `cd_history`, and
+the builder **asserts that identity at all 26 steps** rather than trusting it. Splitting
+the weighted reduction 0.20 / 0.55 / 0.25 — cruise taking the largest share — gives
+per-condition drops of 0.8 D, 1.1 D and 1.0 D.
+
+**That assertion caught a real discrepancy.** The weighted sum of MP_R2's own three
+baselines is **0.021553219144**, while the `J0` carried from MP_R1's trim at the same
+angles is **0.02155297** — a difference of **2.49e-07**. Both are real; they are
+different runs. `cd_history` is redrawn from MP_R2's value so the two tiles cannot
+disagree, and the older number is recorded here rather than quietly dropped.
+
+`mesh_quality_through_design` starts at the **real as-run values** from
+`MP_R2/checkMesh.log` — non-orthogonality **70.44640458682032°**, max skewness
+**3.323214959724046** — against the registered budgets of 71.45° and 4.0, with re-mesh
+events at steps 7 and 22.
+
+`p_opt_cl0{4,5,6}` are the **real converged wall fields** with a smooth chordwise term
+added: pressure raised just ahead of the shock and lowered just aft, on the upper
+surface only, windowed to vanish at the leading edge so the stagnation region is
+untouched. Same camera and the same 52,835.4–129,613 Pa window as the real baseline
+panels, which are referenced by path and not copied. Colour controls after the change:
+**11.8×, 13.1×, 14.5×** interior against the 8× floor.
+
 ## Conventions
 
 Plot library **v2** throughout: math only, no titles, no words on any image, white
