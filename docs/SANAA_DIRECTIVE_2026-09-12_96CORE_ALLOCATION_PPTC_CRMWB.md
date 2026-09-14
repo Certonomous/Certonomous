@@ -605,3 +605,15 @@ MP_R1's trim at the same angles is **0.02155297** — a **2.49e-07** difference 
 real runs. The per-condition identity could not hold against the other one, so `J0` is
 recomputed from MP_R2's own baselines and `cd_history` redrawn from it. Both numbers are
 real; they are different runs.
+
+---
+
+## AM. A real STL — or a CAD file converted to STL — loadable for every act — byte-exact, 2026-09-14 ~04:05Z (owner directive #53)
+
+> ok now for all the runs, i need tobe able to load a real stl file. or even better a cad file then stl
+
+> all the acts
+
+**Chief's reading:**
+A geometry-ingest path — STL upload, and CAD STEP/IGES converted to STL — with a watertight check, units, bounding box and preview is added to the control-room server and offered as a panel for every act.
+Every act gets a loadable geometry file through it: M6 and CRM wall patches extracted from their grids, K2 rack geometry, DrivAer, SUBOFF, MB13 and PPTC from their published/CAD files; build lane dispatched 04:06Z.
