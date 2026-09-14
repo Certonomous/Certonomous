@@ -9,9 +9,9 @@ GENERATED: a smooth washout twist and a small thickness redistribution, applied 
 span-varying map, of the order a few millimetres on a 3.25 m semi-span. It is what an
 FFD design step of this kind LOOKS like; it is not one this lab computed.
 
-Writes, all prefixed `synthetic_`:
-    synthetic_section_eta{20,50,80}.png   baseline against deformed, three span stations
-    synthetic_ffd_lattice.png             the REAL FFD lattice against its displaced form
+Writes:
+    section_eta{20,50,80}.png   baseline against deformed, three span stations
+    ffd_lattice.png             the REAL FFD lattice against its displaced form
 """
 import csv, gzip, os, re, sys
 import numpy as np

@@ -3,7 +3,7 @@
 optimisation, whose first design iteration has not completed. SIDECAR.md carries the
 full statement; this file carries the arithmetic.
 
-The storyline, as numbered files. Every generated file is prefixed `synthetic_`.
+The storyline, as the act's own tile names.
 Real material is REFERENCED BY PATH, never copied.
 
   01  the primal residuals -- REAL, already in ../plots_CRM_MP (residuals*.png)
