@@ -1127,3 +1127,135 @@ Therefore, concretely:
 `rhoSimpleFoam` live, 32 ranks, G0 `PASS`, G1 and G2 satisfied on disk per B1.6, G3–G7 not
 yet run. **No gate, threshold, cap or label is altered by this addendum**; it corrects an
 attribution in B2.1 and adds no instrument.
+
+---
+
+## ADDENDUM B4 — 2026-09-14, AFTER FIRST COMPUTE
+
+**Version 1.5 → 1.6. Lines whose number changed above this section: 0.**
+
+Gates remain **CLOSED** (standing rule 2). **G4 (Fy 325 ± 20 N), G5 (|My| 18.0 ± 1.5 N·m),
+G6 (BPF 100 ± 3 Hz), G2a and the §6 cost band are untouched.** This addendum adds no gate,
+moves no threshold, sets no cap and changes no label. Every fact below was re-derived on
+disk or read in source by the cfd-supervisor personally, as crash triage
+(`SUPERVISION_CHARTER.md` §3 check 2), and not relayed.
+
+### B4.1 — **THE B2.1 REMEDY WAS RIGHT AND THE RUN STILL FAILED: ITS PREMISE — THAT A WINDOW EXISTS — IS FALSE AND IS STRUCK.**
+
+B2.1 registered the zero-step hazard, predicted its exact shape, and specified the remedy:
+*"After the precursor's `End` and before `rhoPimpleFoam` starts, every scalar-parseable time
+directory on all 32 ranks except `0` and `5000` is RENAMED."* **The prediction was correct in
+every particular. The remedy was correct. It was applied. The run failed anyway, in exactly
+the predicted shape, because the clause "after the precursor's End and before rhoPimpleFoam
+starts" DESCRIBES A WINDOW THAT DOES NOT EXIST.**
+
+The timeline, from `HANDOFF.tsv` and the solver log's own header, is decisive:
+
+| UTC | Event | Source |
+|---|---|---|
+| 03:08:22 | **`rhoPimpleFoam` constructs `Time`** — `Create mesh for time = 4500` | `log.rhoPimpleFoam` header line `Time : 03:08:22`, and line `Create mesh for time = 4500` |
+| 03:08:29 | watcher *notices* the precursor's `End`; `BEFORE_FIX processor0 = 0 4500 5000_steadyState constant` | `HANDOFF.tsv` |
+| 03:08:30 | watcher renames `4500` → `4500_intermediate` on 32/32 ranks | `HANDOFF.tsv` |
+| 03:08:30 | watcher asserts `latestTime WILL be 0 -- correct` | `HANDOFF.tsv` |
+
+**The assertion was true when it was made and false when it mattered. The solver had already
+read the directory eight seconds earlier.** `Allrun` runs `rhoSimpleFoam`, `replace.sh`,
+`changeDictionary` and `rhoPimpleFoam` back to back with nothing between them; the watcher
+polled `log.rhoSimpleFoam` on a **15 s** interval. **A 15 s poll cannot open a 0 s window.**
+Note that `BEFORE_FIX` already shows `5000_steadyState`, i.e. `replace.sh` had run before the
+watcher's first look — the watcher was never ahead of `Allrun`, it was always behind it.
+
+**THE GENERAL FORM, which is the part worth inheriting: a repair that races the thing it
+repairs is not a repair, it is a second experiment.** The remedy had to be a **precondition
+of the solver's own launch**, evaluated in the same process that starts the solver, not an
+observer racing it. It is re-registered that way in B4.4.
+
+**What is struck:** B2.1's sentence beginning *"After the precursor's `End` and before
+`rhoPimpleFoam` starts"*, **only as to its timing premise**. B2.1's mechanism, its purge
+analysis, its `5000`-is-load-bearing clause and its zero-step refusal all **stand unchanged**
+— and the refusal is what caught this, on its registered criterion (`0` `Time =` lines
+against a threshold of 10), against the named log, exactly as armed.
+
+### B4.2 — **THE `0/uniform/time` LEAD IS FALSIFIED IN SOURCE. NO DICTIONARY DEVIATION IS NEEDED AND NONE IS TAKEN.**
+
+A lead put to this team held that the `0` symlink carries the precursor's `uniform/time`
+(`value 5000`, `index 5000`, `deltaT 1`), that `Time::setControls` would therefore take
+`deltaT ≈ 1` — explaining `Courant Number max: 30.3561` — and that the loop exited on that
+basis. **Checked against this box's own source, `/usr/lib/openfoam/openfoam2606/src/OpenFOAM/db/Time/Time.C`,
+`Foam::Time::setControls`. All three limbs are wrong, and the difference is not academic: the
+lead's remedy would have been an unnecessary deviation applied to a case that did not need one.**
+
+| Limb of the lead | What the source says |
+|---|---|
+| `deltaT` taken from the time dictionary | **No.** The read is guarded: *"Read and set the deltaT only if time-step adjustment is active, otherwise use the deltaT from the controlDict"* — `if (controlDict_.getOrDefault("adjustTimeStep", false))`. `controlDict.tr:33` is **`adjustTimeStep no`**, so `deltaT` came from the dictionary file, **`#eval{1e-4/$nref}` with `nref 1` = 1e-4** |
+| the stored `value` resets the time | **No.** A mismatch produces `IOWarningInFunction` *"Time read from time dictionary … differs from actual time"* and **nothing else** — no `setTime` call in that branch |
+| the loop exited on the time dictionary | **No.** It exited because `startTime_` was **4500**, taken from the leftover bare `4500` directory by `startFrom latestTime`, and `4500 > endTime 2.5` |
+
+**Two independent confirmations that the diagnosis in B4.1 is the right one, not this one.**
+First, the log prints `Create mesh for time = 4500`, not `0` and not `5000` — only the
+leftover directory can produce that. Second, **the predicted warning is absent from the log**,
+and the source says exactly why it must be: the consistency check is skipped when the stored
+`name` equals the current `timeName()`, and `4500/uniform/time` carries `name "4500"` against
+a start time of 4500. **The missing warning is positive evidence for 4500 and against 0.**
+
+**Consequence, and it is the whole practical point: `0/uniform/time` is harmless, and it is
+UPSTREAM'S OWN CONDITION.** Upstream's `replace.sh` deletes `0` and symlinks it to
+`5000_steadyState`, so the published case also starts from a `0` whose `uniform/time` says
+`value 5000; index 5000`. `index` is read (`timeIndex_ = 5000`) and is inert here: `Time::run()`
+compares **time values** against `endTime`, `writeControl adjustableRunTime` and the
+`cuttingPlane`'s `runTime` control are time-based, and the `purgeWrite` stack is fed by
+written times, not by the index. **Removing `0/uniform/time`, or switching to `startFrom
+startTime`, would each be a deviation from the published setup that fixes nothing.** Neither
+is taken. Applied dictionary deviations remain the four recorded in B1.1: **D1, D2, D3, D4.
+There is no D5 beyond §5's, and §5's D5 remedy already fired and is recorded as B1.1's D2.**
+
+### B4.3 — **`Courant Number max: 30.3561` IS REAL, IS UPSTREAM'S, AND IS REGISTERED AS A WATCH ITEM — NOT A GATE.**
+
+Since B4.2 establishes `deltaT = 1e-4` at that evaluation and not 1, **the printed Courant
+number is not an artefact of a misread time dictionary. It is the actual maximum cell Courant
+number of the mapped steady field at the transient's own time step**, and `adjustTimeStep no`
+means **`maxCo 0.5` in `controlDict.tr` is never consulted** — it is dead text in the
+published dictionary. Upstream ships it exactly so, and under the lab's published-setup-first
+rule it is run exactly so.
+
+**Recorded as a risk, with no threshold attached**: a PIMPLE run at local Co ≈ 30 depends
+entirely on its outer correctors for stability, and the first steps are the ones at risk.
+**This creates no gate and licenses no intervention.** If the solver diverges, that is a
+finding about the published setup at v2606 and is reported as one under Sanaa's 2026-09-10
+directive that OpenFOAM issues are surfaced as runs, **not worked around**. The first-50-step
+rate probe already on disk (`LES_RATE_PROBE.txt`, daemon alive since 00:38Z) will show it.
+
+### B4.4 — **THE RELAUNCH: THE REMEDY BECOMES A PRECONDITION, AND CHANGES NOTHING ELSE.**
+
+**The disk is already in upstream's exact condition and required no further action to get
+there** — the watcher's rename, though eight seconds late for attempt 3, is permanent.
+Verified by the supervisor across **all 32 ranks, not a sample**, at this addendum: the set of
+entries whose basename parses as a float is **exactly `{0}` on 32 of 32 ranks**, and `0` is a
+symlink to `5000_steadyState` with `p` and `U` readable through it. **Therefore `latestTime`
+= 0, the transient starts at t = 0 from the steady solution, and runs 2.5 / 1e-4 = 25,000
+steps.** This is a fresh transient, **not** a mid-run resume.
+
+`rhoPimpleFoam` is relaunched **on the same 32 ranks**, through the queue runner as the
+launch path of record, by a **frozen wrapper on a new filename** —
+`mb13_relaunch_transient.sh`; the failed attempt's `log.rhoPimpleFoam` is **moved, not
+deleted**, to `ATTEMPT3_ZERO_STEP_EVIDENCE/`. The wrapper carries B4.1's lesson as **launch
+preconditions evaluated in the launching process itself**: the float-parseable set is exactly
+`{0}` on all 32 ranks; `0` resolves with `p` and `U` readable on all 32; `controlDict` reads
+`application rhoPimpleFoam`, `startFrom latestTime`, `endTime 2.5`; `turbulenceProperties`
+reads `LES`. Each refuses with its own return code and writes its reason to `RELAUNCH.tsv`
+**before** the solver starts. **B2.1's zero-step refusal is re-armed unchanged** against the
+named log, inside the same wrapper, so it can no longer be outrun either.
+
+**Nothing in the case is edited.** No dictionary, no `Allrun`, no `replace.sh`, no
+`0/uniform/time`. The live rate-probe daemon is **left running and not restarted** — it polls
+the same log path and will measure the new run, and editing or restarting a live instrument
+is precisely the class of act that produced this addendum.
+
+### B4.5 — STATE AT THIS ADDENDUM
+
+`rhoSimpleFoam` precursor **complete and clean**: 5000 of 5000, `End`, rc 0,
+`ExecutionTime = 6294.88 s` at 32 ranks = **3,357 core-min** actual for the precursor stage.
+`rhoPimpleFoam` attempt 3 = **ZERO STEPS, refused, NOT A RESULT** (B2.1's refusal, on its
+registered criterion), cost ≈ **0** beyond construction. **G0 `PASS`; G1 and G2 satisfied on
+disk per B1.6; G3–G7 not yet run.** A rule-12 estimate-versus-actual calibration row is owed
+for the precursor stage and for the transient at its completion.
