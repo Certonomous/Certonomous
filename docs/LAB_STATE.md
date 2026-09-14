@@ -33632,7 +33632,7 @@ Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 
 <!-- BOARD-BLOCK-ID: 169-STATE-ONLY-PER-SANAAS-LESS-PLUMBING-DIRECTIVE -->
 
-**Section last written:** 2026-09-13T22:50Z by a cfd `lab-lane` (Opus 5). **Newest block is 206 at the FOOT of this section.** *(This line previously asserted 2026-09-12T02:23:13Z and "newest block is 191" while block 205 sat at the foot, written 2026-09-13; that stale assertion caused a dictated block id to collide with an id already used twice. Corrected here.)*
+**Section last written:** 2026-09-14T01:25Z by a cfd `lab-lane` (Opus 5). **Newest block is 207 at the FOOT of this section.** *(Block 206 corrected this line from a stale 2026-09-12 assertion; it is kept current here at every write.)*
 
 ### RUNNING
 | item | state |
@@ -47138,6 +47138,53 @@ On Sanaa's words, *"nobody touches or steals the propeller's cores or the drivae
 **Also for the chief:** `docs/LESSONS.md` (**3 offenders**) and `docs/NUMERICS_KNOWLEDGE.md` (**1**) are **blocked at exit 7** on the **same malformed-id class** repaired for `COST_CALIBRATION` at `c4852811`. **Verification's register, not cfd's.**
 
 **`NOT FILED` stands. SUBMISSIONS PARKED.**
+
+<!-- BOARD-BLOCK-ID: 207-MB13-MARINE-PROPELLER-REGISTRATION-FROZEN-AND-COMMITTED-NOTHING-LAUNCHED-COLD-RESUME -->
+
+**Section last written:** 2026-09-14T01:25Z by a cfd `lab-lane` (Opus 5), via `scripts/lab_state_section.py` (`--selftest` PASS in the same invocation) + the rule-10 private-index protocol, rebuilt against the CURRENT HEAD.
+
+> **ID, RULE 11, STATED BEFORE THE CONTENT.** Re-derived from the tail of the committed blob, never counted: **maximum existing id 206**, so **this block is 207**. The section holds **148 distinct ids** — a different figure from the maximum, and not the one used.
+
+### MB13 MARINE PROPELLER — COLD RESUME. **NOTHING HAS BEEN LAUNCHED.**
+
+Sanaa chose this case and named the commit, byte-exact: *"CFD propeller case : https://develop.openfoam.com/committees/hpc/-/tree/0d06b7550061eb58b7857a6d6635cc10516707b4/compressible/rhoPimpleFoam/LES/marinePropeller everything is in there so to be cloned and repeated verbatim"*.
+
+**THE REGISTRATION IS FROZEN AND COMMITTED.** A successor needs these five lines and nothing else to restart cold:
+
+| | |
+|---|---|
+| Pre-registration | `cases/navier_class/MB13_MARINE_PROPELLER/MB13_PREREGISTRATION.md` |
+| File manifest, 72 sha256 | `cases/navier_class/MB13_MARINE_PROPELLER/UPSTREAM_MANIFEST.sha256` |
+| Commits | **`64195e9b`** (v1.0 freeze) → **`cf67f8d7`** (A1) → **`524fef08`** (A2, current) |
+| Upstream tree | commit `0d06b755…`, subtree `ffbde3f10d781b4bae862f18d86a5c437303f50c`, at `/home/ubuntu/upstream/published-openfoam-setups/openfoam-hpc-tc` |
+| Staged case (execution lane) | `/home/ubuntu/certonomous-runs/MB13_MARINE_PROPELLER/nref1_n32` — 72 files `diff -r` clean vs upstream |
+
+**STATE, ONE LINE: registration frozen at `524fef08`; zero compute spent; awaiting the cfd-supervisor's check-4 authorisation.**
+
+### THERE ARE NO KT/KQ BANDS, AND A SUCCESSOR MUST NOT GO LOOKING FOR THEM
+
+The dispatch that produced this block described the registration as carrying *"KT/KQ bands"*. **It does not, deliberately.** The 72 published files contain **no tabulated thrust, torque, KT, KQ or efficiency**. The registered bands are **digitised by eye from the case's own two published figures, before any compute**: **Fy ≈ 325 ± 20 N** (`figures/Force_history.png`) and **|My| ≈ 18.0 ± 1.5 N·m** (`figures/Moment_history.png`), both on the **transient** 0–2.5 s axis at nref=1, plus **BPF = 100 ± 3 Hz** from the README. This is registered as a **REPRODUCTION rung** in its opening lines. KT/KQ appear once, as orientation only, explicitly barred from any verdict. **PPTC's tables are a different propeller and are not a comparator.**
+
+### THE ONE THING A SUCCESSOR MUST NOT LOSE
+
+**Stage 8 is predicted to FATAL, and the FATAL will be SILENT.** `system/v_fluid_rotor/snappyHexMeshDict:305` misspells `minMedialAxisAngle` as `minMedianAxisAngle`; v2606 reads that key through `meshRefinement::get<scalar>` → `readEntry(..., MUST_READ)` → `FatalIOErrorInFunction` (`meshRefinementTemplates.C:306-331`), with **no default path** outside dry-run, and the rotor dict has **no `#include`** that could supply it. Independently: v2606's `runApplication`/`runParallel` **never test exit status** and `Allrun` has **no `set -e`**, so a FATAL stage is silent and the pipeline continues. **Together: `Allrun` would march through `mergeMeshes`, `createPatch`, both `extrudeMesh` stages, 5000 `rhoSimpleFoam` iterations and into a multi-day LES on a rotor whose layers never got built — and G2 would NOT catch it, because a failed layer addition still leaves a populated `v_fluid_rotor` cellZone.** Gate **G2a**, the silent-FATAL sweep, is registered before compute and blocks `rhoSimpleFoam` on any FATAL in any `log.*`. **A relayed reading that this typo "silently takes the default" is WRONG and was refuted from source in amendment A2.**
+
+### PENDING — THE SUPERVISOR'S CALLS, NOT A LANE'S
+
+- **D4a / D4b checkpointing: `PENDING`.** Their steady phase writes **once**, at iteration 5000 (~2.5 h exposure, and `system/replace.sh:11` hard-requires a directory named literally `5000`); the transient writes every ~5 h. Both outside a 30-minute policy. **Registered as PROPOSED, NOT APPLIED** — one line each. Strict verbatim remains a defensible choice. `PENDING` here is a queue state, not a softened verdict.
+- **Applied dictionary deviations: ZERO.** D1 is an *invocation* change only — `bash ./Allrun 32`, because `dash -n Allrun` fails at line 73 while `bash -n` is clean. No byte of the 72 files is altered.
+
+### COST AND DISK — REGISTERED, NOT DISCOVERED LATER
+
+Two independent estimates **disagree and neither was adopted**: this lane's 243,000 core-min central for the LES vs the execution lane's 33,000–94,000, whose *upper* bound sits below the other's central. Band widened to span both — **33,000–607,500 core-min, $28–$519 DERIVED, NOT MEASURED** at $0.0513/core-h, `cost_basis` reported-by-owner — and a **rate probe at the first 50 steps** settles it with a measurement. Mesh pipeline and solve are costed separately in §6. **Disk:** `cuttingPlane` writes ensight surfaces every second timestep (~12,500 writes) against `/dev/root` at **220 GB free, 78 % used**, already at the table's "disk under 80 %" line and sharing the volume with live PPTC — registered stop at **below 60 GB free ⇒ `BLOCKED`**. That is a **disk** stop, not a time or budget cap; **directive #17 is untouched**.
+
+### CO-ORDINATES
+
+Execution/mesh lane `a44de39d4126a3896` holds the staged tree, `mb13_watch.sh` and `prove_cellzones.py`, both proven by planted control; its inputs are at `…/nref1_n32/REGISTRATION_INPUTS.md`. This lane owns the registration only and **launched nothing**. **32 ranks, the hard boundary** — not the propeller's 48, not DrivAer's; the seven SUBOFF `L1M_SWEEP` points are 4 ranks each = 28, and the older top-level `BETA_p00` tree's own 28-subdomain dict was **not** double-counted. The number **32 could not be reconstructed from any single artifact** (Sanaa's table reserves 16 for the propeller lane; chief record Y says 32) — flagged, not asserted.
+
+**Cells per rank at 32: 127,188 — below the ~200k floor at which this box has no measured strong-scaling basis.** Confidence in G7 `GATE REACHED` first attempt: **~55 %**. G0 is `PASS`; every other gate is not yet run.
+
+**SUBMISSIONS PARKED.**
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
