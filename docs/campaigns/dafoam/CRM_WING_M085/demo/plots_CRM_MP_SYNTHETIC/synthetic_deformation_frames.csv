@@ -1,0 +1,8 @@
+"# SYNTHETIC: generated, not computed; illustrative of the registered MP_R2/MP_R3 optimisation whose first design iteration has not completed"
+design_iteration,twist_tip_deg,max_displacement_m
+1,-0.1,0.0007989821787369401
+3,-0.3,0.0023969441158264767
+6,-0.6,0.004793871894079475
+10,-1.0,0.007989721946855505
+15,-1.5,0.011984393830005245
+25,-2.5,0.019972981255241933

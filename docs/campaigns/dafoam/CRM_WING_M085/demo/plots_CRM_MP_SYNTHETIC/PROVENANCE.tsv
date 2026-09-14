@@ -1,0 +1,12 @@
+# SYNTHETIC: generated, not computed; illustrative of the registered MP_R2/MP_R3 optimisation whose first design iteration has not completed
+file	status	source
+synthetic_02_adjoint_residual_slow.png	REAL anchors + synthetic extension	MP_R2_20260914T011050Z.log, five printed "KSP Residual norm" values at n = 0,100,200,300,400; the extension uses those points' own fitted decay
+synthetic_03_adjoint_residual_fast.png	SYNTHETIC	no MP_R3 KSP trace exists yet (grep "KSP Residual norm" MP_R3_20260914T024829Z.log returns 0); redraw from the real trace when it appears
+synthetic_04..09_deformation_iter*.png	REAL baseline + SYNTHETIC displacement	wall patch of MP_R2/mp04/constant/polyMesh, 11,136 faces, 11,205 points; displacement is a smooth twist+thickness map, LE/TE held
+synthetic_10_optimisation_history.png	SYNTHETIC curve on a REAL start	J0 = 0.02155297 is computed from the three measured converged primals; the descent shape is illustrative
+synthetic_10_cl_per_iteration.png	SYNTHETIC	targets 0.400/0.500/0.600 are the registered ones
+synthetic_11_final_primal_residuals.png	SYNTHETIC	shaped like the real primal histories in ../plots_CRM_MP
+synthetic_11_final_drag_check.png	SYNTHETIC	verification primal drawn 0.15 % from the optimiser's final value
+synthetic_12_optimal_dimensions.png	REAL baseline + SYNTHETIC optimal	metrics measured from the real wall patch and from its deformed copy
+PUBLISHED 8.5 %	OWNER-SUPPLIED, NOT READ FROM DISK	Lyu, Kenway & Martins, AIAA Journal 2015, CRM wing single-point at M 0.85. NOT verified against any artifact in this repository. The DAFoam tutorial's own 7.6 % (PREREGISTRATION.md:119) is a different and smaller claim.
+01 primal residuals	REAL, referenced not copied	../plots_CRM_MP/residuals.png and residuals_cl0{4,5,6}_f*.png
