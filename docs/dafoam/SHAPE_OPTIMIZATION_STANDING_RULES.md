@@ -98,3 +98,17 @@ Her closing line invites these: *"plus whatever else the dafoam supervisor can t
 **Rule 31 is refined, not weakened.** FM10's time-0 `nonOrthoFaces` set is of the **right** mesh — DAFoam checks at time 0 of each primal, on the mesh already deformed for that evaluation (5 polys, matching that block's `severely non-orthogonal (> 70 degrees) faces: 5`). What is absent is narrower and still damning: **no check at FM10's final time at all** (O\_mp checks at 0 and 1000; FM10 at 0 only), and **no `checkMesh` report of the as-run mesh in either arm**. The one quotable `Mesh OK.` remains the as-extruded mesh at **66.32299475**, before the solve re-applies the design.
 
 **Rule 31 gains a second, sharper half, measured on both arms and recorded at `DAFOAM_CHARTER.md` §22.7: a declared threshold that never refuses is not a threshold.** `maxNonOrth = 70.0` is declared at `d6r2c_opt_runScript.py:163`; **76 of O\_mp's 202 checks exceed it** (worst **80.90429398**) and **6 of 6 of FM10's** do (**79.21261137**), and **every breaching block prints `Non-orthogonality check OK.` then `Mesh OK.`** The channel is live — four `Failed 1 mesh checks.` lines in the same log are all aspect-ratio failures at 1050.3162 against 1000 — it simply never fires on this clause. **So rule 7's quality budget is never satisfied by the solver's own check: it needs an instrument of ours that actually refuses, driven against a known-bad mesh before the freeze.**
+
+---
+
+## Addendum 2026-09-14 — owner directive #46: no gradient check during a running optimisation. Appended, never edited in place; every block above is untouched.
+
+Byte-exact, Sanaa, 2026-09-14 ~01:45Z:
+
+> ok so can the optimization run pls
+
+> good and remmeber during the optimization we dont do gradient check
+
+**Chief's reading:** during a running optimisation no finite-difference gradient verification step is performed by the run script or any watcher; gradient checks, if ever wanted, are a separate registered item before or after, never inside the optimisation.
+
+lines whose number changed above this section: 0

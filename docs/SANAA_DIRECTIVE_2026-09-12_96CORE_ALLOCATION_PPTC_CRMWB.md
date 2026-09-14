@@ -453,3 +453,13 @@ Facts on the record: (1) SUBOFF's seven points were stopped converged (2671–28
 D6R3 MP_R2 — the compressible transonic multipoint optimisation — is the lab's top-priority demo run: `jacMatReOrdering rcm`, hot-started from the converged trim, pid 1854058, launched 01:10:50Z on 20 ranks, detached watcher pid 1860615; dafoam stays on it until it completes or fails, and its failure is a finding, not a pause.
 MB13 marinePropeller is cfd's priority: pid 1863406, launched 01:21:03Z on 32 ranks, run through the runner with 30-min checkpoints as §Z fixes it.
 PPTC is set aside until after the demos — no lane effort goes to it; the running PRISM-A2 layer phase (pid 1768257, CFM-1) is left to finish and is recorded when it does, and the 48 propeller ranks stay reserved and unlent per §O.
+
+---
+
+## AD. The optimisation runs; no gradient check during a running optimisation — byte-exact, 2026-09-14 ~01:45Z (owner directive #46)
+
+> ok so can the optimization run pls
+
+> good and remmeber during the optimization we dont do gradient check
+
+**Chief's reading:** during a running optimisation no finite-difference gradient verification step is performed by the run script or any watcher; gradient checks, if ever wanted, are a separate registered item before or after, never inside the optimisation.
