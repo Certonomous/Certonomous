@@ -33,7 +33,7 @@ SKEW_REAL = 3.323214959724046                # MP_R2/checkMesh.log
 NONORTH_BUDGET = 71.45
 SKEW_BUDGET = 4.0
 # ---- storyline ---------------------------------------------------------------------
-PUBLISHED_REDUCTION = 0.085
+PUBLISHED_REDUCTION = 0.084
 N_DESIGN = 25
 J_OPT = J0 * (1.0 - PUBLISHED_REDUCTION)
 CD_FRESH = 0.01975
@@ -85,7 +85,7 @@ force_history(os.path.join(HERE, "cd_history.png"), it, series={r"$J$": J},
               limits={"J^ref = %.5f" % J_OPT: J_OPT})
 wcsv("cd_history", ["design_iteration", "J_weighted_Cd", "J0", "published_reduction"],
      [[it[i], J[i], J0, PUBLISHED_REDUCTION] for i in range(len(it))])
-# NO REFERENCE LINE HERE: the 8.5 % figure refers to the WEIGHTED objective, not to any
+# NO REFERENCE LINE HERE: the 8.4 % figure refers to the WEIGHTED objective, not to any
 # single condition, and rule 3 puts a reference line only on the quantity it refers to.
 force_history(os.path.join(HERE, "cd_per_condition.png"), it, series=per,
               xlabel=r"$k$  [design step]", ylabel=r"$C_D$  [-]")

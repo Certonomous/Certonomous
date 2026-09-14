@@ -2,7 +2,7 @@
 
 **RUN.** The published DAFoam `CRM_Wing` tutorial, **M = 0.8497**, `DARhoSimpleCFoam`,
 **579,072 cells**, three trimmed lift conditions, FFD lattice 12 × 8 × 2 = 192 control
-points. Run root `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/`.
+points, all free; 7 twist variables (the root is held) and 3 trim angles. Run root `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/`.
 Provenance for every figure is recorded in section AL of
 `docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md`; read it before
 reusing any number from this folder.
@@ -41,8 +41,8 @@ further down, for less than the stopped one had already spent.
 
 **PROBLEM.** A design variable has to move the metal, visibly and smoothly.
 
-**SOLUTION.** FFD control points drive a twist washout and an upper-surface thickness
-redistribution, leading and trailing edges held.
+**SOLUTION.** The 192 FFD control points reshape the section and the 7 twist variables
+add a small washout, leading and trailing edges held.
 
 **RESULT.** Six frames at design iterations **1, 3, 6, 10, 15, 25** on one camera and
 one colour range: displacement grows **0.8 mm → 20.0 mm**, tip washout reaching
@@ -59,9 +59,10 @@ polyline each cut returns (`cut_sections.py`). Baseline and optimised profile ar
 in the baseline's own leading edge and chord, so the change is read against one frame.
 
 **RESULT.** Chords **1.247254 / 0.847772 / 0.571452 m**. The upper surface flattens
-through the shock, the aft camber increases, the thickness distribution is held, and the
-twist change grows outboard — **0.48° / 1.07° / 1.87°**, the values `final_dimensions.png`
-carries at these stations. Maximum profile change **0.6 % / 1.4 % / 2.4 % of chord**.
+through the shock, the aft camber increases, the thickness distribution is held, and a
+small washout grows outboard — **0.19° / 0.21° / 0.24°**. Shape and twist carry
+**70 % and 22 %** of the profile change, the split `reduction_breakdown.png` gives for the
+design variables. Maximum profile change **0.8 % / 1.0 % / 1.1 % of chord**.
 
 ## The drag comes down — `cd_history.png`, `cl_history.png`
 
@@ -71,7 +72,7 @@ while it does?
 **SOLUTION.** 25 SLSQP design iterations on the weighted objective, all three
 conditions trimmed at every step.
 
-**RESULT.** `J` falls **0.02155297 → 0.01972573, 8.5 %**, onto the published reference
+**RESULT.** `J` falls **0.021553 → 0.019747, 8.4 %**, onto the published reference
 line for this case and condition. `C_L` holds at 0.400 / 0.500 / 0.600 throughout, with
 excursions below 2e-4.
 
@@ -82,7 +83,7 @@ independent primal on the final shape.
 
 **SOLUTION.** Re-run the primal on the optimal geometry and compare.
 
-**RESULT.** Optimiser **0.01972573**, primal **0.01975532** — **0.15 % apart**, with
+**RESULT.** Optimiser **0.019747**, primal **0.019777** — **0.15 % apart**, with
 residuals six decades down.
 
 ## The final shape, in numbers — `final_dimensions.png`

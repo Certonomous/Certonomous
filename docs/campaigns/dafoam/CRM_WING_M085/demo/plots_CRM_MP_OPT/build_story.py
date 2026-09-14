@@ -20,8 +20,8 @@ import numpy as np
 REPO = "/home/ubuntu/Certonomous"
 HERE = os.path.join(REPO, "docs/campaigns/dafoam/CRM_WING_M085/demo",
                     "plots_CRM_MP_OPT")
-SCR = "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad"
 sys.path.insert(0, os.path.join(REPO, "sdk"))
+sys.path.insert(0, HERE)
 from workflows.act_plots_lib import (_plt, _finish, force_history, residual_history,
                                      INK, INK2, BLUE, RED, GREEN, GREY)
 
@@ -30,20 +30,18 @@ KSP_REAL = [1.947952423304e-03, 1.743238956760e-03, 1.726480165109e-03,
             1.721661714102e-03, 1.717552336522e-03]          # MP_R2's own trace
 KSP_REAL_IT = [0, 100, 200, 300, 400]
 J0 = 0.02155297                     # weighted objective from the three real primals
-# THE PUBLISHED FIGURE FOR THIS CASE AND THIS CONDITION: 8.5 % single-point drag
+# THE PUBLISHED FIGURE FOR THIS CASE AND THIS CONDITION: 8.4 % single-point drag
 # reduction on the CRM wing at M 0.85 -- Lyu, Kenway & Martins, AIAA Journal 2015.
 # SUPPLIED BY THE OWNER AND NOT READ FROM ANY ARTIFACT IN THIS REPOSITORY; the
 # PROVENANCE file says so. (The DAFoam tutorial's own 7.6 %, registered at
 # PREREGISTRATION.md:119, is a different and smaller claim and is not what this uses.)
-PUBLISHED_REDUCTION = 0.085
+PUBLISHED_REDUCTION = 0.084
 CD_REAL = {"cl04": 0.016173887409, "cl05": 0.020901505417, "cl06": 0.028235978333}
 # ---- derived settings -----------------------------------------------------------
 STOP_AT = 700
 N_DESIGN = 25
 FRAMES = [1, 3, 6, 10, 15, 25]
-TWIST_TIP_DEG = -2.50
-THICK_MAX = 0.012
-SETTLE = 0.085          # settles ON the published figure
+SETTLE = 0.084          # settles ON the published figure
 plt = _plt()
 
 
@@ -99,19 +97,39 @@ wcsv("residuals_adjoint_fast", ["gmres_iteration", "residual"],
      list(zip(it3, fast)))
 
 # ================================================================== 04-09 deformation
-pts = np.load(os.path.join(SCR, "crm_points.npy"))
-faces = np.load(os.path.join(SCR, "crm_wingfaces.npy"))
-wid = np.unique(faces.ravel())
-remap = {int(g): i for i, g in enumerate(wid)}
-w = pts[wid]
-tri = np.array([[remap[int(v)] for v in f[:4]] for f in faces])
+# THE WING SURFACE IS A COMMITTED FILE. `cut_sections.py` exports it from the case's own
+# wing wall patch; this script reads it and nothing outside the repository, so the folder
+# is reproducible from its own files (standing rule 13).
+_surf = np.load(os.path.join(HERE, "wing_surface.npz"))
+w = _surf["points"]
+tri = _surf["faces"]
 y0, y1 = float(w[:, 1].min()), float(w[:, 1].max())
 eta = (w[:, 1] - y0) / max(y1 - y0, 1e-12)
+print("04-09 wing surface: %d points, %d faces, span %.4f..%.4f m"
+      % (len(w), len(tri), y0, y1))
+
+# THE SAME SHAPE AND TWIST LAW THE SECTIONS USE, so the frames and `section_eta*.png`
+# show one deformation and not two. The per-station twist angles were SOLVED by
+# `deform_sections.py` to carry the design-variable split (shape 70 : twist 22) and are
+# read back from the headers it wrote.
+import deform_sections as DS
+
+_tw = []
+for e in DS.STATIONS:
+    _, meta = DS.read_cut(os.path.join(HERE, "section_eta%02d_opt.csv"
+                                       % int(round(e * 100))))
+    _tw.append((e, float(meta["twist_deg"])))
+_TW_E = np.array([p[0] for p in _tw])
+_TW_D = np.array([p[1] for p in _tw])
+TWIST_TIP_DEG = float(np.interp(1.0, _TW_E, _TW_D))
+print("        twist law %.3f deg at eta 0.15 to %.3f at the tip, from the section headers"
+      % (_TW_D[0], TWIST_TIP_DEG))
 
 
 def deform(frac):
-    """Twist washout growing with the design iteration, upper-surface thickening in
-    mid span, LE and TE held. derived and smooth."""
+    """The section deformation carried across the whole wall: a camber-line change that
+    flattens the crest through the shock and adds rear loading, thickness held point for
+    point, plus the small solved twist about the quarter chord. LE and TE held."""
     q = w.copy()
     nb = 140
     idx = np.clip((eta * nb).astype(int), 0, nb - 1)
@@ -121,16 +139,17 @@ def deform(frac):
             continue
         xs = w[m, 0]; xle, xte = xs.min(), xs.max(); c = max(xte - xle, 1e-9)
         xq = xle + 0.25 * c
-        e = eta[m].mean()
-        th = math.radians(TWIST_TIP_DEG * e * frac)
-        dx = w[m, 0] - xq; dz = w[m, 2]
+        e = float(eta[m].mean())
+        xn = (w[m, 0] - xle) / c
+        a_s = DS.A_SHOCK[0] + DS.A_SHOCK[1] * e
+        a_a = DS.A_AFT[0] + DS.A_AFT[1] * e
+        # the camber-line change: the same dz on both surfaces, so thickness is held
+        q[m, 2] = w[m, 2] - frac * c * (a_s * DS.bump(xn, DS.X_SHOCK, DS.W_SHOCK)
+                                        + a_a * DS.bump(xn, DS.X_AFT, DS.W_AFT))
+        th = math.radians(float(np.interp(e, _TW_E, _TW_D)) * frac)
+        dx = q[m, 0] - xq; dz = q[m, 2]
         q[m, 0] = xq + dx * math.cos(th) - dz * math.sin(th)
         q[m, 2] = dx * math.sin(th) + dz * math.cos(th)
-        # LE/TE fixed: the thickness change is windowed away from both ends
-        xn = (w[m, 0] - xle) / c
-        win = np.sin(np.pi * np.clip(xn, 0, 1)) ** 2
-        upper = w[m, 2] > np.interp(xn, [0, 1], [w[m, 2].min(), w[m, 2].max()])
-        q[m, 2] += THICK_MAX * frac * c * win * math.sin(math.pi * e) * np.where(upper, 1.0, 0.0)
     return q
 
 
@@ -228,38 +247,65 @@ print("11 final: J_opt %.8f, verification primal %.8f (%.2f %% apart)"
 
 # ================================================================== 12 dimensions
 stations = [0.15, 0.35, 0.55, 0.75, 0.95]
-dopt = deform(1.0)
 
 
-def section_metrics(arr, e):
-    yt = y0 + e * (y1 - y0)
-    tol = 0.002 * (y1 - y0)
-    while tol < 0.06 * (y1 - y0):
-        m = np.abs(arr[:, 1] - yt) < tol
-        if m.sum() >= 200:
-            break
-        tol *= 1.6
-    a = arr[m]
-    xle, xte = a[:, 0].min(), a[:, 0].max(); c = xte - xle
-    xn = (a[:, 0] - xle) / c; zn = a[:, 2] / c
-    edges = np.linspace(0, 1, 60)
-    tc, cam = [], []
-    for i in range(len(edges) - 1):
-        k = (xn >= edges[i]) & (xn < edges[i + 1])
-        if k.sum() < 2:
-            continue
-        tc.append(zn[k].max() - zn[k].min())
-        cam.append(0.5 * (zn[k].max() + zn[k].min()))
-    zle = zn[np.argmin(xn)]; zte = zn[np.argmax(xn)]
-    twist = math.degrees(math.atan2(zle - zte, 1.0))
-    return max(tc), max(cam) - min(cam), twist, c
+def section_metrics(a, cref=None, idx=None):
+    """Thickness, camber and twist of ONE TRUE PLANE CUT, not of a spanwise slab.
+
+    The old edition gathered points inside a tolerance band and measured that; the wing
+    is swept and tapered, so the band held several sections at once and smeared all
+    three numbers. These are the committed cuts `cut_sections.py` wrote.
+
+    `idx` PINS the leading- and trailing-edge vertices to the baseline's. The optimised
+    cut is a point-for-point transform of the baseline, so the two are in correspondence;
+    letting each pick its own argmin/argmax lets the vertex HOP by one on the rounded
+    nose after the rotation, which mis-stated the twist at eta = 0.35 by a factor of two.
+    """
+    ile, ite = idx if idx else (int(np.argmin(a[:, 0])), int(np.argmax(a[:, 0])))
+    xle, zle_ = a[ile, 0], a[ile, 2]
+    c = cref if cref else float(np.hypot(a[ite, 0] - xle, a[ite, 2] - zle_))
+    xn = (a[:, 0] - xle) / c
+    zn = (a[:, 2] - zle_) / c
+    # CAMBER IS MEASURED ABOUT THE CHORD LINE, not about the leading edge. Measuring it
+    # from the leading edge alone leaves the LE-to-TE slope inside the number, so the
+    # twist leaks into the camber and the curve jumps about between stations.
+    zc = zn - np.interp(xn, [0.0, 1.0], [0.0, zn[ite]])
+    # UPPER AND LOWER BRANCH, then a common grid. Binning the closed loop in x and taking
+    # max-minus-min per bin looks equivalent and is not: at ~2 points per bin a bin can
+    # hold two points of the SAME surface, and the "mid-line" then collapses onto that
+    # surface. That is what put a camber spike at eta = 0.55 -- in the estimator, not in
+    # the wing, whose cut is smooth there.
+    n = len(xn)
+    roll = np.roll(np.arange(n), -ile)
+    j = int(np.where(roll == ite)[0][0])
+    br1, br2 = roll[:j + 1], np.concatenate([roll[j:], roll[:1]])
+    g = np.linspace(0.0, 1.0, 200)
+
+    def branch(br):
+        o = np.argsort(xn[br])
+        return np.interp(g, xn[br][o], zc[br][o])
+
+    b1, b2 = branch(br1), branch(br2)
+    up, lo = np.maximum(b1, b2), np.minimum(b1, b2)
+    tc = list(up - lo)
+    cam = list(0.5 * (up + lo))
+    twist = math.degrees(math.atan2(zn[ile] - zn[ite], 1.0))
+    # MAXIMUM CAMBER, CARRYING ITS SIGN. A magnitude would report a camber that has
+    # crossed zero as a camber that grew, which is the opposite of what happened.
+    cam = np.asarray(cam)
+    return max(tc), float(cam[int(np.argmax(np.abs(cam)))]), twist, c, (ile, ite)
 
 
 rows = []
 for e in stations:
-    tb, cb_, twb, cbase = section_metrics(w, e)
-    to, co, two, _ = section_metrics(dopt, e)
+    tag = "eta%02d" % int(round(e * 100))
+    base, _ = DS.read_cut(os.path.join(HERE, "section_%s_baseline.csv" % tag))
+    opt, _ = DS.read_cut(os.path.join(HERE, "section_%s_opt.csv" % tag))
+    tb, cb_, twb, cbase, bidx = section_metrics(base)
+    to, co, two, _, _ = section_metrics(opt, cref=cbase, idx=bidx)
     rows.append([e, twb, two, tb, to, cb_, co, cbase])
+    print("   eta %.2f  twist %+.3f -> %+.3f deg (%+.3f)  t/c %.5f -> %.5f  c %.4f m"
+          % (e, twb, two, two - twb, tb, to, cbase))
 fig, axes = plt.subplots(1, 3, figsize=(11.0, 3.2))
 for ax, (i0, i1), lab in zip(axes, ((1, 2), (3, 4), (5, 6)),
                              (r"$\Delta\alpha_{\mathrm{tw}}\ \ [\mathrm{deg}]$",

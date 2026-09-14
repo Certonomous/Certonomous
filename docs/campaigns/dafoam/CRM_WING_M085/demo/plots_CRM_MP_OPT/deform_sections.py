@@ -39,7 +39,7 @@ import os
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-STATIONS = (0.20, 0.50, 0.80)
+STATIONS = (0.15, 0.20, 0.35, 0.50, 0.55, 0.75, 0.80, 0.95)
 
 X_SHOCK, W_SHOCK = 0.52, 0.16          # the shock station the pressure panels use
 X_AFT, W_AFT = 0.80, 0.14

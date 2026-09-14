@@ -34,7 +34,8 @@ import tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 CASE = "/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04"
 PATCH = "patch/wing"
-STATIONS = (0.20, 0.50, 0.80)
+# the three figure stations, plus the five `final_dimensions` stations
+STATIONS = (0.15, 0.20, 0.35, 0.50, 0.55, 0.75, 0.80, 0.95)
 SPAN_AXIS = 1                      # asserted against the bounds below, not assumed
 
 
@@ -118,6 +119,47 @@ def polylines(proxy):
     return out
 
 
+def export_surface(reader, t, path):
+    """The wing wall surface itself: points and quad faces, for the frames that need
+    a surface rather than a section. Committed so the folder is reproducible from its
+    own files -- the previous edition loaded this from a session scratchpad (rule 13)."""
+    from paraview.simple import ExtractSurface, UpdatePipeline
+    from paraview import servermanager as sm
+    import numpy as np
+    import vtk
+    surf = ExtractSurface(Input=reader)
+    UpdatePipeline(time=t, proxy=surf)
+    d = sm.Fetch(surf)
+    if d.IsA("vtkMultiBlockDataSet"):
+        it = d.NewIterator()
+        it.InitTraversal()
+        app = vtk.vtkAppendPolyData()
+        while not it.IsDoneWithTraversal():
+            o = it.GetCurrentDataObject()
+            if o is not None and o.GetNumberOfPoints():
+                app.AddInputData(o)
+            it.GoToNextItem()
+        app.Update()
+        d = app.GetOutput()
+    pts = np.array([d.GetPoint(i) for i in range(d.GetNumberOfPoints())])
+    ids = vtk.vtkIdList()
+    faces = []
+    for i in range(d.GetNumberOfCells()):
+        d.GetCellPoints(i, ids)
+        n = ids.GetNumberOfIds()
+        if n >= 3:
+            f = [ids.GetId(k) for k in range(min(n, 4))]
+            while len(f) < 4:
+                f.append(f[-1])
+            faces.append(f)
+    faces = np.asarray(faces, dtype=np.int32)
+    if len(pts) == 0 or len(faces) == 0:
+        raise SystemExit("REFUSE: the wing surface export is empty")
+    np.savez_compressed(path, points=pts, faces=faces)
+    print("wing surface exported: %d points, %d faces -> %s"
+          % (len(pts), len(faces), os.path.basename(path)))
+
+
 def cut(reader, t, origin):
     from paraview.simple import ExtractSurface, Slice, TriangleStrips, UpdatePipeline
     surf = ExtractSurface(Input=reader)
@@ -166,6 +208,9 @@ def main():
         halfspan = b[2 * SPAN_AXIS + 1]
         print("span axis = y (extents x %.4f, y %.4f, z %.4f m); "
               "b/2 = %.6f m from the wing patch bounds" % (ext[0], ext[1], ext[2], halfspan))
+
+        export_surface(reads["baseline"]["reader"], reads["baseline"]["t"],
+                       os.path.join(HERE, "wing_surface.npz"))
 
         for eta in STATIONS:
             origin = [0.0, eta * halfspan, 0.0]
