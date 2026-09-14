@@ -877,3 +877,40 @@ rules.
 
 *Appended by a cfd `lab-lane`, 2026-09-14. No gate moved. No verdict claimed — the verdict
 is the frozen comparator's. No submission, nothing sent, nothing leaves the box.*
+
+## A2.8 — SAME-DAY CONTINUATION OF ADDENDUM 2. **THE GRADER LANDED. THE PRINTED REASON IS COMPLETION, NOT THE SIGN CLAUSE, AND THAT DISTINCTION IS RECORDED HERE RATHER THAN BLURRED.**
+
+**Lines whose number changed above this section: 0. No gate, threshold, cap or label
+altered.**
+
+The sibling lane's detached watcher ran the frozen comparator at 2026-09-14T00:17Z, after
+verifying its blob against the pre-registration commit. Artifacts:
+`verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_GRADE/LANDING.txt`,
+`A1H_L1M_GRADE.json`, `A1H_L1M_GRADE.rc` = **0**.
+
+> ### **COMPARATOR VERDICT: `NOT A RESULT`**
+> printed reason: *"fitted points failing the strict completion rule: [-8, -4, 0, 4, 8].
+> There is no fit over fewer than the five registered points and no degradation to a
+> shorter sweep."*
+
+**The reason matters and §A2.5 must not be read as claiming otherwise.** The comparator
+returns at the completion barrier and **never reaches the fit**, so `Y_v′` is printed as
+`None` and **§4.2's sign clause was never executed**. The positive `Y_v′ = +1.327616e-03`
+in §A2.5 is **this lane's reading of the window means, REPORTED and NOT GRADED** — it is
+what §4.2 would have delivered had the run completed, not what the comparator printed.
+Both routes end at `NOT A RESULT`; only one of them is the frozen instrument's, and it is
+the completion route.
+
+**The comparator's own window means corroborate §A2.3 independently**, to every digit
+printed — e.g. β = +8 `Y′(mean) = 1.8191948864447946e-04` against §A2.3's `+1.819195e-04`,
+over the same `n = 500` window ending at `t_last = 2835`. Two readers, one number.
+
+**Its rule-3 plant fired and was seen**: `planted_mean 0.001234`, `read_back 0.001234`,
+`decoy_at_t1 0.005678` correctly excluded from the window (`decoy_in_window: False`).
+
+**Two limbs the landing file states and this lane does not weigh**, both for the
+supervisor: (1) §9 registers the seven points at `SUBOFF_A1H_DRIFT/BETA_*` and these ran
+one level down in `L1M_SWEEP/BETA_*`; (2) they ran on `MESH_FULL_L1M`, whose determinant
+Addendum 1 records as 8.6227045e-04 against A1b's floor of 1.0e-03.
+
+*Appended by a cfd `lab-lane`, 2026-09-14.*
