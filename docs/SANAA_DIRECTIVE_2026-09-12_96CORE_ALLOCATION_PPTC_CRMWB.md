@@ -426,3 +426,11 @@ Facts on the record: (1) SUBOFF's seven points were stopped converged (2671–28
 > No caption, verdict, cell count or level name on any image; white background; one colour bar titled by symbol and unit. The act carries the words.. Now for the marine propeller, since this is a case that is completely setup already, i want agents dedicated to it, this goes as a priority over the other propeller. Also, updat eon dafoam compressible transonic multipoint opt
 
 **Chief's reading:** the plot lane re-renders the four K2 transient panels and the two DrivAer panels as specified, and strips any caption, verdict, cell count or level name from every image lab-wide; the marinePropeller (§Z) takes priority over PPTC on cfd's lanes — dedicated lanes, launched first.
+
+---
+
+## AB. Demo plots for the single-point transonic CRM Mach 0.85 optimization — byte-exact, 2026-09-14 ~00:55Z
+
+> plotting agent: since dafoam ran the osingle point transonic crm mach 0.85 optimization, at least make the plots for that
+
+**Chief's reading:** the single-point transonic CRM_Wing Mach 0.85 run (the verbatim DAFoam tutorial arm) gets its own demo plot folder under plot library v2 conventions; the dafoam supervisor supplies the run root, the plot lane builds it after the round-2 and SUBOFF commits.
