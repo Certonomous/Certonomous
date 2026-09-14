@@ -368,3 +368,11 @@ Earlier the same exchange, hers: "the in house is the one we built us ? not the 
 > yeah i agree with giving it 48 ranks for the coarse provided it passes.
 
 **Chief's reading:** if PRISM-A2 (360° coarse, 19.8 M cells) passes her mesh gate, the design point J = 1.2021 launches on all 48 propeller ranks (not the 8 of the 8/16/24 split, which applies once three meshes exist); the medium build proceeds on the mesher's single core meanwhile.
+
+---
+
+## V. Stop SUBOFF and DrivAer fine to free 32 ranks — byte-exact, 2026-09-14 ~00:10Z
+
+> no lets stop them and strop drivaer as well that way we gain 32 ranks. But cfd first checks that all residuas are converged
+
+**Chief's reading:** cfd verifies every SUBOFF point's residuals are converged (and the forces stationary over the trailing window), then stops the seven points and the DrivAer fine run cleanly at their current iteration (checkpoint written first), grades SUBOFF on the solver's own convergence with a dated addendum setting the end time to the stop iteration and the window to the last 500 iterations before it (bookkeeping never voids physics); the DrivAer fine run's fields are kept, no fine result is claimed, and the demo plots keep the published fine numbers per §S. 32 ranks (28 + 4) are freed; the reserved lanes stand as she rules.
