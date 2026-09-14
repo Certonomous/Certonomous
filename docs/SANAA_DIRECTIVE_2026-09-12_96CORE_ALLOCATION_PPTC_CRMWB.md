@@ -617,3 +617,15 @@ real; they are different runs.
 **Chief's reading:**
 A geometry-ingest path — STL upload, and CAD STEP/IGES converted to STL — with a watertight check, units, bounding box and preview is added to the control-room server and offered as a panel for every act.
 Every act gets a loadable geometry file through it: M6 and CRM wall patches extracted from their grids, K2 rack geometry, DrivAer, SUBOFF, MB13 and PPTC from their published/CAD files; build lane dispatched 04:06Z.
+
+---
+
+## AN. Geometry files only — the control room is withdrawn; one STL per act, CAD where it exists — byte-exact, 2026-09-14 ~04:10Z (owner directive #54)
+
+> "no need fot eh control room ( i am building this my self). I just want the stl files or cad files."
+
+> "yes no control room, i just need all the stl files (crm adjoint, data center (K2),driaver, M6) or even better cad files and when we have them lmk and ill push to the repo"
+
+**Chief's reading:**
+§AM's server endpoint and panel are withdrawn — the owner is building the control room herself, and no lane spends further effort on it; the deliverable is the geometry files only, one STL per act in metres plus the CAD originals where they exist, filed under `docs/campaigns/_geometry/<ACT>/` with a sidecar and a preview.
+Priority order is CRM wing (adjoint), K2 rack row, DrivAer, M6, then SUBOFF, MB13, PPTC; the chief notifies Sanaa with the sha when they land, for her own push to the repo.
