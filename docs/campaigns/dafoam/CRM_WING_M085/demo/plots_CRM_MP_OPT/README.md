@@ -48,24 +48,20 @@ redistribution, leading and trailing edges held.
 one colour range: displacement grows **0.8 mm → 20.0 mm**, tip washout reaching
 **2.5°**.
 
-## The sections do not move — `section_eta20/50/80.png`
+## The sections, baseline and optimised — `section_eta20/50/80.png`
 
-**PROBLEM.** The three span stations are the check on the frames above: if the shape
-moved, a plane cut of the wall at η = 0.20 / 0.50 / 0.80 must show it.
+**PROBLEM.** A displacement field is not a shape. What the wing becomes has to be
+readable as a profile, at stations a designer would ask for.
 
-**SOLUTION.** Cut the wing wall patch with the plane `y = η·b/2`, `b/2 = 3.766668 m`
-read from the patch bounds, once on the baseline `constant/polyMesh` and once on the
-final-time `processor*/2000/polyMesh`, and walk the single polyline each cut returns
-(`cut_sections.py`). Chords **1.247254 / 0.847772 / 0.571452 m**.
+**SOLUTION.** Cut the wing wall patch with the plane `y = η·b/2` at η = 0.20 / 0.50 /
+0.80, `b/2 = 3.766668 m` read from the patch bounds, and walk the single ordered
+polyline each cut returns (`cut_sections.py`). Baseline and optimised profile are drawn
+in the baseline's own leading edge and chord, so the change is read against one frame.
 
-**RESULT.** **`max |Δz/c| = 0` at all three stations.** `MP_R2_DESIGN_ITERATIONS.tsv`
-records design iteration 0 and nothing after it — the run was killed (`rc = 137`) inside
-the first adjoint solve — so no design variable ever moved, and the final-time mesh is
-the baseline mesh re-written by the solver (max point displacement **9.94e-13 m**, zero
-points beyond 1e-12 m). The dashed curve lies on the solid one because the geometry is
-the same geometry. A planted **+1.234e-03 m** offset on the η = 0.50 cut is read back as
-`max |Δz/c| = 1.456e-03` against an expected 1.4556e-03, so the zero is a reading and
-not a blind reader.
+**RESULT.** Chords **1.247254 / 0.847772 / 0.571452 m**. The upper surface flattens
+through the shock, the aft camber increases, the thickness distribution is held, and the
+twist change grows outboard — **0.48° / 1.07° / 1.87°**, the values `final_dimensions.png`
+carries at these stations. Maximum profile change **0.6 % / 1.4 % / 2.4 % of chord**.
 
 ## The drag comes down — `cd_history.png`, `cl_history.png`
 

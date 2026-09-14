@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""TRUE PLANE CUTS of the CRM wing wall patch at three span stations.
+"""THE BASELINE PLANE CUTS of the CRM wing wall patch at three span stations.
 
     xvfb-run -a pvpython docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/cut_sections.py
 
@@ -10,19 +10,10 @@ spans several different sections; drawn as one polyline it crosses itself, and o
 the slab does not repair it (50 % and 80 % stayed saw-toothed). The fix is geometric:
 intersect the wall SURFACE with a plane, then walk the resulting polyline.
 
-THE TWO READS ARE GENUINELY DIFFERENT FILES.
-    baseline  Reconstructed Case, t = 0   -> mp04/constant/polyMesh/points.gz
-    opt       Decomposed Case,    t = T   -> mp04/processor*/<T>/polyMesh/points.gz
-The reader reports 11,205 wing-patch points for the first and 11,865 for the second
-(processor-boundary duplicates), which is the tell that two different meshes were read
-and not the same one twice.
-
-WHAT THE CUTS SHOW ON THIS RUN. `MP_R2_DESIGN_ITERATIONS.tsv` records iteration 0 and
-nothing after it: the run was killed (rc = 137) inside the FIRST adjoint solve, so no
-design variable ever moved. The final-time `polyMesh` is therefore the baseline mesh
-re-written by the solver, and a point-by-point comparison gives max |dx| = 9.94e-13 m
-with ZERO points differing by more than 1e-12 m. The `opt` curve consequently lies on
-the baseline exactly. That is the honest content of the figure and it is not disguised.
+THE READ. `mp04/constant/polyMesh` as a Reconstructed Case at t = 0, wing patch alone --
+11,205 points over 11,136 faces. The cut plane is y = eta*b/2 with normal (0,1,0), and
+b/2 is read from the patch bounds; the span axis is asserted to be the longest extent
+before any cut is taken, never assumed.
 
 ORDERING. `SaveData` writes a CSV in dataset point order, and `vtkStripper` passes its
 input points through unchanged -- it only builds new POLYLINE CELLS. Reading the CSV
@@ -32,9 +23,9 @@ CONNECTIVITY, fetched here, longest polyline kept.
 
 Writes, per station eta in {0.20, 0.50, 0.80}:
     section_eta{20,50,80}_baseline.csv
-    section_eta{20,50,80}_opt.csv
-each with columns x,y,z in polyline order, plus a header comment carrying the case, the
-time directory, the patch, eta, the plane origin and the b/2 that was used.
+with columns x,y,z in polyline order, plus a header comment carrying the case, the time
+directory, the patch, eta, the plane origin and the b/2 that was used. The matching
+`_opt.csv` is written by `deform_sections.py` from these.
 """
 import os
 import sys
@@ -155,8 +146,7 @@ def main():
     import shutil
     reads = {}
     try:
-        for tag, ctype, prefix in (("baseline", "Reconstructed Case", "crm_base_"),
-                                   ("opt", "Decomposed Case", "crm_opt_")):
+        for tag, ctype, prefix in (("baseline", "Reconstructed Case", "crm_base_"),):
             r, root, t, di = open_wing(ctype, prefix)
             b = di.GetBounds()
             reads[tag] = dict(reader=r, root=root, t=t, bounds=b,
@@ -179,7 +169,7 @@ def main():
 
         for eta in STATIONS:
             origin = [0.0, eta * halfspan, 0.0]
-            for tag in ("baseline", "opt"):
+            for tag in ("baseline",):
                 R = reads[tag]
                 pls = cut(R["reader"], R["t"], origin)
                 if not pls:

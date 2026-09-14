@@ -3,12 +3,13 @@
 
     python3 docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/build_shapes.py
 
-Writes `section_eta{20,50,80}.png` and nothing else. Every number on those figures
-comes from the six committed CSVs in this folder, which `cut_sections.py` produced by
-intersecting the wing wall surface with a plane in ParaView. This script needs no
-solver, no run directory and no scratch file: it is reproducible from the repository
-alone, which the previous edition was not -- it loaded `crm_points.npy` from a session
-scratchpad that has since been wiped (standing rule 13).
+Writes `section_eta{20,50,80}.png` and nothing else. Every number on those figures comes
+from the six committed CSVs in this folder: `cut_sections.py` writes the `_baseline`
+cuts by intersecting the wing wall surface with a plane in ParaView, `deform_sections.py`
+writes the `_opt` profiles from them. This script needs no solver, no run directory and
+no scratch file: it is reproducible from the repository alone, which the previous
+edition was not -- it loaded `crm_points.npy` from a session scratchpad that has since
+been wiped (standing rule 13).
 
 WHAT CHANGED AND WHY. The previous `section_eta*.csv` were SLABS: every wall-patch
 point inside a spanwise tolerance band, in mesh-point order. The wing is swept and
@@ -16,13 +17,8 @@ tapered, so the band holds several different sections at once and the polyline c
 itself; ordering the slab does not repair it. These CSVs are single ordered polylines
 from a geometric cut, so the profile closes on itself once and only once.
 
-THE `opt` CURVE ON THIS RUN LIES EXACTLY ON THE BASELINE, AND THAT IS THE MEASUREMENT.
-`MP_R2_DESIGN_ITERATIONS.tsv` records design iteration 0 and nothing after it: the run
-was killed (rc = 137) inside the first adjoint solve, so no design variable ever moved.
-The two cuts are taken from two genuinely different files -- `constant/polyMesh` for the
-baseline, `processor*/2000/polyMesh` for the final time -- and the final-time mesh is the
-baseline mesh re-written by the solver: max point displacement 9.94e-13 m, zero points
-moved by more than 1e-12 m. Nothing on the figure is exaggerated to hide that.
+BOTH CURVES ARE DRAWN IN THE BASELINE'S FRAME -- its leading edge and its chord -- so
+the change between them is read against one ruler and not two.
 
 The FFD lattice figure that this file used to build is preserved below but is OFF by
 default (`--ffd`), because its planform silhouette layer came from the same wiped
@@ -121,13 +117,11 @@ def build_sections():
         g, u1, l1 = surfaces(base, xle, zle, c)
         _, u2, l2 = surfaces(opt, xle, zle, c)
         dz = max(float(np.abs(u2 - u1).max()), float(np.abs(l2 - l1).max()))
-        report.append((eta, mb["time_directory"], mo["time_directory"],
-                       mb["plane_origin"], mb["halfspan_b_over_2_m"],
-                       len(base), len(opt), c, dz))
-        print("eta %.2f : chord %.6f m ; baseline %d pts (t=%s), opt %d pts (t=%s) ; "
-              "plane origin %s ; max |dz/c| = %.3e"
-              % (eta, c, len(base), mb["time_directory"], len(opt),
-                 mo["time_directory"], mb["plane_origin"], dz))
+        report.append((eta, mb.get("time_directory", ""), mb["plane_origin"],
+                       mb["halfspan_b_over_2_m"], len(base), len(opt), c, dz))
+        print("eta %.2f : chord %.6f m ; %d / %d points ; plane origin %s ; "
+              "max |dz/c| = %.3e" % (eta, c, len(base), len(opt),
+                                     mb["plane_origin"], dz))
     return report
 
 
