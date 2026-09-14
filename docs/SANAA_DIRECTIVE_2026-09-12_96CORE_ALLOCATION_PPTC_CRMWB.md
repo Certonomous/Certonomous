@@ -646,3 +646,15 @@ Priority order is CRM wing (adjoint), K2 rack row, DrivAer, M6, then SUBOFF, MB1
 CAD originals are fetched per act: CRM from NASA's original-CAD page (authoritative); M6 from the NASA TMR IGES first, GrabCAD as a community reconstruction only if downloadable without an account; DrivAer from TU Munich's DrivAer page first, GrabCAD as community reconstruction the same way.
 No accounts or forms are created in Sanaa's name; each file is title-page verified (rule 15), with its sha256 and source URL in its sidecar, and its scale relation to the lab mesh measured.
 All of it lands under `docs/campaigns/_geometry/<ACT>/`.
+
+---
+
+## AP. Round-3 plotting instructions — every figure, every task; plot library v2.1 to be installed; Sanaa fetches the M6 and DrivAer CAD herself — byte-exact, 2026-09-14 ~04:35Z (owner directive #56)
+
+> its all there and  OKi will get the cads and scp them here
+
+> ssh ubuntu@3.15.64.234 "cd ~ && unzip -o plot_library_v2_1.zip -d plot_library_v2_1 && cp plot_library_v2_1/act_plots_lib.py Certonomous/sdk/workflows/act_plots_lib.py && cp plot_library_v2_1/PLOT_LIBRARY_V2_1_NOTE.md PLOTTING_INSTRUCTIONS_ROUND3.md Certonomous/docs/plot_orders/"
+
+**Chief's reading:**
+Round-3 plotting instructions recorded at `docs/plot_orders/PLOTTING_INSTRUCTIONS_ROUND3.md` and dispatched to the plot lane 04:40Z; library v2.1 is not yet on the box at 04:40Z (Sanaa uploads it; label-dependent rebuilds re-run when `sdk/workflows/act_plots_lib.py` changes).
+Sanaa fetches the M6 and DrivAer CAD herself and copies them to the box.
