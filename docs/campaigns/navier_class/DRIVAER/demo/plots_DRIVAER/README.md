@@ -18,9 +18,10 @@ ParaView panels that are white-ground, triad-free and carry no text at all. Rege
 **🔴 The fine level's number on the figures is Wolf Dynamics' published fine value,
 `C_D = 0.256412`, not ours** — our own fine solve was **stopped by owner decision**
 short of its `endTime` and is not drawn.
-The provenance is in `SIDECAR.md`; no image says it. What our run did produce — 861
-of 1000 iterations, last-100 mean 0.258115, and its fields under `processor*/700` and
-`processor*/800` — is kept and recorded there, marked NOT PLOTTED. **A run stopped
+The provenance is in `SIDECAR.md`; no image says it. What our run did produce — **879
+of 1000 iterations**, last `C_D` 0.2562307, last-100 mean **0.255369**, and its fields
+under `processor*/700` and `processor*/800` — is kept and recorded there, marked NOT
+PLOTTED. **A run stopped
 short of `endTime` fails the completion rule on its face, so no grade can be built
 from it however close the number looks.**
 

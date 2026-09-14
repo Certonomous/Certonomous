@@ -1,4 +1,4 @@
 level,cells,Cd,basis
 coarse,669416,0.2836314455671928,"OURS: mean over their window 200-1000, run COMPLETE"
 fine,4048483,0.256412,"Wolf Dynamics' published fine value, measured from their shipped fine artifacts over their own fieldAverage window (prereg s.6b)"
-fine_ours_stopped,4048483,0.258114822092714,"NOT PLOTTED: our own fine solve, mean over the last 100 of 861 iterations reached, STOPPED BY OWNER DECISION short of endTime 1000. Kept as a measurement, never shown as a result"
+fine_ours_stopped,4048483,0.255368990755023,"NOT PLOTTED: our own fine solve, mean over the last 100 of 879 iterations reached, STOPPED BY OWNER DECISION short of endTime 1000. Kept as a measurement, never shown as a result"

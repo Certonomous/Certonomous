@@ -150,9 +150,9 @@ DRAWN, and now there is nothing to wait for: `drivaer_cd_history_fine.png` holds
 axes in the library's pending mode and shows no curve.
 
 **What the run did produce is kept, and is written down here so it is not lost.** At
-the last read of the artifact it stood at **861 iterations of a registered 1000**,
-last `C_D` **0.255467**, last-100 mean **0.258115** — which had come down to within
-about 0.7 percent of Wolf Dynamics' published fine 0.256412. That is interesting and
+**it stopped at 879 iterations of a registered 1000**, last `C_D` **0.2562307**,
+last-100 mean **0.255369** — which had come down to within about **0.4 percent** of
+Wolf Dynamics' published fine 0.256412. That is interesting and
 it is **still not a result**: the run was stopped short of its `endTime`, so it fails
 the completion rule on its face and **no grade can be built from it, however close
 the number looks.** Those arrays live in `drivaer_cd_history_fine.csv` and in the
@@ -164,13 +164,12 @@ solution fields the run wrote live decomposed under `processor*/700` and
 `processor*/800`. `drivaer_mesh_fine.png` is unaffected — it is the mesh, which needs
 no field.
 
-*Honest note on what this lane actually observed*: the stop is the owner's decision,
-carried out outside this lane. At the moment this page was written the four
-`simpleFoam` ranks were STILL VISIBLE in the process table, so the shutdown had not completed. This lane did not stop the run, did not wait on
-it, and has recorded the iteration it read from the artifact rather than a number it
-was told.
-
-The coarse Cd figure now shows the **window mean of our own series as a solid
-line with its value** (v2 §4). It lands on 0.283631, the published coarse window
-mean, to six decimals — **the reproduction shown as an identity rather than
-asserted in words.**
+*How the stop was established, and it is a measurement rather than a message.* The
+stop is the owner's decision, carried out outside this lane, and this lane neither
+stopped the run nor waited on a claim that it had. It waited for **cfd's own record**
+to appear in the case directory — `RUN_RC.txt`, containing `RC=0` — and then checked
+that the artifact had actually settled: `postProcessing/all/0/forceCoeffs.dat` held
+**889 lines at 00:11:40Z and 889 lines twenty seconds later**, so the series had
+stopped growing and 879 is the true final iteration rather than whatever happened to
+be on disk mid-write. The iteration and the mean above are read from that file, not
+relayed.
