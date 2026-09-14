@@ -1,0 +1,120 @@
+{
+  "case": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L2",
+  "level": "L2",
+  "graded_utc": "2026-09-14T02:19:42Z",
+  "rule3_plants": {
+    "P_A_cd_reader": {
+      "planted": 0.001234,
+      "decoy_at_t1": 0.005678,
+      "returned": 0.001234,
+      "verdict": "ARMED"
+    },
+    "P_B_yplus_reader": {
+      "planted_max": 987.654,
+      "returned": [
+        1.5,
+        987.654,
+        40.0
+      ],
+      "absent_patch_returns": null,
+      "verdict": "ARMED"
+    },
+    "P_C_age_guard": {
+      "stale_case_reported_pass": false,
+      "fresh_case_reported_pass": true,
+      "verdict": "ARMED"
+    }
+  },
+  "COMPLETION": {
+    "rc_file": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/solve_rc",
+    "rc": 0,
+    "clause_rc_zero": true,
+    "log": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/log.simpleFoam",
+    "clause_end_line": true,
+    "n_ExecutionTime": 3002,
+    "last_Time": 3000.0,
+    "clause_last_eq_endTime": true,
+    "clause_exec_count": false,
+    "endTime_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/3000",
+    "fields_present": [
+      "p",
+      "U",
+      "k",
+      "omega",
+      "nut",
+      "phi"
+    ],
+    "fields_missing": [],
+    "clause_fields": true,
+    "age_anchor": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/0/U",
+    "age_margins_s": {
+      "p": 70136.14383029938,
+      "U": 70136.97783517838,
+      "k": 70135.68882775307,
+      "omega": 70135.97882938385,
+      "nut": 70135.83982849121,
+      "phi": 70137.65983939171
+    },
+    "clause_age_guard": true,
+    "n_processor_dirs": 4,
+    "processor_missing": [],
+    "limb62": "PASS",
+    "ordering_decompose_older": true,
+    "ordering_reconstruct_newer": true,
+    "limb63": "PASS",
+    "ok": false
+  },
+  "GATE_W": {
+    "arming": {
+      "wall_nut_types": {
+        "hull": "nutUSpaldingWallFunction",
+        "sail": "nutUSpaldingWallFunction"
+      },
+      "required": "nutUSpaldingWallFunction",
+      "yPlus_dat": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/postProcessing/yPlus/0/yPlus.dat"
+    },
+    "measured_from_dat_min_max_avg": {
+      "hull": [
+        0.202988323,
+        1058.28277,
+        28.362886324999998
+      ],
+      "sail": [
+        0.054431929,
+        856.650976,
+        17.1153845
+      ]
+    },
+    "measured_from_log_max": {
+      "hull": 1058.2828,
+      "sail": 856.65098
+    },
+    "ceiling": 300.0,
+    "max_yPlus_over_wall_patches": 1058.28277,
+    "verdict": "GATE FAIL",
+    "WHAT_WOULD_HAVE_FAILED_THIS": "any wall-patch y+ maximum >= 300.0, or any wall patch in 0/nut carrying a boundary condition other than nutUSpaldingWallFunction."
+  },
+  "MONITORS": {
+    "solverInfo": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/postProcessing/residuals/0/solverInfo.dat",
+    "S1_rising_over_last_500": null,
+    "S1_state": "NOT RISING",
+    "S3_state": "BLOCKED",
+    "S3_why": "fewer than 500 rows; the registered window is a regression, not a two-point difference (7, S3)."
+  },
+  "GATE_D2": {
+    "verdict": "NOT A RESULT",
+    "CT_reported": 0.00201606087,
+    "CT_ref": 0.003691616772928005,
+    "band": {
+      "form": "|CT_cfd - CT_ref| <= 0.15 * CT_ref",
+      "lo": 0.003137874256988804,
+      "hi": 0.004245359288867205,
+      "frozen_by": "SUBOFF_A1_PREREGISTRATION.md 5.3"
+    },
+    "inside_band_IF_A_TRIPLE_EXISTED": false,
+    "WHY_NOT_A_RESULT": "CLAUDE.md rule 5.  TWO LEVELS CANNOT GIVE AN OBSERVED ORDER, so under SUBOFF_A1b there is no triple by construction and no GCI, observed order or Richardson extrapolation is computed anywhere.  Under SUBOFF A1 the reason was different and equally final: Gate D2 grades the FINEST LEVEL OF A **CONVERGING ROACHE TRIPLE**.  SUBOFF A1 has no triple: Gate M has FAILED at L1 on the minimum-determinant limb (8.6227045e-04 against a floor of 1.0e-03, one cell in 3,268,613, invariant to partitioning AND to alignment -- pre-registration 12.8), and L3 is BLOCKED on RAM (4.1 of the status table).  A row whose triple is not CONVERGING is NOT A RESULT whatever its value.  The number above is REPORTED because 5.3 requires it reported; it is NOT graded and this comparator HAS NO CODE PATH that turns it into a PASS or a GATE FAIL.",
+    "WHAT_WOULD_HAVE_FAILED_THIS": "nothing this run can produce.  The gate is unreachable until a CONVERGING triple of admissible levels exists, which is the cfd-supervisor's family ruling and not this comparator's.",
+    "ALSO": "the run did not clear the completion rule, which is itself a BLOCKED arming condition for D2 (11.2)."
+  },
+  "READ_ONLY": "this comparator wrote nothing into the case it graded."
+}

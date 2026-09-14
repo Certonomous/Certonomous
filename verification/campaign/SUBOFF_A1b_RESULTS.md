@@ -131,3 +131,294 @@ the record, and a silently dropped one is not.
   on the determinant limb and that failure travels with every number out of it.
 - **No experimental agreement.** `CT_ref` is a manifest/engineering anchor; no title-verified
   SUBOFF force measurement is on disk.
+
+---
+
+# §6. AMENDMENT 1 — 2026-09-14 — **THE RUNS THIS RECORD CALLS "RUNNING" AND "`BLOCKED`" BOTH FINISHED ON 2026-09-13, AND THEY SAT UNGRADED FOR A DAY BECAUSE THE AUTOGRADERS DIED BEFORE THEY LANDED**
+
+**Version 1.0 → 1.1. Appended at the foot under CLAUDE.md rule 6. `lines whose number
+changed above this section: 0` — nothing above was renumbered, reworded or deleted. The
+superseded sentences are quoted and STRUCK here, in place, so a reader sees what was
+believed and when.**
+
+**Written by a cfd `lab-lane`, 2026-09-14T02:19Z, after reading the run directories rather
+than this file. No gate, threshold, cap or label is altered. L1 remains NOT ADMITTED
+(registration §2). `CT` remains `NOT A RESULT` by construction (registration §0, Gate D).**
+
+---
+
+## 6.1 WHAT IS STRUCK
+
+> **STRUCK — title line 1:** ~~"RESULTS RECORD (LIVE; the runs are in flight)"~~
+> **Neither run is in flight. Both finished 2026-09-13.**
+
+> **STRUCK — §1 header block, lines 7–8:** ~~"`SOLVE_L1` is mid-flight and `SOLVE_L2` has
+> not started."~~ **`SOLVE_L2` started 2026-09-12T21:52:32Z and finished
+> 2026-09-13T17:21:32Z.**
+
+> **STRUCK — §1 table, `SOLVE_L1` row (line 18):** ~~"**RUNNING.** … 51+ complete outer
+> iterations"~~ **That launch was lost to the 2026-09-12T17:36:41Z reboot. Its successor
+> `SOLVE_L1_R3` ran 3,000 complete outer iterations and finished 2026-09-13T03:20:28Z.**
+
+> **STRUCK — §1 table, `SOLVE_L2` row (line 19):** ~~"**`BLOCKED` on memory** … A detached
+> gated launcher polls and will start it unattended at `available ≥ 19 GiB`"~~ **The gated
+> launcher fired. `SOLVE_L2` — 9,121,237 cells — ran to `endTime` 3000 and `rc = 0`.**
+
+> **STRUCK — §1, lines 22–24:** ~~"`Cd` at iteration 51 is `2.1608e-03` … IT ENTERS THIS
+> RECORD AS A LIVENESS OBSERVATION AND NOTHING ELSE"~~ **Superseded by converged values at
+> iteration 3000 at both levels, below. §2's warning about short windows is NOT struck and
+> is vindicated: the iteration-51 figure was 34.2 % below the level's own converged `Cd`.**
+
+**§2, §3 and §4 stand unamended. They are measurements about instruments, not run states,
+and none of them is stale.**
+
+---
+
+## 6.2 WHAT IS ON DISK — THE STRICT COMPLETION RULE, CLAUSE BY CLAUSE, PER LEVEL
+
+**Artifacts:** `verification/runs/navier_class/SUBOFF_A1/SOLVE_L1_R3/` (L1, 3,268,613
+cells) and `verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/` (L2, 9,121,237 cells);
+cell counts read from each case's own `constant/polyMesh/owner` `note` field.
+
+| clause (rule 4 / registration Gate C) | **L1 — `SOLVE_L1_R3`** | **L2 — `SOLVE_L2`** |
+|---|---|---|
+| `rc = 0` | **0** — `SOLVE_L1_R3/solve_rc` | **0** — `SOLVE_L2/solve_rc` |
+| an `End` line | **1** — `log.simpleFoam` | **1** — `log.simpleFoam` |
+| last `Time` == `endTime` | **3000 == 3000** (`system/controlDict`) | **3000 == 3000** |
+| fields at `3000/` | `U k nut omega p phi yPlus` **present** | same, **present** |
+| `ExecutionTime` count == 3000 | **3000 ✅** | **3002 ❌ — THE ONE CLAUSE THAT FAILS** |
+| age guard vs the case's own `0/U` | **PASS**, smallest margin **+19,002.15 s** (`k`) | **PASS**, smallest margin **+70,135.69 s** (`k`) |
+| every `processor*/3000/` field fresh, none missing | **PASS**, 4 ranks | **PASS**, 4 ranks |
+| `decomposePar` older, `reconstructPar` newer | **PASS** | **PASS** |
+| **Gate C** | **`PASS`** | **`NOT COMPLETE`** |
+
+**There is no `0/T` — this is an incompressible case and the age anchor is the case's own
+`0/U`, as the registration's Gate C states.**
+
+**Mesh provenance checked, not assumed.** All five `constant/polyMesh` files in each solve
+case hash identically to that case's `SOLVE_MANIFEST.json` **and** to the built mesh under
+`SUBOFF_A1/L1/` and `SUBOFF_A1/L2/`. `residualControl` is absent from both
+`system/fvSolution`, as registered.
+
+### 6.2.1 WHY L2's `ExecutionTime` COUNT IS 3002, STATED AS ARITHMETIC RATHER THAN AS AN EXCUSE
+
+`SOLVE_L2/log.simpleFoam` is **two OpenFOAM processes concatenated** — two `Build :`
+banners (lines 8 and 2120) and two `Starting time loop` lines. Segment 1 ran `Time = 1 … 63`
+and wrote **62** `ExecutionTime` lines before dying mid-iteration-63. Segment 2 opens
+`Create mesh for time = 60` and runs `Time = 61 … 3000`, **2,940** lines. `62 + 2940 =
+3002`. **Distinct `Time` values in the file: exactly 3000.** Times 61, 62 and 63 appear
+twice; they were computed once in the surviving chain.
+
+> **THE RUN COVERED EVERY ITERATION AND THE CLAUSE STILL FAILS, AND BOTH HALVES OF THAT
+> SENTENCE STAY.** Rule 4 is all-or-nothing and the comparator implements the clause as
+> written. **The clause is not reinterpreted here to let the run through.**
+
+---
+
+## 6.3 THE GRADE — THE PINNED COMPARATOR, RUN UNMODIFIED, WITH ITS PLANTS FIRING
+
+**Instrument:** `verification/runs/navier_class/SUBOFF_A1/GRADER_PINNED_8efe38e8f.py`,
+`sha256` **`41a41f02cf3242ed8ebd675ab78dbd2ba746d4d8ce9eff441ecd4aec7e62b0d6`**, verified
+byte-identical to `git show 8efe38e8f:cases/navier_class/SUBOFF_A1/grade_suboff_a1.py`.
+**The worktree copy has since diverged (`e0b4a4c4…`) and was NOT used.** Rule 2's grading
+path holds. Invoked exactly as `cases/navier_class/SUBOFF_A1/autograde_on_completion.sh:71`
+invokes it. **Nothing in the comparator was edited.**
+
+**Rule 3 — all three planted controls ARMED at both levels**, recorded in
+`GRADE_L1_FROM_SOLVE_L1_R3.json` and `GRADE_L2_FROM_SOLVE_L2.json` (same directory):
+`P_A` the `Cd` reader returned the planted **1.234e-03** past a decoy **5.678e-03** at
+`t = 1`; `P_B` the `y⁺` reader returned the planted **987.654** past a decoy patch;
+`P_C` the age guard reported **FAIL on the stale plant and PASS on the fresh one** — the
+two-sided form, because a "pass" from a checker that never looked reads the same as a
+real one.
+
+| | **L1 — `SOLVE_L1_R3`** | **L2 — `SOLVE_L2`** |
+|---|---|---|
+| **Gate C — completion** | **`PASS`** | **`NOT COMPLETE`** |
+| **Gate W — `y⁺` < 300** | **`GATE FAIL`** — hull max **342.871357** over written times, **342.849220** at iteration 3000; sail **96.696946**. Ceiling 300. | **`BLOCKED`** — behind Gate C (registration §4: *"Any clause failing ⇒ NOT COMPLETE, and every gate behind it `BLOCKED`"*). §6.4 explains why the comparator's printed value there is not evidence. |
+| **Gate D — `CT`** | **`NOT A RESULT`** by construction | **`NOT A RESULT`** by construction, **and `BLOCKED` behind Gate C** |
+| `CT` reported | **3.28309615e-03** | see §6.4 — the comparator's **2.01606087e-03** is iteration 62, not 3000 |
+| **S1** | **`RISING`** — `p` initial residual **8.2825662e-07 → 8.8552738e-07** over the final 500 | not reached |
+| **S3** | **`PLATEAUED`** — drift **5.585e-08** of the window mean against a 5 % threshold | **`BLOCKED`** — 62 rows < 500 |
+
+### 6.3.1 THE REGISTERED PREDICTIONS, SCORED
+
+| | prediction | outcome |
+|---|---|---|
+| **Q1** | both levels clear all eight Gate C clauses | **FALSIFIED at L2** on the `ExecutionTime` clause. Holds at L1. |
+| **Q2** | Gate W `PASS` at both levels | **FALSIFIED at L1** — 342.87 against a ceiling of 300. Not reached at L2. |
+| **Q3** | hull **average** `y⁺` ∈ [30.0, 70.1] at L1 | **HOLDS** — **50.096** at iteration 3000. |
+| **Q4** | `S1 = NOT RISING` and `S3 = PLATEAUED` at both | **FALSIFIED at L1** on S1. S3 `PLATEAUED` at L1. |
+| **Q5** | `CT` at L2 inside the ±15 % band | **NOT SCORABLE** — L2 is not complete. **L1's 3.28309615e-03 falls inside the band [3.137874e-03, 4.245359e-03], and Gate D's label is `NOT A RESULT` either way**, exactly as Q5 was written to ensure. |
+| **Q6** | \|Δ\| between the levels < 25 % | **see §6.5 — reported as a DIFFERENCE, and it is not the comparator's output.** |
+
+> **🔴 GATE W IS THE SUBSTANTIVE FAILURE AND IT IS NOT BOOKKEEPING.** A `y⁺` of 342.9 on
+> the hull is outside the range where the registration's wall-treatment argument holds.
+> **Q2 was written to say that a `y⁺` breach falsifies the ITTC `u_τ` anchor and the wall
+> treatment with it, not merely a number. It does.**
+
+---
+
+## 6.4 🔴 THE COMPARATOR CANNOT SEE L2's RESUMED SEGMENT, AND EVERY L2 NUMBER IT PRINTED IS FROM THE FIRST 62 ITERATIONS
+
+**The comparator reads three hard-coded paths** — `postProcessing/yPlus/**0**/yPlus.dat`,
+`postProcessing/residuals/**0**/solverInfo.dat` and
+`postProcessing/forceCoeffs/**0**/coefficient.dat` (`GRADER_PINNED_8efe38e8f.py` lines 349,
+375, 389). **On resume, OpenFOAM opened a second set under `…/60/`.** Measured:
+
+| file | rows | time span |
+|---|---:|---|
+| `SOLVE_L2/postProcessing/forceCoeffs/0/coefficient.dat` | **62** | 1 → 62 |
+| `SOLVE_L2/postProcessing/forceCoeffs/60/coefficient.dat` | **2,940** | 61 → **3000** |
+| `SOLVE_L2/postProcessing/yPlus/0/yPlus.dat` | **8** | the startup transient |
+| `SOLVE_L2/postProcessing/yPlus/60/yPlus.dat` | **392** | through **3000** |
+
+**So the comparator's `CT_reported = 2.01606087e-03` is the `Cd` at iteration 62**, and its
+`max y⁺ = 1058.28277` is the startup transient. The converged values, read from the `60/`
+files the comparator never opens: **`Cd` at 3000 = 3.31521629e-03**; **hull `y⁺` max at 3000
+= 228.243087, sail 71.9514041 — both BELOW the 300 ceiling.**
+
+> **THIS IS EXACTLY THE CASE WHERE AN INSTRUMENT WOULD BE EDITED TO PRODUCE THE WANTED
+> ANSWER, AND IT WAS NOT EDITED.** Making the comparator read `…/60/` would turn L2's
+> `y⁺` from 1058 to 228 and its `Cd` from 2.0e-03 to 3.3e-03 — a `GATE FAIL` into a `PASS`
+> and an out-of-band `CT` into an in-band one. **A frozen instrument changed after seeing
+> the run it grades is worth nothing, whatever the change's merits.** The runs stay
+> ungraded at L2 and the requirement is reported instead.
+
+**WHAT IT WOULD TAKE, STATED SO SOMEBODY ELSE CAN JUDGE IT — AND IT IS A NEW PRE-REGISTRATION, NOT A PATCH.** Four code sites: the three `postProcessing/<fo>/0/` paths
+would have to enumerate every segment directory in time order and merge them, keeping the
+**later** segment's row wherever two segments carry the same time; and `clause_exec_count`
+(line 188) would need a restart-aware form — *distinct* `Time` values equal to `endTime`,
+or per-process reconciliation. **Neither change may be made under `8efe38e8f`:** rule 2
+closed the gates at first compute, and a comparator amended after the fact is a new
+instrument that needs its own freeze and its own both-branches demonstration.
+
+**A CHEAPER AND HONESTER ROUTE EXISTS: re-run L2 from `0/` in one unbroken process.** It
+clears the `ExecutionTime` clause and the segmented `postProcessing` tree at once, under
+the registration exactly as frozen, at a **measured** 4,673.70 core-min. It is not launched
+here; **no solver was launched by this amendment.**
+
+---
+
+## 6.5 THE LEVEL-TO-LEVEL DIFFERENCE — **A DIFFERENCE, NOT A CONVERGENCE**, AND NOT THE COMPARATOR'S OUTPUT
+
+Read directly from `SOLVE_L1_R3/postProcessing/forceCoeffs/0/coefficient.dat` (row 3000)
+and `SOLVE_L2/postProcessing/forceCoeffs/60/coefficient.dat` (row 3000):
+
+| level | cells | `Cd` at iteration 3000 |
+|---|---:|---|
+| L1 | 3,268,613 | **3.28309615e-03** |
+| L2 | 9,121,237 | **3.31521629e-03** |
+
+**`Δ = (CT_L1 − CT_L2)/CT_L2 = −0.969 %.`**
+
+> **🔴 THIS IS A DIFFERENCE. IT BOUNDS NOTHING.** Registration §0: two levels give no
+> observed order, **no GCI, no Richardson extrapolation, and none is computed anywhere in
+> this amendment.** Its coarse member **failed mesh admission** (§2.1) and its fine member
+> **failed Gate C**. A 0.97 % agreement between two grids is consistent with convergence,
+> with coincidence, and with two meshes wrong in the same direction, and **A1b cannot tell
+> them apart.** Q6's \|Δ\| < 25 % is satisfied and **that is a statement about a difference,
+> not evidence of anything about the solution.**
+
+**There is no Roache triple here and no third level exists on disk.** `SUBOFF_A1/` holds
+`L0c`, `L1`, `L1_DECOMP4`, `L1_SHIFT` and `L2` — **no `L3`**. See §6.7.
+
+---
+
+## 6.6 RULE-12 CALIBRATION — ESTIMATE VERSUS ACTUAL, AT PROCESS COMPLETION
+
+**Actuals from each run's own `STATUS.solve` (`total_core_min`), predictions from
+registration §6.**
+
+| | predicted | **actual** | ratio |
+|---|---:|---:|---:|
+| `SOLVE_L1_R3` | 6,280 core-min | **1,265.37** | **0.2015×** |
+| `SOLVE_L2` | 17,540 core-min | **4,673.70** | **0.2665×** |
+| **family** | **23,820** | **5,939.07** | **0.2493×** |
+
+**Measured rates:** L1 **6.32 s/iteration** against a predicted 31.4; L2 **23.84
+s/iteration** (segment 2, 70,094 s / 2,940 iterations) against a predicted 87.7.
+
+**ATTRIBUTION, KEPT OFF THE RATIO.** The §6 anchor was **10 s/iteration measured under peer
+load on the 16-core box**, chosen as the pessimistic of two readings 40 minutes apart. The
+runs executed on a box now reading **96 cores and 739 GiB** (`free -g`, `nproc`,
+2026-09-14T02:20Z) with far less contention. **This is a misprediction of the MACHINE, not
+of the method** — and it runs in the **opposite** direction from `L0c`'s 3.31× overrun,
+which was contention. **A four-fold over-prediction and a three-fold under-prediction in one
+family is the real calibration finding: the estimator is accurate about the solver and
+blind to what else is on the box.**
+
+**WASTE, SEPARATELY NAMED AND NEVER FOLDED INTO THE RATIO:** `SOLVE_L1_R2` died at
+iteration 49, **≈29.4 core-min**; the first `SOLVE_L1` launch crashed at iteration zero,
+**4.80 core-min**; the pre-reboot `SOLVE_L1` lost 369 iterations, **≈3,295 gross core-min**
+(`SOLVE_L2/CHECKPOINT_REPAIR_NOTE.txt`).
+
+**Derived USD: $5.08** at the owner-stated $0.0513/core-h — **DERIVED, NOT MEASURED**; the
+box cannot read its own billing (`COMPUTE_BUDGET_CHARTER` §5). **And the rate is owner-stated
+for a c7a.4xlarge while this box now reports 96 vCPUs, so the dollar figure is unreliable in
+a second way and core-minutes are the only figure to quote.**
+
+---
+
+## 6.7 🔴 THE HARDWARE PREMISE UNDER THE `BLOCKED` RULINGS IS OBSOLETE, AND IT IS A FINDING FOR THE cfd-SUPERVISOR, NOT A RULING MADE HERE
+
+**`SUBOFF_A1_RESULTS.md` §6 blocks L3 on "37–49 GiB against **30 GiB** of RAM", called
+"UNCONDITIONAL … however empty the box, it does not fit."** The box measured at
+2026-09-14T02:20Z reports **739 GiB total, 588 GiB available, 96 cores.** **Every member of
+the 37–49 GiB range now fits with two orders of margin.** The ruling was correct on its
+facts and its facts changed.
+
+**WHAT THAT DOES AND DOES NOT BUY.** It does **not** make `{L1, L2, L3}` a triple: **L1 is
+`GATE FAIL` on M-d and is NOT ADMITTED**, and that is a mesh property no hardware touches.
+The admissible triple is **`{L2, L3, L4}`** at 9.12 / 25.45 / 71.0 M cells, equal delivered
+ratio **1.407873** (`SUBOFF_A1_PREREGISTRATION.md` §12.9.2–§12.9.3).
+
+**COST OF THAT TRIPLE, ON TWO BASES, BOTH DERIVED:**
+
+| basis | L2 | L3 | L4 | total |
+|---|---:|---:|---:|---:|
+| **as registered** (T26 anchor, 1703 core-min/Mcell) | 15,535 | 43,353 | 120,963 | **179,851 core-min** |
+| **from this family's OWN measured rate** (L2 actual, 512.4 core-min/Mcell) | 4,674 *(spent)* | **13,043** | **36,380** | **≈54,100 core-min** |
+
+**Marginal cost to complete the triple, measured-basis: ≈49,400 core-min** for the two
+missing levels, plus **≈640 core-min** to build L3's mesh (scaled from L2's measured 228.53,
+`SUBOFF_A1_RESULTS.md:279`) and more for L4's. **All DERIVED, NOT MEASURED.**
+
+> **NOTHING IS LAUNCHED, DECIDED OR REGISTERED BY THIS SECTION.** A triple needs its own
+> pre-registration, frozen before compute. **Retiring the `BLOCKED` ruling is the
+> cfd-supervisor's call and the instance question was Sanaa's; the only thing done here is
+> to put the measured RAM beside the premise so neither is quoted stale again.**
+
+---
+
+## 6.8 AN INFRASTRUCTURE FINDING, REPORTED AND NOT FIXED
+
+The queue still counts **`SUBOFF-A1B-SOLVE-L1-R2`** as in flight: its
+`ESTIMATE_OVERRUN.txt` was written **2026-09-14T02:10:54Z** citing `pid=180438` and
+"elapsed 103633 s". **That solver last wrote to `log.simpleFoam` at 2026-09-12T21:31:15Z at
+iteration 49 and pid 180438 does not exist.** The runner has been reporting overruns for a
+dead process for 28.8 hours. **Not this lane's tree and not touched — handed to the
+cfd-supervisor.**
+
+**AND THE REASON THESE RUNS SAT UNGRADED FOR A DAY:** both autograders
+(`AUTOGRADE_L1.log`, `AUTOGRADE_L2.log`) were armed on the **superseded** directories
+`SOLVE_L1/` and `SOLVE_L2/` and their last entries are **2026-09-12T17:02:53Z** and
+**2026-09-12T21:00:35Z** — they died with the reboot and the session. **`SOLVE_L1_R3` never
+had a watcher on it at all.** A completed 9.1 M-cell solve was invisible to this record for
+a day because the only thing that would have written the verdict was a process, and
+processes die.
+
+---
+
+## 6.9 WHAT §6 DOES NOT DO
+
+- It does **not** move a gate, a threshold, a cap or a label; Gates C, W and D stand as
+  frozen at `8efe38e8f`. L1 stays **NOT ADMITTED**; `CT` stays **`NOT A RESULT`**.
+- It does **not** edit the comparator, and it reports the L2 defect rather than repairing it.
+- It does **not** compute a GCI, an observed order or a Richardson extrapolation — **two
+  levels, no triple** (§0).
+- It does **not** claim experimental agreement. `CT_ref` is a manifest/engineering anchor.
+- It does **not** launch a solver, revive A1, or retire the `BLOCKED` ruling on L3.
+- It does **not** send, file, upload or register anything outside this box (rule 7).
+
+*Submissions parked. No agent's message is Sanaa's consent.*
