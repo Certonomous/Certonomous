@@ -292,3 +292,108 @@ cannot read its own billing: `L0c` **$0.078**; the crashed launch **$0.004**;
 **Caps stop nothing.** Sanaa, ~2026-09-12T01:10Z: *"dont forget i dont want any cap on any
 run"*. The registered figures are **calibration predictions to be scored**, never kills.
 **The memory rule is untouched: she lifted caps, she did not add RAM.**
+
+---
+
+# §10. AMENDMENT 1 — 2026-09-14 — **"NO SOLVER HAS EVER RUN ON SUBOFF A1" WAS TRUE WHEN WRITTEN AND IS STALE WHEN READ, AND THIS IS THE FILE A READER REACHES FIRST**
+
+**Version 1.0 → 1.1. Appended at the foot under CLAUDE.md rule 6. `lines whose number
+changed above this section: 0` — nothing above was renumbered, reworded or deleted. The
+superseded sentences are quoted and STRUCK here rather than edited in place.**
+
+**Written by a cfd `lab-lane`, 2026-09-14T02:19Z, from the run directories. No gate,
+threshold, cap or label is altered. A1's Gate M stands FAILED and unsatisfiable; nothing
+below revives it.**
+
+---
+
+## 10.1 THE DISTINCTION THAT SURVIVES, AND THE SENTENCES THAT DO NOT
+
+**A1's own ruling is untouched: no solver ran, runs, or will run UNDER REGISTRATION A1.**
+§5.1's launch bar is quantified over `{L1, L2, L3}`, L3 cannot be graded here, and Gate M
+cannot reach `PASS`. **That much of §1 is correct and stays.**
+
+**What is stale is every sentence that a reader will take as a statement about the
+directories on disk.** Two 3-D SUBOFF solves completed on **2026-09-13** under the
+successor registration `SUBOFF_A1b_PREREGISTRATION.md` (frozen `8efe38e8f`), and this file
+is the one a reader opens first.
+
+> **STRUCK — §1, line 20:** ~~"`SOLVE_L1` and `SOLVE_L2` are both **`BLOCKED`**. **No solver
+> has ever run on SUBOFF A1.**"~~ **Replace with: *under registration A1 no solver ran and
+> none will. Under `SUBOFF_A1b`, `SOLVE_L1_R3` (3,268,613 cells) and `SOLVE_L2` (9,121,237
+> cells) both reached `endTime` 3000 with `rc = 0` on 2026-09-13.***
+
+> **STRUCK — §2 table, lines 65–66:** ~~"`SOLVE_L1` | `BLOCKED` | never started"~~ and
+> ~~"`SOLVE_L2` | `BLOCKED` | same"~~. **Correct for the A1 registration; read as a
+> statement about the case directories they are now false.**
+
+> **STRUCK — §2 table, line 67:** ~~"Gate S-W (`y+`) | `BLOCKED` | unarmed: no solve,
+> therefore no `yPlus.dat`"~~ **Both levels now carry `yPlus.dat`. At L1 the gate is
+> ARMED and the verdict is `GATE FAIL` — hull max `y⁺` 342.871, ceiling 300.**
+
+> **STRUCK — §5 table, line 190:** ~~"`SOLVE_L1` | **RUNNING.** 4 ranks, relaunched
+> 01:46:28Z"~~ **That launch died in the 2026-09-12T17:36:41Z reboot after 369 iterations.
+> Its successor `SOLVE_L1_R3` finished 2026-09-13T03:20:28Z.**
+
+> **STRUCK — §5 table, line 191:** ~~"`SOLVE_L2` | **`BLOCKED` ON MEMORY** … A detached
+> memory-gated launcher is armed and will start it unattended when the box frees."~~ **The
+> launcher fired 2026-09-12T21:52:32Z; the run finished 2026-09-13T17:21:32Z.**
+
+> **STRUCK — §6 table, `SOLVE_L2` row (line 209):** ~~"**PATIENCE.** It fits on this machine
+> the moment the machine is less busy."~~ **Discharged. It fitted, it ran, it finished.**
+
+> **🔴 STRUCK — §6 table, L3 row (line 208):** ~~"**UNCONDITIONAL.** 37–49 GiB against **30
+> GiB** of RAM. **However empty the box, it does not fit.**"~~ **The premise is obsolete.
+> The box measured 2026-09-14T02:20Z reports 739 GiB total, 588 GiB available, 96 cores
+> (`free -g`, `nproc`). Every member of the 37–49 GiB range fits with two orders of margin.**
+> **The ruling was right on its facts and its facts changed. Retiring it is the
+> cfd-supervisor's call and the instance question was Sanaa's; nothing is retired here.**
+
+**§3, §4, §7, §8 and §9 stand unamended** — they are measurements and instrument findings,
+not run states, and none of them is stale. **§9's cost table is superseded only to the
+extent that `SOLVE_L1` "projected 6,333 core-min" is now a measured actual at a different
+level; see `SUBOFF_A1b_RESULTS.md` §6.6 for the rule-12 calibration.**
+
+---
+
+## 10.2 WHAT IS ON DISK, WITH ARTIFACT PATHS
+
+| | **`SOLVE_L1_R3`** | **`SOLVE_L2`** |
+|---|---|---|
+| cells (`constant/polyMesh/owner` note) | **3,268,613** | **9,121,237** |
+| `solve_rc` | **0** | **0** |
+| last `Time` / `endTime` | **3000 / 3000** | **3000 / 3000** |
+| fields at `3000/` | `U k nut omega p phi yPlus` | same |
+| age guard vs the case's own `0/U` | **PASS** | **PASS** |
+| `ExecutionTime` count | **3000 ✅** | **3002 ❌** (restart; see A1b §6.2.1) |
+| **Gate C** | **`PASS`** | **`NOT COMPLETE`** |
+| **Gate W** | **`GATE FAIL`** — hull `y⁺` max 342.871 | **`BLOCKED`** behind Gate C |
+| **Gate D — `CT`** | **`NOT A RESULT`** by construction | **`NOT A RESULT`**, and `BLOCKED` |
+| core-min (`STATUS.solve`) | **1,265.37** | **4,673.70** |
+| finished | 2026-09-13T03:20:28Z | 2026-09-13T17:21:32Z |
+
+Run directories: `verification/runs/navier_class/SUBOFF_A1/SOLVE_L1_R3/` and
+`verification/runs/navier_class/SUBOFF_A1/SOLVE_L2/`. Grade reports, with the three rule-3
+planted controls recorded ARMED at both levels:
+`verification/runs/navier_class/SUBOFF_A1/GRADE_L1_FROM_SOLVE_L1_R3.json` and
+`verification/runs/navier_class/SUBOFF_A1/GRADE_L2_FROM_SOLVE_L2.json`. Graded by
+`GRADER_PINNED_8efe38e8f.py`, `sha256` `41a41f02…c7e62b0d6`, verified byte-identical to the
+blob committed at the pre-registration commit and **run unmodified**.
+
+> **THERE IS NO ROACHE TRIPLE AND NO GCI IS QUOTED ANYWHERE.** Two levels. `SUBOFF_A1/`
+> contains no `L3` directory. **L1 remains NOT ADMITTED on M-d, so even a built L3 would
+> not make `{L1, L2, L3}` a triple** — the admissible triple is `{L2, L3, L4}` (§12.9.2).
+> Costs on two bases in `SUBOFF_A1b_RESULTS.md` §6.7.
+
+---
+
+## 10.3 WHY THIS SAT UNREAD FOR A DAY
+
+Both autograders were armed on the **superseded** directories `SOLVE_L1/` and `SOLVE_L2/`
+and stopped logging at **2026-09-12T17:02:53Z** and **2026-09-12T21:00:35Z**
+(`AUTOGRADE_L1.log`, `AUTOGRADE_L2.log`). **`SOLVE_L1_R3` never had a watcher.** The
+verdict-writing step was a process, the process died with the reboot and the session, and
+**the record kept saying "RUNNING" because nothing was left alive to say otherwise.**
+
+*Submissions parked. No agent's message is Sanaa's consent. Nothing was launched by this
+amendment.*
