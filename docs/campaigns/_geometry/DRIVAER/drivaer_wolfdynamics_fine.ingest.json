@@ -1,0 +1,133 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:10:31Z",
+  "case_id": "DRIVAER",
+  "source_path": "/home/ubuntu/upstream/published-openfoam-setups/wolfdynamics-drivaer/drivaer_fine/constant/triSurface/body2.stl",
+  "source_name": "body2.stl",
+  "source_bytes": 67304999,
+  "source_sha256": "fbc6c7a88561f563c42753ce06a00f97a2629fec7a86341eeddc99d67443c7c9",
+  "source_format": "stl",
+  "consumer": "snappy",
+  "conversion": {
+    "kind": "mesh re-encode",
+    "tool": "geometry_ingest (ascii reader, numpy 2.5.1)",
+    "seconds": 1.564
+  },
+  "source_encoding": "ascii",
+  "merged_parts": [
+    {
+      "path": "/home/ubuntu/upstream/published-openfoam-setups/wolfdynamics-drivaer/drivaer_fine/constant/triSurface/body2.stl",
+      "sha256": "fbc6c7a88561f563c42753ce06a00f97a2629fec7a86341eeddc99d67443c7c9",
+      "triangles": 367981
+    },
+    {
+      "path": "/home/ubuntu/upstream/published-openfoam-setups/wolfdynamics-drivaer/drivaer_fine/constant/triSurface/ruotaant.stl",
+      "sha256": "fee22c417fb1ad2a59b41c78aaa3ee885348ab68b641602c99ce7b18bb7fe7de",
+      "triangles": 40426
+    },
+    {
+      "path": "/home/ubuntu/upstream/published-openfoam-setups/wolfdynamics-drivaer/drivaer_fine/constant/triSurface/ruotapost.stl",
+      "sha256": "29c9b39790b73856b5a2039cbe502706d5c130b26ece503a0e1d3120f14080c2",
+      "triangles": 40426
+    }
+  ],
+  "merged_part_count": 3,
+  "units": {
+    "detected": "m",
+    "detection_basis": "bbox diagonal 4.929 < 100 \u2014 reads as metres (the same body in mm would be a 100 km object)",
+    "assumed": "m",
+    "assumed_from": "heuristic",
+    "scale_applied": 1.0,
+    "scaling": "none \u2014 coordinates written exactly as read",
+    "bbox_diagonal_as_read": 4.929442901490922
+  },
+  "geometry": {
+    "triangles": 448833,
+    "vertices_welded": 223788,
+    "weld_tolerance": 4.929442901490922e-09,
+    "bbox_min": [
+      -0.807849,
+      -0.000400005,
+      -0.0287038
+    ],
+    "bbox_max": [
+      3.80498,
+      1.00398,
+      1.3899
+    ],
+    "bbox_size": [
+      4.612829,
+      1.004380005,
+      1.4186037999999999
+    ],
+    "bbox_diagonal": 4.929442901490922,
+    "surface_area": 19.36391396628691,
+    "degenerate_triangles": 1210,
+    "collapsed_edges": 1216,
+    "boundary_edges": 0,
+    "nonmanifold_edges": 656,
+    "watertight": false,
+    "watertight_method": "edge-manifold (every live edge used exactly twice)",
+    "shells": 5,
+    "signed_volume": 3.304659130638354,
+    "normals_outward": null
+  },
+  "bbox_min": [
+    -0.807849,
+    -0.000400005,
+    -0.0287038
+  ],
+  "bbox_max": [
+    3.80498,
+    1.00398,
+    1.3899
+  ],
+  "triangles": 448833,
+  "watertight": false,
+  "shells": 5,
+  "degenerate_triangles": 1210,
+  "cross_check": {
+    "library": null,
+    "note": "trimesh not installed on this box; the edge-manifold test above is this tool's own and is what the verdict rests on"
+  },
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/DRIVAER/drivaer_wolfdynamics_fine.stl",
+  "stl_bytes": 22441734,
+  "stl_sha256": "dd56c7345171be12944193b6728aab3502c180e2f2cfa1fe539c241c733df6b1",
+  "stl_encoding": "binary",
+  "case_reads_from": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/DRIVAER/drivaer_wolfdynamics_fine.stl",
+  "preview": {
+    "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/DRIVAER/drivaer_wolfdynamics_fine.preview.png",
+    "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
+    "faces_drawn": 173969
+  },
+  "seconds_total": 4.252,
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ]
+}

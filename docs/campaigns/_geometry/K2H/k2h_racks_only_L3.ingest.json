@@ -1,0 +1,115 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:11:31Z",
+  "case_id": "K2H",
+  "source_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/extract/K2RACKONLY.stl",
+  "source_name": "K2RACKONLY.stl",
+  "source_bytes": 4037295,
+  "source_sha256": "f1694849bd327fabd93f82116c61bd08eb9d62341ab7533fe008a0e8997adde2",
+  "source_format": "stl",
+  "consumer": "snappy",
+  "conversion": {
+    "kind": "mesh re-encode",
+    "tool": "geometry_ingest (ascii reader, numpy 2.5.1)",
+    "seconds": 0.102
+  },
+  "source_encoding": "ascii",
+  "units": {
+    "detected": "m",
+    "detection_basis": "bbox diagonal 5.03 < 100 \u2014 reads as metres (the same body in mm would be a 100 km object)",
+    "assumed": "m",
+    "assumed_from": "--units flag (declared by caller)",
+    "scale_applied": 1.0,
+    "scaling": "none \u2014 coordinates written exactly as read",
+    "bbox_diagonal_as_read": 5.029910535983717
+  },
+  "geometry": {
+    "triangles": 29160,
+    "vertices_welded": 14853,
+    "weld_tolerance": 5.029910535983717e-09,
+    "bbox_min": [
+      0.6,
+      0.0,
+      0.0
+    ],
+    "bbox_max": [
+      3.0,
+      3.5,
+      2.7
+    ],
+    "bbox_size": [
+      2.4,
+      3.5,
+      2.7
+    ],
+    "bbox_diagonal": 5.029910535983717,
+    "surface_area": 18.799999999999997,
+    "degenerate_triangles": 0,
+    "collapsed_edges": 0,
+    "boundary_edges": 540,
+    "nonmanifold_edges": 0,
+    "watertight": false,
+    "watertight_method": "edge-manifold (every live edge used exactly twice)",
+    "shells": 3,
+    "signed_volume": -4.632000000000101,
+    "normals_outward": null
+  },
+  "bbox_min": [
+    0.6,
+    0.0,
+    0.0
+  ],
+  "bbox_max": [
+    3.0,
+    3.5,
+    2.7
+  ],
+  "triangles": 29160,
+  "watertight": false,
+  "shells": 3,
+  "degenerate_triangles": 0,
+  "cross_check": {
+    "library": null,
+    "note": "trimesh not installed on this box; the edge-manifold test above is this tool's own and is what the verdict rests on"
+  },
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/K2H/k2h_racks_only_L3.stl",
+  "stl_bytes": 1458084,
+  "stl_sha256": "c471defb76e7a308b7c9ccad9a677b47da437ffa74ead30efd3c23998d8b151d",
+  "stl_encoding": "binary",
+  "case_reads_from": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/K2H/k2h_racks_only_L3.stl",
+  "preview": {
+    "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/K2H/k2h_racks_only_L3.preview.png",
+    "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
+    "faces_drawn": 11988
+  },
+  "seconds_total": 0.608,
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ]
+}

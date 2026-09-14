@@ -1,0 +1,115 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:10:30Z",
+  "case_id": "CRM_WING",
+  "source_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/extract/CRMWING.stl",
+  "source_name": "CRMWING.stl",
+  "source_bytes": 4068886,
+  "source_sha256": "5b7c83dde4de7eee337324f7ac58d94ca5571b8ccc0b67f6a41af85558af0246",
+  "source_format": "stl",
+  "consumer": "snappy",
+  "conversion": {
+    "kind": "mesh re-encode",
+    "tool": "geometry_ingest (ascii reader, numpy 2.5.1)",
+    "seconds": 0.084
+  },
+  "source_encoding": "ascii",
+  "units": {
+    "detected": "m",
+    "detection_basis": "bbox diagonal 5.003 < 100 \u2014 reads as metres (the same body in mm would be a 100 km object)",
+    "assumed": "m",
+    "assumed_from": "--units flag (declared by caller)",
+    "scale_applied": 1.0,
+    "scaling": "none \u2014 coordinates written exactly as read",
+    "bbox_diagonal_as_read": 5.003458465268258
+  },
+  "geometry": {
+    "triangles": 22272,
+    "vertices_welded": 11205,
+    "weld_tolerance": 5.0034584652682585e-09,
+    "bbox_min": [
+      -5.04091e-06,
+      0.0,
+      -0.202938
+    ],
+    "bbox_max": [
+      3.24735,
+      3.76667,
+      0.346133
+    ],
+    "bbox_size": [
+      3.24735504091,
+      3.76667,
+      0.5490710000000001
+    ],
+    "bbox_diagonal": 5.003458465268258,
+    "surface_area": 7.001637438019961,
+    "degenerate_triangles": 0,
+    "collapsed_edges": 0,
+    "boundary_edges": 136,
+    "nonmanifold_edges": 0,
+    "watertight": false,
+    "watertight_method": "edge-manifold (every live edge used exactly twice)",
+    "shells": 1,
+    "signed_volume": -0.26102851108287967,
+    "normals_outward": null
+  },
+  "bbox_min": [
+    -5.04091e-06,
+    0.0,
+    -0.202938
+  ],
+  "bbox_max": [
+    3.24735,
+    3.76667,
+    0.346133
+  ],
+  "triangles": 22272,
+  "watertight": false,
+  "shells": 1,
+  "degenerate_triangles": 0,
+  "cross_check": {
+    "library": null,
+    "note": "trimesh not installed on this box; the edge-manifold test above is this tool's own and is what the verdict rests on"
+  },
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/CRM_WING/crm_wing_mach085_MP_R2.stl",
+  "stl_bytes": 1113684,
+  "stl_sha256": "e1e921a4fc812fe53b34daa8508e7ba14de8c8ce3954ce0883e3e23ccb454b9a",
+  "stl_encoding": "binary",
+  "case_reads_from": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/CRM_WING/crm_wing_mach085_MP_R2.stl",
+  "preview": {
+    "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/CRM_WING/crm_wing_mach085_MP_R2.preview.png",
+    "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
+    "faces_drawn": 12252
+  },
+  "seconds_total": 0.758,
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "schema": "certonomous.geometry_ingest/1",
+  "ingested_utc": "2026-09-14T04:10:31Z",
+  "case_id": "M6J",
+  "source_path": "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad/extract/M6J.stl",
+  "source_name": "M6J.stl",
+  "source_bytes": 174497,
+  "source_sha256": "78993cec06262d82c8f7165140fbd26e62d2ed081d189cb055b76a647cfa6be4",
+  "source_format": "stl",
+  "consumer": "snappy",
+  "conversion": {
+    "kind": "mesh re-encode",
+    "tool": "geometry_ingest (ascii reader, numpy 2.5.1)",
+    "seconds": 0.004
+  },
+  "source_encoding": "ascii",
+  "units": {
+    "detected": "m",
+    "detection_basis": "bbox diagonal 2.065 < 100 \u2014 reads as metres (the same body in mm would be a 100 km object)",
+    "assumed": "m",
+    "assumed_from": "--units flag (declared by caller)",
+    "scale_applied": 1.0,
+    "scaling": "none \u2014 coordinates written exactly as read",
+    "bbox_diagonal_as_read": 2.0648083136029847
+  },
+  "geometry": {
+    "triangles": 936,
+    "vertices_welded": 481,
+    "weld_tolerance": 2.0648083136029847e-09,
+    "bbox_min": [
+      -4.44089e-16,
+      0.0,
+      -0.045959
+    ],
+    "bbox_max": [
+      1.41466,
+      1.50124,
+      0.045959
+    ],
+    "bbox_size": [
+      1.4146600000000005,
+      1.50124,
+      0.091918
+    ],
+    "bbox_diagonal": 2.0648083136029847,
+    "surface_area": 2.382562714470197,
+    "degenerate_triangles": 0,
+    "collapsed_edges": 0,
+    "boundary_edges": 24,
+    "nonmanifold_edges": 0,
+    "watertight": false,
+    "watertight_method": "edge-manifold (every live edge used exactly twice)",
+    "shells": 1,
+    "signed_volume": -0.061618060418489835,
+    "normals_outward": null
+  },
+  "bbox_min": [
+    -4.44089e-16,
+    0.0,
+    -0.045959
+  ],
+  "bbox_max": [
+    1.41466,
+    1.50124,
+    0.045959
+  ],
+  "triangles": 936,
+  "watertight": false,
+  "shells": 1,
+  "degenerate_triangles": 0,
+  "cross_check": {
+    "library": null,
+    "note": "trimesh not installed on this box; the edge-manifold test above is this tool's own and is what the verdict rests on"
+  },
+  "accepted": true,
+  "refusal_reason": null,
+  "stl_path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/M6J/onera_m6_wing_L3.stl",
+  "stl_bytes": 46884,
+  "stl_sha256": "8d938577c3f0e09a1306bbe4f5663688189bc0640fd14d0ca51084ca1c12a7ec",
+  "stl_encoding": "binary",
+  "case_reads_from": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/M6J/onera_m6_wing_L3.stl",
+  "preview": {
+    "path": "/home/ubuntu/Certonomous/docs/campaigns/_geometry/M6J/onera_m6_wing_L3.preview.png",
+    "renderer": "matplotlib 3.11.1 (Agg, painter's algorithm)",
+    "faces_drawn": 633
+  },
+  "seconds_total": 0.434,
+  "cad_converters": [
+    {
+      "tool": "gmsh-python",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "gmsh-cli",
+      "available": true,
+      "detail": "gmsh 4.12.1, OpenCASCADE 7.6.3 at /usr/bin/gmsh"
+    },
+    {
+      "tool": "freecad",
+      "available": false,
+      "detail": "freecadcmd not on PATH"
+    },
+    {
+      "tool": "cadquery",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    },
+    {
+      "tool": "OCP",
+      "available": false,
+      "detail": "not importable (ModuleNotFoundError)"
+    }
+  ]
+}
