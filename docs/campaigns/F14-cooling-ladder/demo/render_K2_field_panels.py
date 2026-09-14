@@ -56,7 +56,11 @@ MIN_FIELD_PX = 20000       # see _assert_painted: the colour bar alone is about 
 PCT_LO, PCT_HI = 2.0, 98.0
 Z_MID = K2B.RACK_Z1 / 2.0             # 1.0 m, rack mid-height, from build_k2b H_R
 T_ISO = 300.15                        # 27 degC, the ASHRAE A1 recommended limit
-PRESET_T = "Inferno (matplotlib)"
+# COOL-TO-WARM AND NOT INFERNO: Inferno's low end is BLACK, which on a 289 K
+# room painted the whole cold aisle black and read as "black corners" on a white
+# page (owner, figure review round 2). Cool to Warm runs blue-white-red and has
+# no black in it at all.
+PRESET_T = "Cool to Warm"
 PRESET_U = "Viridis (matplotlib)"
 
 STEADY = dict(case="K2f_L3", time="803", verdict="NOT A RESULT",
@@ -221,6 +225,85 @@ def _mid_plane_panel(reader, case, end, out, stamp, note, name, expr, preset,
 
 
 AISLE_X = 1.5          # the y-z cut render_k2bU3R3.fig_aisles uses, kept unchanged
+HOT_AISLE_Y = 2.90     # mid hot aisle: the aisle is y > RACK_Y1 = 2.3, room to y = 3.5
+
+
+def room_plane_panel(reader, case, end, out, name, expr, preset, rng, label,
+                     plane, contour_at=None, draw_racks=True):
+    """A plane over the WHOLE ROOM, racks drawn, optional limit contour.
+
+    `plane` is ("z", value) for the horizontal plane at rack mid height or
+    ("y", value) for a vertical plane through an aisle. THE FRAMING IS THE ROOM,
+    3.6 x 3.5 x 2.7 m, not a box around the cut: the owner's round-2 note is that the
+    previous panels read as "a vertical cut through one rack", and they did, because
+    they were framed on the cut rather than on the room the act is about.
+    """
+    from paraview.simple import (CellDatatoPointData, Calculator, Slice, Contour,
+                                 Show, Hide, Render, ColorBy,
+                                 GetColorTransferFunction, UpdatePipeline)
+    axis, at = plane
+    v = _view()
+    p2c = CellDatatoPointData(Input=reader)
+    p2c.CellDataArraytoprocess = list(reader.CellArrays)
+    UpdatePipeline(time=float(end), proxy=p2c)
+    calc = Calculator(Input=p2c)
+    calc.AttributeType = "Point Data"; calc.ResultArrayName = name; calc.Function = expr
+    UpdatePipeline(time=float(end), proxy=calc)
+    s = Slice(Input=calc); s.SliceType = "Plane"
+    if axis == "z":
+        s.SliceType.Origin = [0.0, 0.0, at]; s.SliceType.Normal = [0.0, 0.0, 1.0]
+        direction, up = (0.0, 0.0, 1.0), (0.0, 1.0, 0.0)
+        bounds = (0.0, K2B.ROOM[0], 0.0, K2B.ROOM[1], at, at)
+        focal = (K2B.ROOM[0] / 2, K2B.ROOM[1] / 2, at)
+    else:
+        s.SliceType.Origin = [0.0, at, 0.0]; s.SliceType.Normal = [0.0, 1.0, 0.0]
+        direction, up = (0.0, -1.0, 0.0), (0.0, 0.0, 1.0)
+        bounds = (0.0, K2B.ROOM[0], at, at, 0.0, K2B.ROOM[2])
+        focal = (K2B.ROOM[0] / 2, at, K2B.ROOM[2] / 2)
+    UpdatePipeline(time=float(end), proxy=s)
+    if s.GetDataInformation().GetNumberOfCells() == 0:
+        C.refuse("the %s = %g plane is empty" % (axis, at))
+
+    flat = Calculator(Input=s)
+    flat.AttributeType = "Point Data"
+    flat.ResultArrayName = "CONTROL_CONSTANT"; flat.Function = "1.0"
+    UpdatePipeline(time=float(end), proxy=flat)
+    dn = Show(flat, v); ColorBy(dn, ("POINTS", "CONTROL_CONSTANT"))
+    dn.SetScalarBarVisibility(v, False)
+    C.frame_by_extent(v, focal, direction, up=up, bounds=bounds, pad=1.06)
+    Render(v)
+    neg = os.path.join(os.path.dirname(out), "_control",
+                       "NEGATIVE_constant_" + os.path.basename(out))
+    C.save_screenshot(v, neg, size=(1600, 1000))
+    Hide(flat, v)
+
+    d = Show(s, v); ColorBy(d, ("POINTS", name))
+    lut = GetColorTransferFunction(name); lut.ApplyPreset(preset, True)
+    lut.RescaleTransferFunction(*rng)
+    d.SetScalarBarVisibility(v, True); _bar(v, lut, label)
+    Render(v)
+    pos = os.path.join(os.path.dirname(out), "_control",
+                       "POSITIVE_uncaptioned_" + os.path.basename(out))
+    C.save_screenshot(v, pos, size=(1600, 1000))
+    _assert_painted(pos, neg, name)
+
+    if contour_at is not None:
+        cont = Contour(Input=s); cont.ContourBy = ["POINTS", name]
+        cont.Isosurfaces = [contour_at]
+        UpdatePipeline(time=float(end), proxy=cont)
+        ncont = cont.GetDataInformation().GetNumberOfCells()
+        C.announce("      %g contour: %s segments" % (contour_at, format(ncont, ",")))
+        if ncont:
+            cd = Show(cont, v)
+            cd.ColorArrayName = [None, ""]
+            cd.DiffuseColor = [0.08, 0.08, 0.08]; cd.AmbientColor = [0.08, 0.08, 0.08]
+            cd.LineWidth = 2.2
+    if draw_racks:
+        K2B.rack_block(v)
+    Render(v)
+    n = C.save_screenshot(v, out, size=(1600, 1000))
+    C.announce("  wrote %s (%s bytes)" % (os.path.basename(out), format(n, ",")))
+    return n
 
 
 def _aisle_panel(reader, case, end, out, name, expr, preset, rng, label):
@@ -458,27 +541,25 @@ def main():
         base = (GEOM + " ; x-y plane at z = %.1f m (rack mid-height) ; "
                        "fields at t = 803, the last written time of a "
                        "registered endTime 2000" % Z_MID)
-        total += _mid_plane_panel(
+        total += room_plane_panel(
             reader, STEADY["case"], STEADY["time"],
-            os.path.join(STEADY_DIR, "k2_plane_mid.png"), STEADY["stamp"],
-            base + " ; colour bar %.2f to %.2f K, ends clamped" % T_RNG,
-            "Tplot", STEADY["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]")
-        total += _mid_plane_panel(
+            os.path.join(STEADY_DIR, "k2_plane_mid.png"),
+            "Tplot", STEADY["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]",
+            ("z", Z_MID), contour_at=300.15)
+        total += room_plane_panel(
             reader, STEADY["case"], STEADY["time"],
-            os.path.join(STEADY_DIR, "k2_plane_mid_velocity.png"), STEADY["stamp"],
-            base + " ; colour bar %.3f to %.3f m/s, ends clamped" % U_RNG,
-            "Umag", "mag(%s)" % STEADY["vector"], PRESET_U, U_RNG,
-            "|U|  [m/s]")
+            os.path.join(STEADY_DIR, "k2_plane_mid_velocity.png"),
+            "Umag", "mag(%s)" % STEADY["vector"], PRESET_U, U_RNG, "|U|  [m/s]",
+            ("z", Z_MID))
+        total += room_plane_panel(
+            reader, STEADY["case"], STEADY["time"],
+            os.path.join(STEADY_DIR, "k2_plane_hot.png"),
+            "Tplot", STEADY["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]",
+            ("y", HOT_AISLE_Y), contour_at=300.15)
         total += _iso_panel(
             reader, STEADY["case"], STEADY["time"],
             os.path.join(STEADY_DIR, "k2_hot_cloud.png"), STEADY["stamp"],
-            GEOM + " ; iso-surface at %.2f K (27 degC, ASHRAE A1 recommended) ; "
-                   "oblique view from the hot aisle ; fields at t = 803" % T_ISO,
-            STEADY["scalar"])
-        total += _aisle_panel(reader, STEADY["case"], STEADY["time"],
-                              os.path.join(STEADY_DIR, "k2_plane_hot.png"),
-                              "Tplot", STEADY["scalar"] + "*1.0", PRESET_T, T_RNG,
-                              "T  [K]")
+            "", STEADY["scalar"])
         total += _streamlines_panel(reader, STEADY["case"], STEADY["time"],
                                     os.path.join(STEADY_DIR, "k2_streamlines.png"),
                                     STEADY["vector"], U_RNG, "|U|  [m/s]")
@@ -486,50 +567,44 @@ def main():
         if root:
             shutil.rmtree(root, ignore_errors=True)
 
-    # ---- the transient folder --------------------------------------------
+    # ---- the transient folder -------------------------------------------
     root = None
     try:
         reader, root, n = _open(TRANS)
         C.announce("  %s: %s cells at t = %s" % (TRANS["case"], format(n, ","),
                                                  TRANS["time"]))
-        win = ("time-averaged over %.3f to %.1f s (fieldAverage totalTime "
-               "%.6f s, totalIter %d, read from GRADE.K2h_L3.json)"
-               % (WINDOW["covered_start_MEASURED"], WINDOW["covered_end"],
-                  WINDOW["totalTime"], WINDOW["totalIter"]))
-        base = (GEOM + " ; x-y plane at z = %.1f m (rack mid-height) ; " % Z_MID)
-        total += _mid_plane_panel(
+        # (a) the horizontal plane at rack mid height, the WINDOW MEAN
+        total += room_plane_panel(
             reader, TRANS["case"], TRANS["time"],
-            os.path.join(TRANS_DIR, "k2t_plane_mid.png"), TRANS["stamp"],
-            base + win + " ; colour bar %.2f to %.2f K, ends clamped" % T_RNG,
-            "Tplot", TRANS["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]")
-        total += _mid_plane_panel(
+            os.path.join(TRANS_DIR, "k2t_plane_mid.png"),
+            "Tplot", TRANS["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]",
+            ("z", Z_MID), contour_at=300.15)
+        total += room_plane_panel(
             reader, TRANS["case"], TRANS["time"],
-            os.path.join(TRANS_DIR, "k2t_plane_mid_velocity.png"), TRANS["stamp"],
-            base + win + " ; colour bar %.3f to %.3f m/s, ends clamped" % U_RNG,
-            "Umag", "mag(%s)" % TRANS["vector"], PRESET_U, U_RNG,
-            "|U|  [m/s]")
-        total += _aisle_panel(reader, TRANS["case"], TRANS["time"],
-                              os.path.join(TRANS_DIR, "k2t_TMean_field.png"),
-                              "Tplot", TRANS["scalar"] + "*1.0", PRESET_T, T_RNG,
-                              "T  [K]")
-        total += _aisle_panel(reader, TRANS["case"], TRANS["time"],
-                              os.path.join(TRANS_DIR, "k2t_UMean_field.png"),
-                              "Umag", "mag(%s)" % TRANS["vector"], PRESET_U, U_RNG,
-                              "|U|  [m/s]")
+            os.path.join(TRANS_DIR, "k2t_plane_mid_velocity.png"),
+            "Umag", "mag(%s)" % TRANS["vector"], PRESET_U, U_RNG, "|U|  [m/s]",
+            ("z", Z_MID))
+        # (b) the vertical plane through the HOT AISLE
+        total += room_plane_panel(
+            reader, TRANS["case"], TRANS["time"],
+            os.path.join(TRANS_DIR, "k2t_plane_hot.png"),
+            "Tplot", TRANS["scalar"] + "*1.0", PRESET_T, T_RNG, "T  [K]",
+            ("y", HOT_AISLE_Y), contour_at=300.15)
     finally:
         if root:
             shutil.rmtree(root, ignore_errors=True)
 
-    # the GRADED field, p_rghMean, on the same cut
+    # the GRADED field on the hot-aisle plane
     root = None
     try:
         reader, root, n = C.open_case(TRANS["case"], ["p_rghMean"], [TRANS["time"]])
         pr = _percentiles_of(reader, TRANS["time"], "p_rghMean")
         C.announce("  p_rghMean window %.4f to %.4f m2/s2" % pr)
-        total += _aisle_panel(reader, TRANS["case"], TRANS["time"],
-                              os.path.join(TRANS_DIR, "k2t_p_rghMean_field.png"),
-                              "Pplot", "p_rghMean*1.0", "Cool to Warm", pr,
-                              "p_rgh  [m2/s2]")
+        total += room_plane_panel(
+            reader, TRANS["case"], TRANS["time"],
+            os.path.join(TRANS_DIR, "k2t_p_rghMean_field.png"),
+            "Pplot", "p_rghMean*1.0", "Cool to Warm", pr, "p_rgh  [m2/s2]",
+            ("y", HOT_AISLE_Y))
     finally:
         if root:
             shutil.rmtree(root, ignore_errors=True)
@@ -537,17 +612,15 @@ def main():
     total += _mesh_panel(os.path.join(STEADY_DIR, "k2_mesh.png"))
     total += _mesh_panel(os.path.join(TRANS_DIR, "k2t_mesh.png"))
 
-    # the INSTANTANEOUS panel -- a separate open, because it needs T not TMean
+    # (c) the INSTANTANEOUS field on THE SAME horizontal plane, a separate file
     root = None
     try:
         reader, root, n = C.open_case(TRANS["case"], ["T", "U"], [TRANS["time"]])
-        total += _mid_plane_panel(
+        total += room_plane_panel(
             reader, TRANS["case"], TRANS["time"],
-            os.path.join(TRANS_DIR, "k2t_plane_t110.png"), TRANS["stamp"],
-            base + ("INSTANTANEOUS T at t = %s s, the last written time -- NOT a "
-                    "time average ; colour bar %.2f to %.2f K, ends clamped"
-                    % (TRANS["time"], T_RNG[0], T_RNG[1])),
-            "Tplot", "T*1.0", PRESET_T, T_RNG, "T  [K]")
+            os.path.join(TRANS_DIR, "k2t_plane_t110.png"),
+            "Tplot", "T*1.0", PRESET_T, T_RNG, "T  [K]",
+            ("z", Z_MID), contour_at=300.15)
     finally:
         if root:
             shutil.rmtree(root, ignore_errors=True)
