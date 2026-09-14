@@ -33,9 +33,17 @@ that the frozen registration excludes, and what was drawn instead.
 🔴 **`SIDECAR.md` also records the guard that stopped two blank panels being shipped**,
 and the clauses now closing that hole in every driver in this repository.
 
-🔴 **`SIDECAR.md` carries a preliminary observation that must be read before any of
-these figures is shown**: the β = 0 symmetry check passes at 1e-08 against a 1e-4
-threshold, but the side force at the other six points is about 25× below Roddy's
-line and of the sign §4.2 registered in advance as evidence of an inverted
-bookkeeping or solve. A candidate mechanism — the `slip` lateral boundary — is named
-and measured there. It is escalated, not graded.
+🔴 **`NOT A RESULT` TWICE OVER — read `SIDECAR.md` before showing any of these.**
+The seven points were **stopped on the owner's order** to free ranks, healthy, after a
+convergence check — a deliberate stop, not a crash — so they fail the completion rule.
+And separately the fitted **`Y_v' = +1.327616e-03` against Roddy's `−0.023008`** is
+inverted in sign and ~17× low, which §4.2 pre-declared *before any number existed* as
+evidence that the convention or the solve is wrong. **The mechanism is measured and
+inside the freeze**: the `farfield` boundary is registered `slip` on a domain reaching
+±2.99 m around a 4.356 m body — a closed duct that cannot pass the injected cross-flow.
+
+**What is clean is worth saying too**: the mesh is genuinely full (`symm` nFaces 0), the
+β = 0 symmetry check passes at `|Y'| = 1.45e-09` against a 1e-4 gate, and the `k`
+bounding is benign — 0 cells at the bound out of 6,537,226. **The inversion is not
+noise and not the mirror seam.** An act built on this sweep is showing a well-executed
+refusal, not a measurement.

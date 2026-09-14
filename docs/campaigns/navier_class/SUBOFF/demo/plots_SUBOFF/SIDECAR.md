@@ -70,45 +70,55 @@ would be fitting a gate to a known-favourable ground. **No reader may cite eithe
 number as a Certonomous result.** On the figures they are drawn as the line
 `Y_v'·sin β` (and `N_v'·sin β`) with the ±4 % interval as its band.
 
-## 🔴 A PRELIMINARY OBSERVATION THAT IS ESCALATED, NOT RESOLVED HERE
+## 🔴 `NOT A RESULT` TWICE OVER, AND THE SECOND REASON IS PHYSICS
 
-The preliminary window means (last 300 iterations of each point) are:
+**Route one, completion.** All seven points were **STOPPED ON THE OWNER'S ORDER** to
+free ranks, after a convergence check — **a deliberate stop, not a crash.** They were
+healthy when they were stopped. That is why they fail the strict completion rule
+(`rc = 1`, no `End`, no `endTime` directory, six fields missing), and it is the first
+thing a viewer should be told, because "failed the completion rule" reads as breakage
+and this was not breakage.
 
-| β [deg] | v' | Y' | N' |
-|---|---|---|---|
-| −12 | −0.20791 | −1.9463e-04 | +5.4774e-04 |
-| −8 | −0.13917 | −1.8194e-04 | +3.2193e-04 |
-| −4 | −0.06976 | −9.830e-05 | +1.5492e-04 |
-| 0 | 0 | **+1e-08** | **+1e-08** |
-| +4 | +0.06976 | +9.829e-05 | −1.5492e-04 |
-| +8 | +0.13917 | +1.8192e-04 | −3.2194e-04 |
-| +12 | +0.20791 | +1.9443e-04 | −5.4774e-04 |
+**Route two, and it is the one that matters: THE FIT IS INVERTED.** §4.2 of the frozen
+registration pre-declared, before any number existed, that a **positive** fitted
+`Y_v'` means *"the sign convention or the solve is wrong"*. The fit is
 
-**The β = 0 symmetry check (§4.3) passes with enormous margin**: |Y'| and |N'| are
-**1e-08** against a registered threshold of **1e-4**. The mirror seam is sound, and
-that check is the one thing a half mesh could never have provided.
+> **`Y_v' = +1.327616e-03` against Roddy's `−0.023008`** — inverted in sign and about
+> **17× low** in magnitude.
 
-**Two things about the other six rows are stated plainly rather than smoothed.**
+**So A1h produced NO USABLE DERIVATIVE.** The act, if it shows this sweep, is showing
+**a well-executed refusal rather than a measurement** — which is this laboratory's
+product, but it must be chosen knowingly and not discovered on screen.
 
-1. **The magnitude is about 25× below Roddy's line.** At β = +12°, `Y_v'·sin β`
-   would be **−4.784e-03**; the measured value is **+1.94e-04**.
-2. **The sign is the one §4.2 registered IN ADVANCE as evidence that the bookkeeping
-   or the solve is inverted**, not as a bad answer to the physics question: β > 0
-   gives `Y' > 0`, i.e. a positive `Y_v'`, which is anti-damping.
+**AND THE MECHANISM IS MEASURED, AND IT SITS INSIDE THE FREEZE.** Line 139 of the
+registration registers the `farfield` boundary as **`slip`**, on a domain reaching only
+**±2.99 m around a 4.356 m body** — a closed duct, which cannot pass the cross-flow the
+drift angle injects. The fingerprints are consistent with exactly that and with nothing
+else:
 
-**A candidate mechanism, measured and named, and NOT a verdict.** The lateral
-boundary condition in `0/U` is `farfield { type slip; }`. The inlet does impose the
-cross-flow correctly — `BETA_p12`'s `SOLVE_MANIFEST.json` gives
-`U_inlet_mesh = (3.2708140680, 0, 0.6952329922)` and `v_prime_sin_beta = 0.20791` —
-but a slip lateral boundary constrains the flow to be tangential to those planes,
-which is a route by which an imposed cross-flow is suppressed and the body sees
-nearly axial flow. `Y'` at β = +12° has been **flat at 1.944e-04 since iteration
-600**, so this is a converged small number rather than a transient one.
+* hull and sail disagree in **sign** (at β = +8: hull `F_z` −4.5431e-02 against sail
+  +2.6967e-02);
+* the hull's inverted force is **~103 % pressure**, with the viscous cross-flow term
+  carrying the **correct** sign and **34× too small** to matter.
 
-**This is a PRELIMINARY reading by a plotting lane on unfinished runs. It is
-reported to the supervisor and is not graded, not fitted and not resolved here.** It
-is written down now, before the sweep lands, so that it cannot later look like a
-conclusion reached after seeing the answer.
+This lane first recorded the `slip` boundary as a *candidate* mechanism from the `0/U`
+file while the runs were still going; the cfd supervisor has since measured the
+decomposition above and it is theirs, not an inference of mine.
+
+## What is CLEAN here, and it is worth saying plainly
+
+Three measurements say the mesh and the solve are sound, so the inversion is not
+numerical noise and not a seam artefact:
+
+1. **The mesh is genuinely FULL, not a half model** — the mirrored L1, 6,537,226 cells,
+   and the `symm` patch carries **nFaces 0**. A1h exists precisely to escape A1f's half
+   mesh, where a `symmetryPlane` forbids the z-component a drift sweep needs.
+2. **The β = 0 symmetry check passes at `|Y'| = 1.45e-09`** against a 1e-4 gate, and the
+   ±β pairs are antisymmetric to about 0.1 %. That check is the one thing a half mesh
+   could never have provided.
+3. **The `k` bounding is benign clipping**, not a DrivAer-class failure: **0 cells at the
+   bound** out of 6,537,226, excursion **0.82 % of the mean**, stationary for 2,300
+   iterations. If bounding appears anywhere in these figures, that is its reading.
 
 ## Per figure
 

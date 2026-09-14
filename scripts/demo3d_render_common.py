@@ -136,6 +136,64 @@ SAFE_CAPTION_CHARS = set(
 
 CASE_FACTS = {
     # ---------------------------------------------------------------------
+    # THE CRM WING MULTIPOINT PRIMALS, MP_R2, added 2026-09-14. Three lift
+    # conditions of ONE BASELINE GEOMETRY at three trimmed angles of attack --
+    # 1.32496937, 2.11023869 and 2.88211463 degrees. NO DESIGN ITERATION HAS EVER
+    # COMPLETED IN THIS ITEM, so nothing drawn from these may be captioned
+    # "optimised", "before/after" or as an improvement of any kind.
+    #
+    # ALL THREE OWN EXACTLY ONE VERDICT WORD, "PENDING", AND THE GRADE FILE IN THAT
+    # RUN ROOT DOES NOT DECIDE IT. `MP_R2_GRADE.json` reads "NOT A RESULT" with
+    # lever_state "PROVEN WRONG"; that is a WATCHER DEFECT, not a property of the
+    # run. The watcher asserts that no `Mat ReOrdering:` line "was ever printed" --
+    # a claim about the END of a run, made 44 minutes into a LIVE one whose adjoint
+    # is still in Jacobian colouring, where that line has not printed YET. The run
+    # is alive in a container, which is why it does not appear in the host process
+    # table. So these rows own PENDING -- the display/queue state -- and PENDING is
+    # not softening a verdict here, because no verdict has been reached.
+    "CRM_MP_MP04": {
+        "case_dir": os.path.join("/home/ubuntu/certonomous-runs",
+                                 "CURRICULUM-D6R3-crm-wing-mach085", "MP_R2",
+                                 "mp04"),
+        "cells": 579072,                 # checkMesh.log / the published tutorial mesh
+        "mesh_words": "579072 cells, the published CRM_Wing tutorial mesh",
+        "solver": "DARhoSimpleCFoam",
+        "end_time": "2000",              # the only written time besides 0
+        "fields": ("p", "U", "T", "rho"),
+        "allowed_verdicts": {"PENDING"},
+        "verdict_stamp": "PENDING",
+        "source": "the run is live; MP_R2_GRADE.json's verdict is a watcher defect "
+                  "and is being rewritten",
+    },
+    "CRM_MP_MP05": {
+        "case_dir": os.path.join("/home/ubuntu/certonomous-runs",
+                                 "CURRICULUM-D6R3-crm-wing-mach085", "MP_R2",
+                                 "mp05"),
+        "cells": 579072,                 # checkMesh.log / the published tutorial mesh
+        "mesh_words": "579072 cells, the published CRM_Wing tutorial mesh",
+        "solver": "DARhoSimpleCFoam",
+        "end_time": "2000",              # the only written time besides 0
+        "fields": ("p", "U", "T", "rho"),
+        "allowed_verdicts": {"PENDING"},
+        "verdict_stamp": "PENDING",
+        "source": "the run is live; MP_R2_GRADE.json's verdict is a watcher defect "
+                  "and is being rewritten",
+    },
+    "CRM_MP_MP06": {
+        "case_dir": os.path.join("/home/ubuntu/certonomous-runs",
+                                 "CURRICULUM-D6R3-crm-wing-mach085", "MP_R2",
+                                 "mp06"),
+        "cells": 579072,                 # checkMesh.log / the published tutorial mesh
+        "mesh_words": "579072 cells, the published CRM_Wing tutorial mesh",
+        "solver": "DARhoSimpleCFoam",
+        "end_time": "2000",              # the only written time besides 0
+        "fields": ("p", "U", "T", "rho"),
+        "allowed_verdicts": {"PENDING"},
+        "verdict_stamp": "PENDING",
+        "source": "the run is live; MP_R2_GRADE.json's verdict is a watcher defect "
+                  "and is being rewritten",
+    },
+    # ---------------------------------------------------------------------
     # THE SUBOFF A1h FULL-DOMAIN DRIFT SWEEP, added 2026-09-13. BOTH ENTRIES OWN
     # EXACTLY ONE VERDICT WORD, "PENDING": all seven sweep points were still
     # running when these rows were written (about 2,450 to 2,640 of a registered
