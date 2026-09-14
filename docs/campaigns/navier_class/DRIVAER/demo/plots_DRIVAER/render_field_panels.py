@@ -30,7 +30,7 @@ bars are added AFTER the measurement: they are dark pixels inside the "not the
 white ground" body mask and would give the CONSTANT arm a spread that belongs to
 the lettering rather than to the picture. Mesh panels carry an ink guard instead.
 """
-import os, shutil, sys
+import io, os, shutil, sys
 
 REPO = "/home/ubuntu/Certonomous"
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -196,12 +196,19 @@ def _render_with_control(view, src, disp, out, field, add_caption, size=(1600, 1
     `drivaer_p_side.png`: null spread 0.01466 with the arbitrary map, against
     0.00302-class numbers on the panels this floor was calibrated against.
 
-    Given a value, the null is instead the SAME field array name, the SAME preset
-    and the SAME fixed range, held constant at the field's own MEAN. That is the
-    exact null the control is for -- "this picture if p did not vary" -- and it is
-    a HARDER test than the old one, not an easier one: the null now carries the
-    panel's own colour and its own edge contrast, so the only thing left to
-    separate the two arms is the spatial variation of the field itself.
+    Given a value, the null is instead the SAME preset and the SAME fixed window,
+    held at a constant the panel's own colour map assigns to a real value. It is
+    the exact null the control is for -- "this picture if p did not vary" -- and it
+    carries the panel's own colour and its own edge contrast, so the only thing
+    left to separate the two arms is the spatial variation of the field itself.
+
+    THE CONSTANT IS THE WINDOW'S LOW END, and that is not a free choice. Held at
+    the field's MEAN instead, on the percentile window, the null came out at the
+    diverging map's neutral point and rendered a WHITE car on a WHITE ground:
+    `_spread_core` found 0 interior pixels and REFUSED, correctly -- a null you
+    cannot see proves nothing about a reader, which is CLAUDE.md rule 3 itself.
+    The window's low end is deterministic, inside the window, painted by the
+    panel's own map, and never the background colour.
     """
     from paraview.simple import (Calculator, Show, Hide, Render, ColorBy,
                                  GetColorTransferFunction, UpdatePipeline)
@@ -301,65 +308,69 @@ def _data_range(src, name, assoc="CELLS"):
     return nlo, nhi
 
 
-def _mean(src, name, assoc="CELLS"):
-    """The arithmetic mean of the field over the rendered faces -- the value the
-    null arm of the colour control is held at. Face-area weighting would be more
-    physical; this number is never reported as a physical mean, it only has to be
-    a representative colour, so the plain mean is used and said to be one."""
-    import numpy as np
-    from paraview import servermanager as sm
-    from paraview.vtk.util import numpy_support
-    d = sm.Fetch(src)
-    blocks = []
-    if hasattr(d, "GetNumberOfBlocks"):
-        it = d.NewIterator(); it.InitTraversal()
-        while not it.IsDoneWithTraversal():
-            blocks.append(it.GetCurrentDataObject()); it.GoToNextItem()
-    else:
-        blocks = [d]
-    vals = []
-    for b in blocks:
-        att = b.GetCellData() if assoc == "CELLS" else b.GetPointData()
-        a = att.GetArray(name)
-        if a is not None:
-            vals.append(numpy_support.vtk_to_numpy(a))
-    if not vals:
-        C.refuse("the fetched surface carries no %s array to average" % name)
-    m = float(np.concatenate(vals).mean())
-    C.announce("  %s unweighted face mean %.6g (the null arm is held here)"
-               % (name, m))
-    return m
+#: The tick-step ladder and the grid the tick VALUES must sit on. A five-tick bar
+#: needs BOTH: a round step, and ends that are round multiples of a round unit.
+NICE_STEPS = (1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 7.5)
+NICE_UNITS = (1.0, 2.0, 2.5, 5.0, 10.0)
+BAND_CLIP = 0.01          # a rounded end may cut this fraction of the band span
 
 
-def _nice_range(lo, hi, n=P_NTICKS):
-    """Round OUTWARD to a span of n-1 equal round steps, so n round ticks land.
+def _nice_ticks(lo, hi, n=P_NTICKS, clip=BAND_CLIP):
+    """Round a DISPLAY BAND outward to n round ticks, tightly.
 
-    Every tick is an exact multiple of the step, the step comes from the 1/2/2.5/5
-    ladder, and the rounded range CONTAINS the data range -- checked below rather
-    than trusted. Because the data straddles zero, zero is necessarily one of the
-    ticks: all ticks are multiples of the step and the range spans zero.
+    Different from `_nice_range`, which is for a window that must CONTAIN its
+    data: a percentile band already clamps its own ends, so an end may be rounded
+    INWARD by up to `clip` of the band span if that buys a much tighter, rounder
+    bar. Among all candidates the one with the least wasted colour -- unused span
+    below the band plus unused span above it -- wins, and a rounder tick grid
+    breaks a tie.
+
+    On the DrivAer surface-pressure band -402.5 to 180.3 this returns
+    -400 to 200 with ticks -400, -250, -100, 50, 200: step 150, every tick a
+    multiple of 50, 17.2 of colour unused against 217.2 for the next-roundest
+    candidate (-400 to 400, step 200). ZERO IS NOT A TICK under it; the tightest
+    scheme that does put a tick on zero is -600 to 200, which spends 37 % of the
+    bar on values no face carries.
     """
     import math
     if not hi > lo:
-        C.refuse("a colour range needs hi > lo, not [%r, %r]" % (lo, hi))
+        C.refuse("a display band needs hi > lo, not [%r, %r]" % (lo, hi))
     k = n - 1
-    base = (hi - lo) / float(k)
-    e0 = int(math.floor(math.log10(base)))
-    for e in range(e0, e0 + 5):
-        for m in (1.0, 2.0, 2.5, 5.0):
+    span = hi - lo
+    tol = clip * span
+    e0 = int(math.floor(math.log10(span / float(k))))
+    best = None
+    for e in range(e0 - 1, e0 + 3):
+        for m in NICE_STEPS:
             q = m * 10.0 ** e
-            if q < base * (1.0 - 1e-12):
+            if k * q < span - 2.0 * tol:
                 continue
-            t = lo / q
-            t = round(t) if abs(t - round(t)) < 1e-9 else math.floor(t)
-            rlo = t * q
-            rhi = rlo + k * q
-            if rhi >= hi - 1e-9 * max(1.0, abs(hi)):
-                ticks = [(t + i) * q for i in range(n)]
-                if ticks[0] > lo + 1e-9 or ticks[-1] < hi - 1e-9:
-                    continue
-                return ticks[0], ticks[-1], ticks
-    C.refuse("no round %d-tick range was found around [%.6g, %.6g]" % (n, lo, hi))
+            for ue in range(e0 - 2, e0 + 3):
+                for um in NICE_UNITS:
+                    u = um * 10.0 ** ue
+                    if u > q * (1.0 + 1e-9):
+                        continue
+                    r = q / u
+                    if abs(r - round(r)) > 1e-9:
+                        continue
+                    j = math.floor((lo + tol) / u + 1e-9)
+                    rlo = j * u
+                    rhi = rlo + k * q
+                    if rhi < hi - tol:
+                        continue
+                    waste = (lo - rlo) + (rhi - hi)
+                    key = (round(waste, 9), -u)
+                    if best is None or key < best[0]:
+                        ticks = [(j + i * r) * u for i in range(n)]
+                        best = (key, ticks, waste, q, u)
+    if best is None:
+        C.refuse("no round %d-tick band was found around [%.6g, %.6g]"
+                 % (n, lo, hi))
+    _, ticks, waste, q, u = best
+    C.announce("  band [%.6g, %.6g] -> [%.6g, %.6g], step %g on a grid of %g, "
+               "%.4g of colour unused" % (lo, hi, ticks[0], ticks[-1], q, u,
+                                          waste))
+    return ticks[0], ticks[-1], ticks
 
 
 def _tick_format(ticks):
@@ -495,8 +506,7 @@ def _assert_framing(name, bounds, focal, direction, up, scale, size, nose_left):
     return fw, fh
 
 
-def p_surface_panel(reader, out, direction, up, prange, ticks, size, nose_left,
-                    pmean):
+def p_surface_panel(reader, out, direction, up, prange, ticks, size, nose_left):
     from paraview.simple import (MergeBlocks, Show, Render, ColorBy,
                                  GetColorTransferFunction, UpdatePipeline)
     v = _view(size)
@@ -525,9 +535,120 @@ def p_surface_panel(reader, out, direction, up, prange, ticks, size, nose_left,
                "up %r" % (os.path.basename(out), scale, size[0], size[1],
                           tuple(direction), tuple(up)))
     return _render_with_control(v, surf, d, out, "p", lambda view: None,
-                                size=size, control_value=pmean,
+                                size=size, control_value=prange[0],
                                 control_preset=PRESET_P,
                                 control_range=prange), scale
+
+
+def _report_band(label, src, name, assoc="POINTS"):
+    """RAW range against the 2nd-98th percentile band, for ONE colour-mapped
+    object. The owner's rule of 2026-09-14: where the raw range is far wider than
+    the band, the panel is windowed on the band; where it already matches, the
+    panel is left alone. 1.5x is the line she set, and it is applied to the SPAN
+    ratio, printed here for every panel so the decision can be read rather than
+    taken on trust."""
+    rlo, rhi = _data_range(src, name, assoc)
+    plo, phi = _percentiles(src, name)
+    ratio = (rhi - rlo) / max(phi - plo, 1e-30)
+    C.announce("  %-28s RAW %10.4g .. %-10.4g  2/98 BAND %10.4g .. %-10.4g  "
+               "span ratio %5.2fx  %s"
+               % (label, rlo, rhi, plo, phi, ratio,
+                  "RE-RENDER on the band" if ratio > 1.5 else "LEAVE, raw matches"))
+    return (rlo, rhi), (plo, phi), ratio
+
+
+def range_audit(reader):
+    """Every colour-mapped panel this script renders, measured. Renders nothing."""
+    from paraview.simple import (MergeBlocks, CellDatatoPointData, Calculator,
+                                 Slice, StreamTracer, Tube, UpdatePipeline)
+    out = {}
+    reader.MeshRegions = BODY
+    UpdatePipeline(time=float(COARSE_T), proxy=reader)
+    surf = MergeBlocks(Input=reader); UpdatePipeline(time=float(COARSE_T), proxy=surf)
+    bbox = surf.GetDataInformation().GetBounds()
+    out["p on body+wheels"] = _report_band("drivaer_p_side/top/rear", surf, "p",
+                                           "CELLS")
+
+    reader.MeshRegions = ["internalMesh"]
+    UpdatePipeline(time=float(COARSE_T), proxy=reader)
+    p2c = CellDatatoPointData(Input=reader); p2c.CellDataArraytoprocess = ["U"]
+    UpdatePipeline(time=float(COARSE_T), proxy=p2c)
+    cc = Calculator(Input=p2c); cc.AttributeType = "Point Data"
+    cc.ResultArrayName = "Umag"; cc.Function = "mag(U)"
+    UpdatePipeline(time=float(COARSE_T), proxy=cc)
+
+    zmid = (bbox[4] + bbox[5]) / 2.0
+    xwake = bbox[1] + 1.0
+    for label, origin, normal in (
+            ("drivaer_umag_symmetry", [0.0, 0.02, 0.0], [0.0, 1.0, 0.0]),
+            ("drivaer_umag_midheight", [0.0, 0.0, zmid], [0.0, 0.0, 1.0]),
+            ("drivaer_umag_wake", [xwake, 0.0, 0.0], [1.0, 0.0, 0.0])):
+        sl = Slice(Input=cc); sl.SliceType = "Plane"
+        sl.SliceType.Origin = origin; sl.SliceType.Normal = normal
+        UpdatePipeline(time=float(COARSE_T), proxy=sl)
+        if sl.GetDataInformation().GetNumberOfCells() == 0:
+            C.refuse("the plane at %r is empty" % (origin,))
+        out[label] = _report_band(label, sl, "Umag")
+
+    st = StreamTracer(Input=cc, SeedType="Line")
+    st.Vectors = ["POINTS", "U"]
+    st.MaximumStreamlineLength = 30.0
+    st.SeedType.Point1 = [bbox[0] - 1.5, 0.02, 0.02]
+    st.SeedType.Point2 = [bbox[0] - 1.5, 0.02, bbox[5] * 1.15]
+    st.SeedType.Resolution = 49
+    UpdatePipeline(time=float(COARSE_T), proxy=st)
+    tube = Tube(Input=st); tube.Radius = 0.030
+    UpdatePipeline(time=float(COARSE_T), proxy=tube)
+    out["drivaer_streamlines"] = _report_band("drivaer_streamlines", tube, "Umag")
+    C.announce("  NOTE: the three velocity PLANES share ONE window, measured on "
+               "the symmetry plane; the streamline tubes carry their own, because "
+               "a window from another object leaves the ribbons flat.")
+    return out
+
+
+PROV_HEADER = ("figure\tcase\tcase_dir\ttime_dir\tpatches\tcamera\t"
+               "colour_range\timage_size\tfield_sha256")
+PROV_NOTE = ("# ParaView panel provenance. SEPARATE from PROVENANCE.tsv because "
+             "build_plots.py REWRITES that file whole ('w'), so a row appended "
+             "there is destroyed by the next matplotlib build.")
+
+
+def _field_sha(field):
+    import hashlib
+    h = hashlib.sha256()
+    with open(os.path.join(C.facts(COARSE)["case_dir"], COARSE_T, field),
+              "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _write_panel_provenance(rows, field):
+    """MERGE rows into the panel provenance, never truncate it.
+
+    Each render mode owns only the figures it drew. A writer that opened this
+    file "w" would delete the other modes' rows every time one panel was
+    re-rendered -- which is the exact defect that keeps these panels OUT of
+    PROVENANCE.tsv, and it is not going to be reproduced here.
+    """
+    prov = os.path.join(HERE, "PROVENANCE_PANELS.tsv")
+    sha = _field_sha(field)
+    keep = []
+    mine = set(r[0] for r in rows)
+    if os.path.isfile(prov):
+        for line in io.open(prov, encoding="utf-8").read().splitlines():
+            if not line.strip() or line.startswith("#"):
+                continue
+            if line.split("\t")[0] in ("figure",) or line.split("\t")[0] in mine:
+                continue
+            keep.append(line)
+    new = ["\t".join(list(r) + [sha]) for r in rows]
+    with io.open(prov, "w", encoding="utf-8") as fh:
+        fh.write(PROV_NOTE + "\n" + PROV_HEADER + "\n")
+        for line in sorted(keep + new):
+            fh.write(line + "\n")
+    C.announce("  %s: %d row(s) rewritten, %d kept, %s sha256 %s"
+               % (os.path.basename(prov), len(new), len(keep), field, sha[:16]))
 
 
 def p_panels(reader):
@@ -541,20 +662,24 @@ def p_panels(reader):
     bbox = surf.GetDataInformation().GetBounds()
     C.announce("  body bounds MEASURED x %.4f..%.4f y %.4f..%.4f z %.4f..%.4f m"
                % bbox)
-    raw_lo, raw_hi = _data_range(surf, "p", "CELLS")
-    pmean = _mean(surf, "p", "CELLS")
-    # DIAGNOSTIC ONLY, and acted on rather than filed: the window below is the
-    # DATA range the order names, and these percentiles say how much of the body
-    # that range spends on a handful of faces. They are reported upward with the
-    # panels, never used to choose the window.
-    p2, p98 = _percentiles(surf, "p")
-    C.announce("  DIAGNOSTIC, NOT THE WINDOW: p 2nd/98th percentile %.4g to "
-               "%.4g m2/s2 -- the data range below is %.1fx wider"
-               % (p2, p98, (raw_hi - raw_lo) / (p98 - p2)))
-    lo, hi, ticks = _nice_range(raw_lo, raw_hi)
-    C.announce("  colour range FIXED %.6g to %.6g m2/s2 (rounded outward from "
-               "%.6g to %.6g), ticks %s -- the SAME bar on all three panels"
-               % (lo, hi, raw_lo, raw_hi,
+    # THE WINDOW IS THE 2nd-98th PERCENTILE BAND, on the owner's ruling of
+    # 2026-09-14: "yes tight range (and this applies to all the plots if raw does
+    # not match the percentiles)". The raw range is measured anyway, and the SPAN
+    # RATIO that justifies the choice is printed beside it -- 2.77x here, against
+    # the 1.5x line she set. Ends are CLAMPED, as they were before this file ever
+    # used a data range.
+    (raw_lo, raw_hi), (p2, p98), ratio = _report_band(
+        "drivaer_p_side/top/rear", surf, "p", "CELLS")
+    if ratio <= 1.5:
+        C.refuse("the pressure panels are windowed on the percentile band "
+                 "because the raw range is %.2fx wider; at %.2fx that reasoning "
+                 "no longer holds and this code would be windowing on a band for "
+                 "no stated reason" % (ratio, ratio))
+    lo, hi, ticks = _nice_ticks(p2, p98)
+    C.announce("  colour range FIXED %.6g to %.6g m2/s2, ends clamped (2/98 band "
+               "%.6g to %.6g rounded to round ticks; raw %.6g to %.6g is %.2fx "
+               "wider), ticks %s -- the SAME bar on all three panels"
+               % (lo, hi, p2, p98, raw_lo, raw_hi, ratio,
                   ", ".join(_tick_format(ticks) % t for t in ticks)))
 
     plan = [("drivaer_p_side.png", (0.0, -1.0, 0.0), (0.0, 0.0, 1.0),
@@ -566,7 +691,7 @@ def p_panels(reader):
     rows, total = [], 0
     for name, direction, up, size, nose_left in plan:
         nb, scale = p_surface_panel(reader, os.path.join(HERE, name), direction,
-                                    up, (lo, hi), ticks, size, nose_left, pmean)
+                                    up, (lo, hi), ticks, size, nose_left)
         total += nb
         _, _, view_dir = _axes(direction, up)
         rows.append((name, COARSE,
@@ -580,28 +705,15 @@ def p_panels(reader):
                            (bbox[4] + bbox[5]) / 2.0)
                         + tuple(round(c, 12) + 0.0 for c in view_dir)
                         + tuple(up) + (scale,)),
-                     "%s to %s m2/s2, fixed, five ticks %s"
+                     "%s to %s m2/s2, ends clamped; basis 2nd-98th percentile "
+                     "band %.4g to %.4g of p on these patches (raw %.4g to %.4g, "
+                     "%.2fx wider) rounded outward; five ticks %s"
                      % (_tick_format(ticks) % lo, _tick_format(ticks) % hi,
+                        p2, p98, raw_lo, raw_hi, ratio,
                         "/".join(_tick_format(ticks) % t for t in ticks)),
                      "%dx%d" % size))
 
-    field = os.path.join(C.facts(COARSE)["case_dir"], COARSE_T, "p")
-    h = hashlib.sha256()
-    with open(field, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    sha = h.hexdigest()
-    prov = os.path.join(HERE, "PROVENANCE_PANELS.tsv")
-    with open(prov, "w") as fh:
-        fh.write("# ParaView panel provenance. SEPARATE from PROVENANCE.tsv "
-                 "because build_plots.py REWRITES that file whole ('w'), so a "
-                 "row appended there is destroyed by the next matplotlib build.\n")
-        fh.write("figure\tcase\tcase_dir\ttime_dir\tpatches\tcamera\t"
-                 "colour_range\timage_size\tfield_sha256\n")
-        for r in rows:
-            fh.write("\t".join(list(r) + [sha]) + "\n")
-    C.announce("  wrote %s (%d rows, field sha256 %s)"
-               % (os.path.basename(prov), len(rows), sha[:16]))
+    _write_panel_provenance(rows, "p")
     return total
 
 
@@ -701,10 +813,28 @@ def streamline_panel(reader, out, bbox, note, urange):
     lut = GetColorTransferFunction("Umag"); lut.ApplyPreset(PRESET_U, True)
     # THE LOOKUP TABLE SPANS WHAT THIS OBJECT ACTUALLY CARRIES -- a window taken
     # from some other object leaves the ribbons one flat colour (owner, round 2).
+    # THE TUBES' OWN 2nd-98th PERCENTILE BAND, not their raw range -- the owner's
+    # ruling of 2026-09-14, "yes tight range ... if raw does not match the
+    # percentiles". MEASURED on these tubes: raw 4.107 to 38.34 m/s against a band
+    # of 21.25 to 36.8, a span ratio of 2.20x, over her 1.5x line. The window is
+    # still taken from THIS OBJECT and not from the planes -- her round-2 note
+    # stands, a window borrowed from another object leaves the ribbons flat.
     ta = tube.GetPointDataInformation().GetArray("Umag")
-    tlo, thi = ta.GetComponentRange(0)
-    C.announce("  streamline |U| MEASURED %.4g to %.4g m/s (%d lines seeded)"
-               % (tlo, thi, st.SeedType.Resolution + 1))
+    rawlo, rawhi = ta.GetComponentRange(0)
+    tlo, thi = _percentiles(tube, "Umag")
+    ratio = (rawhi - rawlo) / max(thi - tlo, 1e-30)
+    C.announce("  streamline |U| WINDOW %.4g to %.4g m/s, ends clamped (2/98 band "
+               "of the tubes; raw %.4g to %.4g is %.2fx wider) over %d lines"
+               % (tlo, thi, rawlo, rawhi, ratio, st.SeedType.Resolution + 1))
+    if ratio <= 1.5:
+        C.refuse("the streamline window is the percentile band because the raw "
+                 "range is %.2fx wider; at %.2fx that reasoning no longer holds"
+                 % (ratio, ratio))
+    del STREAM_RANGE_NOTE[:]
+    STREAM_RANGE_NOTE.append(
+        "%.4g to %.4g m/s, ends clamped; basis 2nd-98th percentile band of |U| "
+        "on the tubes themselves (raw %.4g to %.4g, %.2fx wider)"
+        % (tlo, thi, rawlo, rawhi, ratio))
     lut.RescaleTransferFunction(tlo, thi)
     _bar(v, lut, "|U|  [m/s]")
     # CAMERA ON THE SYMMETRY PLANE, looking along -y, orthographic (frame_by_extent
@@ -770,6 +900,8 @@ def mesh_panel(case, time, out, stamp, note, expect_faces, arrays=("U",)):
         if root:
             shutil.rmtree(root, ignore_errors=True)
 
+
+STREAM_RANGE_NOTE = []      # filled by streamline_panel, read by its prov row
 
 WAKE_MIN_WIDTH_FRAC = 0.40      # the body must fill at least this much of the frame
 
@@ -893,6 +1025,8 @@ def main(argv=()):
     only_wake = "wake-only" in argv
     round3 = "round3" in argv
     only_p = "p-panels" in argv
+    only_audit = "range-audit" in argv
+    only_stream = "streamlines-only" in argv
     C.assert_paraview_version()
     C.assert_stamp(STAMP_C, COARSE)
     C.assert_stamp(STAMP_F, FINE)
@@ -904,6 +1038,32 @@ def main(argv=()):
     total, root = 0, None
     try:
         if only_fine:
+            raise StopIteration
+        if only_stream:
+            from paraview.simple import (CellDatatoPointData as _C2P,
+                                         Calculator as _Cal, MergeBlocks as _MB,
+                                         UpdatePipeline as _U)
+            reader, root, n = C.open_case(COARSE, ["p", "U"], [COARSE_T],
+                                          decompose_polyhedra=False)
+            reader.MeshRegions = BODY
+            _U(time=float(COARSE_T), proxy=reader)
+            _surf = _MB(Input=reader); _U(time=float(COARSE_T), proxy=_surf)
+            bbox = _surf.GetDataInformation().GetBounds()
+            out = os.path.join(HERE, "drivaer_streamlines.png")
+            total += streamline_panel(reader, out, bbox, "", None)
+            _, _, vd = _axes((0.0, -1.0, 0.0), (0.0, 0.0, 1.0))
+            _write_panel_provenance([(
+                "drivaer_streamlines.png", COARSE, C.facts(COARSE)["case_dir"],
+                COARSE_T, "internalMesh streamlines, 50 lines seeded 1.5 m "
+                "upstream on the symmetry plane",
+                "camera on the (0, -1, 0) axis from the body centre; VIEW "
+                "DIRECTION (0, 1, 0); up (0, 0, 1); orthographic",
+                STREAM_RANGE_NOTE[0], "1600x1000")], "U")
+            raise StopIteration
+        if only_audit:
+            reader, root, n = C.open_case(COARSE, ["p", "U"], [COARSE_T],
+                                          decompose_polyhedra=False)
+            range_audit(reader)
             raise StopIteration
         if only_p:
             reader, root, n = C.open_case(COARSE, ["p"], [COARSE_T],
@@ -1050,11 +1210,11 @@ def main(argv=()):
         if root:
             shutil.rmtree(root, ignore_errors=True)
 
-    if not only_fine and not only_p:
+    if not only_fine and not only_p and not only_audit and not only_stream:
         total += mesh_panel(COARSE, COARSE_T, os.path.join(HERE, "drivaer_mesh_coarse.png"),
                             STAMP_C, GEOM + " ; THEIR COARSE MESH on the body "
                             "and wheel patches, 669416 cells in the volume", 32913)
-    if not only_p:
+    if not only_p and not only_audit and not only_stream:
         total += mesh_panel(FINE, FINE_T, os.path.join(HERE, "drivaer_mesh_fine.png"),
                             STAMP_F, GEOM + " ; THEIR FINE MESH on the body and wheel "
                             "patches ; the solve on this mesh had not finished when "
@@ -1064,7 +1224,7 @@ def main(argv=()):
     if not only_fine:
         C.assert_run_tree_untouched(cdir, before)
         C.announce("  coarse run tree PROVED unchanged: %s" % cdir)
-    if not only_p:
+    if not only_p and not only_audit and not only_stream:
         C.assert_run_tree_untouched(fine_mesh_dir, fine_before)
         C.announce("  fine constant/polyMesh PROVED unchanged: %s" % fine_mesh_dir)
     C.announce("  %s bytes written" % format(total, ","))

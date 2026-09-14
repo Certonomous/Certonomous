@@ -188,7 +188,9 @@ range, image size and the sha256 of the field file) is in **`PROVENANCE_PANELS.t
 which is a SEPARATE file from `PROVENANCE.tsv` because `build_plots.py` rewrites
 that one whole on every matplotlib build and a row appended there would be lost.
 
-**The window is now the DATA range, not a percentile window.** `p` on those faces
+**~~The window is now the DATA range, not a percentile window.~~ SUPERSEDED the
+same day — see the tight-range section below. The measurement stands, the window
+does not.** `p` on those faces
 at iteration 1000 runs **−1142.27 to 472.49 m²/s²**, taken from the reader's array
 information and independently from numpy over the fetched values, which agree to
 1.1e−03. It is rounded outward to **−1500 to 500 m²/s²**, a span of four equal
@@ -199,8 +201,9 @@ and sits just under the free-stream dynamic head 0.5·30² = 450 m²/s² plus th
 domain's own datum; the minimum, −1142.3, is a local suction spot at the front
 wheel.
 
-**🔴 The ordered window is 2.8x wider than the body's own 2nd-to-98th percentile
-band (−402.5 to 180.3 m²/s²), so the body reads nearly uniform.** That is a
+**🔴 That window was 2.8x wider than the body's own 2nd-to-98th percentile band
+(−402.5 to 180.3 m²/s²) and the body read nearly uniform — which is why the owner
+ruled the same day for the tight range.** That is a
 consequence of the window, not of the solution: the extremes are carried by a
 handful of faces, and a diverging `Cool to Warm` map centred on the midpoint of
 an asymmetric range puts its white point at −500 m²/s², where no significant part
@@ -262,3 +265,59 @@ with max(R,G,B) < 90 — and all 238 of them, on each of the three, lie inside t
 colour bar block at x ≥ 0.891 of frame width. The folder's own `text_sweep.py` was
 not on disk (the scratchpad had been wiped), so this sweep was written fresh and
 is recorded here rather than relied on from memory.
+
+---
+
+## TIGHT RANGES — 2026-09-14, and the rule now applied to the whole folder
+
+The owner's ruling, verbatim: *"yes tight range (and this applies to all the plots
+if raw does not match the percentiles)"*. Operationally, and enforced in
+`render_field_panels.py`: **a colour-mapped panel is windowed on its 2nd-to-98th
+percentile band whenever the raw span is more than 1.5x the band span; where the
+raw already matches, the panel is left as it is.** The audit runs as
+`render_field_panels.py range-audit` and renders nothing, so the decision can be
+re-read at any time instead of taken on trust.
+
+| Panel | RAW range | 2/98 band | Span ratio | Action |
+|---|---|---|---|---|
+| `drivaer_p_side/top/rear.png` | −1142 … 472.5 m²/s² | −402.5 … 180.3 | **2.77x** | **re-rendered on the band** |
+| `drivaer_umag_symmetry.png` | 0.3653 … 37.56 m/s | 4.394 … 36.11 | 1.17x | left — already on the band |
+| `drivaer_umag_midheight.png` | 1.361 … 37.07 m/s | 4.924 … 34.40 | 1.21x | left — already on the band |
+| `drivaer_umag_wake.png` | 2.898 … 30.68 m/s | 6.858 … 30.66 | 1.17x | left — already on the band |
+| `drivaer_streamlines.png` | 4.107 … 38.34 m/s | 21.25 … 36.80 | **2.20x** | **re-rendered on the band** |
+
+The three velocity planes were already windowed on the 2/98 band of the symmetry
+plane and needed no change; their ratios are printed above so that is a
+measurement rather than a memory. The two mesh panels carry no field and are
+outside the rule. **Every re-rendered panel refuses at its own ratio**: if a future
+run finds the ratio at or below 1.5x, the code stops rather than window on a band
+for a reason that no longer holds.
+
+**The pressure bar is now −400 to 200 m²/s², ends clamped, ticks −400, −250, −100,
+50, 200.** The band −402.485 … 180.301 is rounded outward to a step of 150 on a
+grid of 50 — every tick a multiple of 50 — which spends **17.2 m²/s² of bar on
+values no face carries**. The next-roundest candidate, −400 to 400 at a step of
+200, would waste 217.2. **Zero is not a tick under this scheme**; the tightest
+scheme that does put a tick on zero is −600 to 200, which spends 37 % of the bar
+on empty values. The lower end cuts 2.5 m²/s² off the band, 0.43 % of its span —
+inside the 1 % the chooser allows, and the band's ends are clamped in any case.
+The same bar, identical to 238 ink pixels, is on all three pressure panels;
+cameras, sizes, framing and the nose-left assertion are unchanged from the section
+above.
+
+**The streamline window is the 2/98 band of the tubes themselves, 21.25 to
+36.80 m/s, ends clamped** — not the shared plane window. The owner's round-2 note
+stands: a window borrowed from another object leaves the ribbons flat. Its bar
+keeps the automatic labels the other velocity panels use; only the window moved.
+
+**The colour control moved twice, and the second move was forced by a refusal.**
+The null arm is now the same preset and the same window as the panel, held at a
+constant — but held at the field's MEAN it came out at the diverging map's neutral
+point on the tight window and rendered a WHITE car on a WHITE ground: the spread
+reader found **0 interior pixels and refused**, correctly, because a null nobody
+can see proves nothing about a reader. The null is therefore held at **the
+window's low end**, which the panel's own map paints and which is never the
+background. **The 8x floor has never been touched.** Interior margins on the tight
+window: **side 27.2x, top 35.7x, rear 27.4x**, over 252,006 / 369,522 / 416,656
+painted pixels. The streamline panel's control is unchanged from its previous
+build and passes at **15.2x**.

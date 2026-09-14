@@ -8,8 +8,8 @@ ParaView panels that are white-ground, triad-free and carry no text at all. Rege
 | File | Verdict of its source |
 |---|---|
 | `drivaer_cd_history.png`, `drivaer_forces.png`, `drivaer_residuals.png` | `coarse_R1` — **PASS** (G1, G2, G3) |
-| `drivaer_p_side.png`, `drivaer_p_top.png`, `drivaer_p_rear.png` | `coarse_R1` — **PASS**; re-rendered 2026-09-14 on the data range −1500 to 500 m²/s², provenance in `PROVENANCE_PANELS.tsv` |
-| `drivaer_umag_symmetry.png`, `drivaer_umag_midheight.png`, `drivaer_umag_wake.png`, `drivaer_streamlines.png` | `coarse_R1` — **PASS** |
+| `drivaer_p_side.png`, `drivaer_p_top.png`, `drivaer_p_rear.png` | `coarse_R1` — **PASS**; re-rendered 2026-09-14 on the 2/98 band, −400 to 200 m²/s², provenance in `PROVENANCE_PANELS.tsv` |
+| `drivaer_umag_symmetry.png`, `drivaer_umag_midheight.png`, `drivaer_umag_wake.png`, `drivaer_streamlines.png` | `coarse_R1` — **PASS**; streamlines re-rendered 2026-09-14 on the 2/98 band 21.25–36.80 m/s, the three planes already were |
 | `drivaer_mesh_coarse.png` | `coarse_R1` mesh — the coarse level, per the ParaView rule |
 | `drivaer_mesh_fine.png` | `fine_R1` mesh — the solve was **STOPPED**, the mesh stands |
 | `drivaer_cd_history_fine.png` | **PENDING** — axes only. Our fine solve was stopped short of `endTime` and its curve is not drawn |
