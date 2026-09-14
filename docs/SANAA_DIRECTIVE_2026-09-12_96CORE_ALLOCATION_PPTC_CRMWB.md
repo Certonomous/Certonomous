@@ -434,3 +434,22 @@ Facts on the record: (1) SUBOFF's seven points were stopped converged (2671–28
 > plotting agent: since dafoam ran the osingle point transonic crm mach 0.85 optimization, at least make the plots for that
 
 **Chief's reading:** the single-point transonic CRM_Wing Mach 0.85 run (the verbatim DAFoam tutorial arm) gets its own demo plot folder under plot library v2 conventions; the dafoam supervisor supplies the run root, the plot lane builds it after the round-2 and SUBOFF commits.
+
+---
+
+## AC. D6R3 multipoint launched NOW; MB13 and multipoint compressible are the priority; PPTC set aside until after the demos — byte-exact, 2026-09-14 ~01:50Z
+
+> yes the dafoam goes back IMMEDIATELY to fix this and run it. I want this launched NOW
+
+> the compressible transonic multi optimization. I WANT IT ASAP
+
+> yes bc thats perhaps the most important run we can show
+
+> Dafoam and cfd work really hard on MB13 and multipoint compressible opt
+
+> OK PPCT gets set aside till after the demos.
+
+**Chief's reading:**
+D6R3 MP_R2 — the compressible transonic multipoint optimisation — is the lab's top-priority demo run: `jacMatReOrdering rcm`, hot-started from the converged trim, pid 1854058, launched 01:10:50Z on 20 ranks, detached watcher pid 1860615; dafoam stays on it until it completes or fails, and its failure is a finding, not a pause.
+MB13 marinePropeller is cfd's priority: pid 1863406, launched 01:21:03Z on 32 ranks, run through the runner with 30-min checkpoints as §Z fixes it.
+PPTC is set aside until after the demos — no lane effort goes to it; the running PRISM-A2 layer phase (pid 1768257, CFM-1) is left to finish and is recorded when it does, and the 48 propeller ranks stay reserved and unlent per §O.
