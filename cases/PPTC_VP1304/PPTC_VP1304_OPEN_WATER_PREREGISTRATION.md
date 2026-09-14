@@ -1685,3 +1685,313 @@ fixture, which would paper over the granularity question rather than answer it.*
 **Pre-compute. `--selftest` alone now arms every suite and prints an ASSERTED register of 23
 clauses across 3 suites. C1 PASS, C2 PASS, C3 ARMED, C4 ARMED at 13 clauses, C5 ARMED, SPD
 gate ARMED — and until `825d94d4e`, three of those were not exercised by the selftest at all.**
+
+---
+
+## AMENDMENT 12 — 2026-09-14, before first compute. THE COARSE DESIGN POINT RUNS AT 48 RANKS, AND THE SMOKE IS FOLDED INTO ITS OWN FIRST 300 ITERATIONS RATHER THAN RUN SEPARATELY
+
+*lines whose number changed above this section: 0*
+*Document version: amendment 12 of this pre-registration. No earlier amendment is superseded, rewritten or struck by this one.*
+
+**Legality — rule 2, and the check, not the assertion.**
+
+1. **The run directory this amendment governs DOES NOT EXIST.** Named here so the check is
+   falsifiable rather than a claim: `/home/ubuntu/certonomous-runs/PPTC_VP1304/DP360_J1.2021`.
+   Checked 2026-09-14T00:00:40Z: **absent.** Its two plausible alternate spellings
+   `.../DP_J1.2021` and the repository-side `verification/runs/PPTC_VP1304/` were checked in the
+   same breath and are **also absent**. No time directory, no `postProcessing` tree, no
+   `RC.txt`, no `log.simpleFoam` exists anywhere under
+   `/home/ubuntu/certonomous-runs/PPTC_VP1304/` **for J = 1.2021** — a `find` over the whole
+   run root at that timestamp returned solver logs for **one** case only, and it is not this one
+   (disclosed in full at point 3).
+2. **The registry query is empty.** `verification/queue/LAUNCH_LOG.tsv` contains **zero** rows
+   matching `PPTC` (case-insensitive) across its whole length. §10 item 7 of this document is the
+   reason that query is the operative one here: *"Every launch goes through the queue runner.
+   Nothing launched by hand counts as a case"* (Sanaa's run-rules item 19). **No case of this act
+   has ever been launched through the queue runner.**
+3. 🔴 **DISCLOSED AGAINST MY OWN AMENDMENT, because a legality claim that hides its hardest fact
+   is worse than no claim.** Two `simpleFoam` runs **have** executed under this registration,
+   by hand, outside the queue:
+
+   | log | banner `Date`/`Time` | `Case` line | outcome |
+   |---|---|---|---|
+   | `dead_lever_SMOKE360_J0.7985/registered/log.simpleFoam.GAMG.SIGFPE` | Sep 13 2026 **16:33:31** | `.../dead_lever_SMOKE360_J0.7985/registered` | **signal 8, floating point exception** |
+   | `dead_lever_SMOKE360_J0.7985/registered/log.simpleFoam.PCG` | Sep 13 2026 **16:45:29** | `.../dead_lever_SMOKE360_J0.7985/registered` | **signal 8, floating point exception** |
+
+   Both are the §8.1 dead-lever audit at **J = 0.7985**, not at the design point. Both **crashed**.
+   Under `VERIFICATION_CHARTER` §2i the operative stamp is the **EARLIEST `started_utc` across all
+   cases**, and on the *disk* reading that stamp is **2026-09-13T16:33:31Z** — which is **before**
+   this act's amendments 5 through 11 were committed (17:22:19Z … 17:46:36Z). On the *registry*
+   reading — the one §2b itself offers ("or the empty registry query") and the one §10 item 7 of
+   this document mandates — first compute has **not** occurred, and amendments 5–12 are legal.
+   **These two readings disagree, the disagreement is not this lane's to settle, and it is
+   recorded here rather than resolved by whichever reading suits this amendment.** If the
+   supervisor rules for the disk reading, **everything in A12.4, A12.5 and A12.6 below that sets or
+   moves a number must be re-cut as a dated addendum and the changed thresholds withdrawn**; A12.1,
+   A12.2, A12.3 and A12.7 alter no gate, threshold, cap or label and survive either ruling.
+
+**Nothing in §4 (the band), §4.8 (the gate), §6.4 (the quality gates), §6.5 (born clean or it
+does not enter), §9's registered cap of 19,890 core-min, or A4.3's NOT A RESULT ruling on a mesh
+that fails the quality gates, is altered by this amendment. Each is restated below where a reader
+might otherwise infer otherwise.**
+
+### A12.0 🔴 FOUR SENTENCES IN THIS DOCUMENT ASSERT A CONDITION THAT HAS SINCE CHANGED — QUOTED AND STRUCK, NEVER REWRITTEN
+
+Each was **true when it was written** and each is **false now**. They are struck here rather
+than corrected above, per rule 6 and §2b's *originals are retained and struck, never rewritten*.
+A frozen document that still says a solver has never run, sixteen hours after two crashed, is the
+defect that lets the next reader build on it.
+
+| line | quoted verbatim | status |
+|---|---|---|
+| `:14` | *"Written before any solve. **No solver has been launched for this act at the time of this commit**; the run directory `verification/runs/PPTC_VP1304/` does not exist."* | **STRUCK in its first clause.** The run directory still does not exist (re-checked 2026-09-14T00:00:40Z). Two solvers **have** been launched, by hand, outside the queue. |
+| `:770` (A1) | *"**No solver has been launched**, no queue entry has been placed, and no mesh has been built."* | **STRUCK in its first and third clauses.** No queue entry has been placed — **still true and independently re-checked**: `verification/queue/LAUNCH_LOG.tsv` holds zero `PPTC` rows. Meshes **have** been built. |
+| `:880` (A2) | *"**no solver has been launched**, no queue entry placed, no mesh built."* | **STRUCK, same two clauses, same reasons.** |
+| `:1083` (A4) | *"Mesh builds have occurred; **no solver has been launched**, and **no `KT` or `KQ` value exists anywhere in this act**."* | **STRUCK in its second clause.** Its third clause — **no KT or KQ value exists anywhere in this act — is re-checked and STILL TRUE**: both hand-launched solvers died on `signal 8` before any converged force was read, and no `RC.txt`, no time directory and no graded force file exists under the run root. |
+
+**What is NOT struck, because it survives the check:** the run directory
+`verification/runs/PPTC_VP1304/` does not exist; no queue entry has ever been placed for this act;
+and **no KT and no KQ value of any grade exists anywhere in this act.** Those three are the clauses
+that carry the evidentiary weight, and all three were re-verified for this amendment rather than
+inherited.
+
+### A12.1 Forty-eight ranks for the coarse design point — the authority, quoted, and its condition
+
+The authority is Sanaa, relayed to this lane by cfd-supervisor, quoted verbatim:
+
+> *"yeah i agree with giving it 48 ranks for the coarse provided it passes."*
+
+**"Provided it passes" is a condition and it is registered here as one.** It is **not** a launch
+order and this amendment is **not** a launch. The gate it names — PRISM-A2's report on whether the
+rebuilt layered mesh clears §6.4 and §6.5 — **has not reported at the time of this commit**. The
+rank count is registered so that, when and only when that gate passes and the supervisor
+authorises, the launch is a single command against a number that was fixed beforehand.
+
+**Registered:** `decomposePar` into **48** subdomains; `system/decomposeParDict`
+`numberOfSubdomains 48`; `launch_pptc.sh` invoked with `RANKS = 48`. That launcher already
+**refuses** (`exit 1`) when its argument and `decomposeParDict` disagree, so the two cannot drift.
+
+Lane allocation: Sanaa's 2026-09-12 core table gave this act a **16-rank propeller reserve**.
+**48 is three times that reserve** and is legal only on the quotation above. Recorded plainly so
+no later reader takes 48 as the reserve.
+
+### A12.2 🔴 DECOMPOSITION CHANGES THE ANSWER IN THE LAST DIGITS, AND BYTE-IDENTICAL REPRODUCTION IS NOT A GATE
+
+A different subdomain count changes the **order of the global reductions** in every linear solve
+and in the `forces` integration. The arithmetic is therefore **not** associative across rank
+counts and a 48-rank run **will not** reproduce a 4-rank run bit for bit.
+
+> **REGISTERED: byte-identical reproduction across rank counts is NOT expected and is NOT a gate
+> of this act.** A difference in the last digits of KT or KQ between two rank counts is **not** a
+> defect and may **not** be reported as one. What **is** gated is unchanged: the §4.8 band, and
+> §7's convergence requirement that KT and KQ be stationary within 0.1 percent over the last 500
+> iterations — **a stationarity window 0.1 percent wide is orders of magnitude above reduction-order
+> noise**, so this registration costs the act no discriminating power whatsoever.
+
+### A12.3 Checkpointing at 48 ranks — §9.2's gate re-evaluated, not relaxed
+
+§9.2's instrument is unchanged: **`writeInterval` 200 iterations, `purgeWrite` 2.** Only its
+arithmetic changes with the rank count, and it is redone here so the 30-minute bound is a
+computed number rather than an inherited one.
+
+At §9's declared basis (**3.0e-6 core-s per cell per iteration**, an ESTIMATE, not a lab
+measurement) on **19,700,035 cells** across **48 ranks**:
+
+| quantity | value |
+|---|---|
+| core-seconds per iteration | 59.10 |
+| **wall seconds per iteration at 48 ranks** | **1.2313** |
+| iterations permitted by the 30-minute bound (1800 s) | **1,461.8** |
+| registered `writeInterval` | **200** |
+| wall time between checkpoints | **246.3 s = 4.10 min** |
+| **margin against the 30-minute gate** | **7.31×** |
+
+**Gate A is satisfied at 48 ranks with 7.31× margin and `writeInterval` is NOT raised.** §9.2's
+standing rule — *revised only downward, never upward, if the measured rate is slower* — is
+unchanged and now binds against a measured rate that the first 300 iterations will supply.
+
+### A12.4 Wall functions, and the y+ reading at iteration 300
+
+**Wall treatment is unchanged and is restated because this amendment moves the reading, not the
+model:** k-omega SST with `nutkWallFunction`, §6.3 and §7, wall-function y+, **not** wall-resolved.
+Wall-resolved y+ ≈ 1 remains the next rung and is not claimed.
+
+**Registered reading.** `blades` y+ is read **at iteration 300 of the design-point run**, before
+any force is looked at, with the instrument A4.2 fixed and which may not be chosen at run time:
+`simpleFoam -postProcess -func yPlus` — the solver's own spelling, **never** the generic
+`postProcess`, which on this build (v2606, `_481094f-20260618`) returns zero on every patch and
+exits clean — passed through `scripts/yplus_reader_guard.py`.
+
+**Which window governs, fixed here so it cannot be chosen after the number is seen:**
+
+- **On a LAYERED mesh — the PRISM-A2 mesh this act is waiting on — the governing window is
+  §6.3's original `y+ 30 to 60`.** A4's widened `30–300` window was granted **for the layerless
+  smoke only**, by A4.1's own words, and it does **not** travel to a layered mesh.
+- **On a LAYERLESS mesh, A4's `30–300` governs and A4.3 governs with it** — including A4.3's
+  ruling that a KT from a mesh failing §6.4 is **NOT A RESULT** on the mesh gate alone, before its
+  value is looked at.
+
+**What a y+ outside the governing window does, registered before it is measured:** it is a **§6.3
+finding**, recorded at iteration 300 with its number, and it **caps the fidelity chip**. It does
+**not** stop the run and it does **not** widen. Recording it at iteration 300 rather than at the
+end is the whole point: **it is then on the record before the graded KT exists.**
+
+🔴 **Not registered here, and deliberately:** this amendment does **not** pick between the two
+y+ *predictions* on the record for J = 1.2021 — **51.5** (`PPTC_VP1304_OPEN_WATER_CONFIG2_REGISTRATION_DRAFT.md:63`)
+and **40.9** (`PPTC_PRISM_A2_AMENDMENT2_DRAFT.md:139`) — because they belong to two different mesh
+configurations and **a lane picking one of two live predictions after the mesh is known is
+selection by outcome.** The mesh that runs is identified by its own birth certificate, and the
+prediction that governs is the one in that mesh's governing registration. **The GATE is 30–60
+either way, and the gate is what this document fixes.**
+
+### A12.5 🔴 THE FORCES OBJECTS — AND A CORRECTION TO THE INSTRUCTION THAT REACHED THIS LANE
+
+The instruction this lane was given said to register *"the KT/KQ forces object on `blades` + `hub`
++ `cap` + `shaft`"*. **That is correct for KT and WRONG for KQ, and registering it as given would
+have contradicted Amendment 2 §A2.2 of this same document.** A2.2 stands unchanged and is what is
+registered:
+
+| graded quantity | `forces` object | patches |
+|---|---|---|
+| **KT (thrust)** | `forcesThrust` | **`blades` + `hub` + `cap` + `shaft`** |
+| **KQ (torque)** | `forcesTorque` | **`blades` ONLY** |
+| — | — | **`shaftExtension` EXCLUDED from BOTH** |
+
+A2.2's reason is unchanged: the comparator's torque has every non-blade rotating friction
+subtracted, while its thrust retains the hub assembly's resistance. **No patch list is altered by
+this amendment; the instruction is corrected against the frozen document rather than the frozen
+document against the instruction.**
+
+`launch_pptc.sh` already prints both patch lists back from the dictionary that will run and
+already reports a **FORCES DEFECT** when either object produces no `force.dat` — the silent-lever
+case where the run reaches `End` with rc 0 and the instrument never ran.
+
+### A12.6 THE SMOKE IS FOLDED INTO THE DESIGN POINT'S OWN FIRST 300 ITERATIONS — NO SEPARATE SMOKE RUN
+
+**Registered: there is no separate smoke run.** §8.3's smoke article is discharged **inside the
+design-point run**, at **iteration 300**, and its predictions are graded there.
+
+**What moves, stated plainly because it is a threshold change and not a restatement.** §8.3
+registered the smoke at **J = 0.7985** with **KT between 0.4 and 0.6**. The design point is
+**J = 1.2021**, where the §3.1 comparator reads **KT = 0.2797**, so §8.3's window cannot be
+carried across unchanged without becoming unfailable in one direction and unmeetable in the other.
+**The window is transplanted by §8.3's own arithmetic and by no other rule:** §8.3's `[0.4, 0.6]`
+sits at `[0.792×, 1.188×]` of the measured KT at its own J (0.5052); the same multipliers on
+0.2797 give `[0.2215, 0.3323]`.
+
+> **REGISTERED SMOKE PREDICTIONS, graded at iteration 300 of the design-point run:**
+> 1. **KT sign POSITIVE.**
+> 2. **KT between 0.22 and 0.33.**
+> 3. Cost per iteration within the §9 band, now re-cut for 48 ranks in A12.3 and A12.7.
+
+**What happens to the design point when a smoke prediction fails at iteration 300 — registered
+before it is measured, in three limbs, because "the smoke failed" is not a single event:**
+
+- **(a) KT NEGATIVE at iteration 300 → THE RUN STOPS.** §8.3 and §7 are unchanged and govern: the
+  registered rotation sign is flipped and the flip is recorded **as a finding, not as a quiet
+  fix**. The design point is **not graded** from that run. Nothing about the band or the gate moves.
+- **(b) KT POSITIVE but below 0.05 at iteration 300 → THE RUN STOPS.** 🔴 **This is the limb the
+  folded smoke exists for and it is new.** A mis-named, empty or absent MRF `cellZone` means the
+  propeller **does not rotate**; the case then converges cleanly to a stationary blade in a uniform
+  stream and returns a **small positive** KT with **no residual signature whatsoever**. A window
+  that only refuses negatives would pass that run. **0.05 is 17.9% of the comparator's 0.2797 and
+  is a value no rotating propeller at this J can produce**, so the limb can fire only on the lever
+  failure it is aimed at. Stopping is mandatory: this is an instrument failure, not a transient.
+- **(c) KT POSITIVE, at or above 0.05, and outside [0.22, 0.33] → THE RUN CONTINUES to 4,000
+  iterations, and the miss is RECORDED AS A MISS.** §5 is unchanged and governs: *"A prediction
+  miss is recorded as a miss. It does not alter any gate, band or label."* Iteration 300 of a
+  4,000-iteration steady SIMPLE solve is a **transient reading**, and the graded number is taken
+  at convergence against §7's stationarity requirement and §4.8's band. **A 300-iteration transient
+  is not permitted to void a converged result, and it is equally not permitted to excuse one.**
+
+**What folding it in does NOT do.** It does not discharge §8.1's bug check, §8.2's planted force
+perturbation, or the dead-lever audit — those precede the graded solve and are unchanged. It does
+not touch §4.8's gate or §4's band. **And it does not remove the requirement that the smoke's
+predictions be recorded at iteration 300 with their numbers**, which is the only thing that makes
+limbs (a)–(c) distinguishable after the fact.
+
+**What it saves, measured against this document's own basis:** a separate 300-iteration smoke on a
+19,700,035-cell mesh is **295.5 core-min** (A4.4's own figure, reproduced independently here:
+59.10 core-s/iter × 300 ÷ 60). **Folding it in saves exactly that 295.5 core-min** and buys the
+smoke's discriminating power for nothing, because iterations 1–300 of the design point have to run
+regardless.
+
+### A12.7 COST AT 48 RANKS — core-minutes, and the honest direction of the trade
+
+**Unit: core-minutes (wall seconds × ranks ÷ 60), per CLAUDE.md rule 12 and §9.** Basis: §9's own
+declared **3.0e-6 core-s per cell per iteration**, an **ESTIMATE and not a lab measurement**, on
+**19,700,035 cells** (`PRISM_A2_absthick/log.checkMesh`) and **4,000 iterations** (§7's cap).
+**The cell count of the layered mesh now building is NOT yet known**; it is read from that mesh's
+own birth certificate at launch and the figures below are re-cut if it differs.
+
+| | ideal (perfect strong scaling) | with declared parallel efficiency **0.80** |
+|---|---|---|
+| **core-minutes, 4,000 iterations** | **3,940.0** | **4,925.0** |
+| wall time at 48 ranks | 4,925 s = **82.1 min** | 6,156 s = **102.6 min** |
+| derived cost | **$3.37** | **$4.21** |
+
+- Cells per rank at 48: **410,417** — a healthy load for `simpleFoam`, which is why 0.80 is the
+  declared allowance. **The 0.80 is an ESTIMATE, not a measurement**; the actual is taken from
+  `/usr/bin/time -v` (`time.simpleFoam`, written by `launch_pptc.sh`) at completion.
+- **`cost_basis`: the rate $0.0513/core-h (c7a.4xlarge) is REPORTED BY THE OWNER, NOT MEASURED.
+  The box cannot read its own billing (`COMPUTE_BUDGET_CHARTER.md` §5), so every dollar figure
+  above is DERIVED, never measured.** Core-minutes are measured from logs.
+- Memory: 19.7 M cells × §9.1's 2.0 GB/M = **39.4 GB** declared, against `MemAvailable` of
+  **408 GB** read at 2026-09-14T00:00Z. The MemAvailable guard is a physics guard and is permitted.
+
+> 🔴 **48 RANKS BUYS WALL CLOCK, NOT COMPUTE, AND THE TRADE RUNS THE OTHER WAY.** Under a fixed
+> iteration count, core-minutes are conserved **only** under perfect strong scaling; every point of
+> parallel inefficiency at 48 ranks is **added** core-minutes for the same answer — here a declared
+> **+985.0 core-min (+25%)** over the ideal. Under a **fixed wall time** the multiplier is blunter:
+> 48 ranks spends **12× the core-minutes of the 4 ranks §9 registered**. What is bought is the wall
+> clock: **82–103 minutes instead of 16.4 hours at 4 ranks.** **This is a wall-clock purchase and
+> it is recorded as one. It is not a compute saving and must never be reported as one.**
+
+**THE REGISTERED CAP IS NOT RAISED, AND THE ARITHMETIC IS PUT ON THE RECORD BECAUSE IT IS
+UNCOMFORTABLE.** §9's cap stands at **19,890 core-min** and Sanaa's item 7 governs — *cap → NOT A
+RESULT, never raised*. Against it:
+
+| | core-min |
+|---|---|
+| §9's registered line for the coarse design point (0.8 M cells, 4 ranks) | 160 |
+| **this run as registered here** | **4,925.0** |
+| ratio to the §9 line | **30.8×** |
+| §9's TOTAL estimate for the whole act | 6,630 |
+| **this one run as a fraction of the act's registered cap** | **24.76%** |
+
+🔴 **The gap is not a 48-rank effect and must not be attributed to one.** It is a **cell-count**
+effect: §9's coarse line sized a 0.8 M-cell 72° passage and the mesh actually built is a
+**19,700,035-cell full-360**, **24.6× larger** — the same mispricing A4.4 already registered for
+the smoke line. **The rank count contributes only the +25% efficiency allowance.** Attribution is
+kept separate here so the calibration row at completion does not absorb a meshing-scope change
+into a scaling ratio (`COMPUTE_BUDGET_CHARTER` §6; rule 12's directive that waste is named
+separately and never absorbed into the ratio).
+
+**Estimate-versus-actual calibration is mandatory at this run's completion** and lands as a row in
+`docs/COST_CALIBRATION.md` with the ratio actual/predicted against **4,925.0 core-min**, the
+measured parallel efficiency against the declared 0.80, and the load average recorded beside the
+basis at the moment of launch (the C-4 calibration lesson, §9).
+
+### A12.8 WHAT THIS AMENDMENT DOES NOT DO — and the blocker it does not touch
+
+- 🔴 **THE MRF `cellZone` IS NOT PROVEN ON THE MESH THAT WILL RUN, AND THIS AMENDMENT DOES NOT
+  CURE THAT.** At this commit, `constant/polyMesh/cellZones` in every 360° mesh directory of this
+  act — `F360_coarse`, `F360_coarse_shaft4` and `PRISM_A2_absthick` — is the **918-byte empty
+  stub** declaring **no zones**, and each carries `BUILD_RC=1 stage=topoSet`. **No solver may be
+  launched against any of them.** A12.6 limb (b) exists precisely because that failure is otherwise
+  silent, and limb (b) is a **backstop, never a substitute** for proving the zone on disk first.
+- **§6.4's quality gates and §6.5's `born clean or it does not enter` are unchanged**, and **A4.3
+  is unchanged**: a KT from a mesh failing those gates is **NOT A RESULT** on the mesh gate alone,
+  before its value is looked at.
+- **§4's band and §4.8's gate are unchanged. §5's prediction is unchanged. §9's cap is unchanged.**
+- **This amendment authorises no launch.** The authority quoted in A12.1 is conditional, its
+  condition has not reported, and no agent's message — this lane's included — is Sanaa's consent.
+
+### A12.9 Status
+
+**Pre-compute on the registry reading, with the disk reading disclosed in full and unresolved in
+the Legality block above. No band, no gate, no cap and no label is altered.** The rank count, the
+decomposition, the checkpoint arithmetic, the y+ reading point, the forces patch lists and the
+folded smoke are registered; the KT window at J = 1.2021 and the three failure limbs are the only
+NUMBERS this amendment sets, and they are set by §8.3's own arithmetic rather than chosen.
+**The MRF blocker stands. PRISM-A2 has not reported. Nothing is launched.**
