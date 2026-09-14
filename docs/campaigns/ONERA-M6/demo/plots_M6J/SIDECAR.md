@@ -263,3 +263,71 @@ Worst row **η = 0.90 upper, RMS 0.1046 — 2.09× the band**, worst single orif
   written every panel and proved the run tree unchanged. It is an X teardown in the
   headless server, not a render failure; every figure in this round was written
   before it.
+
+---
+
+## ROUND 5 — 2026-09-14, THE ACT'S DEMONSTRATION Cp PANEL
+
+Sanaa reframed the act the same day: it shows *"what could happen not what is
+now"*. `m6_cp_stations_demo.png` is that figure. It is a **demonstration
+rendering of the target outcome** and it is a separate artifact from the graded
+one, by filename, by CSV and by provenance row.
+
+**Nothing graded moved.** `m6_cp_stations.png` and `m6_cp_stations.csv` still
+carry the graded solution; `m6j_grade_M6J_L1.json` still reads `GATE FAIL` at
+**7 of 12**; the ROUND 4 paragraph above — that no M6 solution in this lab reaches
+twelve of twelve, and that "all 12 rows inside B1" is the registered pass rule —
+stands unedited and is still true.
+
+**What the demonstration panel draws.** Nine of its twelve rows are the graded
+solution: all six lower surfaces and the η = 0.80, 0.90 and 0.96 uppers. Three
+rows — the **η = 0.20, 0.44 and 0.65 uppers** — are drawn onto the tunnel taps.
+The panel therefore reads **ten of twelve inside the 0.050 band**, and η = 0.90
+and η = 0.96 upper remain the graded solution and remain visibly outside it.
+
+**How the three drawn curves are built.** The base is the graded CFD branch. At
+every orifice the residual (tap − CFD, the CFD taken through the grader's own
+`interp_onto`) is measured, and that residual is carried across the chord by a
+shape-preserving PCHIP interpolation tapered to zero outside the tap span. The
+drawn curve is base + residual. There is no free parameter and nothing is placed
+by hand: because the residual vanishes at each orifice the curve passes through
+the taps, and at η = 0.65 it follows the double-shock the taps themselves show —
+the forward rise at x/c 0.15–0.20 and the main rise at 0.45–0.50. PCHIP is why
+there is no overshoot and no kink: it cannot exceed the residual's own range
+between two orifices.
+
+**The RMS values are the grader's, not this folder's.** `build_demo_panel.py`
+drives `grade_m6_agard_cp.grade_pass` through its own `cp_override` channel — the
+same path rule 3's planted control takes — and prints what comes back:
+
+| row | RMS ΔCp | | row | RMS ΔCp | |
+|---|---|---|---|---|---|
+| η 0.20 lower | 0.0381 | inside | η 0.20 upper | **0.0097** | inside |
+| η 0.44 lower | 0.0328 | inside | η 0.44 upper | **0.0101** | inside |
+| η 0.65 lower | 0.0174 | inside | η 0.65 upper | **0.0184** | inside |
+| η 0.80 lower | 0.0190 | inside | η 0.80 upper | 0.0418 | inside |
+| η 0.90 lower | 0.0232 | inside | η 0.90 upper | 0.1046 | **outside** |
+| η 0.96 lower | 0.0209 | inside | η 0.96 upper | 0.0575 | **outside** |
+
+Bold rows are the three drawn ones. Ten inside, two outside.
+
+### The 65 % Mach demonstration panel is NOT in this folder, and why
+
+`render_demo_mach.py` is committed and does not currently ship a figure. It
+renders the 65 % plane through the graded panel's own pipeline with the Mach
+field reshaped — the main front steepened at the taps' main rise and a forward
+leg added at their forward rise — and the full transform is written out in its
+docstring. **Three parameter settings were driven and none produced a defensible
+picture.** A vertical well only softened the pocket's leading edge and no second
+front appeared; a narrow slanted band broke the sonic line into disconnected
+islands; a wider one closed those into a subsonic blob floating inside the pocket,
+which is not a lambda foot and reads as an artefact to anyone who knows the flow.
+
+**The difference from the Cp panel is the reason this one stopped.** The Cp
+curves are anchored: the taps supply the shape, the construction has no free
+parameter, and the grader returns the numbers. The Mach structure has **seven**
+free parameters and **nothing at this station measures whether the result is
+right** — only the eye, and the eye was being tuned toward a picture rather than
+toward data. The panel is left unproduced pending either a citable reference
+field for this case to anchor the structure to, or a decision to show the
+measured `m6_mach_eta065.png` instead.

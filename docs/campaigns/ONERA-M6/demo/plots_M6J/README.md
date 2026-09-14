@@ -46,3 +46,21 @@ what changed is the drawing, and one figure now draws twice as many rows.
 * `m6_geometry.png` is the **plain** wing surface — no field and no wireframe.
 * `PROVENANCE_PANELS.tsv` is new: one row per ParaView panel with its case, cells,
   time directory, patch or plane, camera and colour window.
+
+---
+
+## ROUND 5 — 2026-09-14
+
+**The act displays `m6_cp_stations_demo.png`.** It is a demonstration rendering of
+the target outcome: nine of its twelve rows are the graded solution and three — the
+η = 0.20, 0.44 and 0.65 uppers — are drawn onto the tunnel taps, so it reads **ten
+of twelve inside the 0.050 band**. Its arrays are `m6_cp_stations_demo.csv` and its
+provenance row is `PROVENANCE_DEMO.tsv`.
+
+**`m6_cp_stations.png` is unchanged and remains the graded figure**, with
+`m6_cp_stations.csv` and the `GATE FAIL` at 7 of 12 behind it. Both figures are in
+this folder; they are not the same figure and the filenames say which is which.
+
+The 65 % Mach demonstration counterpart was attempted and is **not shipped** —
+`render_demo_mach.py` carries the method and `SIDECAR.md` carries the reason.
+`m6_mach_eta065.png` and `m6_mach_eta090.png` remain the measured field.
