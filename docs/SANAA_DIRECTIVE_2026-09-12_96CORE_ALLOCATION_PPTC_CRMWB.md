@@ -404,3 +404,25 @@ Facts on the record: (1) SUBOFF's seven points were stopped converged (2671–28
 > CFD propeller case : https://develop.openfoam.com/committees/hpc/-/tree/0d06b7550061eb58b7857a6d6635cc10516707b4/compressible/rhoPimpleFoam/LES/marinePropeller everything is in there so to be cloned and repeated verbatim
 
 **Chief's reading:** the OpenFOAM HPC committee `compressible/rhoPimpleFoam/LES/marinePropeller` case at commit 0d06b755 is cloned, verified, hashed and run exactly as its own scripts run it (mesh pipeline included) on the 32 free ranks, through the runner with 30-min checkpoints; its own published quantities are the band to reproduce; any keyword translation forced by the box's OpenFOAM version is tabulated, nothing else deviates.
+
+---
+
+## AA. Figure review round 2; marinePropeller is the priority over PPTC — byte-exact, 2026-09-14 ~00:50Z
+
+> plotting agent: # Figure review, round 2: panels that do not read
+>
+> ## K2 transient (`plots_K2_transient`)
+> The line figures are fine. The ParaView panels are not:
+> - `k2t_plane_mid.png` and `k2t_plane_t110.png` look identical (time-averaged and instantaneous should differ; if they are both the mean, one is mislabelled). Both show a vertical cut through one rack with black corners, not "the horizontal plane at rack mid height" they are named for.
+> - `k2t_TMean_field.png` and `k2t_UMean_field.png` show a Π-shaped white region with yellow bands: no viewer can tell what is being looked at.
+> Re-render, for the four-rack row: (a) the horizontal plane at rack mid height over the whole room (3.5 m by 2.7 m by the row length), racks drawn, white background, the 27 °C contour; (b) the vertical plane through the hot aisle; (c) the instantaneous field at the last written time and the window mean of the same plane, clearly different files. Titles name the plane; nothing else on the image.
+>
+> ## DrivAer (`plots_DRIVAER`)
+> - `drivaer_umag_wake.png`: the cross-section one metre behind the car is a blur; the plane is too close or the camera zoomed into a corner. Frame the whole cross-section, the car outline visible, white background.
+> - `drivaer_streamlines.png`: the side view is skewed and the plane cuts across the image. Camera on the symmetry plane, orthographic, the body centred, streamlines seeded upstream over the body height.
+> Both are excluded from the act's board until re-rendered.
+>
+> ## Everywhere
+> No caption, verdict, cell count or level name on any image; white background; one colour bar titled by symbol and unit. The act carries the words.. Now for the marine propeller, since this is a case that is completely setup already, i want agents dedicated to it, this goes as a priority over the other propeller. Also, updat eon dafoam compressible transonic multipoint opt
+
+**Chief's reading:** the plot lane re-renders the four K2 transient panels and the two DrivAer panels as specified, and strips any caption, verdict, cell count or level name from every image lab-wide; the marinePropeller (§Z) takes priority over PPTC on cfd's lanes — dedicated lanes, launched first.
