@@ -277,18 +277,27 @@ def streamline_panel(reader, out, bbox, note, urange):
     # SEEDED UPSTREAM OVER THE BODY HEIGHT, on the symmetry plane -- the owner's
     # round-2 note. The old seed line ran diagonally across y AND z, which is why the
     # view came out skewed and a seed plane cut across the image.
+    # ROUND 3: 40-60 lines, not 240 -- a readable ribbon count, the owner's rule.
     st.SeedType.Point1 = [bbox[0] - 1.5, 0.02, 0.02]
     st.SeedType.Point2 = [bbox[0] - 1.5, 0.02, bbox[5] * 1.15]
-    st.SeedType.Resolution = 240
+    st.SeedType.Resolution = 49
     UpdatePipeline(time=float(COARSE_T), proxy=st)
     if st.GetDataInformation().GetNumberOfPoints() == 0:
         C.refuse("no streamline was integrated; nothing would be drawn")
-    tube = Tube(Input=st); tube.Radius = 0.012
+    # 50 RIBBONS need to be thicker than 240 did, or antialiased edges are most of
+    # the ink and the constant-array control arm spreads on edge pixels alone.
+    tube = Tube(Input=st); tube.Radius = 0.030
     UpdatePipeline(time=float(COARSE_T), proxy=tube)
     d = Show(tube, v); _flat(d)
     ColorBy(d, ("POINTS", "Umag"))
     lut = GetColorTransferFunction("Umag"); lut.ApplyPreset(PRESET_U, True)
-    lut.RescaleTransferFunction(*urange)
+    # THE LOOKUP TABLE SPANS WHAT THIS OBJECT ACTUALLY CARRIES -- a window taken
+    # from some other object leaves the ribbons one flat colour (owner, round 2).
+    ta = tube.GetPointDataInformation().GetArray("Umag")
+    tlo, thi = ta.GetComponentRange(0)
+    C.announce("  streamline |U| MEASURED %.4g to %.4g m/s (%d lines seeded)"
+               % (tlo, thi, st.SeedType.Resolution + 1))
+    lut.RescaleTransferFunction(tlo, thi)
     _bar(v, lut, "|U|  [m/s]")
     # CAMERA ON THE SYMMETRY PLANE, looking along -y, orthographic (frame_by_extent
     # sets CameraParallelProjection), the body centred.
@@ -474,6 +483,7 @@ def wake_panel(reader, out, urange):
 def main(argv=()):
     only_fine = "fine-mesh-only" in argv
     only_wake = "wake-only" in argv
+    round3 = "round3" in argv
     C.assert_paraview_version()
     C.assert_stamp(STAMP_C, COARSE)
     C.assert_stamp(STAMP_F, FINE)
@@ -485,6 +495,36 @@ def main(argv=()):
     total, root = 0, None
     try:
         if only_fine:
+            raise StopIteration
+        if round3:
+            from paraview.simple import (CellDatatoPointData as _C2P,
+                                         Calculator as _Cal, Slice as _Sl,
+                                         MergeBlocks as _MB, UpdatePipeline as _U)
+            reader, root, n = C.open_case(COARSE, ["p", "U"], [COARSE_T],
+                                          decompose_polyhedra=False)
+            reader.MeshRegions = BODY
+            _U(time=float(COARSE_T), proxy=reader)
+            _surf = _MB(Input=reader); _U(time=float(COARSE_T), proxy=_surf)
+            bbox = _surf.GetDataInformation().GetBounds()
+            C.announce("  body bounding box x %.3f to %.3f, y %.3f to %.3f, "
+                       "z %.3f to %.3f m" % bbox)
+            reader.MeshRegions = ["internalMesh"]
+            _U(time=float(COARSE_T), proxy=reader)
+            _p = _C2P(Input=reader); _p.CellDataArraytoprocess = ["U"]
+            _U(time=float(COARSE_T), proxy=_p)
+            _c = _Cal(Input=_p); _c.AttributeType = "Point Data"
+            _c.ResultArrayName = "Umag"; _c.Function = "mag(U)"
+            _U(time=float(COARSE_T), proxy=_c)
+            _s = _Sl(Input=_c); _s.SliceType = "Plane"
+            _s.SliceType.Origin = [0.0, 0.02, 0.0]; _s.SliceType.Normal = [0.0, 1.0, 0.0]
+            _U(time=float(COARSE_T), proxy=_s)
+            urange = _percentiles(_s, "Umag")
+            C.announce("  velocity window %.4g..%.4g m/s" % urange)
+            total += wake_panel(reader, os.path.join(HERE, "drivaer_umag_wake.png"),
+                                urange)
+            total += streamline_panel(
+                reader, os.path.join(HERE, "drivaer_streamlines.png"), bbox,
+                "", urange)
             raise StopIteration
         if only_wake:
             from paraview.simple import (CellDatatoPointData as _C2P,
