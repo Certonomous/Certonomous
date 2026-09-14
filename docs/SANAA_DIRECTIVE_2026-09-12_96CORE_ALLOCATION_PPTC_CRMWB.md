@@ -658,3 +658,14 @@ All of it lands under `docs/campaigns/_geometry/<ACT>/`.
 **Chief's reading:**
 Round-3 plotting instructions recorded at `docs/plot_orders/PLOTTING_INSTRUCTIONS_ROUND3.md` and dispatched to the plot lane 04:40Z; library v2.1 is not yet on the box at 04:40Z (Sanaa uploads it; label-dependent rebuilds re-run when `sdk/workflows/act_plots_lib.py` changes).
 Sanaa fetches the M6 and DrivAer CAD herself and copies them to the box.
+
+---
+
+## AQ. SUBOFF plots ignored for now — byte-exact, 2026-09-14 ~04:33Z (owner directive #57)
+
+> ignore suboff pltos for now
+
+**Chief's reading:**
+Every SUBOFF item of round 3 (relabels, streamlines, Q) is skipped; the plot lane's round-3 order is K2 steady, K2 transient, DrivAer, M6 (CRM done at e81c92e5).
+
+**Chief's record, 2026-09-14 ~04:34Z — D6R3 arms state:** MP_R3 (rcm + pcFillLevel 2) has been 46 minutes in its adjoint factorisation with no residual line, CPU busy, memory flat at 135.8 GiB; MP_R2b (fill 1) at KSP iteration 1400, residual 1.6655e-3, measured to miss the 2000 cap; rung 4 (asmOverlap 2) ordered frozen unlaunched.
