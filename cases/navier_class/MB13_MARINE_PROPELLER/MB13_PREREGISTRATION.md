@@ -641,3 +641,132 @@ not inferred, and **not touched by this lane**:
 
 **Nothing in this amendment is a verdict.** G0 remains `PASS` on its own evidence; every
 other gate remains `PENDING` in the display sense of standing rule 1 — not yet run.
+
+---
+
+## AMENDMENT A2 — 2026-09-14, BEFORE FIRST COMPUTE
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.**
+
+**The condition, and how it was checked.** The cfd-supervisor relayed the execution
+lane's `REGISTRATION_INPUTS.md`, staged under the case directory at
+`/home/ubuntu/certonomous-runs/MB13_MARINE_PROPELLER/nref1_n32/REGISTRATION_INPUTS.md`.
+Its facts were **re-derived here, not accepted**. Still no compute: that tree carries no
+`constant/polyMesh`, no `processor*` directory and no solver log, and neither does any
+other MB13 tree on this box. Every check below was run against the OpenFOAM v2606 source
+tree and the hashed upstream files.
+
+### A2.1 — A RELAYED CLAIM IS **WRONG**, AND IT IS THE ONE THAT MATTERS
+
+`REGISTRATION_INPUTS.md` §7.2 states of `system/v_fluid_rotor/snappyHexMeshDict:305`:
+*"`minMedianAxisAngle`, a typo for `minMedialAxisAngle`. OpenFOAM silently ignores unknown
+keys, so the rotor region takes the default."*
+
+**THE SECOND HALF IS FALSE.** Unknown keys are indeed ignored — but that is not the
+failure mode. The failure mode is that the **correctly spelled key is then ABSENT**, and in
+v2606 it is a **required** read:
+
+1. `addLayers true` in the rotor dict (`system/v_fluid_rotor/snappyHexMeshDict:20`), so the
+   layer driver runs.
+2. `meshShrinker` is unset in that dict, so the default `displacementMedialAxis` mover
+   applies (`layerParameters.C:389-396`).
+3. The mover is constructed with `combinedDict`, which is exactly
+   `layerParams.dict()` (= `addLayersControls`) merged with `motionDict`
+   (= `meshQualityControls`) — `snappyLayerDriver.C:3855-3878`. **Nothing else is merged in.**
+4. `grep 'minMedi'` over the **whole** rotor dict returns **one line — the misspelled one**.
+   The file contains **no `#include` at all**, so nothing can supply the correct key.
+5. `medialAxisMeshMover.C:151-158` reads it via `meshRefinement::get<scalar>`, which at
+   `noExit == false` calls `dict.readEntry(keyword, val, matchOpt, MUST_READ)` and, on
+   failure, raises **`FatalIOErrorInFunction`** — `meshRefinementTemplates.C:306-331`.
+   There is **no default path** outside dry-run.
+
+**Therefore `snappyHexMesh -region v_fluid_rotor` (`Allrun:82`) FATALs at `addLayers`.**
+Deviation **D5** in §5 stands exactly as registered, and its pre-authorised single remedy
+stands. Had the relayed reading been adopted, the act would have expected a silently
+defaulted rotor and would not have been watching for the stop.
+
+### A2.2 — THE COMBINED HAZARD, WHICH NEITHER LANE STATED ALONE
+
+The execution lane's own §5 finding is **correct and independently confirmed here**:
+v2606's `runApplication` and `runParallel` redirect to `log.<app>` and **never test the exit
+status** (`$WM_PROJECT_DIR/bin/tools/RunFunctions`, both function bodies read in full), and
+`Allrun` carries **no `set -e`** (grep returns nothing). Also confirmed: both functions
+**SKIP any stage whose `log.<app>` already exists**, printing *"already run on …: remove log
+file … to re-run"* — a stale log silently skips a real stage.
+
+**Put together with A2.1 this is the single largest risk in the act, and it is registered
+here in advance:**
+
+> **Stage 8 is predicted to FATAL; the FATAL will be SILENT; and `Allrun` will continue.**
+> It will march on through `topoSet -region`, `mergeMeshes`, `createPatch`, both
+> `extrudeMesh` stages, a 5000-iteration `rhoSimpleFoam`, and into a multi-day LES —
+> **on a rotor region whose layers never got built.** Note that **G2 does not catch this**:
+> a failed layer addition still leaves a populated `v_fluid_rotor` cellZone, so the §3 launch
+> precondition would read `PASS` on a mesh that failed at stage 8.
+
+**NEW BLOCKING CHECK — `G2a`, THE SILENT-FATAL SWEEP.** After the mesh pipeline and
+**before `rhoSimpleFoam` is allowed to consume a single core-minute**, every `log.*` in the
+case directory is swept for `FATAL`, `FOAM FATAL`, and `--> FOAM Warning` at exit, and each
+stage's log is required to carry an `End` line. **Any FATAL in any log ⇒ `BLOCKED`, and the
+act stops there.** This is an added *check*, not a dictionary change: it reads files upstream
+already writes and alters no byte of the published tree. It is registered **before compute**
+and it is blocking.
+
+Also registered as a launch precondition, from the same mechanism: **zero `log.*` files may
+exist in the case directory at launch**, or upstream's own skip logic will step over a real
+stage.
+
+### A2.3 — RELAYED FINDINGS CONFIRMED HERE, AND REGISTERED
+
+| Claim | Verdict after re-derivation |
+|---|---|
+| MRF is **precursor-only**; the LES rotation is a genuine AMI sliding mesh | **CONFIRMED — and §1.1 already says so.** `Allrun:120` sets `mrf_v_fluid_rotor.active false`. The registration's §1.1 heading "BOTH MRF AND AMI" describes the *act*, which has both phases; it is not a claim that the LES is MRF |
+| The AMI sliding mesh is **a capability this lab has never run** | **CONFIRMED and ELEVATED.** §8 says it; it belongs in the opening lines too, and this amendment puts it there by reference: **the transient is an AMI sliding mesh with weights rebuilt every one of 25,000 steps, and this lab has never run one** |
+| `Allrun:49` `[[ "$fx" -eq "0" ]]` applies an integer test to a float, so the Newton break never fires and all 100 iterations always run | **CONFIRMED.** Harmless while it converges. This registration's mitigation is **already stronger than the one proposed**: refusal limb 1 in §9 requires the shipped `1.06399` and `1.04016` to be reproduced, and this lane re-ran their algorithm and got `1.06399012914648` and `1.04016441327821`, with the geometric sums closing on 0.976 and 600.000 to 17 significant figures. The registered tolerance stays at **6 s.f.**, not the 4 proposed |
+| `gnuplot` is not installed, so `Allrun:128` fails | **CONFIRMED** (`command -v gnuplot` empty). Cosmetic, last line — and, per A2.2, **silent**. No deviation; the spectra are read from the `noise` output, not from the plot |
+| The stray `;;` on `system/controlDict.tr`'s `deltaT` line parses harmlessly | **ACCEPTED AS RELAYED, not re-derived.** It is a parse question that the first solver read settles; recorded as unverified by this lane |
+| 32 ranks resolved through their own `#eval {$nCPU}` is verbatim, not a deviation | **AGREED** — §1.3 and D2 already say so |
+| Expected failure point: `extrudeMesh` step2 | **AGREED**, and it is already #2 on the §8 list; A2.1 keeps stage 8 at #1 |
+
+### A2.4 — DISK, WHICH THIS REGISTRATION HAD NOT COSTED
+
+`system/cuttingPlane` writes `surfaceFormat ensight` for `(p pGauge U)` at
+`writeControl runTime; writeInterval 2.0e-04` — **every second time step, ≈ 12,500 surface
+writes** over the transient. The relayed estimate is **50–80 GB**. Measured here:
+`/dev/root` is **968 G, 749 G used, 220 G available, 78 %**.
+
+**Registered disk stop condition, frozen now:** if free space on `/dev/root` falls below
+**60 GB** at any point, the act reports **`BLOCKED`** on disk and stops. This is a *disk*
+stop, not a time or budget cap — **directive #17 is untouched and no run here is stopped by
+a time or budget cap.** It is registered because 78 % used is already at the "disk under
+80 %" line in Sanaa's 96-core allocation table, and because PPTC is live on the same volume.
+
+### A2.5 — THE COST ESTIMATES DISAGREE, AND NEITHER IS MEASURED
+
+| | This registration (§6.3) | Relayed (`REGISTRATION_INPUTS.md` §6) |
+|---|---|---|
+| LES wall at 32 ranks | 5.3 days central (2.6–13.2) | **17–49 h** |
+| LES core-minutes | 243,000 central (121,500–607,500) | **33,000–94,000** |
+
+**Their upper bound sits below this registration's central value.** The two do not overlap
+except at this file's low end. Neither is a measurement, and **neither is adopted over the
+other here**:
+
+- This file's basis is stated in §6 and is **weak by its own admission** — a CRM-WB anchor
+  extrapolated 5× down in cells per rank, which §8 already names as the weakest number in
+  the registration.
+- The relayed figure carries **no derivation in the file it came from**; it is a range
+  without a stated basis, which is not a reason to prefer it and not a reason to discard it.
+
+**Registered resolution: the LES cost band is widened to span both — 33,000 to 607,500
+core-minutes (550 to 10,125 core-hours; $28 to $519 DERIVED, NOT MEASURED at
+$0.0513/core-h, `cost_basis` reported-by-owner)** — and **the rate probe in §6.4 is the
+instrument that settles it**, now moved earlier to the **first 50 time steps**. The
+estimate-versus-actual row owed to `docs/COST_CALIBRATION.md` at completion will state which
+of the two bases was nearer and why, because that is exactly the calibration standing rule 12
+exists to accumulate.
+
+**Nothing in this amendment alters a gate, threshold, cap or label in §3, §5 or §6 as
+frozen.** `G2a` and the disk stop condition are **additions registered before first compute**,
+both of which can only produce `BLOCKED` — they can stop the act, and they cannot turn any
+`GATE FAIL` into a `PASS`. G0 remains `PASS`; every other gate remains not yet run.
