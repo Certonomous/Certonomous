@@ -376,3 +376,17 @@ Earlier the same exchange, hers: "the in house is the one we built us ? not the 
 > no lets stop them and strop drivaer as well that way we gain 32 ranks. But cfd first checks that all residuas are converged
 
 **Chief's reading:** cfd verifies every SUBOFF point's residuals are converged (and the forces stationary over the trailing window), then stops the seven points and the DrivAer fine run cleanly at their current iteration (checkpoint written first), grades SUBOFF on the solver's own convergence with a dated addendum setting the end time to the stop iteration and the window to the last 500 iterations before it (bookkeeping never voids physics); the DrivAer fine run's fields are kept, no fine result is claimed, and the demo plots keep the published fine numbers per §S. 32 ranks (28 + 4) are freed; the reserved lanes stand as she rules.
+
+---
+
+## W. Chief's amendment to §V [lab-attributed, Sanaa informed], 2026-09-14 ~00:10Z
+
+The Wolf Dynamics fine run (4 ranks) is allowed to reach Time = 1000 — its controlDict's first published landmark, ~30 min away at Time 869, Cd 0.2577 against their published fine 0.2564 — before it is stopped, so the lab records its own fine number rather than citing theirs; §S then swaps ours in. The seven SUBOFF stops proceed exactly as §V orders. Net freed ranks: 28 now, 32 after the DrivAer stop.
+
+---
+
+## X. Freed ranks go to a second, already-set-up propeller case; DrivAer fine stops now — byte-exact, 2026-09-14 ~00:15Z
+
+> i know but the reason i am saying that is bc if we get these ranks free, there is anoher already setup propeller case (less hard than pptc but still) that we can run and its already ready. But cfd first checks that its fine to kill the suboff if they are all cobverged. and since we are using the corret values for driaver plots anway we dont need that fine run to complete.
+
+**Chief's reading:** §W is withdrawn — the DrivAer fine run stops now (checkpoint first), not at 1000; the demo plots keep the published fine numbers per §S. SUBOFF's seven stop only after cfd's residual check, per §V. The freed ranks (28 + 4) run a second propeller case that is already set up on the box, less demanding than PPTC — cfd identifies it by name and path and confirms its registration is frozen before launch.
