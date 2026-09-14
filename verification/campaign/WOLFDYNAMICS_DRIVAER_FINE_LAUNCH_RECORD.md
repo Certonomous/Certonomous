@@ -124,3 +124,117 @@ registered **9,100 core-minutes**.
 
 *Written by a cfd `lab-lane`, 2026-09-13, at launch. No verdict is claimed. Contains no
 submission and no external communication. Nothing leaves the box.*
+
+---
+
+## 6. STOP RECORD — 2026-09-14, BY OWNER RULING. LABEL STAYS `PENDING`.
+
+*Appended dated section. **Lines whose number changed above this section: 0.** No gate,
+threshold, cap or label above is altered, added or relaxed by this section.*
+
+### 6.1 THE AUTHORITY
+
+Sanaa's ruling, relayed to this lane, verbatim:
+
+> *"no lets stop them and stop drivaer as well that way we gain 32 ranks. But cfd first
+> checks that all residuals are converged"*
+
+and, withdrawing an intermediate Time-1000 amendment, relayed verbatim:
+
+> *"we dont need that fine run to complete."*
+
+### 6.2 HOW IT WAS STOPPED — A FORCED CLEAN CHECKPOINT, NOT A KILL
+
+`system/controlDict:53` carries `runTimeModifiable yes`, so OpenFOAM's own mechanism was
+used: `stopAt endTime` → `stopAt writeNow` at 2026-09-14T00:16Z. The solver wrote the
+current time and exited through its normal path. **No signal was sent to the solver and no
+field was written during a kill.** `log.solver` prints `End` then `Finalising parallel run`;
+`RUN_RC.txt` reads `RC=0`. `docker stop wd_drivaer_fine_R1` then tore down an already-exited
+solver; `docker ps -a` shows `Exited (0)`. **The fields are kept.**
+
+| item | value | artifact |
+|---|---|---|
+| **stop iteration (last written time)** | **879** | `/home/ubuntu/certonomous-runs/WOLFDYNAMICS_DRIVAER/fine_R1/processor{0..3}/879/` |
+| last `Time =` line in the log | 879 | `log.solver` |
+| `ExecutionTime` print count | 879 | `log.solver` |
+| `nProcs` | 4 | `log.solver` (F5's our-side clause; theirs still reads 40) |
+| `SIMPLE solution converged` count, ours | **0** in 879 iterations | `log.solver` |
+| solver rc | 0 | `RUN_RC.txt` |
+| checkpoint time directories retained | `800` and `879` | `processor0/` |
+
+### 6.3 THE CHECKPOINT IS COMPLETE AND BANNER-CLOSED — WITH A PLANTED CONTROL
+
+**80 of 80** files across `processor0..3/879/` end with the OpenFOAM closing banner
+`// ****…**** //` as their last non-blank line. Fields present in each of the four
+processor directories: `Q QMean U UMean UPrime2Mean k kMean nut nutMean nutPrime2Mean omega
+omegaMean p pMean pPrime2Mean phi wallShearStress wallShearStressMean yPlus yPlusMean`,
+plus `uniform/`.
+
+**Standing rule 3 — the zero is planted.** A reader that cannot see a truncated file is not
+evidence that no file is truncated. The same checker was handed a deliberately truncated
+copy of `processor0/879/U` (first 2,000,000 bytes) alongside an intact `processor0/879/yPlus`
+and returned **`NOT banner-closed: 1`**, naming the truncated file and clearing the intact
+one. The `0` above is therefore a zero from a reader shown able to return a non-zero.
+
+### 6.4 NO RESULT IS CLAIMED. NONE OF F1, F2 OR F4 CAN BE EVALUATED.
+
+**F1** is defined on the window **200 → 10000**. **F2** is defined on the **endpoint 10000**.
+**F4** requires **last time == `endTime` = 10000**. The run stopped at **879 of 10,000**, so
+**none of the three has an input**. The label is:
+
+> ### `PENDING` — stopped by owner ruling at iteration 879 of 10,000. Nothing failed.
+
+Not `GATE FAIL`: no gate was evaluated, let alone missed. **No partial `Cd` in this section
+is a fine result**, and no number below may be quoted without the window printed beside it.
+
+### 6.5 WINDOW-MATCHED CORROBORATION AT AN INTERMEDIATE POINT — NOT A RESULT
+
+Every figure below is a **window-matched** comparison of our series against **their own
+shipped series over the identical iteration range**, both read from disk tonight, `Cd`
+resolved **by header name** from `# Time Cm Cd Cl Cl(f) Cl(r)` in both files. `Cl(f)`/`Cl(r)`
+is the **front/rear axle split**, not a pressure/viscous split.
+
+- ours: `/home/ubuntu/certonomous-runs/WOLFDYNAMICS_DRIVAER/fine_R1/postProcessing/all/0/forceCoeffs.dat` (880 rows, last `Time` 879)
+- theirs: `/home/ubuntu/certonomous-runs/WOLFDYNAMICS_DRIVAER/fine_R1/sol_logs/fine/postProcessing/all/0/forceCoeffs.dat` (10,001 rows, last `Time` 10000)
+
+| window | ours | theirs, SAME window | difference |
+|---|---|---|---|
+| mean over **200 → 879** | **0.271076** (n=680) | **0.270381** (n=680) | **0.257 %** |
+| mean over **780 → 879** (our last 100, ending at the stop iteration) | **0.255369** (n=100) | **0.255520** (n=100) | **0.059 %** |
+| mean over **200 → 621** | **0.277335** (n=422) | **0.277375** (n=422) | **0.0146 %** |
+| **instantaneous at 879** | **0.256231** | **0.259471** | 1.249 % |
+
+**BOTH HALVES OR NEITHER.** Matching their own series to **0.0146 %** over 200 → 621 is
+evidence that **the setup reproduces their trajectory** — a real thing, and the thing this
+staging was built to establish. It is **not** evidence that we have reproduced their
+converged answer, because **their series is still descending** at this point: their running
+mean 200 → 1000 is **0.269583**, 200 → 3000 is **0.259377**, and only 200 → 10000 is
+**0.256412**, the published figure. Our 780 → 879 mean of **0.255369 is a transient-window
+number** and **must never be set against their 0.256412**, which is a 200 → 10000 mean of a
+converged run; those are different quantities and their closeness would be an artifact of
+the mismatch, not an agreement.
+
+**Experimental reference, citable but deliberately not compared against:** `Ref. [1] – EXP
+TUM ASME 0.247` and `Ref. [1] – EXP TUM SA 0.243`, at
+`docs/papers/benchmark_test_cases/guerrero_2022_drivaer_validation_wolfdynamics.txt:417` and
+`:420`. It is cited here only to record that it *is* citable to a named artifact and line.
+**No comparison against it is made**, because a transient-window mean is not a `Cd`.
+
+### 6.6 RESUME, DO NOT REBUILD
+
+`startFrom latestTime` picks up **879** directly. Restore `system/controlDict:25` to
+`stopAt endTime;` (this lane changed exactly that one line; the pre-stop copy was kept in
+this lane's scratch and the change is a one-token revert), relaunch the container on the same
+image `openfoam/openfoam9-paraview56:latest`, and the run continues from the checkpoint. The
+freeze pins above are unchanged. **Do not re-mesh and do not restart from 0.**
+
+### 6.7 COST, AND THE CALIBRATION ROW THIS DOES NOT YET EARN
+
+879 iterations on 4 ranks over 2026-09-13T20:37:42Z → 2026-09-14T00:16Z ≈ 3.65 wall h =
+**876 core-minutes** (gross), against a registered **9,100 core-minutes** for the full
+10,000. The estimate-versus-actual row of standing rule 12 is **not** filed here, because
+**this process did not complete** — a partial run's spend calibrates nothing about a
+prediction made for a whole one. It will be filed when the run is resumed and finishes.
+
+*Appended by a cfd `lab-lane`, 2026-09-14. No verdict is claimed. No submission, nothing
+sent, nothing leaves the box.*
