@@ -959,3 +959,111 @@ directive #17 stands.**
 `Allrun` pid 1863670, guard pid 1863689, watcher pid 1863405. Iteration **221 of 5000** at
 the time of writing. **G0 `PASS`; G1 and G2 satisfied on disk as recorded above; G3–G7 not
 yet run.** `PENDING` is used here only in its display sense.
+
+---
+
+## ADDENDUM B2 — 2026-09-14, AFTER FIRST COMPUTE
+
+**Version 1.3 → 1.4. Lines whose number changed above this section: 0.**
+
+Gates remain **CLOSED** (standing rule 2). **G4 (Fy 325 ± 20 N), G5 (|My| 18.0 ± 1.5 N·m),
+G6 (BPF 100 ± 3 Hz), G2a and the §6 cost band are untouched.** Both items below were
+re-derived on disk by this lane.
+
+### B2.1 — **D3 CREATED A ZERO-STEP HAZARD THAT UPSTREAM DID NOT HAVE. IT IS OURS.**
+
+This is the **second-order cost of our own deviation**, and it is filed as ours, not as an
+upstream defect. **Mechanism confirmed, and the observation confirmed independently.**
+
+**Upstream was correct by construction.** `system/controlDict.tr:19-22` is `startFrom
+latestTime` with `endTime 2.5`. Upstream's `.st` had `writeInterval 5000; purgeWrite 0`, so
+the only scalar-parseable time directories at handoff were `0` and `5000`; `replace.sh`
+renames `5000` → `5000_steadyState`, which **does not parse as a scalar**. `latestTime`
+therefore resolved to **0**, and the transient started from the steady solution through the
+`0` symlink exactly as designed.
+
+**D3 broke that.** With `writeInterval 500; purgeWrite 2`, **`4500` survives alongside
+`5000`**, and `replace.sh` renames only `5000`. `latestTime` then resolves to **4500**, and
+**4500 > 2.5**, so `rhoPimpleFoam` would construct cleanly, run **ZERO TIME STEPS**, write an
+`End` line and exit **rc = 0** — with no force file, no probe file and no surfaces, **passing
+any naive completion check.**
+
+**Why `0` never gets purged — the mechanism, read in source.** `TimeIO.C` pushes a time onto
+the purge stack only inside `if (writeOK)` / `if (writeTime_ && purgeWrite_)`:
+`previousWriteTimes_.push(timeName())`, and purges only from that stack. **`0` is placed by
+`restore0Dir`, never *written* by the solver, so it is never pushed and never purged.**
+
+**OBSERVED ON DISK BY THIS LANE, not merely argued.** At iteration **1814**, ranks 0 **and**
+31 each held exactly **`0 1000 1500`** — `purgeWrite 2` retaining the last two written times
+while `0` survived alongside them. That is the predicted shape, seen on two ranks at a later
+iteration than the relayed sighting of `0 500 1000` at 1447. **At iteration 5000 the
+directories will be `0 4500 5000`, and after `replace.sh` the scalar-parseable set is `0` and
+`4500` — the hazard, in full.**
+
+**THE REMEDY IS OPERATIONAL, NOT A DICTIONARY CHANGE — and that distinction is the point.**
+After the precursor's `End` and before `rhoPimpleFoam` starts, every scalar-parseable time
+directory on all 32 ranks **except `0` and `5000`** is **RENAMED** to `*_intermediate` — the
+same device `replace.sh` itself uses on `5000`. **Nothing is deleted.** This restores exactly
+the upstream condition (`latestTime` = 0) while keeping every checkpoint on disk, so it
+requires **no further dictionary deviation and no gate change**. A successor finding
+directories with that suffix should read this clause for why.
+
+**`5000` IS DELIBERATELY NOT RENAMED, AND THIS IS LOAD-BEARING.** Renaming it would make
+`replace.sh`'s `mv 5000` fail, and its **unguarded `rm -rf 0`** (B1.8, defect 3 of the
+family) would then destroy the initial conditions **exactly as in attempt 2**. *The repair
+must not create the failure that the other instrument exists to watch for.*
+
+**ZERO-STEP REFUSAL, ARMED NOW:** fewer than **~10** `Time =` lines in
+`log.rhoPimpleFoam` is a **FAILURE**, regardless of `rc = 0` and an `End` line, and it is
+checked against that named log rather than a glob. **An `End` and rc = 0 on a run that did
+nothing is the exact shape of a false pass, and this act has met that shape repeatedly.**
+This refuses a false completion; it creates no gate and alters none.
+
+*Noted, not a gate:* `purgeWrite 2` on `.tr` also means only the last two transient field
+writes survive. G4/G5/G6 read `postProcessing/` (forces, probes, noise), not time
+directories, so no registered gate depends on the discarded fields — but visualisation data
+will be sparse, and that is a consequence of D3 too.
+
+### B2.2 — **THE 0.195 m DIAMETER CLAIM IS STRUCK. IT WAS A BOUNDING BOX, NOT A DIAMETER.**
+
+A relayed claim held that `propellerTip.obj` measures **0.1949 m** tip to tip, implying
+**D = 0.195 m** against the README's 0.224 m, and offered it as a *second, geometric* reason
+to bar KT/KQ. **That claim is withdrawn, and this lane re-measured the shipped geometry
+rather than accepting the retraction on trust.**
+
+Measured over all **16,785** vertices of
+`constant/triSurface/propellerTip.obj.gz` (sha256 `3eac598a…`, in the manifest):
+
+| Quantity | Value |
+|---|---|
+| x-extent (**the mistaken figure**) | **0.194913 m** |
+| z-extent | 0.194918 m |
+| y-extent (along the rotation axis) | 0.110000 m |
+| **max radius about y, `sqrt(x² + z²)`** | **0.113720 m → D = 0.227440 m** |
+| 99.9th-percentile radius | 0.113316 m → D = 0.226633 m |
+| **vs README D = 0.224 m** | **1.54 %** |
+
+**The rotation axis is y** — `constant/dynamicMeshDict` and `constant/MRFProperties` both
+say `axis (0 1 0)` — so the radius is `sqrt(x² + z²)`, **not the x-extent**. The arithmetic
+of the error, shown rather than asserted: `x-extent / 2r = 0.194913 / 0.227440 = 0.856986`,
+i.e. the tips sit **31.0°** off the x-axis; for a four-bladed propeller that gives an
+x-extent of `2r·cos 31.0° = 0.194913 m`, reproducing the measured figure exactly. **The
+0.1949 m number is `2r·cos θ`, not `2r`.** The 99.9th-percentile radius agreeing with the
+maximum to 0.4 % confirms the maximum is a blade tip, not a stray vertex.
+
+**THEREFORE THERE IS NO INDEPENDENT GEOMETRIC REASON TO BAR KT/KQ.** They remain barred
+**on §11's own bar alone** — the tree publishes no KT/KQ comparator and PPTC is a different
+propeller. **A struck quantity carrying a false reason is worse than one struck plainly,
+because a successor inherits the false reason too.**
+
+*For scale, and explicitly not a gate:* had the 0.195 m figure been used, KT and KQ would
+have been wrong by `(0.22744/0.224)⁴ = 6.3 %` and `(0.22744/0.224)⁵ = 7.9 %` respectively
+for the same thrust and torque. The README's 0.224 m remains the registered diameter; the
+1.54 % difference from the shipped tessellation is recorded, not resolved, and **no gate
+depends on it.**
+
+### B2.3 — STATE AT THIS ADDENDUM
+
+`rhoSimpleFoam` live, **32 ranks** (`ps -eo comm | grep -cx rhoSimpleFoam` = 32), iteration
+**1814 of 5000**. Ranks 0 and 31 hold `0 1000 1500`. **G0 `PASS`; G1 and G2 satisfied on disk
+per B1.6; G3–G7 not yet run.**
