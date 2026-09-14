@@ -30219,3 +30219,57 @@ Both are the same shape — **the process you are reasoning about is not the pro
 running** — and neither of the older kill lessons (L-10's `pkill -f` matching its own shell, L-5's
 orphaned job) reaches this one. L-587 is a parent outliving a child. This is a script outliving its
 own text.
+
+---
+
+## L-610 — a discriminator must be shown to DIFFER on a known-good case: a channel that reads identically on the suspect and on a case that is provably healthy discriminates nothing, however physical it sounds
+
+**Measured cost: two agents independently built hang-detection criteria out of channels that carry zero information, and nearly called a healthy 20-rank factorisation dead on them.**
+
+A DAFoam adjoint had produced no output for 53 minutes while 20 ranks sat at ~100 % CPU. Two
+agents reached for the same evidence: `dstime = 0` (no syscall churn), `dminflt = 0` (no new page
+faults), `/proc/<pid>/io` unchanged, resident memory flat. All four were read as *"it is doing
+numeric factorisation in already-allocated memory, not hanging"*.
+
+**Then a second arm of the same item was sampled with the identical check — an arm that was
+provably computing, because it was emitting residual lines two minutes earlier.** Its signature:
+
+| channel | provably-computing arm | the suspect |
+|---|---|---|
+| `dminflt` | **0 on every rank, sum 0** | 0 on every rank, sum 0 |
+| `drchar` / `dwchar` | **0 / 0** | 0 / 0 |
+| `dstime` | 0–2 | 0 |
+| state mix | `R` and `S` | `R` and `S` |
+
+**Identical. So none of those channels could ever have separated "factorising" from "spinning" —
+they read the same on a case known to be healthy.** The reasoning had been *"the suspect shows X,
+and X is consistent with health"*, when the test that matters is *"does a healthy case show
+NOT-X?"*. If it does not, X is not evidence.
+
+**THE RULE. Before a signal is used to judge a case, drive it on a case whose answer is already
+known. If the signal does not CHANGE between them, it is not a discriminator and must be dropped
+from the argument, not weighted lower.** This is the planted-zero rule (L-3 family) pointed at
+diagnostics instead of at readers: *a zero from a reader not shown able to read a non-zero is not
+evidence*, and equally *a signature not shown to differ on a known-good case is not evidence*.
+
+**THE SECOND HALF, AND IT IS THE ONE THAT WILL RECUR: A RATE STATISTIC OVER AN UNCLASSIFIED PID
+SET MEASURES WHICH PROCESSES YOU GRABBED.** One agent reported *18 ranks at ~805 ticks/8 s and two
+at exactly 402* and called that split the strongest evidence of real computation, on the theory
+that a busy-wait collective would spin every rank equally. The other measured *15 at 800, 3 at 801,
+2 at 797* — no split at all. **Neither was wrong about their own numbers.** A later sweep that
+classified processes by pinned cpuset caught **22 and 27 processes against 20 ranks**: the
+`mpirun` parents and wrapper shells sit in state `S` at `dutime 0`. **The "split" was one agent
+including parents and the other happening to select exactly the compute ranks. There was no rate
+split in the solver at all.**
+
+> **Classify by cpuset membership and ASSERT the count equals the rank count BEFORE computing any
+> statistic over the set.** An unasserted pid set silently changes what the statistic means.
+
+**WHAT ACTUALLY DISCRIMINATED: output, and nothing else.** The honest residue of an hour of
+process forensics was that the only channel carrying information was whether the log advanced, and
+the only usable instrument was a pre-declared wall-clock deadline. **Both agents' clever signals
+were noise; the boring one was the measurement.**
+
+**Related:** L-587 and L-609 are the other two of tonight's family — *the process you are reasoning
+about is not the process that is running*. This one is narrower and sharper: **the process you are
+measuring may not be the process you think you selected.**
