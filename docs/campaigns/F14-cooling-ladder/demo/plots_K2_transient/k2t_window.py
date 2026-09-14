@@ -217,6 +217,67 @@ def inlet_profiles(c, times=WINDOW_TIMES):
     return out
 
 
+def area_mean(c, field, patch, times=WINDOW_TIMES):
+    """The AREA-weighted window mean of `field` on `patch`, in K.
+
+    This is `foam_patch_reader.area_average`'s own arithmetic -- values times face
+    areas over the sum of the areas -- taken on the window mean of the face values
+    rather than on one time. It is written out here for one reason only: that
+    function REFUSES a patch whose entry carries no `value`, which `T` on
+    `rack{i}_in` does not (zeroGradient), and it reads one time directory. The
+    weighting, the face areas and the field values all still come from the frozen
+    reader; see `Case.patch` and `Case.areas`.
+    """
+    v, how = c.window_patch(field, patch, times)
+    a = c.areas(patch)
+    return float((v * a).sum() / a.sum()), how
+
+
+def indices(c, times=WINDOW_TIMES):
+    """The operator indices, ON THIS RUN, through the definitions ALREADY FROZEN in
+    this folder's `make_k2t_indices.py` -- cited line by line, not re-derived:
+
+        line 19-20  every temperature is an AREA average on its own patch;
+                    T_sup on `tile`, T_ret on `return`
+        line 24     rec = 100 (T_in - T_sup) / (T_out - T_sup);  cap = 100 - rec
+        line 25     RCI_high = 100 if T_in <= 27 degC,
+                    else max(0, 100 [1 - (T_in - 27) / 5])
+        line 27-28  dT = mean over the four racks of (T_out - T_in);
+                    RTI = 100 (T_ret - T_sup) / dT
+        line 29     hottest inlet and the rack-to-rack spread
+
+    NOTHING in those definitions is changed. What changes is the case they are
+    evaluated on -- K2bU3R3_D59 over the 50 -> 80 s window instead of K2h_L3's
+    110/TMean -- and that the rack-inlet average comes through the owner-cell path
+    because the patch is zeroGradient here.
+
+    Returns (rows, room) with temperatures in degC and indices in per cent.
+    """
+    tsup, _ = area_mean(c, "T", "tile", times)
+    tret, _ = area_mean(c, "T", "return", times)
+    rows = []
+    for i in range(N_RACKS):
+        tin, how = area_mean(c, "T", "rack%d_in" % i, times)
+        tout, _ = area_mean(c, "T", "rack%d_out" % i, times)
+        if tout <= tsup:
+            refuse("rack %d outlet sits at or below the supply temperature; the "
+                   "recirculation index has no denominator" % (i + 1))
+        rec = 100.0 * (tin - tsup) / (tout - tsup)
+        cap = 100.0 - rec
+        rci = 100.0 if (tin - K) <= 27.0 else max(0.0, 100.0 * (1 - (tin - K - 27.0) / 5.0))
+        rows.append(["rack %d" % (i + 1), tin - K, tout - K, rci, cap, rec, tout - tin])
+    dT = sum(r[6] for r in rows) / float(N_RACKS)
+    if dT <= 0:
+        refuse("the mean rack rise is not positive; RTI has no denominator")
+    rti = 100.0 * (tret - tsup) / dT
+    hot = max(rows, key=lambda r: r[1])
+    room = {"T_supply_degC": tsup - K, "T_return_degC": tret - K,
+            "room_rise_K": tret - tsup, "RTI_pct": rti,
+            "hottest_inlet_degC": hot[1], "hottest_rack": hot[0],
+            "spread_K": hot[1] - min(r[1] for r in rows), "dT_mean_K": dT}
+    return rows, room
+
+
 def shi_rhi(c, times=WINDOW_TIMES):
     """Supply and Return Heat Index over the four racks, from the window means.
 
@@ -308,3 +369,10 @@ if __name__ == "__main__":
           "T_supply %.4f K)" % (tret - tsup, tret, tsup))
     shi, rhi = shi_rhi(c)
     print("SHI %.5f   RHI %.5f" % (shi, rhi))
+    rows, room = indices(c)
+    for r in rows:
+        print("  %s  T_in %.4f  T_out %.4f  RCI %.3f  CI %.3f  rec %.3f  dT %.4f"
+              % (r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
+    print("  room: T_sup %.4f  T_ret %.4f  rise %.4f  RTI %.3f  spread %.4f"
+          % (room["T_supply_degC"], room["T_return_degC"], room["room_rise_K"],
+             room["RTI_pct"], room["spread_K"]))

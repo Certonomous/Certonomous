@@ -2,8 +2,8 @@
 
 **Round 4, 2026-09-14.** The whole transient set now comes from **`K2bU3R3_D59`** —
 the 137,000-cell three-dimensional four-rack room, `buoyantBoussinesqPimpleFoam`,
-an 80 s record — with **zero solver compute**. Two figures are the exception and are
-named as such below.
+an 80 s record — with **zero solver compute**. **One figure is the exception**,
+`k2t_dp_history.png`, which stays `K2h_L3` as ordered and is not redrawn.
 
 Regenerate in this order:
 
@@ -34,7 +34,7 @@ record**, as the order asks.
 | `k2t_dp_history.png` | **`K2h_L3`** | module Δp through the K2h record — **as pushed, not redrawn** |
 | `k2t_ride_through.png` | `K2bU3R3_D59` | per-rack inlet temperature against time, `T_lim` and `T_sup` drawn |
 | `k2t_inlet_profiles.png` | `K2bU3R3_D59` | window-mean inlet temperature against height, $R_1 \dots R_4$ |
-| `k2t_indices.png` | **`K2h_L3`** | RCI / CI / $f_{rec}$ per rack, RTI and the 100 % line — **the existing numbers, reused as ordered** |
+| `k2t_indices.png` | `K2bU3R3_D59` | RCI / CI / $f_{rec}$ per rack, RTI and the 100 % line — **recomputed on this run over the window**, through the definitions frozen in `make_k2t_indices.py` |
 | `k2t_rack_dT.png` | `K2bU3R3_D59` | window-mean rack outlet minus inlet, against the 12 K line |
 | `k2t_airflow_balance.png` | `K2bU3R3_D59` | tile supply, rack demand and bypass per rack from the patch fluxes |
 | `k2t_plane_mid.png` | `K2bU3R3_D59` | window-mean T at rack mid-height, 27 °C contour, TOP |
@@ -52,7 +52,7 @@ directory, the window, the patches, the camera, the colour range and the sha256.
 | Source | Verdict | Where it is recorded |
 |---|---|---|
 | `K2bU3R3_D59` — 137,000 cells, 80 s | **GATE REACHED** — DAMPS, ratio 0.420 ≤ 0.5 | `verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/K2bU3R3_GRADE.txt` |
-| `K2h_L3` — 664,848 cells, t = 110 | **PASS** — `DPbar` 27.981013 in [27.9699, 28.0901] | `verification/runs/F14-cooling-ladder/K2h_runs/GRADE.K2h_L3.json` |
+| `K2h_L3` — 664,848 cells, t = 110 | **PASS** — `DPbar` 27.981013 in [27.9699, 28.0901] | `verification/runs/F14-cooling-ladder/K2h_runs/GRADE.K2h_L3.json` — **`k2t_dp_history.png` only** |
 
 **There is no GCI and no observed order in this folder.** No triple is graded here.
 
@@ -65,3 +65,14 @@ and colour controls. The three `K2h` field panels are the ones the order calls
 results. `render_extra_panels.py` and `render_instant_t10.py` remain in the folder
 as the record of how those panels were made — **do not run them into this folder**,
 they write the removed K2h panels back.
+
+## Round 4b — 2026-09-14
+
+Sanaa, verbatim: *"yes anything transient on K2bU3R3"*. `k2t_indices.png`,
+`k2t_indices.csv` and `k2t_indices_room.csv` were therefore **recomputed on
+`K2bU3R3_D59` over the same 50 → 80 s window** instead of reusing `K2h_L3`'s
+`110/TMean` numbers. **The index definitions were not touched** — `k2t_window.indices`
+evaluates the ones already frozen in `make_k2t_indices.py` and cites them line by
+line (19–20, 24, 25, 27–28, 29). `make_k2t_indices.py` stays in the folder as the
+definition it cites. `k2t_dp_history.png` is now the ONLY file here that is not
+K2bU3R3.

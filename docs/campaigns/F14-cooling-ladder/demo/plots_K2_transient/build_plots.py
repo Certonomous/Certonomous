@@ -13,8 +13,9 @@ Sources, each named in SIDECAR.md and in PROVENANCE.tsv:
   * K2b_runs/K2bU3R3_D59 -- the 3-D four-rack room (GATE REACHED): the solver log,
     the per-rack inlet temperature series, and the written fields at 60 and 80 s.
   * K2h_runs/K2h_L3 -- the graded transient fine level (PASS): the module dp record,
-    and the operator indices ALREADY IN THIS FOLDER'S CSVs, which the order says to
-    reuse rather than recompute.
+    and NOTHING ELSE. Round 4b (Sanaa, 2026-09-14: "yes anything transient on
+    K2bU3R3") moved the operator indices onto K2bU3R3 as well, through the
+    definitions frozen in make_k2t_indices.py, which are cited and unchanged.
 
 No verdict stamp, no band annotation and no English is drawn on any image (plot
 library v2; owner correction 2026-09-13 and the order of 2026-09-14).
@@ -219,29 +220,34 @@ for t in W.WINDOW_TIMES:
              "50 to 80 s: mean of written times 60, 80", "rack%d_in" % i, "-", "-")
 
 # ------------------------------------------------------------------ 5. indices
-# THE ORDER IS EXPLICIT: reuse the numbers already in this folder's CSVs and do NOT
-# recompute them. They were computed on K2h_L3's 110/TMean by make_k2t_indices.py,
-# NOT on K2bU3R3, and PROVENANCE.tsv and SIDECAR.md say so on this figure's rows.
-IDX = os.path.join(HERE, "k2t_indices.csv")
-ROOM = os.path.join(HERE, "k2t_indices_room.csv")
-with open(IDX) as f:
-    idx = list(csv.DictReader(f))
-with open(ROOM) as f:
-    room = list(csv.DictReader(f))[0]
-rti = float(room["RTI_pct"])
+# ROUND 4b, Sanaa 2026-09-14: "yes anything transient on K2bU3R3". The operator
+# indices are RECOMPUTED ON K2bU3R3_D59 over the same 50 -> 80 s window as every
+# other window mean in this folder. THE DEFINITIONS ARE NOT TOUCHED: `k2t_window.indices`
+# evaluates the ones already frozen in this folder's `make_k2t_indices.py` -- area
+# averages on each patch (lines 19-20), rec/cap (line 24), RCI high (line 25), the
+# mean rack rise and RTI (lines 27-28), hottest inlet and spread (line 29) -- and
+# cites them line by line. Only the case they are evaluated on has changed.
+idx_rows, room = W.indices(case)
+wcsv("k2t_indices", ["rack", "T_inlet_degC", "T_outlet_degC", "RCI_high_pct",
+                     "capture_index_pct", "recirculation_pct", "dT_rack_K"], idx_rows)
+wcsv("k2t_indices_room",
+     ["T_supply_degC", "T_return_degC", "room_rise_K", "RTI_pct",
+      "hottest_inlet_degC", "hottest_rack", "spread_K", "dT_mean_K"],
+     [[room["T_supply_degC"], room["T_return_degC"], room["room_rise_K"],
+       room["RTI_pct"], room["hottest_inlet_degC"], room["hottest_rack"],
+       room["spread_K"], room["dT_mean_K"]]])
+rti = room["RTI_pct"]
 grouped_bars(os.path.join(HERE, "k2t_indices.png"),
-             [r["rack"] for r in idx],
-             {"RCI": [float(r["RCI_high_pct"]) for r in idx],
-              "capture": [float(r["capture_index_pct"]) for r in idx],
-              "recirculation": [float(r["recirculation_pct"]) for r in idx]},
+             [r[0] for r in idx_rows],
+             {"RCI": [r[3] for r in idx_rows],
+              "capture": [r[4] for r in idx_rows],
+              "recirculation": [r[5] for r in idx_rows]},
              ylabel=r"$[\%]$",
              lines={r"$\mathrm{RTI}=%.2f\,\%%$" % rti: rti, r"$100\,\%$": 100.0})
-note("k2t_indices.png", "K2h_L3",
-     os.path.join(F14, "K2h_runs/K2h_L3/110/TMean"), "110",
-     "42 to 110 s (K2h fieldAverage)", "tile, return, rack0..3_in, rack0..3_out",
-     "-", "-")
-note("k2t_indices.png", "K2h_L3", IDX, "110", "42 to 110 s (K2h fieldAverage)",
-     "-", "-", "-")
+for t in W.WINDOW_TIMES:
+    note("k2t_indices.png", "K2bU3R3_D59", os.path.join(D59, t, "T"), t,
+         "50 to 80 s: mean of written times 60, 80",
+         "tile, return, rack0..3_in, rack0..3_out", "-", "-")
 
 # ------------------------------------------------------------------ 6. rack dT
 temps = W.rack_temperatures(case)
@@ -302,6 +308,12 @@ print("  window-mean room rise   %.4f K    (flux-weighted T_return %.4f K minus 
 print("  total tile flow         %.6f m3/s (sum |phi| over the 400 `tile` faces; "
       "per rack %s)" % (tot_tile, ", ".join("%.4f" % p for p in per_tile)))
 print("  SHI %.5f   RHI %.5f" % (shi, rhi))
+print("  indices ON K2bU3R3 (area averages, make_k2t_indices definitions):")
+for r in idx_rows:
+    print("    %s  T_in %.4f degC  T_out %.4f degC  RCI %.2f %%  CI %.2f %%  "
+          "rec %.2f %%  dT %.4f K" % (r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
+print("    room  T_sup %.4f degC  T_ret %.4f degC (area)  RTI %.3f %%  spread %.4f K"
+      % (room["T_supply_degC"], room["T_return_degC"], room["RTI_pct"], room["spread_K"]))
 print("  rack dT  %s K" % ", ".join("%.4f" % d for d in dts))
 print("  residual steps parsed %d, t %.4f -> %.4f s" % (len(times), times[0], times[-1]))
 print("  pngs:", sorted(x for x in os.listdir(HERE) if x.endswith(".png")))

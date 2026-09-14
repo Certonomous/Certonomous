@@ -75,8 +75,8 @@ above exercises **both** paths.
 | `k2t_dp_history.png` | **`K2h_L3`** | 42 → 112 s registered | — | **as pushed; not redrawn this round** (`REDRAW_DP = False` in `build_plots.py`) |
 | `k2t_ride_through.png` | `K2bU3R3_D59` `T_rack{0..3}_in_mdot` | 0 → 80 s | — | 400 mass-flow-weighted samples per rack. **Both limit lines are drawn**: `T_lim = 27 °C` and the supply line. The supply line carries the run's OWN supply temperature, 289.0 K = **15.85 °C** (`build_k2b.T_SUP`), not the order's rounded 16 °C — a line labelled with a number the case does not carry would be a false reading. The `T_sup` line was **added this round**; the figure previously drew `T_lim` alone. |
 | `k2t_inlet_profiles.png` | `60/T`, `80/T` on `rack{0..3}_in` | 50 → 80 s (2 times) | — | mean over the rack's width at each of the 34 face-centre heights. The inlets are below 27 °C over most of their height and **cross it in the top ~0.2 m** — the recirculation this room actually has. |
-| `k2t_indices.png` | **`K2h_L3` `110/TMean`** | 42 → 110 s | — | **the existing numbers, reused unchanged as the order directs.** They are `K2h_L3`'s, not `K2bU3R3`'s, and are the only numbers in this folder that are not from `K2bU3R3_D59`. They read capture ≈ 100 % and $f_{rec}$ ≈ 0.004 %; the same quantities computed on `K2bU3R3` over this window would not agree, and RTI on `K2bU3R3` would be ≈ 135 %, not the 28.25 % drawn. Nothing is recomputed here. |
-| `k2t_rack_dT.png` | `60/T`, `80/T` on `rack{0..3}_{in,out}` | 50 → 80 s (2 times) | — | **11.9361, 12.0067, 11.9973, 11.8745 K** against the 12 K line. The rack outlet is an `outletMappedUniformInlet` at **+12 K on the mass-averaged inlet**, so this figure shows that the boundary condition is being enforced to within 0.13 K; it is not an independently computed rise. 12 K at 0.35 m³/s is 4.91 kW on the lab property pair. |
+| `k2t_indices.png` | `K2bU3R3_D59` `60/T`, `80/T` | 50 → 80 s (2 times) | — | **recomputed on this run, round 4b.** The definitions are unchanged and are the ones frozen in `make_k2t_indices.py`, cited line by line in `k2t_window.indices`: area averages on each patch (19–20), `rec = 100 (T_in − T_sup)/(T_out − T_sup)` and `cap = 100 − rec` (24), RCI high with its 5 K denominator (25), `dT` as the mean rack rise and `RTI = 100 (T_ret − T_sup)/dT` (27–28), hottest inlet and spread (29). Measured: RCI **100 %** on all four; capture **77.84 / 81.71 / 81.67 / 77.67 %**; recirculation **22.16 / 18.29 / 18.33 / 22.33 %**; **RTI 122.63 %**; T_sup 15.8500 °C, T_ret 32.0860 °C (area), spread 0.1734 K. |
+| `k2t_rack_dT.png` | `60/T`, `80/T` on `rack{0..3}_{in,out}` | 50 → 80 s (2 times) | — | **11.9361, 12.0067, 11.9973, 11.8745 K** against the 12 K line, on the **mass-flow-weighted** inlet. The rack outlet is an `outletMappedUniformInlet` at **+12 K on the mass-averaged inlet**, so this figure shows that the boundary condition is being enforced to within 0.13 K; it is not an independently computed rise. 12 K at 0.35 m³/s is 4.91 kW on the lab property pair. |
 | `k2t_airflow_balance.png` | `60/phi`, `80/phi` on `tile` and `rack{0..3}_in` | 50 → 80 s (2 times) | — | tile supply **0.2450** m³/s per rack, rack demand **0.3500** m³/s, bypass **−0.1050** m³/s. Bypass is defined here as **tile supply minus rack demand**; it is negative because the room is provisioned at 70 %, and the deficit is made up from recirculated room air. `k2t_airflow_balance.csv` carries **SHI = 0.27895** and **RHI = 0.72105** as its last two rows. |
 | `k2t_plane_mid.png` | `60/T`, `80/T` | 50 → 80 s (2 times) | TOP, T 16 → 33 °C | 27 °C contour drawn, 320 segments |
 | `k2t_plane_hot.png` | `60/T`, `80/T` | 50 → 80 s (2 times) | hot-aisle plane normal, T 16 → 33 °C | the vertical cut at y = 2.90 m, the mid hot aisle, spanning the row; 27 °C contour, 256 segments |
@@ -117,3 +117,32 @@ measured-renderable glyph set** of this box's ParaView 5.11.2 font
 (`demo3d_render_common.SAFE_CAPTION_CHARS`, `KNOWN_DROPPED_GLYPHS`), so `°C` is
 spelled `degC` and `|U|` is spelled `U`, rather than shipping a bar whose title has
 silently lost characters.
+
+## Round 4b — 2026-09-14: the indices move onto this run
+
+Sanaa, verbatim: *"yes anything transient on K2bU3R3"*. `k2t_indices.png` and both
+index CSVs are recomputed on `K2bU3R3_D59` over the same 50 → 80 s window (the mean
+of the written times 60 and 80). **No definition changed**; `k2t_window.indices`
+evaluates the frozen `make_k2t_indices.py` definitions and cites their line numbers,
+and `make_k2t_indices.py` stays in this folder as the thing it cites. The planted
+control runs before the figure is drawn, as it does for every number here.
+
+`k2t_dp_history.png` is now the only file in this folder that is not `K2bU3R3_D59`.
+
+**TWO RACK RISES APPEAR IN THIS FOLDER AND THEY ARE BOTH CORRECT.** They pair the
+same outlet with two different inlet averages, and the run's boundary condition is
+what separates them:
+
+* `k2t_rack_dT.png` uses the **mass-flow-weighted** inlet and reads **11.87 → 12.01 K**.
+  `rack{i}_out` is an `outletMappedUniformInlet` at **+12 K on the mass-averaged
+  inlet**, so this is the figure that shows the boundary condition being enforced,
+  to within 0.13 K.
+* `k2t_indices.csv`'s `dT_rack_K` column uses the **area-averaged** inlet, because
+  that is what the frozen index definitions use, and reads **11.92, 14.59, 14.52,
+  11.94 K**. The two differ because the rack inlet spans the full 2 m height and the
+  hot upper part of it carries more of the flux than of the area: the area-averaged
+  inlet spans **19.109 → 19.282 °C** across the four racks where the
+  mass-flow-weighted inlet spans **19.224 → 21.698 °C**.
+
+Neither number is adjusted to match the other, and `RTI = 122.63 %` is computed from
+the area-averaged `dT` its own definition names.
