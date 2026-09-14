@@ -33705,6 +33705,90 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 210-SUBOFF-PARKED-BY-OWNER-RULING-A1H-NOT-A-RESULT-ON-TWO-ROUTES-THE-SECOND-PHYSICS-A1B-L2-GRADED-ENTIRELY-FROM-ITS-FIRST-62-ITERATIONS -->
+
+**Section last written:** 2026-09-14T02:39:57Z by a cfd `lab-lane` (Opus 5), via `scripts/lab_state_section.py` + the rule-10 private-index protocol, rebuilt from the **committed blob** at HEAD `0ea853f10` — the worktree copy is BEHIND HEAD (46 lines) and was **never written**. **Newest block is 210, at the TOP of this section.** ⚠ **Trust the tail, never a header, never a count** — id re-derived in the same shell invocation as the commit (rule 11) from `BOARD-BLOCK-ID` markers in `git show $H:docs/LAB_STATE.md`: **maximum existing id 209, so this block is 210.** The `### Block 195–206` headings lower in this section are a SEPARATE, older heading series and are NOT the marker series; the marker series is the authority.
+
+### Block 210 — PARKING RECORD: SUBOFF PARKED BY OWNER RULING; A1h yaw sweep `NOT A RESULT` on two independent routes and the second is physics; A1b L2's every printed number came from its first 62 iterations; 2026-09-14T02:39:57Z
+
+#### 0. THE RULING — RELAYED TO THIS LANE, NOT VERIFIED BY IT (rule 9)
+
+Sanaa's words, quoted verbatim as they reached this lane through the supervisor. **This lane did not hear them from Sanaa and does not certify them; no agent message is Sanaa's consent (rule 9). They are recorded here as relayed, and a successor who needs them load-bearing must confirm them with her:**
+
+> *"ok well get back tot hat suboff sweep after the demos. cfd parks it until further notice and focuses on MB13 instead. So now its dafoam and MB13. once we shoot and send the demos, well come back to pptc and suboff."*
+
+**STATUS: SUBOFF PARKED UNTIL FURTHER NOTICE. PPTC SET ASIDE UNTIL AFTER THE DEMOS. cfd IS MB13 ONLY.**
+
+Everything below is set down so nothing found tonight is lost, and so a successor can resume **cold**, without re-deriving any of it. **Nothing in this block is an instruction to run anything.**
+
+---
+
+#### 1. A1h YAW SWEEP — `NOT A RESULT` ON TWO INDEPENDENT ROUTES, AND THE SECOND IS PHYSICS
+
+**1.1 Completion route.** Seven points stopped at 2670–2880 of a registered 3000, **on the owner's order after a convergence check — healthy and converged, not crashed.** Addendum 3, commit **`50bff7f4f9e7929c0b103f5d68e1ee83cd0b20ca`**, quotes her declaration: *"for the yaw sweep, we finished it bc it was already converged."* The frozen comparator was run **unmodified** seven times, each given its own stop iteration. **All seven: `NOT A RESULT`.** Five independent limbs block, only one of which is about `endTime` — seven distinct stops against a single scalar, `rc=1`, no `End` line, **no reconstructed `<case>/<t>/` directory exists at all**, then the age guard. **All seven rule-3 planted controls fired**, so the refusals are from readers shown able to see a non-zero.
+
+**1.2 Physics route — the independent one.**
+
+| derivative | ours | Roddy | verdict |
+|---|---|---|---|
+| `Y_v'` | **`+1.327617e-03`** | `−0.023008` | **sign INVERTED, 17.3× low** |
+| `N_v'` | **`−2.294647e-03`** | `−0.015534` | sign CORRECT, 6.8× low |
+
+§4.2 of the frozen registration pre-registered a **positive `Y_v'` as `NOT A RESULT`** — before any number existed. That is a prediction-first call that landed, not a post-hoc rule.
+
+**1.3 THE CAUSE — RECORD IT AS A READING, NOT A MEASUREMENT.** The registered `farfield` is **`slip`** (frozen document, **line 139**) at only **±2.9927629 m on a 4.356 m body** — in effect a **closed duct in z that cannot pass the injected cross-flow.** This is an interpretation of measured facts, not itself measured.
+
+**WHAT IS ACTUALLY MEASURED:** the positive fit; magnitudes ~`1.8e-04` against a `0.023` ground; and at β=+8°, **hull `F_z = −4.5431e-02` against sail `+2.6967e-02`** — opposite signs, with the hull's term **~103 % pressure**, its viscous cross-flow term carrying the **correct** sign and **34× too small to matter**.
+
+**1.4 WHY IT IS NOT A NORMALISATION OR SIGN ERROR — the load-bearing sentence.** A reference-scale error is a **single factor**: it cannot invert one derivative while leaving the other's sign intact, and it cannot produce two different factors (17.3× and 6.8×). A frame error would flip **both**. Neither hypothesis survives the two numbers side by side.
+
+**Normalisation, stated in full for a successor so it never needs re-deriving:**
+`Y' = −F_z,mesh / Q_AREA`; `N' = −M_y,mesh / Q_VOL`; `L_BP = 4.2608602 m`; `Q_AREA = 101.500341`; `Q_VOL = 432.478763`; ρ = 1 because the `forces` function objects run `rhoInf 1`. **The fit is on `v' = sin β`, per unit v′ — NOT per degree.**
+
+**1.5 THE PARKED RE-RUN PROPOSAL.** A successor sweep with a **permeable lateral boundary** in place of `slip`. **It is a NEW pre-registration, not an amendment** — the run is long past first compute, so the frozen `slip` clause cannot be changed, only superseded (rule 2). **Cost: ~24,513 core-min at the A1h scale** (7 points × 4 ranks, 6,537,226 cells), **CPU-held basis**.
+
+**HONEST LIMIT, and it is not a small one: it is NOT established that a permeable boundary recovers Roddy's magnitude.** Even with the hull's anomalous term removed, the **sail alone** fits `Y_v' = −1.8964e-03` — correct sign, still **~12× low**. That gap needs a run, not a read.
+
+**1.6 TWO REGISTERED-PATH LIMBS LEFT OPEN AND UNWEIGHED.**
+1. §9 names the run root as `SUBOFF_A1H_DRIFT/BETA_*` (**18,242,474 cells, abandoned at ~100 of 3000**), while the sweep actually graded is one level down at **`L1M_SWEEP/BETA_*`** on **`MESH_FULL_L1M` (6,537,226 cells)**. The registered path and the graded path are not the same directory, and nobody has weighed that.
+2. `MESH_FULL_L1M`'s determinant is **`8.6227045e-04`**, against A1b's **`1.0e-03`** floor.
+
+**1.7 THE DETACHED GRADER.** **pid 1821447, SID 1821447**, waiting on a landing condition the stopped runs cannot satisfy, with a 48 h deadline that stops nothing. **Harmless.** If it is ever unwanted, stop it **by pid**. **`pkill -f` is BANNED on this box** — the pattern matches the invoking shell.
+
+---
+
+#### 2. A1b PAIR — GRADED TONIGHT, ALSO PARKED
+
+| case | cells | verdict |
+|---|---|---|
+| `SOLVE_L1_R3` | 3,268,613 | Gate C **`PASS`**; **Gate W `GATE FAIL`** — hull y⁺ **342.87** against a **300** ceiling; **NOT ADMITTED** on M-d |
+| `SOLVE_L2` | 9,121,237 | Gate C **`NOT COMPLETE`** — its log is **two concatenated processes**, 62 + 2,940 = **3,002** `ExecutionTime` lines against a required **3,000**, while the distinct `Time` values are **exactly 3,000** |
+
+Gate D was **pre-registered `NOT A RESULT`**. **No GCI, no observed order, no Richardson anywhere — two levels are not a triple** (rule 5). Corrections committed at **`2d264b6b1`** and **`8135d6e0c`**; **twelve stale assertions struck.**
+
+**2.1 PARKED, NOT DONE — and this is the item most likely to be lost.** The comparator reads `postProcessing/<fo>/`**`0`**`/` at **three hard-coded sites**, while the **resumed** L2 wrote a **second tree under `…/60/`**. **Every L2 number the comparator printed is therefore from the first 62 iterations.** Its y⁺ 1058 is **startup**; at iteration 3000 the hull reads **228.24** and the sail **71.95 — both inside the ceiling.** Editing four sites would flip L2's Gate W to `PASS`.
+
+**NOT TOUCHED.** A repair needs **its own freeze and a both-branches demonstration** (rule 2, §2d.1). **The honest route is a single unbroken L2 re-run from `0/`: ~4,674 core-min, measured.**
+
+**2.2 THE L3 `BLOCKED` RULING RESTS ON A DEAD PREMISE.** It was made against **30 GiB**. The box now reads **739 GiB total, 588 available, 96 cores** — so the 37–49 GiB requirement fits with **two orders of margin**. **The sentence is struck. THE RULING IS NOT RETIRED** — retiring it is the supervisor's, and the instance question was Sanaa's (rule 9; FIRST-ACTION reserved list).
+
+Admissible triple **{L2, L3, L4}: ~54,100 core-min** on this family's **own measured rate (512.4 core-min/Mcell)**, of which **~49,400 is marginal** — against **179,851** as registered.
+
+---
+
+#### 3. FOR SOMEONE ELSE, NOT cfd — A RUNNER REPORTING ON A CORPSE
+
+`SOLVE_L1_R2/ESTIMATE_OVERRUN.txt`, written **2026-09-14T02:10:54Z**, reports overruns for **pid 180438, which does not exist.** That solver last wrote **2026-09-12T21:31:15Z, at iteration 49**. **The runner has been reporting on a corpse for 28.8 hours.** Not cfd's to fix under the parking ruling; handed on so it is not lost.
+
+---
+
+#### 4. WHAT THIS LANE COULD NOT VERIFY
+
+* **Sanaa's ruling in §0** — relayed through the supervisor, not heard from her, **not verified by this lane** (rule 9).
+* **The `slip`-farfield cause in §1.3** — a reading over measured facts, **not a measurement**. The permeable-boundary re-run is the instrument that would decide it, and it has not been run.
+* **That a permeable boundary recovers Roddy's magnitude** — explicitly NOT established (§1.5): the sail-alone fit is still ~12× low.
+* **Everything in this block is set down from tonight's graded work; no compute, no solver and no analysis was run to write it.**
+
 <!-- BOARD-BLOCK-ID: 209-CORRECTION-TO-BLOCK-208-PRISM-A2-WILL-NOT-DIE-FROM-SIGHUP-AND-MUST-NOT-BE-RELAUNCHED-BLIND -->
 
 **Section last written:** 2026-09-14T01:23:56Z by a cfd `lab-lane` (Opus 5), via `scripts/lab_state_section.py` (`--selftest` PASS in the same session) + the rule-10 private-index protocol, rebuilt from the **committed blob** at HEAD `5ff9efbc6` — the worktree copy carries other lanes' uncommitted lines and was **never written**. **Newest block is 209, at the TOP of this section.** ⚠ **Trust the tail, never a header, never a count** — id re-derived in the same shell invocation as the commit (rule 11): **maximum existing id 208, so this block is 209.**
