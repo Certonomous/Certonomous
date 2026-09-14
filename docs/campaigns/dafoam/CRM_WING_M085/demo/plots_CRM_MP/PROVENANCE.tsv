@@ -19,3 +19,8 @@ residuals_cl06_f25.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-ma
 residuals_cl06_f50.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2_20260914T011050Z.log	cl06	815b88ff0a91853c12c044eb3c1ba8f7dba1bd23d1767d6b07163b080a85bdd8
 residuals_cl06_f75.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2_20260914T011050Z.log	cl06	815b88ff0a91853c12c044eb3c1ba8f7dba1bd23d1767d6b07163b080a85bdd8
 residuals_cl06_f100.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2_20260914T011050Z.log	cl06	815b88ff0a91853c12c044eb3c1ba8f7dba1bd23d1767d6b07163b080a85bdd8
+crm_mesh_wing.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/processor0/2000/p.gz	2000	d0bcbbff5003fec6a3b2bde20239a485b778b88f010361239d2b1b335b1f89ed
+crm_mesh_symmetry.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/processor0/2000/p.gz	2000	d0bcbbff5003fec6a3b2bde20239a485b778b88f010361239d2b1b335b1f89ed
+crm_p_cl04.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04/processor0/2000/p.gz	2000	d0bcbbff5003fec6a3b2bde20239a485b778b88f010361239d2b1b335b1f89ed
+crm_p_cl05.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp05/processor0/2000/p.gz	2000	57824231816623807955a402f1b33dd8500de452c9df4fa65aeceb922f390693
+crm_p_cl06.png	/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp06/processor0/0.0001/p.gz	0.0001	d219506399da6eb33cb2c7f6ff0b558432b810f2f4aba8833a9007326e1e1db6
