@@ -150,8 +150,10 @@ cd_fine_sofar = sum(tail) / len(tail)
 grid_family(os.path.join(HERE, "drivaer_family.png"),
             levels=[{"cells": CELLS_COARSE, "value": cd_coarse},
                     {"cells": CELLS_FINE, "value": CD_FINE}],
-            quantity="$C_D$", unit="–", band=(CD_SETUP2, CD_SETUP3),
-            reference=CD_TUM)
+            # NO SHADED BAND. [0.2426, 0.2569] is the interval between two PUBLISHED
+            # setups, not a tolerance on our value, and shading it reads as one. The
+            # experiment line stays, labelled with its value.
+            quantity="$C_D$", unit="", reference=CD_TUM)
 wcsv("drivaer_family", ["level", "cells", "Cd", "basis"],
      [["coarse", CELLS_COARSE, cd_coarse,
        "OURS: mean over their window 200-1000, run COMPLETE"],
