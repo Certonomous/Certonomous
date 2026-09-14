@@ -591,3 +591,53 @@ this box**. After first compute, the gates, thresholds, caps and labels in §3, 
 closed; changes land only as dated addenda that cannot alter them, and originals are struck,
 never rewritten. The grading path is fixed at this commit, and the frozen file will be hashed
 against the committed blob to prove it is the file that ran.
+
+---
+
+## AMENDMENT A1 — 2026-09-14, BEFORE FIRST COMPUTE
+
+**Version 1.0 → 1.1. Lines whose number changed above this section: 0.**
+
+**The condition, and how it was checked.** §12 as frozen asserts: *"at the moment of
+this freeze no run directory for MB13 exists anywhere on this box."* **THAT ASSERTION IS
+FALSE, and it is struck.** It was checked immediately after the freeze commit by
+`find / -type d -iname '*MB13*' -o -iname '*marinePropeller*'`, which named an existing
+staged tree:
+
+**`/home/ubuntu/certonomous-runs/MB13_MARINE_PROPELLER/nref1_n32`**
+
+The original sentence is struck, not rewritten. What that directory actually is, read and
+not inferred, and **not touched by this lane**:
+
+- Its 72 published case files were copied **2026-09-13 17:57:08 UTC** — about seven hours
+  before this lane was dispatched — and `diff -r` against the upstream tree shows **no
+  content difference in any of the 72**; the only extra entries are five harness files
+  added beside them (`mb13_launch.sh`, `mb13_watch.sh`, `prove_cellzones.py`,
+  `WATCHER_PLANT_PROOF.tsv`, `.plant_result`) plus a `.stagestate` directory. So that
+  lane also staged verbatim.
+- **No compute has run there either.** There is no `constant/polyMesh`, no `processor*`
+  directory, no `log.blockMesh` and no solver log — only two planted-control test logs
+  (`log.PLANTEDEND`, `log.PLANTEDCONTROL`) and an absent `STATUS.tsv`.
+- A **live watcher process is running** in that directory (pid 1845193, a `sleep 20` poll
+  loop) and files there were written as recently as **00:58:25 UTC today**, during this
+  lane's own session.
+
+**What this changes, and what it does not.**
+
+1. **Nothing in §3 (gates), §4 (readers and the stop rule), §5 (deviations) or §6 (cost)
+   is altered by this amendment**, and this amendment could not alter them: those are
+   closed to anything but a dated addendum, and this is one.
+2. **The completion-rule guard in §7 stands and now has something to refuse.** The guard
+   refuses a case where `0` or a time directory already exists. That tree has neither
+   today, but it is being actively worked, so **any launch for MB13 must name which tree
+   it is launching in and must re-run the guard at that moment** rather than rely on this
+   file's account of it.
+3. **TWO LANES APPEAR TO BE ON MB13 AT ONCE.** This lane did not create that directory,
+   has not written to it, has not stopped its watcher and has not read its harness scripts
+   as authority for anything. **This is reported to the cfd-supervisor as a dispatch
+   collision for the supervisor to resolve** — it is not a lane's call, and two records for
+   one run is exactly what must not happen. Until it is resolved, **this lane launches
+   nothing**, which was already its instruction.
+
+**Nothing in this amendment is a verdict.** G0 remains `PASS` on its own evidence; every
+other gate remains `PENDING` in the display sense of standing rule 1 — not yet run.
