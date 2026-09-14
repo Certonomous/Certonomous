@@ -708,3 +708,172 @@ Whether Sanaa's *"L1 stall fix and blended-wall arm first"* names **this sweep's
 iteration 368)"*). **That is a reading of her words and no agent may make it.** It is on her desk
 with both readings and the measurement above, and **the L1 route is barred by A1b's refusal
 regardless of which reading is hers.**
+
+---
+
+# ADDENDUM 2 — 2026-09-14, cfd lab-lane. THE SEVEN POINTS WERE STOPPED SHORT OF `endTime` BY OWNER RULING. **STRICT COMPLETION THEREFORE FAILS, AND THAT IS DISCLOSED, NOT REDEFINED.**
+
+**Version 1.1 → 1.2. Lines whose number changed above this section: 0.**
+
+**THIS ADDENDUM ALTERS NO GATE, THRESHOLD, CAP OR LABEL. It adds none, relaxes none, and
+moves no `endTime`.** Compute has occurred against this registration, so under standing
+rule 2 the gate set is closed and **this addendum may only record.** §4.2, §4.3, §5, §8.1a
+and the strict completion rule stand exactly as frozen.
+
+## A2.1 THE AUTHORITY
+
+Sanaa's ruling, relayed to this lane, verbatim:
+
+> *"no lets stop them and stop drivaer as well that way we gain 32 ranks. But cfd first
+> checks that all residuals are converged"*
+
+The convergence check was treated as a **precondition, not a formality**: a point that did
+not satisfy it would have stayed running and been named. **All seven satisfied it**, so all
+seven were stopped. The check and its numbers are §A2.3 below.
+
+## A2.2 THE STOP, PER POINT — AND WHAT THE WINDOW IS
+
+Each solver was allowed to reach its **next scheduled checkpoint** and was stopped only
+after that write had **provably completed** (the solver had printed a later `Time =` line).
+`system/controlDict` in every point carries `runTimeModifiable false`, so a `writeNow`
+could **not** be injected; waiting for the scheduled write was the only route to a
+checkpoint, and §9's `writeInterval 15` made that wait at most 15 iterations. The stop was
+a **`SIGTERM` to the `mpirun`**, identified by `/proc/<pid>/cwd` matching the case
+directory and re-verified by `cwd` in the same instant the signal was sent. **`pkill -f`
+was not used and is banned on this box** — its pattern matches its own invoking shell.
+
+| point | β | **stop iteration (last written time)** | last `Time =` in log | **the window: last 500 before the stop** | `solve_rc` | mpirun pid |
+|---|---|---|---|---|---|---|
+| `BETA_m12` | −12 | **2745** | 2746 | **2246 → 2745** | 1 | 1486354 |
+| `BETA_m08` | −8 | **2790** | 2791 | **2291 → 2790** | 1 | 1486350 |
+| `BETA_m04` | −4 | **2820** | 2821 | **2321 → 2820** | 1 | 1486399 |
+| `BETA_p00` | 0 | **2880** | 2881 | **2381 → 2880** | 1 | 1486345 |
+| `BETA_p04` | +4 | **2805** | 2806 | **2306 → 2805** | 1 | 1486327 |
+| `BETA_p08` | +8 | **2835** | 2836 | **2336 → 2835** | 1 | 1486419 |
+| `BETA_p12` | +12 | **2670** | 2671 | **2171 → 2670** | 1 | 1486309 |
+
+**The checkpoints are complete and banner-closed.** Every one of `U p k omega nut phi yPlus`
+in each of `processor{0,1,2,3}/<stop>/` — **28 files per point, 196 in all** — ends with the
+OpenFOAM closing banner as its last non-blank line; **0 are truncated**. **Standing rule 3:
+that zero is planted.** The same checker was handed a deliberately truncated copy of
+`BETA_p00/processor0/2880/U` beside an intact `yPlus` and returned **`NOT banner-closed: 1`**,
+naming the truncated file and clearing the intact one. A zero from a reader not shown able
+to return a non-zero is not evidence; this one was shown.
+
+## A2.3 THE CONVERGENCE CHECK SANAA IMPOSED — ALL SEVEN CONVERGED
+
+**Residuals — REPORTED, NOT GATED (§8.1a says so in advance and this addendum does not
+change it).** Maximum initial residual over the **last 500 iterations**, final value in
+parentheses, read from each point's **own `log.simpleFoam`**, one named artifact per row:
+
+| point | β | Ux | Uy | Uz | p | k | omega |
+|---|---|---|---|---|---|---|---|
+| `BETA_m12` | −12 | 8.73e-07 (7.4e-07) | 3.11e-05 (2.3e-05) | 3.89e-06 (2.7e-06) | 2.59e-05 (2.5e-05) | 7.86e-06 (7.7e-06) | 1.67e-07 (1.7e-07) |
+| `BETA_m08` | −8 | 1.34e-07 (1.3e-07) | 4.48e-06 (4.2e-06) | 2.03e-06 (2.0e-06) | 1.27e-06 (1.2e-06) | 2.78e-06 (2.7e-06) | 1.79e-07 (1.8e-07) |
+| `BETA_m04` | −4 | 1.08e-07 (1.0e-07) | 2.36e-06 (2.3e-06) | 9.79e-07 (9.3e-07) | 6.76e-07 (6.0e-07) | 2.77e-06 (2.7e-06) | 1.85e-07 (1.8e-07) |
+| `BETA_p00` | 0 | 9.96e-08 (9.5e-08) | 1.79e-06 (1.7e-06) | 4.94e-06 (4.8e-06) | 9.45e-07 (9.0e-07) | 2.46e-06 (2.4e-06) | 1.61e-07 (1.6e-07) |
+| `BETA_p04` | +4 | 1.07e-07 (1.0e-07) | 2.46e-06 (2.3e-06) | 1.02e-06 (9.7e-07) | 6.69e-07 (5.8e-07) | 2.75e-06 (2.6e-06) | 1.86e-07 (1.8e-07) |
+| `BETA_p08` | +8 | 1.38e-07 (1.3e-07) | 4.86e-06 (4.6e-06) | 2.35e-06 (2.2e-06) | 1.38e-06 (1.2e-06) | 2.77e-06 (2.7e-06) | 1.80e-07 (1.8e-07) |
+| `BETA_p12` | +12 | 8.73e-07 (8.3e-07) | 2.91e-05 (2.9e-05) | 3.70e-06 (3.3e-06) | 2.58e-05 (2.5e-05) | 7.98e-06 (7.8e-06) | 1.67e-07 (1.7e-07) |
+
+**A residual floor is not convergence of the quantity being graded**, and §8.1a already said
+so. The test that decides is the **plateau of `Y′`** over the final 500 iterations:
+OLS slope × 500 ≤ 1 % of |`Y′`| (≤ 1e-4 absolute at β = 0). Applied at the stop iteration:
+
+| point | β | `Y′` window mean, last 500 | `Y′` window mean, previous 500 | **drift = 500 × slope** | **ceiling** | **verdict** |
+|---|---|---|---|---|---|---|
+| `BETA_m12` | −12 | −1.946287e-04 | −1.946346e-04 | 4.6334e-08 | 1.9459e-06 | **CONVERGED** |
+| `BETA_m08` | −8 | −1.819245e-04 | −1.819278e-04 | 6.9950e-08 | 1.8191e-06 | **CONVERGED** |
+| `BETA_m04` | −4 | −9.830079e-05 | −9.829310e-05 | 2.2096e-08 | 9.8340e-07 | **CONVERGED** |
+| `BETA_p00` | 0 | +8.494116e-09 | +4.037364e-08 | 1.2056e-08 | 1.0000e-04 | **CONVERGED** |
+| `BETA_p04` | +4 | +9.827669e-05 | +9.823346e-05 | 7.8529e-08 | 9.8252e-07 | **CONVERGED** |
+| `BETA_p08` | +8 | +1.819195e-04 | +1.819650e-04 | 6.9614e-09 | 1.8193e-06 | **CONVERGED** |
+| `BETA_p12` | +12 | +1.944281e-04 | +1.944482e-04 | 2.2076e-08 | 1.9441e-06 | **CONVERGED** |
+
+**The one point that must not be rounded into compliance is β = 0, and it is not.** Its
+window-mean **ratio** moves 135 % — but that is the ratio of 8.49e-09 to 4.04e-08, two
+numbers that are both essentially zero, and a ratio test at β = 0 is exactly the test §8.1a
+refused to register. The registered criterion there is **absolute**, and the absolute change
+between the two windows is **3.19e-08** against a floor of **1e-4** — smaller by a factor of
+3,100 — with a drift of 1.21e-08. It converges on the criterion this document froze, not on
+one chosen tonight.
+
+`N′` window means are reported beside them, ungated (§5 leaves `N_v′` ungated): −12
++5.477412e-04, −8 +3.219319e-04, −4 +1.549161e-04, 0 +7.477132e-09, +4 −1.549230e-04,
++8 −3.219433e-04, +12 −5.477358e-04; the largest `N′` drift over 500 iterations across the
+seven is **8.95e-09**.
+
+## A2.4 **STRICT COMPLETION FAILS ON ALL SEVEN. NO ADDENDUM CAN CONVERT THAT INTO A PASS.**
+
+Standing rule 4 requires, among its clauses, **`rc = 0`**, an **`End` line**, and
+**last time == `endTime`**. `endTime` is **3000** (§9, frozen). The seven stopped at 2670 –
+2880. Measured: **`solve_rc = 1` on all seven; `grep -c '^End$'` returns 0 on all seven; no
+`3000` directory exists in any case.** Therefore:
+
+> ### **STRICT COMPLETION: FAILS, all seven points.**
+
+**`endTime` is not free-floating bookkeeping and this addendum does not move it.** A run
+stopped at 2,745 of 3,000 is not a completed run, and no dated note can make it one. This
+is recorded rather than redefined.
+
+## A2.5 **AND IT COSTS THE ACT NOTHING, FOR A REASON REGISTERED BEFORE COMPUTE**
+
+**The sweep was already `NOT A RESULT` before this stop, on §4.2's own clause.** §4.2,
+frozen before any number existed, says: *"If the fitted `Y_v′` comes out **positive**, the
+verdict is **`NOT A RESULT`** … and the printed reason is 'sign convention or solve is
+wrong'."*
+
+**The fit is positive.** Least squares over the five points |β| ≤ 8, on the window means
+above: **`Y_v′ = +1.327616e-03`** (`N_v′ = −2.294674e-03`, ungated). Roddy's experimental
+`Y_v′ = −0.023008`. The sign is inverted **and** the magnitude is a factor of 17 small.
+**The label was therefore already determined by a clause frozen at `79b4de868`, and the
+early stop changes nothing about it.** The sole verdict remains the frozen comparator's.
+
+**The mechanism is measured and it sits inside the freeze, which is why §4.2 fired.**
+Line 139 of this document registers **`farfield` stays `slip`**. §2.1's M-3 and §1's table
+put those `farfield` walls at **z = ±2.9927629 m** on a body 4.356 m long. A slip wall
+carries **zero normal flux**, so the cross-flow `v′ = sin β` injected at the inlet has no
+face through which to leave the domain: the registered configuration is a **closed duct in
+z**. That the cross-flow cannot pass is a property of the registered boundary set, stated
+here as the reading it is; what is **measured** is that the fitted `Y_v′` is positive and
+that `|Y′|` at β = ±8 is 1.82e-04 against Roddy's 0.023-scale ground.
+
+## A2.6 THE GRADER — ARMED ON THE RECORDED STOP, NOT REWRITTEN
+
+`verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_GRADE/grade_watch_a1h_l1m.sh`, a
+sibling lane's detached watcher, was **already running** and waits on `solve_rc` rather than
+on a pid. All seven `solve_rc` files now exist; its own log records `ALL SEVEN HAVE solve_rc`
+at 2026-09-14T00:15:23Z. **A second grader was not written.** It runs the frozen comparator
+`cases/navier_class/SUBOFF_A1/grade_suboff_a1h.py` — blob-pinned to `13ac40d37…` at the
+pre-registration commit — with **`--end-time 3000`, the registered value, unchanged.** That
+is deliberate: handing it the stop iterations as an `endTime` would be manufacturing a
+completion, and this lane will not do it. The comparator will report completion FAILING on
+all seven, which is the true state. **The stop iterations of §A2.2 are the record a
+successor cites**; the window means of §A2.3 are **REPORTED, NOT GRADED** and are this
+lane's reading, not the comparator's verdict.
+
+## A2.7 COST — ESTIMATE VERSUS ACTUAL (standing rule 12)
+
+| point | `ExecutionTime` at stop | ranks | **core-min (gross)** | s/iteration |
+|---|---|---|---|---|
+| `BETA_m12` | 52478.29 s | 4 | 3498.6 | 19.12 |
+| `BETA_m08` | 52577.91 s | 4 | 3505.2 | 18.85 |
+| `BETA_m04` | 52418.28 s | 4 | 3494.6 | 18.59 |
+| `BETA_p00` | 52590.65 s | 4 | 3506.0 | 18.26 |
+| `BETA_p04` | 52439.78 s | 4 | 3496.0 | 18.69 |
+| `BETA_p08` | 52573.40 s | 4 | 3504.9 | 18.54 |
+| `BETA_p12` | 52617.85 s | 4 | 3507.9 | 19.71 |
+| **total** | | **28** | **24,513.2** | **18.82 mean** |
+
+§6 registered **56,336 core-min** for 7 × 3000 iterations at **40.24 s/it on 4 ranks**, i.e.
+2.6827 core-min per iteration. The seven actually ran **19,545 iterations**, for which the
+registered rate predicts **52,432 core-min**. Actual **24,513.2**. **Ratio actual/predicted
+= 0.467.** The gap is **misprediction of the per-iteration rate, not waste and not
+contention**: the measured 18.82 s/it against a registered 40.24 s/it is **2.14× faster**,
+and no point stalled (no row exceeds 3600 s of wall between checkpoints). Derived cost at
+the owner-stated **$0.0513/core-h**: **$20.96 — DERIVED, NOT MEASURED**; the box cannot read
+its own billing. This row belongs in `docs/COST_CALIBRATION.md` under that file's append
+rules.
+
+*Appended by a cfd `lab-lane`, 2026-09-14. No gate moved. No verdict claimed — the verdict
+is the frozen comparator's. No submission, nothing sent, nothing leaves the box.*
