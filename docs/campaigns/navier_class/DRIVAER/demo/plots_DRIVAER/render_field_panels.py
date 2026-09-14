@@ -153,7 +153,7 @@ def _assert_painted(pos, neg, field):
                  "constant array's %.5f" % (field, cp, cn))
 
 
-def _render_with_control(view, src, disp, out, field, add_caption):
+def _render_with_control(view, src, disp, out, field, add_caption, size=(1600, 1000)):
     from paraview.simple import (Calculator, Show, Hide, Render, ColorBy,
                                  UpdatePipeline)
     flat = Calculator(Input=src)
@@ -173,17 +173,17 @@ def _render_with_control(view, src, disp, out, field, add_caption):
     dn.SetScalarBarVisibility(view, False)
     Render(view)
     neg = os.path.join(HERE, "_control", "NEGATIVE_constant_" + os.path.basename(out))
-    C.save_screenshot(view, neg, size=(1600, 1000))
+    C.save_screenshot(view, neg, size=size)
     Hide(flat, view)
     Show(src, view)
     disp.SetScalarBarVisibility(view, True)
     Render(view)
     pos = os.path.join(HERE, "_control", "POSITIVE_uncaptioned_" + os.path.basename(out))
-    C.save_screenshot(view, pos, size=(1600, 1000))
+    C.save_screenshot(view, pos, size=size)
     _assert_painted(pos, neg, field)
     add_caption(view)
     Render(view)
-    n = C.save_screenshot(view, out, size=(1600, 1000))
+    n = C.save_screenshot(view, out, size=size)
     C.announce("  wrote %s (%s bytes)" % (os.path.basename(out), format(n, ",")))
     return n
 
@@ -354,6 +354,123 @@ def mesh_panel(case, time, out, stamp, note, expect_faces, arrays=("U",)):
             shutil.rmtree(root, ignore_errors=True)
 
 
+WAKE_MIN_WIDTH_FRAC = 0.40      # the body must fill at least this much of the frame
+
+
+def wake_panel(reader, out, urange):
+    """The wake cross-section, framed FROM MEASURED BOUNDS and asserted before saving.
+
+    NOTHING HERE IS HAND-TYPED. Three attempts at this panel were framed by hand and
+    all three put the car in a corner, because the camera's right vector is -y and a
+    box written as "y from 0 to 2.2" therefore extends AWAY from a half-body that
+    spans y 0 to 1.0. So the camera is now derived:
+
+      * the body patch bounds are read from the data information AFTER UpdatePipeline;
+      * the focal point is the body centre, at the wake plane's x;
+      * the parallel scale is the measured half-extent with a 15 % margin, taken as
+        max(half-height, half-width / aspect) so the body fits in BOTH directions;
+      * and before the image is saved, the fraction of frame width the body spans is
+        COMPUTED from those same numbers and REFUSED below WAKE_MIN_WIDTH_FRAC.
+
+    A frame that puts the subject in a corner can no longer be written out, which is
+    the only way this stops recurring.
+    """
+    from paraview.simple import (CellDatatoPointData, Calculator, Slice, Show, Render,
+                                 ColorBy, GetColorTransferFunction, UpdatePipeline,
+                                 MergeBlocks, OpenFOAMReader)
+    size = (1200, 1000)          # near-square: a wake cross-section is not 16:9, and a
+                                 # wide frame is what forced the body below 40 % before
+    aspect = float(size[0]) / float(size[1])
+
+    # --- the body, from a SECOND reader: re-pointing the slice's own reader pulls the
+    # internalMesh out from under the Slice that is already on screen, which is why no
+    # outline appeared on the previous attempt.
+    root2, foam2 = C.materialise_case(COARSE, [COARSE_T])
+    try:
+        br = OpenFOAMReader(FileName=foam2)
+        br.Decomposepolyhedra = 0
+        br.MeshRegions = BODY
+        UpdatePipeline(time=float(COARSE_T), proxy=br)
+        body = MergeBlocks(Input=br); UpdatePipeline(time=float(COARSE_T), proxy=body)
+        bb = body.GetDataInformation().GetBounds()
+        if bb[1] <= bb[0]:
+            C.refuse("the body surface reported degenerate bounds %r" % (bb,))
+        C.announce("  body bounds MEASURED x %.3f..%.3f y %.3f..%.3f z %.3f..%.3f"
+                   % bb)
+        half_h = (bb[3] - bb[2]) / 2.0
+        half_v = (bb[5] - bb[4]) / 2.0
+        scale = max(half_v, half_h / aspect) * 1.15
+        frac = (bb[3] - bb[2]) / (2.0 * scale * aspect)
+        C.announce("  parallel scale %.4f from measured half-extents (%.4f, %.4f) ; "
+                   "body spans %.1f %% of frame width" % (scale, half_h, half_v,
+                                                          frac * 100.0))
+        if frac < WAKE_MIN_WIDTH_FRAC:
+            C.refuse("the body would span only %.1f %% of the frame width, below the "
+                     "%.0f %% floor -- this is the corner-framing fault, refused before "
+                     "the image is written" % (frac * 100.0, WAKE_MIN_WIDTH_FRAC * 100))
+
+        xwake = bb[1] + 1.0
+        # THE SYMMETRY PLANE AT THE FRAME EDGE. This is a HALF model: nothing exists at
+        # y < 0, so centring on the body's own y-centre spends 0.46 m of frame on white.
+        # Putting y = 0 at the right edge (the camera's right vector is -y) fills the
+        # frame with data and keeps the same measured 52 % body width.
+        fy = scale * aspect
+        fz = (bb[4] + bb[5]) / 2.0
+
+        reader.MeshRegions = ["internalMesh"]
+        UpdatePipeline(time=float(COARSE_T), proxy=reader)
+        p2c = CellDatatoPointData(Input=reader); p2c.CellDataArraytoprocess = ["U"]
+        UpdatePipeline(time=float(COARSE_T), proxy=p2c)
+        cc = Calculator(Input=p2c); cc.AttributeType = "Point Data"
+        cc.ResultArrayName = "Umag"; cc.Function = "mag(U)"
+        UpdatePipeline(time=float(COARSE_T), proxy=cc)
+        sl = Slice(Input=cc); sl.SliceType = "Plane"
+        sl.SliceType.Origin = [xwake, 0.0, 0.0]; sl.SliceType.Normal = [1.0, 0.0, 0.0]
+        UpdatePipeline(time=float(COARSE_T), proxy=sl)
+        if sl.GetDataInformation().GetNumberOfCells() == 0:
+            C.refuse("the wake plane at x = %.3f is empty" % xwake)
+
+        v = _view(size)
+        d = Show(sl, v); _flat(d)
+        ColorBy(d, ("POINTS", "Umag"))
+        lut = GetColorTransferFunction("Umag")
+        lut.ApplyPreset("Viridis (matplotlib)", True)
+        lut.RescaleTransferFunction(*urange)
+        bar = _bar(v, lut, "|U|  [m/s]")
+        bar.Position = [0.855, 0.36]      # the 1200-wide frame clipped it at 0.90
+        # the camera, set from the measurement rather than by frame_by_extent's box
+        v.CameraParallelProjection = 1
+        v.CameraPosition = [bb[0] - 8.0, fy, fz]
+        v.CameraFocalPoint = [xwake, fy, fz]
+        v.CameraViewUp = [0.0, 0.0, 1.0]
+        v.CameraParallelScale = scale
+        Render(v)
+        got = v.CameraParallelScale
+        if abs(got - scale) > 1e-6 * max(1.0, scale):
+            v.CameraParallelScale = scale       # the first Render resets it; put it back
+            Render(v)
+            got = v.CameraParallelScale
+        if abs(got - scale) > 1e-6 * max(1.0, scale):
+            C.refuse("the parallel scale came back %.6f where %.6f was set; an "
+                     "unasserted camera setting is a wish" % (got, scale))
+
+        def _finish(view):
+            # A SEMI-TRANSPARENT SILHOUETTE, not feature edges. The edge representation
+            # draws every feature line of a detailed car -- mirrors, wheel arches,
+            # underbody -- and projects them into scribble that reads as noise. A
+            # translucent surface gives the outline the review asked for and still lets
+            # the wake behind it be read.
+            bd = Show(body, view)
+            bd.Representation = "Surface"
+            bd.ColorArrayName = [None, ""]
+            bd.DiffuseColor = [0.18, 0.18, 0.20]; bd.AmbientColor = [0.18, 0.18, 0.20]
+            bd.Ambient, bd.Diffuse, bd.Specular = 1.0, 0.0, 0.0
+            bd.Opacity = 0.28
+        return _render_with_control(v, sl, d, out, "Umag", _finish, size=size)
+    finally:
+        shutil.rmtree(root2, ignore_errors=True)
+
+
 def main(argv=()):
     only_fine = "fine-mesh-only" in argv
     only_wake = "wake-only" in argv
@@ -368,6 +485,25 @@ def main(argv=()):
     total, root = 0, None
     try:
         if only_fine:
+            raise StopIteration
+        if only_wake:
+            from paraview.simple import (CellDatatoPointData as _C2P,
+                                         Calculator as _Cal, Slice as _Sl,
+                                         UpdatePipeline as _U)
+            reader, root, n = C.open_case(COARSE, ["p", "U"], [COARSE_T],
+                                          decompose_polyhedra=False)
+            _p = _C2P(Input=reader); _p.CellDataArraytoprocess = ["U"]
+            _U(time=float(COARSE_T), proxy=_p)
+            _c = _Cal(Input=_p); _c.AttributeType = "Point Data"
+            _c.ResultArrayName = "Umag"; _c.Function = "mag(U)"
+            _U(time=float(COARSE_T), proxy=_c)
+            _s = _Sl(Input=_c); _s.SliceType = "Plane"
+            _s.SliceType.Origin = [0.0, 0.02, 0.0]; _s.SliceType.Normal = [0.0, 1.0, 0.0]
+            _U(time=float(COARSE_T), proxy=_s)
+            urange = _percentiles(_s, "Umag")
+            C.announce("  velocity window %.4g..%.4g m/s" % urange)
+            total += wake_panel(reader, os.path.join(HERE, "drivaer_umag_wake.png"),
+                                urange)
             raise StopIteration
         from paraview.simple import MergeBlocks, UpdatePipeline
         reader, root, n = C.open_case(COARSE, ["p", "U"], [COARSE_T],
