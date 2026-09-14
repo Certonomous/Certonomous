@@ -224,7 +224,8 @@ def surface_panel(reader, out, direction, up, note, prange):
                                 lambda view: _caption(view, COARSE, STAMP_C, note))
 
 
-def plane_panel(reader, out, origin, normal, direction, up, bounds, note, urange):
+def plane_panel(reader, out, origin, normal, direction, up, bounds, note, urange,
+                outline_body=False):
     from paraview.simple import (CellDatatoPointData, Calculator, Slice, Show,
                                  Render, ColorBy, GetColorTransferFunction,
                                  UpdatePipeline)
@@ -273,9 +274,12 @@ def streamline_panel(reader, out, bbox, note, urange):
     st = StreamTracer(Input=calc, SeedType="Line")
     st.Vectors = ["POINTS", "U"]
     st.MaximumStreamlineLength = 30.0
-    st.SeedType.Point1 = [bbox[0] - 1.5, 0.02, 0.15]
-    st.SeedType.Point2 = [bbox[0] - 1.5, 1.20, 1.60]
-    st.SeedType.Resolution = 220
+    # SEEDED UPSTREAM OVER THE BODY HEIGHT, on the symmetry plane -- the owner's
+    # round-2 note. The old seed line ran diagonally across y AND z, which is why the
+    # view came out skewed and a seed plane cut across the image.
+    st.SeedType.Point1 = [bbox[0] - 1.5, 0.02, 0.02]
+    st.SeedType.Point2 = [bbox[0] - 1.5, 0.02, bbox[5] * 1.15]
+    st.SeedType.Resolution = 240
     UpdatePipeline(time=float(COARSE_T), proxy=st)
     if st.GetDataInformation().GetNumberOfPoints() == 0:
         C.refuse("no streamline was integrated; nothing would be drawn")
@@ -286,10 +290,13 @@ def streamline_panel(reader, out, bbox, note, urange):
     lut = GetColorTransferFunction("Umag"); lut.ApplyPreset(PRESET_U, True)
     lut.RescaleTransferFunction(*urange)
     _bar(v, lut, "|U|  [m/s]")
-    C.frame_by_extent(v, [(bbox[0] + bbox[1]) / 2, 0.6, (bbox[4] + bbox[5]) / 2],
-                      (0.55, -0.80, 0.35), up=(0.0, 0.0, 1.0),
-                      bounds=(bbox[0] - 2.0, bbox[1] + 4.0, 0.0, 2.0, 0.0, 2.2),
-                      pad=1.06, bottom_band=0.12)
+    # CAMERA ON THE SYMMETRY PLANE, looking along -y, orthographic (frame_by_extent
+    # sets CameraParallelProjection), the body centred.
+    C.frame_by_extent(v, [(bbox[0] + bbox[1]) / 2, 0.0, (bbox[4] + bbox[5]) / 2],
+                      (0.0, -1.0, 0.0), up=(0.0, 0.0, 1.0),
+                      bounds=(bbox[0] - 1.8, bbox[1] + 3.0, 0.0, 0.0,
+                              0.0, bbox[5] * 1.5),
+                      pad=1.04)
     Render(v)
     return _render_with_control(v, tube, d, out, "Umag",
                                 lambda view: _caption(view, COARSE, STAMP_C, note))
@@ -349,6 +356,7 @@ def mesh_panel(case, time, out, stamp, note, expect_faces, arrays=("U",)):
 
 def main(argv=()):
     only_fine = "fine-mesh-only" in argv
+    only_wake = "wake-only" in argv
     C.assert_paraview_version()
     C.assert_stamp(STAMP_C, COARSE)
     C.assert_stamp(STAMP_F, FINE)
@@ -412,6 +420,17 @@ def main(argv=()):
 
         zmid = (bbox[4] + bbox[5]) / 2.0
         xwake = bbox[1] + 1.0
+        # THE WHOLE CROSS-SECTION, not a corner of it. The owner's round-2 note is
+        # that this panel was "a blur; the plane is too close or the camera zoomed
+        # into a corner" -- it was the camera: the frame was 2.0 m by 2.2 m on a
+        # half-model whose domain is 4 m by 6.4 m, so the car filled one corner and
+        # the rest was free stream. The frame is now the car's own height and
+        # half-width with a margin, centred on the car.
+        # THE CAR CENTRED, NOT THE FREE STREAM. Round 2 put the frame at y 0..2.2 on a
+        # half-body that spans y 0..1.0, and the camera's right vector is -y, so the car
+        # sat in one corner and the rest was undisturbed inflow -- which is what "a blur"
+        # was. The frame is now the body's own half-width and height with a small margin.
+        wb = (xwake, xwake, 0.0, bbox[3] * 1.5, 0.0, bbox[5] * 1.35)
         total += plane_panel(
             reader, os.path.join(HERE, "drivaer_umag_symmetry.png"),
             [0.0, 0.02, 0.0], [0.0, 1.0, 0.0], (0.0, -1.0, 0.0), (0.0, 0.0, 1.0),
@@ -426,9 +445,9 @@ def main(argv=()):
         total += plane_panel(
             reader, os.path.join(HERE, "drivaer_umag_wake.png"),
             [xwake, 0.0, 0.0], [1.0, 0.0, 0.0], (-1.0, 0.0, 0.0), (0.0, 0.0, 1.0),
-            (xwake, xwake, 0.0, 2.0, 0.0, 2.2),
+            wb,
             unote + " ; cross-section at x = %.3f m, 1.0 m aft of the body" % xwake,
-            urange)
+            urange, outline_body=True)
         total += streamline_panel(
             reader, os.path.join(HERE, "drivaer_streamlines.png"), bbox,
             unote + " ; streamlines seeded 1.5 m upstream on a 220-point line",
