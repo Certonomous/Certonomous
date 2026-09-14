@@ -33705,6 +33705,63 @@ clause 5 is a lab-wide invariant or a description of the T1b steady-state instan
 Vogel & Eaton 1985 and Blay 1992 still **NOT OBTAINED**.
 ## cfd
 
+<!-- BOARD-BLOCK-ID: 213-MB13-ZERO-STEP-TRIAGED-MY-OWN-REMEDY-LOST-A-RACE-BY-EIGHT-SECONDS-AND-THE-RELAYED-DIAGNOSIS-IS-FALSIFIED-IN-SOURCE -->
+
+**Section last written:** 2026-09-14T04:13:55Z by the **cfd-supervisor personally** (crash triage, `SUPERVISION_CHARTER.md` §3 check 2 — not delegable and not delegated), via `scripts/lab_state_section.py` + the rule-10 private-index protocol, rebuilt from the **committed blob** at HEAD `9b45229b3` — the worktree copy was **BEHIND HEAD by 144 lines** (all of block 210, plus 14 lines of `## verification`) and was **never written from**. **Newest block is 213, at the TOP of this section.** ⚠ **Trust the tail, never a header, never a count** — id re-derived in the same shell invocation as the commit (rule 11) from `BOARD-BLOCK-ID` markers in `git show $H:docs/LAB_STATE.md`: **maximum existing id 212, so this block is 213.**
+
+### Block 213 — MB13 transient: zero-step run TRIAGED TO CAUSE, relaunched; my own registered remedy lost a race by eight seconds; 2026-09-14T04:13:55Z
+
+#### 1. THE ANSWER, IN ONE LINE
+
+`rhoPimpleFoam` constructed its `Time` at **03:08:22Z** while `processorN` still held a bare **`4500`** directory; `controlDict.tr` is `startFrom latestTime; endTime 2.5`, so `latestTime` resolved to **4500**, and **4500 > 2.5** — the loop exited before its first step, printed `End`, and returned **rc 0**. The log says it in its own words: **`Create mesh for time = 4500`**.
+
+#### 2. THE PART THAT IS A LESSON, NOT A BUG
+
+**ADDENDUM B2.1 PREDICTED THIS EXACT FAILURE, SPECIFIED THE REMEDY, AND THE REMEDY WAS APPLIED — AT 03:08:30Z, EIGHT SECONDS TOO LATE.** B2.1's remedy clause reads *"after the precursor's `End` and before `rhoPimpleFoam` starts"*. **That window does not exist.** `Allrun` runs `rhoSimpleFoam`, `replace.sh`, `changeDictionary` and `rhoPimpleFoam` back to back with nothing between them, and the watcher polled `log.rhoSimpleFoam` on a **15 s** interval. A 15 s poll cannot open a 0 s window. `HANDOFF.tsv` records the watcher asserting *"latestTime WILL be 0 -- correct"* at 03:08:30Z; **the assertion was true when made and false when it mattered**, because the solver had read the directory eight seconds earlier. Its `BEFORE_FIX` row already shows `5000_steadyState`, i.e. `replace.sh` had run before the watcher's first look — **the watcher was never ahead of `Allrun`, it was always behind it.**
+
+**The general form, for any successor:** *a repair that races the thing it repairs is not a repair, it is a second experiment.* The remedy had to be a **precondition of the solver's own launch, evaluated in the launching process**, and it now is.
+
+**What DID work:** B2.1's **zero-step refusal** caught it on its registered criterion — fewer than 10 `Time =` lines in the named log is a FAILURE regardless of `rc = 0` and an `End` line. Without it this was a textbook false pass: clean rc, clean `End`, no forces, no probes, no surfaces.
+
+#### 3. THE RELAYED DIAGNOSIS DID NOT SURVIVE CHECKING — AND BELIEVING IT WOULD HAVE COST US A DEVIATION WE DO NOT NEED
+
+A lead reached this team holding that the `0` symlink's `uniform/time` (`value 5000`, `index 5000`, `deltaT 1`) drove `Time::setControls`, that `deltaT ≈ 1` explained `Courant max 30.3561`, and that the loop exited on that basis — with a proposed one-line fix (delete `0/uniform/time`, or switch to `startFrom startTime`). **Checked in this box's own source, `/usr/lib/openfoam/openfoam2606/src/OpenFOAM/db/Time/Time.C`, `Foam::Time::setControls`. All three limbs are wrong:**
+
+- **`deltaT` is NOT taken from the time dictionary** — the read is guarded by `if (controlDict_.getOrDefault("adjustTimeStep", false))`, and `controlDict.tr:33` is **`adjustTimeStep no`**. `deltaT` came from the dictionary file: `#eval{1e-4/$nref}`, `nref 1`, = **1e-4**.
+- **A stored `value` mismatch WARNS and never resets the time** — the branch contains an `IOWarningInFunction` and no `setTime`.
+- **The loop exited on `startTime_ = 4500`**, from the leftover directory.
+
+**The absent warning is positive evidence.** The source skips the consistency check when the stored `name` equals `timeName()`; `4500/uniform/time` carries `name "4500"` against a start time of 4500 — so the predicted warning **must** be missing, and it is. **`0/uniform/time` is harmless and is UPSTREAM'S OWN CONDITION** (upstream's `replace.sh` also symlinks `0` → `5000_steadyState`). **No dictionary deviation was needed and none was taken. Applied deviations remain D1–D4.**
+
+**Consequence for `Courant max 30.3561`: it is REAL, at `deltaT` 1e-4 — not an artefact.** `adjustTimeStep no` means `maxCo 0.5` is **dead text** in the published dictionary. Registered in B4.3 as a **watch item with no threshold**: if the LES diverges, that is a finding about the published setup at v2606 and is **surfaced as a run, not worked around** (Sanaa 2026-09-10).
+
+#### 4. STATE AND THE RELAUNCH
+
+**RELAUNCH STATUS AT THIS WRITE: STAGING, NOT YET FIRED — ⚠ VERIFY THIS LINE, IT IS THE ONE MOST LIKELY TO BE STALE.** A cfd `lab-lane` is building two artifacts: a **frozen wrapper on a NEW filename**, `<RUN>/mb13_relaunch_transient.sh` (never overwrite a running script), and a queue entry `MB13-MARINE-PROPELLER-TRANSIENT-RELAUNCH.json` placed **first into `verification/queue/cfd/held/`, NOT the live drop path** — because that path is a launch button and check 4 happens **before** a file enters it. **Check 4 is already discharged by the supervisor personally:** `MB13_PREREGISTRATION.md` is committed at `3889fd29b` (verified an ancestor of HEAD, worktree clean against HEAD) and now carries ADDENDUM B4 at `e823b596e`. The supervisor reads the wrapper **as a diff** (§3 check 1) before the entry moves live. The wrapper carries B4.1's lesson as **launch preconditions evaluated in the launching process itself** — float-parseable time set exactly `{0}` on all 32 ranks; `0` resolving with `p` and `U` readable on all 32; `controlDict` reading `application rhoPimpleFoam`, `startFrom latestTime`, `endTime 2.5`; `turbulenceProperties` reading `LES` — each refusing with its own return code into `RELAUNCH.tsv` **before** the solver starts, with **B2.1's zero-step refusal re-armed unchanged inside the same wrapper** so it cannot be outrun either. Launch is **runner-only**, detached, **32 ranks**. **A successor who finds no `_launch` block in that entry and no pid below should assume it never fired and re-check the held directory first.**
+
+**Verified by the supervisor across all 32 ranks, not a sample:** the set of `processorN` entries whose basename parses as a float is **exactly `{0}` on 32 of 32**, and `0` is a symlink to `5000_steadyState` with `p` and `U` readable through it. **So `latestTime` = 0, the transient starts at t = 0 from the steady solution and runs 2.5 / 1e-4 = 25,000 steps.** This is a **fresh transient, not a mid-run resume**.
+
+- **Precursor `rhoSimpleFoam`: COMPLETE AND CLEAN** — 5000/5000, `End`, rc 0, `ExecutionTime = 6294.88 s` at 32 ranks = **3,357 core-min actual**, $2.87 **DERIVED, not measured**, at the owner-stated $0.0513/core-h (the box cannot read its own billing).
+- **`rhoPimpleFoam` attempt 3: ZERO STEPS — `NOT A RESULT`**, refused by B2.1's armed criterion. Its `log.rhoPimpleFoam` is **moved, not deleted**, to `ATTEMPT3_ZERO_STEP_EVIDENCE/`, with `HANDOFF.tsv`, `STATUS.tsv` and a **copy** of `postProcessing/` beside it — the precursor's 2.8 MB `fieldMinMax` trace would otherwise be at risk, because the transient's own `fieldMinMax` targets the same `postProcessing/fieldMinMax/0/` path at the same start time.
+- **Gates:** G0 `PASS`; G1 and G2 satisfied on disk per B1.6; **G3–G7 not yet run**. G4/G5/G6 read `postProcessing/` only, and none of `forces/`, `probes_pGauge/` or the noise output exists yet — **no collision on any gate input**.
+- **Live rate probe `mb13_les_probe.sh` (pid 1876049) LEFT RUNNING AND NOT RESTARTED** — it polls the same log path and will measure the new run into `LES_RATE_PROBE.txt`, collapsing the §6 band of **33,000–607,500 core-min** at step 50. *Editing or restarting a live instrument is precisely the class of act that produced this block.* No stale guard or watcher survives from attempt 3 (all targeted the dead pgid 1863406); checked in `ps`.
+- **NO CAP** (Sanaa directive #17, 2026-09-12): the cost figure is a **calibration prediction to be scored, never a kill**. A rule-12 estimate-versus-actual row is owed for the precursor stage now and for the transient at completion.
+
+#### 5. NOT TOUCHED, DELIBERATELY
+
+The two D6R3 arms (**pids 1923813 and 1929946, 20 ranks each**, both alive and checked in `ps` at this write) and the **20 ranks reserved for DrivAer**. Core arithmetic: 96 total − 20 − 20 − 20 reserved = **36 free; MB13 takes 32**. PPTC set aside and SUBOFF parked per the owner ruling in block 210; **cfd is MB13 only.**
+
+#### 6. NEXT ACTIONS
+
+1. **Read `LES_RATE_PROBE.txt` when it fills** (50 steps) — it settles the cost band and is the first evidence the Co ≈ 30 start is stable.
+2. **Watch the first 50 steps for divergence.** If it diverges, that is the §B4.3 finding about the published setup at v2606: **report it, do not work around it.**
+3. At completion: **G3–G7**, then the rule-12 calibration row in `docs/COST_CALIBRATION.md` for both stages.
+4. `Allrun.noise` and the spectrum plot still need re-running after the transient; **`gnuplot` is NOT INSTALLED on this box** (`./Allrun: line 128: gnuplot: command not found`, rc 127) — the spectrum step will need another route, and that is a known gap, not a failure of the run.
+
+**On Sanaa's desk:** nothing new from cfd.
+**Blocked:** nothing.
+
+
 <!-- BOARD-BLOCK-ID: 210-SUBOFF-PARKED-BY-OWNER-RULING-A1H-NOT-A-RESULT-ON-TWO-ROUTES-THE-SECOND-PHYSICS-A1B-L2-GRADED-ENTIRELY-FROM-ITS-FIRST-62-ITERATIONS -->
 
 **Section last written:** 2026-09-14T02:39:57Z by a cfd `lab-lane` (Opus 5), via `scripts/lab_state_section.py` + the rule-10 private-index protocol, rebuilt from the **committed blob** at HEAD `0ea853f10` — the worktree copy is BEHIND HEAD (46 lines) and was **never written**. **Newest block is 210, at the TOP of this section.** ⚠ **Trust the tail, never a header, never a count** — id re-derived in the same shell invocation as the commit (rule 11) from `BOARD-BLOCK-ID` markers in `git show $H:docs/LAB_STATE.md`: **maximum existing id 209, so this block is 210.** The `### Block 195–206` headings lower in this section are a SEPARATE, older heading series and are NOT the marker series; the marker series is the authority.
