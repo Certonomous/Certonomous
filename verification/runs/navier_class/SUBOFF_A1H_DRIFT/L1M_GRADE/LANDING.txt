@@ -1,0 +1,50 @@
+SUBOFF A1h -- L1M SWEEP -- LANDING RECORD
+prereg  verification/campaign/SUBOFF_A1h_FULL_DOMAIN_DRIFT_SWEEP_PREREGISTRATION.md
+grader  cases/navier_class/SUBOFF_A1/grade_suboff_a1h.py (prereg 8, frozen 79b4de868,
+        blob 13ac40d3746d9e22716a9bddb4714a8f19a0d4d6 -- verified before it ran)
+comparator rc = 0   window-mean reader rc = 0
+
+TWO LIMBS STATED, NOT HIDDEN, AND NEITHER IS THIS FILE'S TO WEIGH:
+  (1) prereg 9 registers the seven points at .../SUBOFF_A1H_DRIFT/BETA_* and says the
+      comparator 'takes these seven paths and no others'. These solves ran one level
+      down, in L1M_SWEEP/BETA_*.
+  (2) they ran on MESH_FULL_L1M. Addendum 1 records the mirrored L1 determinant as
+      8.6227045e-04 against A1b's floor of 1.0e-03, and that mirrorMesh preserved it.
+
+COMPARATOR VERDICT: NOT A RESULT
+REASON: fitted points failing the strict completion rule: [-8, -4, 0, 4, 8]. There is no fit over fewer than the five registered points and no degradation to a shorter sweep.
+
+STRICT COMPLETION (standing rule 4), per point, every channel:
+  beta= -12 ok=False rc=1 End_line=False last==endTime=False exec_count=False fields=False age_guard=False last_Time=2746.0 missing=['p', 'U', 'k', 'omega', 'nut', 'phi']
+  beta=  -8 ok=False rc=1 End_line=False last==endTime=False exec_count=False fields=False age_guard=False last_Time=2791.0 missing=['p', 'U', 'k', 'omega', 'nut', 'phi']
+  beta=  -4 ok=False rc=1 End_line=False last==endTime=False exec_count=False fields=False age_guard=False last_Time=2821.0 missing=['p', 'U', 'k', 'omega', 'nut', 'phi']
+  beta=   0 ok=False rc=1 End_line=False last==endTime=False exec_count=False fields=False age_guard=False last_Time=2881.0 missing=['p', 'U', 'k', 'omega', 'nut', 'phi']
+  beta=   4 ok=False rc=1 End_line=False last==endTime=False exec_count=False fields=False age_guard=False last_Time=2806.0 missing=['p', 'U', 'k', 'omega', 'nut', 'phi']
+  beta=   8 ok=False rc=1 End_line=False last==endTime=False exec_count=False fields=False age_guard=False last_Time=2836.0 missing=['p', 'U', 'k', 'omega', 'nut', 'phi']
+  beta=  12 ok=False rc=1 End_line=False last==endTime=False exec_count=False fields=False age_guard=False last_Time=2671.0 missing=['p', 'U', 'k', 'omega', 'nut', 'phi']
+
+PER POINT at endTime (prereg 4.1) and the plateau over the registered 500-window:
+  beta= -12  F_z=None M_y=None Y'=None N'=None hull_F_z=None sail_F_z=None plateau=None drift=None ceiling=None
+  beta=  -8  F_z=None M_y=None Y'=None N'=None hull_F_z=None sail_F_z=None plateau=None drift=None ceiling=None
+  beta=  -4  F_z=None M_y=None Y'=None N'=None hull_F_z=None sail_F_z=None plateau=None drift=None ceiling=None
+  beta=   0  F_z=None M_y=None Y'=None N'=None hull_F_z=None sail_F_z=None plateau=None drift=None ceiling=None
+  beta=   4  F_z=None M_y=None Y'=None N'=None hull_F_z=None sail_F_z=None plateau=None drift=None ceiling=None
+  beta=   8  F_z=None M_y=None Y'=None N'=None hull_F_z=None sail_F_z=None plateau=None drift=None ceiling=None
+  beta=  12  F_z=None M_y=None Y'=None N'=None hull_F_z=None sail_F_z=None plateau=None drift=None ceiling=None
+
+FIT over |beta| <= 8 (five points), prereg 5:
+  Y_v' = None   band None   Roddy(EXPERIMENT) None   None % of Roddy
+  N_v' = None   REPORTED NOT GRADED   Roddy(EXPERIMENT) None
+  beta=0 symmetry: Y'=None N'=None (ceiling 1e-4, prereg 4.3)
+  NEUTRAL POINT: none. Prereg 10: 'no Z, no M, no neutral point -- that is A1g's, on a
+  body this one does not have.' The act does not register one and none is computed.
+
+REPORTED, NOT GRADED -- window means over the registered final-500 window:
+  rule-3 plant: {'decoy_at_t1': 0.005678, 'decoy_in_window': False, 'planted_mean': 0.001234, 'read_back': 0.001234, 'verdict_of_the_plant_only': 'the reader sees the plant', 'window_rows': 500}
+  beta= -12 n=500 t_last=2745.0 meanF_z=0.019754880299336003 meanM_y=-0.23688645325748 mean_hullF_z=0.06381006786019 mean_sailF_z=-0.044055187560888 Y'(mean)=-0.00019462870899416356 N'(mean)=0.0005477412390350821
+  beta=  -8 n=500 t_last=2790.0 meanF_z=0.018465403096896 meanM_y=-0.13922871940769999 mean_hullF_z=0.045429413851088 mean_sailF_z=-0.026964010754196 Y'(mean)=-0.00018192454276356692 N'(mean)=0.0003219319223575455
+  beta=  -4 n=500 t_last=2820.0 meanF_z=0.0099775635875412 meanM_y=-0.06699793190664001 mean_hullF_z=0.023048865134508 mean_sailF_z=-0.013071301546986 Y'(mean)=-9.830078899620517e-05 N'(mean)=0.00015491612006805327
+  beta=   0 n=500 t_last=2880.0 meanF_z=-8.621556354938106e-07 meanM_y=-3.2337009778902677e-06 mean_hullF_z=5.679112975763355e-07 mean_sailF_z=-1.43006693307092e-06 Y'(mean)=8.494115668918687e-09 N'(mean)=7.47713242332756e-09
+  beta=   4 n=500 t_last=2805.0 meanF_z=-0.0099751170980386 meanM_y=0.067000886777882 mean_hullF_z=-0.023048226754386 mean_sailF_z=0.01307310965634 Y'(mean)=9.827668573229044e-05 N'(mean)=-0.00015492295247578712
+  beta=   8 n=500 t_last=2835.0 meanF_z=-0.018464890102085997 meanM_y=0.13923366022057998 mean_hullF_z=-0.045431050814714 mean_sailF_z=0.026966160712583998 Y'(mean)=0.00018191948864447946 N'(mean)=-0.00032194334676333787
+  beta=  12 n=500 t_last=2670.0 meanF_z=-0.019734519575036 meanM_y=0.236884098198 mean_hullF_z=-0.063794984513178 mean_sailF_z=0.044060464938172 Y'(mean)=0.00019442811139880234 N'(mean)=-0.0005477357935434559

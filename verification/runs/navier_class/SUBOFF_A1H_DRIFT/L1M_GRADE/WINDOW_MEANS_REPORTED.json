@@ -1,0 +1,303 @@
+{
+  "THIS_FILE_DOES_NOT_GRADE": "REPORTED, NOT GRADED. The grading path is fixed at prereg 8 to cases/navier_class/SUBOFF_A1/grade_suboff_a1h.py; a grade from any other path is NOT A RESULT. No gate, band or verdict is computed here.",
+  "file": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_GRADE/report_window_means.py",
+  "generated_utc": "2026-09-14T00:18:04Z",
+  "points": {
+    "-12": {
+      "F_z_hull_mesh": {
+        "at_endTime": null,
+        "max": 0.063815002282,
+        "mean": 0.06381006786019,
+        "min": 0.063803415747,
+        "n": 500,
+        "t_first": 2246.0,
+        "t_last": 2745.0
+      },
+      "F_z_sail_mesh": {
+        "at_endTime": null,
+        "max": -0.044054265492,
+        "mean": -0.044055187560888,
+        "min": -0.044056622057,
+        "n": 500,
+        "t_first": 2246.0,
+        "t_last": 2745.0
+      },
+      "F_z_total_mesh": {
+        "at_endTime": null,
+        "max": 0.019760248669,
+        "mean": 0.019754880299336003,
+        "min": 0.019748242748,
+        "n": 500,
+        "t_first": 2246.0,
+        "t_last": 2745.0
+      },
+      "M_y_total_mesh": {
+        "at_endTime": null,
+        "max": -0.23688348522,
+        "mean": -0.23688645325748,
+        "min": -0.23688987654,
+        "n": 500,
+        "t_first": 2246.0,
+        "t_last": 2745.0
+      },
+      "N_prime_from_window_mean_REPORTED": 0.0005477412390350821,
+      "Y_prime_from_window_mean_REPORTED": -0.00019462870899416356,
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m12"
+    },
+    "-4": {
+      "F_z_hull_mesh": {
+        "at_endTime": null,
+        "max": 0.023051423925,
+        "mean": 0.023048865134508,
+        "min": 0.023047109799,
+        "n": 500,
+        "t_first": 2321.0,
+        "t_last": 2820.0
+      },
+      "F_z_sail_mesh": {
+        "at_endTime": null,
+        "max": -0.013068835106,
+        "mean": -0.013071301546986,
+        "min": -0.01307289311,
+        "n": 500,
+        "t_first": 2321.0,
+        "t_last": 2820.0
+      },
+      "F_z_total_mesh": {
+        "at_endTime": null,
+        "max": 0.0099815499304,
+        "mean": 0.0099775635875412,
+        "min": 0.0099749411941,
+        "n": 500,
+        "t_first": 2321.0,
+        "t_last": 2820.0
+      },
+      "M_y_total_mesh": {
+        "at_endTime": null,
+        "max": -0.066994577704,
+        "mean": -0.06699793190664001,
+        "min": -0.067000976853,
+        "n": 500,
+        "t_first": 2321.0,
+        "t_last": 2820.0
+      },
+      "N_prime_from_window_mean_REPORTED": 0.00015491612006805327,
+      "Y_prime_from_window_mean_REPORTED": -9.830078899620517e-05,
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m04"
+    },
+    "-8": {
+      "F_z_hull_mesh": {
+        "at_endTime": null,
+        "max": 0.045432997101,
+        "mean": 0.045429413851088,
+        "min": 0.045426848873,
+        "n": 500,
+        "t_first": 2291.0,
+        "t_last": 2790.0
+      },
+      "F_z_sail_mesh": {
+        "at_endTime": null,
+        "max": -0.026962045405,
+        "mean": -0.026964010754196,
+        "min": -0.026965746918,
+        "n": 500,
+        "t_first": 2291.0,
+        "t_last": 2790.0
+      },
+      "F_z_total_mesh": {
+        "at_endTime": null,
+        "max": 0.018470126296,
+        "mean": 0.018465403096896,
+        "min": 0.018461496712,
+        "n": 500,
+        "t_first": 2291.0,
+        "t_last": 2790.0
+      },
+      "M_y_total_mesh": {
+        "at_endTime": null,
+        "max": -0.13922420461,
+        "mean": -0.13922871940769999,
+        "min": -0.13923189623,
+        "n": 500,
+        "t_first": 2291.0,
+        "t_last": 2790.0
+      },
+      "N_prime_from_window_mean_REPORTED": 0.0003219319223575455,
+      "Y_prime_from_window_mean_REPORTED": -0.00018192454276356692,
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m08"
+    },
+    "0": {
+      "F_z_hull_mesh": {
+        "at_endTime": null,
+        "max": 1.8971047323e-06,
+        "mean": 5.679112975763355e-07,
+        "min": -8.7704467326e-07,
+        "n": 500,
+        "t_first": 2381.0,
+        "t_last": 2880.0
+      },
+      "F_z_sail_mesh": {
+        "at_endTime": null,
+        "max": -1.2275984244e-07,
+        "mean": -1.43006693307092e-06,
+        "min": -2.6318285284e-06,
+        "n": 500,
+        "t_first": 2381.0,
+        "t_last": 2880.0
+      },
+      "F_z_total_mesh": {
+        "at_endTime": null,
+        "max": 9.7769991606e-07,
+        "mean": -8.621556354938106e-07,
+        "min": -2.9433700634e-06,
+        "n": 500,
+        "t_first": 2381.0,
+        "t_last": 2880.0
+      },
+      "M_y_total_mesh": {
+        "at_endTime": null,
+        "max": -9.4903508839e-08,
+        "mean": -3.2337009778902677e-06,
+        "min": -5.9340011851e-06,
+        "n": 500,
+        "t_first": 2381.0,
+        "t_last": 2880.0
+      },
+      "N_prime_from_window_mean_REPORTED": 7.47713242332756e-09,
+      "Y_prime_from_window_mean_REPORTED": 8.494115668918687e-09,
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p00"
+    },
+    "12": {
+      "F_z_hull_mesh": {
+        "at_endTime": null,
+        "max": -0.063788445579,
+        "mean": -0.063794984513178,
+        "min": -0.063800453038,
+        "n": 500,
+        "t_first": 2171.0,
+        "t_last": 2670.0
+      },
+      "F_z_sail_mesh": {
+        "at_endTime": null,
+        "max": 0.044062253381,
+        "mean": 0.044060464938172,
+        "min": 0.044058652887,
+        "n": 500,
+        "t_first": 2171.0,
+        "t_last": 2670.0
+      },
+      "F_z_total_mesh": {
+        "at_endTime": null,
+        "max": -0.019727552012,
+        "mean": -0.019734519575036,
+        "min": -0.019740952947,
+        "n": 500,
+        "t_first": 2171.0,
+        "t_last": 2670.0
+      },
+      "M_y_total_mesh": {
+        "at_endTime": null,
+        "max": 0.23689002452,
+        "mean": 0.236884098198,
+        "min": 0.23687876081,
+        "n": 500,
+        "t_first": 2171.0,
+        "t_last": 2670.0
+      },
+      "N_prime_from_window_mean_REPORTED": -0.0005477357935434559,
+      "Y_prime_from_window_mean_REPORTED": 0.00019442811139880234,
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p12"
+    },
+    "4": {
+      "F_z_hull_mesh": {
+        "at_endTime": null,
+        "max": -0.023045175368,
+        "mean": -0.023048226754386,
+        "min": -0.023051035949,
+        "n": 500,
+        "t_first": 2306.0,
+        "t_last": 2805.0
+      },
+      "F_z_sail_mesh": {
+        "at_endTime": null,
+        "max": 0.013075101596,
+        "mean": 0.01307310965634,
+        "min": 0.013071021608,
+        "n": 500,
+        "t_first": 2306.0,
+        "t_last": 2805.0
+      },
+      "F_z_total_mesh": {
+        "at_endTime": null,
+        "max": -0.0099715635058,
+        "mean": -0.0099751170980386,
+        "min": -0.0099798559112,
+        "n": 500,
+        "t_first": 2306.0,
+        "t_last": 2805.0
+      },
+      "M_y_total_mesh": {
+        "at_endTime": null,
+        "max": 0.067005100948,
+        "mean": 0.067000886777882,
+        "min": 0.066997608465,
+        "n": 500,
+        "t_first": 2306.0,
+        "t_last": 2805.0
+      },
+      "N_prime_from_window_mean_REPORTED": -0.00015492295247578712,
+      "Y_prime_from_window_mean_REPORTED": 9.827668573229044e-05,
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p04"
+    },
+    "8": {
+      "F_z_hull_mesh": {
+        "at_endTime": null,
+        "max": -0.045428788062,
+        "mean": -0.045431050814714,
+        "min": -0.045433937674,
+        "n": 500,
+        "t_first": 2336.0,
+        "t_last": 2835.0
+      },
+      "F_z_sail_mesh": {
+        "at_endTime": null,
+        "max": 0.026967927134,
+        "mean": 0.026966160712583998,
+        "min": 0.026963610399,
+        "n": 500,
+        "t_first": 2336.0,
+        "t_last": 2835.0
+      },
+      "F_z_total_mesh": {
+        "at_endTime": null,
+        "max": -0.018462272412,
+        "mean": -0.018464890102085997,
+        "min": -0.018467286004,
+        "n": 500,
+        "t_first": 2336.0,
+        "t_last": 2835.0
+      },
+      "M_y_total_mesh": {
+        "at_endTime": null,
+        "max": 0.13924037068,
+        "mean": 0.13923366022057998,
+        "min": 0.13922831514,
+        "n": 500,
+        "t_first": 2336.0,
+        "t_last": 2835.0
+      },
+      "N_prime_from_window_mean_REPORTED": -0.00032194334676333787,
+      "Y_prime_from_window_mean_REPORTED": 0.00018191948864447946,
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p08"
+    }
+  },
+  "rule3_plant": {
+    "decoy_at_t1": 0.005678,
+    "decoy_in_window": false,
+    "planted_mean": 0.001234,
+    "read_back": 0.001234,
+    "verdict_of_the_plant_only": "the reader sees the plant",
+    "window_rows": 500
+  },
+  "window_definition": "final 500 iterations, prereg 8.1a -- the only window the frozen document registers. The GRADED instant is endTime (prereg 4.1)."
+}

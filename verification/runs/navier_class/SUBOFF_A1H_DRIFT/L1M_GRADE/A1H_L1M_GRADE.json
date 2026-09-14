@@ -1,0 +1,317 @@
+{
+  "comparator": "cases/navier_class/SUBOFF_A1/grade_suboff_a1h.py",
+  "completion": {
+    "-12": {
+      "age_anchor": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m12/0/U",
+      "age_margins_s": {},
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m12",
+      "clause_age_guard": false,
+      "clause_end_line": false,
+      "clause_exec_count": false,
+      "clause_fields": false,
+      "clause_last_eq_endTime": false,
+      "clause_rc_zero": false,
+      "endTime_dir": null,
+      "fields_missing": [
+        "p",
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "phi"
+      ],
+      "last_Time": 2746.0,
+      "n_exec_lines_raw_BOOKKEEPING": 2745,
+      "n_log_segments": 1,
+      "n_steps_distinct": 2746,
+      "ok": false,
+      "rc": 1,
+      "resumed": false
+    },
+    "-4": {
+      "age_anchor": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m04/0/U",
+      "age_margins_s": {},
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m04",
+      "clause_age_guard": false,
+      "clause_end_line": false,
+      "clause_exec_count": false,
+      "clause_fields": false,
+      "clause_last_eq_endTime": false,
+      "clause_rc_zero": false,
+      "endTime_dir": null,
+      "fields_missing": [
+        "p",
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "phi"
+      ],
+      "last_Time": 2821.0,
+      "n_exec_lines_raw_BOOKKEEPING": 2820,
+      "n_log_segments": 1,
+      "n_steps_distinct": 2821,
+      "ok": false,
+      "rc": 1,
+      "resumed": false
+    },
+    "-8": {
+      "age_anchor": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m08/0/U",
+      "age_margins_s": {},
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m08",
+      "clause_age_guard": false,
+      "clause_end_line": false,
+      "clause_exec_count": false,
+      "clause_fields": false,
+      "clause_last_eq_endTime": false,
+      "clause_rc_zero": false,
+      "endTime_dir": null,
+      "fields_missing": [
+        "p",
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "phi"
+      ],
+      "last_Time": 2791.0,
+      "n_exec_lines_raw_BOOKKEEPING": 2790,
+      "n_log_segments": 1,
+      "n_steps_distinct": 2791,
+      "ok": false,
+      "rc": 1,
+      "resumed": false
+    },
+    "0": {
+      "age_anchor": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p00/0/U",
+      "age_margins_s": {},
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p00",
+      "clause_age_guard": false,
+      "clause_end_line": false,
+      "clause_exec_count": false,
+      "clause_fields": false,
+      "clause_last_eq_endTime": false,
+      "clause_rc_zero": false,
+      "endTime_dir": null,
+      "fields_missing": [
+        "p",
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "phi"
+      ],
+      "last_Time": 2881.0,
+      "n_exec_lines_raw_BOOKKEEPING": 2880,
+      "n_log_segments": 1,
+      "n_steps_distinct": 2881,
+      "ok": false,
+      "rc": 1,
+      "resumed": false
+    },
+    "12": {
+      "age_anchor": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p12/0/U",
+      "age_margins_s": {},
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p12",
+      "clause_age_guard": false,
+      "clause_end_line": false,
+      "clause_exec_count": false,
+      "clause_fields": false,
+      "clause_last_eq_endTime": false,
+      "clause_rc_zero": false,
+      "endTime_dir": null,
+      "fields_missing": [
+        "p",
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "phi"
+      ],
+      "last_Time": 2671.0,
+      "n_exec_lines_raw_BOOKKEEPING": 2670,
+      "n_log_segments": 1,
+      "n_steps_distinct": 2671,
+      "ok": false,
+      "rc": 1,
+      "resumed": false
+    },
+    "4": {
+      "age_anchor": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p04/0/U",
+      "age_margins_s": {},
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p04",
+      "clause_age_guard": false,
+      "clause_end_line": false,
+      "clause_exec_count": false,
+      "clause_fields": false,
+      "clause_last_eq_endTime": false,
+      "clause_rc_zero": false,
+      "endTime_dir": null,
+      "fields_missing": [
+        "p",
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "phi"
+      ],
+      "last_Time": 2806.0,
+      "n_exec_lines_raw_BOOKKEEPING": 2805,
+      "n_log_segments": 1,
+      "n_steps_distinct": 2806,
+      "ok": false,
+      "rc": 1,
+      "resumed": false
+    },
+    "8": {
+      "age_anchor": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p08/0/U",
+      "age_margins_s": {},
+      "case": "verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p08",
+      "clause_age_guard": false,
+      "clause_end_line": false,
+      "clause_exec_count": false,
+      "clause_fields": false,
+      "clause_last_eq_endTime": false,
+      "clause_rc_zero": false,
+      "endTime_dir": null,
+      "fields_missing": [
+        "p",
+        "U",
+        "k",
+        "omega",
+        "nut",
+        "phi"
+      ],
+      "last_Time": 2836.0,
+      "n_exec_lines_raw_BOOKKEEPING": 2835,
+      "n_log_segments": 1,
+      "n_steps_distinct": 2836,
+      "ok": false,
+      "rc": 1,
+      "resumed": false
+    }
+  },
+  "generated_utc": "2026-09-14T00:18:03Z",
+  "non_interference": {
+    "assertion": "this comparator writes ONLY to --out and --scratch; neither is inside any graded case directory, nor inside the run root",
+    "graded_trees": [
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m12",
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m08",
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_m04",
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p00",
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p04",
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p08",
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP/BETA_p12",
+      "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_SWEEP"
+    ],
+    "out": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_GRADE/A1H_L1M_GRADE.json",
+    "scratch": "/home/ubuntu/Certonomous/verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_GRADE/scratch",
+    "verdict": "PASS"
+  },
+  "preregistration": "verification/campaign/SUBOFF_A1h_FULL_DOMAIN_DRIFT_SWEEP_PREREGISTRATION.md",
+  "reason": "fitted points failing the strict completion rule: [-8, -4, 0, 4, 8]. There is no fit over fewer than the five registered points and no degradation to a shorter sweep.",
+  "restart_value_conflicts_by_point": {},
+  "restart_value_conflicts_present": false,
+  "rule3_plants": {
+    "P_A_force_reader": {
+      "decoy_at_t1": 0.005678,
+      "planted": 0.001234,
+      "returned": 0.001234,
+      "verdict": "PASS"
+    },
+    "P_B_moment_reader": {
+      "decoy_at_t1": 0.0004321,
+      "planted": -0.0009876,
+      "returned": -0.0009876,
+      "verdict": "PASS"
+    },
+    "P_C_age_guard": {
+      "fresh": {
+        "clause_age_guard": true,
+        "clause_end_line": true,
+        "clause_exec_count": true,
+        "ok": true
+      },
+      "stale": {
+        "clause_age_guard": false,
+        "clause_end_line": true,
+        "clause_exec_count": true,
+        "ok": false
+      },
+      "verdict": "PASS"
+    },
+    "P_D_fit_and_gate": {
+      "inside_band": {
+        "planted_slope": -0.023008,
+        "recovered": -0.023007999999999997,
+        "verdict_required": "PASS",
+        "verdict_returned": "PASS"
+      },
+      "outside_band": {
+        "planted_slope": -0.03,
+        "recovered": -0.030000000000000002,
+        "verdict_required": "GATE FAIL",
+        "verdict_returned": "GATE FAIL"
+      },
+      "short_sweep_refusal": {
+        "dropped_each_of": [
+          -8,
+          -4,
+          0,
+          4,
+          8
+        ],
+        "verdict": "NOT A RESULT on every drop"
+      },
+      "sign_clause": {
+        "planted_slope": 0.02,
+        "verdict": "NOT A RESULT"
+      },
+      "symmetry_clause": {
+        "planted_Yp_at_0": 1.0,
+        "verdict": "GATE FAIL"
+      },
+      "verdict": "PASS"
+    },
+    "P_E_constants_and_sign": {
+      "Np": 2.2835803408440195e-06,
+      "Q_AREA": 101.50034083578288,
+      "Q_VOL": 432.478762553622,
+      "Yp": -1.2157594642923271e-05,
+      "expected_Np_independent_literal": 2.283580340844e-06,
+      "expected_Yp_independent_literal": -1.215759464292e-05,
+      "verdict": "PASS"
+    },
+    "P_F_plateau_gate": {
+      "drifting": {
+        "ceiling": 0.00023008000000000002,
+        "drift": 0.0023008000000000004,
+        "verdict": "NOT A RESULT"
+      },
+      "flat": {
+        "drift": 0.0,
+        "verdict": "PASS"
+      },
+      "short_window": {
+        "verdict": "NOT A RESULT"
+      },
+      "verdict": "PASS"
+    },
+    "P_G_end_to_end": {
+      "broken_completion": {
+        "broke": "beta=-4 solve_rc removed",
+        "verdict": "NOT A RESULT"
+      },
+      "complete_sweep": {
+        "planted": -0.023008,
+        "recovered": -0.023008000000155203,
+        "verdict": "PASS"
+      },
+      "missing_force_file": {
+        "verdict": "REFUSED, as required"
+      },
+      "verdict": "PASS"
+    }
+  },
+  "verdict": "NOT A RESULT"
+}
