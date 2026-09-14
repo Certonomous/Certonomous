@@ -47453,6 +47453,10 @@ Execution/mesh lane `a44de39d4126a3896` holds the staged tree, `mb13_watch.sh` a
 **Cells per rank at 32: 127,188 — below the ~200k floor at which this box has no measured strong-scaling basis.** Confidence in G7 `GATE REACHED` first attempt: **~55 %**. G0 is `PASS`; every other gate is not yet run.
 
 **SUBMISSIONS PARKED.**
+
+<!-- BOARD-BLOCK-ID: 211-PRISM-A2-TERMINATED-RECORDED-IN-ONE-LINE-GRADING-DEFERRED-BY-SANAAS-RULING -->
+
+**PRISM-A2 absolute-thickness layer build (pid 1768257) TERMINATED** via `Finished meshing`. Final extrusion **439,296 of 724,711 faces = 60.616715%**; `Layer mesh :` cells **20,533,684**, faces 62,425,839, points 21,434,106. **rc `0`** (from `RUN_STATUS`; an `End` line is not an rc). **267.77 core-min**, 1.488x against the registered 180 core-min (denominator NOT rebased). **`PENDING` — graded after the demos, by Sanaa's ruling ("OK PPCT gets set aside till after the demos"). NOTHING FAILED**; the five-point grading contract is suspended, not cancelled, and no verdict is claimed here. ACHIEVED per patch (`printLayerData`, not the request table — L-590): blades 1.54 of 2 layers, 0.000371 m, 74.9%; hub 1.49 of 2 layers, 0.000546 m, 55%; cap 0.718 of 2 layers, 0.00026 m, 26.2%; shaft 0.294 of 2 layers, 0.000234 m, 11.8%. Artifact: `/home/ubuntu/certonomous-runs/PPTC_VP1304/PRISM_A2_absthick/log.snappyHexMesh`.
 ## verification
 
 **Section last written:** 2026-09-12T01:24:35Z by verification-supervisor (V-188; `date -u` in THIS committing invocation; `deletions == 0`). **SHARED LAUNCH TOOLING: NO KILL ON SPEND. TEAMS CAN LAUNCH NOW WITH NO DISARM.**
