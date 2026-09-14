@@ -46,7 +46,26 @@ redistribution, leading and trailing edges held.
 
 **RESULT.** Six frames at design iterations **1, 3, 6, 10, 15, 25** on one camera and
 one colour range: displacement grows **0.8 mm → 20.0 mm**, tip washout reaching
-**2.5°**. Sections at three span stations and the FFD lattice show the same motion.
+**2.5°**.
+
+## The sections do not move — `section_eta20/50/80.png`
+
+**PROBLEM.** The three span stations are the check on the frames above: if the shape
+moved, a plane cut of the wall at η = 0.20 / 0.50 / 0.80 must show it.
+
+**SOLUTION.** Cut the wing wall patch with the plane `y = η·b/2`, `b/2 = 3.766668 m`
+read from the patch bounds, once on the baseline `constant/polyMesh` and once on the
+final-time `processor*/2000/polyMesh`, and walk the single polyline each cut returns
+(`cut_sections.py`). Chords **1.247254 / 0.847772 / 0.571452 m**.
+
+**RESULT.** **`max |Δz/c| = 0` at all three stations.** `MP_R2_DESIGN_ITERATIONS.tsv`
+records design iteration 0 and nothing after it — the run was killed (`rc = 137`) inside
+the first adjoint solve — so no design variable ever moved, and the final-time mesh is
+the baseline mesh re-written by the solver (max point displacement **9.94e-13 m**, zero
+points beyond 1e-12 m). The dashed curve lies on the solid one because the geometry is
+the same geometry. A planted **+1.234e-03 m** offset on the η = 0.50 cut is read back as
+`max |Δz/c| = 1.456e-03` against an expected 1.4556e-03, so the zero is a reading and
+not a blind reader.
 
 ## The drag comes down — `cd_history.png`, `cl_history.png`
 

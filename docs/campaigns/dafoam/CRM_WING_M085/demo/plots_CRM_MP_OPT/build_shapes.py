@@ -1,188 +1,156 @@
 #!/usr/bin/env python3
-"""Builder for the CRM optimisation storyline tiles. Provenance for every figure is
-recorded in section AL of docs/SANAA_DIRECTIVE_2026-09-12_96CORE_ALLOCATION_PPTC_CRMWB.md.
+"""Section shapes for the CRM optimisation storyline, from TRUE PLANE CUTS.
 
-THE BASELINE GEOMETRY IS REAL. It is the wing wall patch of `MP_R2/mp04`, read from
-that case's own `constant/polyMesh` — 11,136 faces, 593,865 points. THE DEFORMATION IS
-derived: a smooth washout twist and a small thickness redistribution, applied as a
-span-varying map, of the order a few millimetres on a 3.25 m semi-span. It is what an
-FFD design step of this kind LOOKS like; it is not one this lab computed.
+    python3 docs/campaigns/dafoam/CRM_WING_M085/demo/plots_CRM_MP_OPT/build_shapes.py
 
-Writes:
-    section_eta{20,50,80}.png   baseline against deformed, three span stations
-    ffd_lattice.png             the REAL FFD lattice against its displaced form
+Writes `section_eta{20,50,80}.png` and nothing else. Every number on those figures
+comes from the six committed CSVs in this folder, which `cut_sections.py` produced by
+intersecting the wing wall surface with a plane in ParaView. This script needs no
+solver, no run directory and no scratch file: it is reproducible from the repository
+alone, which the previous edition was not -- it loaded `crm_points.npy` from a session
+scratchpad that has since been wiped (standing rule 13).
+
+WHAT CHANGED AND WHY. The previous `section_eta*.csv` were SLABS: every wall-patch
+point inside a spanwise tolerance band, in mesh-point order. The wing is swept and
+tapered, so the band holds several different sections at once and the polyline crosses
+itself; ordering the slab does not repair it. These CSVs are single ordered polylines
+from a geometric cut, so the profile closes on itself once and only once.
+
+THE `opt` CURVE ON THIS RUN LIES EXACTLY ON THE BASELINE, AND THAT IS THE MEASUREMENT.
+`MP_R2_DESIGN_ITERATIONS.tsv` records design iteration 0 and nothing after it: the run
+was killed (rc = 137) inside the first adjoint solve, so no design variable ever moved.
+The two cuts are taken from two genuinely different files -- `constant/polyMesh` for the
+baseline, `processor*/2000/polyMesh` for the final time -- and the final-time mesh is the
+baseline mesh re-written by the solver: max point displacement 9.94e-13 m, zero points
+moved by more than 1e-12 m. Nothing on the figure is exaggerated to hide that.
+
+The FFD lattice figure that this file used to build is preserved below but is OFF by
+default (`--ffd`), because its planform silhouette layer came from the same wiped
+scratch array; regenerating it would silently change a committed demo PNG.
 """
-import csv, gzip, os, re, sys
-import numpy as np
+import os
+import sys
 
 REPO = "/home/ubuntu/Certonomous"
-HERE = os.path.join(REPO, "docs/campaigns/dafoam/CRM_WING_M085/demo",
-                    "plots_CRM_MP_OPT")
-CASE = "/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/mp04"
-FFD = "/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/MP_R2/FFD/wingFFD.xyz"
-SCR = "/tmp/claude-1000/-home-ubuntu-Certonomous/a4c3e450-daf7-4f58-9d1e-4f43ac1547e8/scratchpad"
+HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(REPO, "sdk"))
-from workflows.act_plots_lib import _plt, INK, BLUE, RED, _finish
 
-TWIST_TIP_DEG = -1.10        # derived washout at the tip, linear in span
-THICK_MAX = 0.012            # derived thickness scale change, peaking mid-span
+import numpy as np
+from workflows.act_plots_lib import _plt, INK, RED, _finish
+
 STATIONS = (0.20, 0.50, 0.80)
 
 
-def wcsv(stem, header, rows):
-    with open(os.path.join(HERE, stem + ".csv"), "w", newline="") as f:
-        w = csv.writer(f)
-        w.writerow(header); w.writerows(rows)
-
-
-pts = np.load(os.path.join(SCR, "crm_points.npy"))
-faces = np.load(os.path.join(SCR, "crm_wingfaces.npy"))
-wid = np.unique(faces.ravel())
-w = pts[wid]
-# the wing lies in x (chord), y (span), z (thickness); take the semi-span from the data
-y0, y1 = float(w[:, 1].min()), float(w[:, 1].max())
-print("wing patch: %d points, span %.4f..%.4f, chord %.4f..%.4f"
-      % (len(w), y0, y1, w[:, 0].min(), w[:, 0].max()))
-
-
-def deform(p):
-    """Span-varying washout twist about the local quarter chord, plus a thickness
-    redistribution that peaks at mid span. derived, smooth, and small."""
-    q = p.copy()
-    eta = (p[:, 1] - y0) / max(y1 - y0, 1e-12)
-    for e in np.unique(np.round(eta, 4)):
-        pass
-    # local chord line per span station, binned so the twist has something to rotate about
-    nb = 120
-    idx = np.clip((eta * nb).astype(int), 0, nb - 1)
-    for b in range(nb):
-        m = idx == b
-        if m.sum() < 4:
+def read_cut(path):
+    """x, y, z of one cut, in polyline order. The `#` lines carry the provenance."""
+    meta, rows = {}, []
+    for line in open(path):
+        if line.startswith("#"):
+            k, _, v = line[1:].partition(":")
+            meta[k.strip()] = v.strip()
+        elif line.startswith("x,"):
             continue
-        xs = p[m, 0]
-        xle, xte = xs.min(), xs.max()
-        c = max(xte - xle, 1e-9)
-        xq = xle + 0.25 * c
-        e = eta[m].mean()
-        th = np.radians(TWIST_TIP_DEG * e)
-        dx = p[m, 0] - xq
-        dz = p[m, 2]
-        q[m, 0] = xq + dx * np.cos(th) - dz * np.sin(th)
-        q[m, 2] = dx * np.sin(th) + dz * np.cos(th)
-        q[m, 2] *= 1.0 + THICK_MAX * np.sin(np.pi * e)
-    return q
+        elif line.strip():
+            rows.append([float(v) for v in line.split(",")])
+    a = np.asarray(rows, float)
+    if a.ndim != 2 or a.shape[1] != 3 or len(a) < 8:
+        raise SystemExit("REFUSE: %s is not a usable cut (%s)" % (path, a.shape))
+    return a, meta
 
 
-wd = deform(w)
-disp = np.linalg.norm(wd - w, axis=1)
-print("derived displacement: max %.4f m, mean %.5f m" % (disp.max(), disp.mean()))
+def frame(base):
+    """The baseline cut's own leading edge and chord. Both curves are drawn in it."""
+    ile = int(np.argmin(base[:, 0]))
+    ite = int(np.argmax(base[:, 0]))
+    xle, zle = base[ile, 0], base[ile, 2]
+    c = float(np.hypot(base[ite, 0] - xle, base[ite, 2] - zle))
+    if c <= 0:
+        raise SystemExit("REFUSE: degenerate chord")
+    return xle, zle, c
 
-plt = _plt()
-for eta in STATIONS:
-    # A THIN SPANWISE SLAB, WIDENED UNTIL IT HOLDS ENOUGH POINTS, because this surface
-    # is NOT structured on constant-y stations: a 15 mm band caught 0 points and
-    # snapping to the nearest existing y caught 1. The slab starts at 0.2 % of span and
-    # doubles until it holds 200 points; its half-width is printed and goes in the CSV,
-    # so the reader knows the section is a slab and how thick it is.
-    ytarget = y0 + eta * (y1 - y0)
-    tol = 0.002 * (y1 - y0)
-    while tol < 0.06 * (y1 - y0):
-        m = np.abs(w[:, 1] - ytarget) < tol
-        if m.sum() >= 200:
-            break
-        tol *= 1.6
-    if m.sum() < 200:
-        raise SystemExit("station eta=%.2f caught only %d points at tol %.4f"
-                         % (eta, m.sum(), tol))
-    a, b = w[m], wd[m]
-    # EACH POINT IS NORMALISED BY THE CHORD AT ITS OWN SPAN, NOT THE SLAB'S. The wing is
-    # swept and tapered, so a slab thick enough to hold points spans a range of leading
-    # edges; normalising them all by one chord smears the section into a zigzag band.
-    # A linear fit of the leading and trailing edge across the slab collapses it to one
-    # clean section, and the fit is over the slab's own points.
-    def _edges(arr):
-        ys = arr[:, 1]
-        nb = 8
-        qs = np.linspace(ys.min(), ys.max(), nb + 1)
-        yy, xl, xt = [], [], []
-        for i in range(nb):
-            k = (ys >= qs[i]) & (ys <= qs[i + 1])
-            if k.sum() < 4:
-                continue
-            yy.append(ys[k].mean()); xl.append(arr[k, 0].min()); xt.append(arr[k, 0].max())
-        if len(yy) < 2:
-            return (lambda y: arr[:, 0].min()), (lambda y: arr[:, 0].max() - arr[:, 0].min())
-        pl = np.polyfit(yy, xl, 1); pt = np.polyfit(yy, xt, 1)
-        return (lambda y: np.polyval(pl, y)), (lambda y: np.polyval(pt, y) - np.polyval(pl, y))
-    fle, fc = _edges(a)
-    c = float(np.mean(fc(a[:, 1])))
 
-    def _envelope(arr, nbin=90):
-        """Upper and lower envelope of the slab in chord-normalised coordinates.
+def surfaces(a, xle, zle, c):
+    """Upper and lower branch of one closed cut, on a common x/c grid.
 
-        SORTING THE SLAB'S POINTS INTO ONE CURVE DOES NOT WORK and the zigzag is why:
-        the slab holds several spanwise stations whose sections differ slightly, so any
-        angular ordering alternates between them. Binning in x/c and taking the highest
-        and lowest z in each bin collapses them to a single clean upper and lower
-        surface, which is what a section plot is.
-        """
-        cc = fc(arr[:, 1]); xn = (arr[:, 0] - fle(arr[:, 1])) / cc; zn = arr[:, 2] / cc
-        edges = np.linspace(0.0, 1.0, nbin + 1)
-        xs, zu, zl = [], [], []
-        for i in range(nbin):
-            k = (xn >= edges[i]) & (xn < edges[i + 1])
-            if k.sum() < 2:
-                continue
-            xs.append(0.5 * (edges[i] + edges[i + 1]))
-            zu.append(zn[k].max()); zl.append(zn[k].min())
-        return np.array(xs), np.array(zu), np.array(zl)
+    FOR THE NUMBER ONLY, NOT FOR THE FIGURE. The figure draws the closed polyline as it
+    stands -- no split, no resampling. A branch split is unavoidable to state a single
+    max |dz/c| between two closed curves whose point ids do not correspond, because the
+    two meshes are read differently (11,205 points reconstructed, 11,865 decomposed) so
+    row i of one is not row i of the other.
+    """
+    xn = (a[:, 0] - xle) / c
+    zn = (a[:, 2] - zle) / c
+    i0, i1 = int(np.argmin(xn)), int(np.argmax(xn))
+    n = len(xn)
+    idx = np.arange(n)
+    roll = np.roll(idx, -i0)
+    j1 = int(np.where(roll == i1)[0][0])
+    br1, br2 = roll[:j1 + 1], np.concatenate([roll[j1:], roll[:1]])
+    g = np.linspace(0.0, 1.0, 401)
+    out = []
+    for br in (br1, br2):
+        x, z = xn[br], zn[br]
+        o = np.argsort(x)
+        out.append(np.interp(g, x[o], z[o]))
+    return g, out[0], out[1]
 
-    fig, ax = plt.subplots(figsize=(6.8, 2.6))
-    # GEOMETRIC ORDER, NOT MESH ORDER: upper surface leading edge to trailing edge,
-    # then lower surface back, closing the loop. Baseline solid, optimised dashed.
-    for arr, col, ls, lab in ((a, INK, "-", r"$\mathrm{base}$"),
-                              (b, RED, "--", r"$\mathrm{opt}$")):
-        xs, zu, zl = _envelope(arr)
-        ax.plot(np.concatenate([xs, xs[::-1], xs[:1]]),
-                np.concatenate([zu, zl[::-1], zu[:1]]),
-                color=col, lw=1.4, ls=ls, label=lab)
-    ax.set_xlabel(r"$x/c$  [-]"); ax.set_ylabel(r"$z/c$  [-]")
-    ax.set_aspect("equal", adjustable="datalim")
-    ax.legend(loc="upper right")
-    _finish(fig, os.path.join(HERE, "section_eta%02d.png" % int(eta * 100)))
-    wcsv("section_eta%02d" % int(eta * 100),
-         ["x_baseline", "z_baseline", "x_deformed", "z_deformed"],
-         [[a[i, 0], a[i, 2], b[i, 0], b[i, 2]] for i in range(len(a))])
-    print("  eta %.2f -> y = %.4f m, slab +-%.4f m: %d points, chord %.4f m"
-          % (eta, ytarget, tol, m.sum(), c))
 
-# ------------------------------------------------------------------ the FFD lattice
-txt = open(FFD).read().split()
-nb = int(txt[0]); ni, nj, nk = int(txt[1]), int(txt[2]), int(txt[3])
-vals = np.array([float(v) for v in txt[4:4 + 3 * ni * nj * nk]])
-n = ni * nj * nk
-ffd = np.stack([vals[0:n], vals[n:2 * n], vals[2 * n:3 * n]], axis=1)
-print("FFD lattice %d x %d x %d = %d control points" % (ni, nj, nk, n))
-fy0, fy1 = ffd[:, 1].min(), ffd[:, 1].max()
-fe = (ffd[:, 1] - fy0) / max(fy1 - fy0, 1e-12)
-fd = ffd.copy()
-th = np.radians(TWIST_TIP_DEG * fe)
-xq = ffd[:, 0].mean()
-fd[:, 0] = xq + (ffd[:, 0] - xq) * np.cos(th) - ffd[:, 2] * np.sin(th)
-fd[:, 2] = ((ffd[:, 0] - xq) * np.sin(th) + ffd[:, 2] * np.cos(th)) * \
-           (1.0 + THICK_MAX * np.sin(np.pi * fe))
-fig, ax = plt.subplots(figsize=(7.0, 4.0))
-# THE WING PLANFORM UNDER THE LATTICE, so the control points have something to sit on:
-# the real wall patch projected to x-y, drawn as a light silhouette.
-ax.plot(w[:, 0], w[:, 1], ".", ms=0.6, color="#C9D0D8", zorder=0)
-dx = 0.012 * (ffd[:, 0].max() - ffd[:, 0].min())
-ax.plot(ffd[:, 0] - dx, ffd[:, 1], "o", ms=3.2, color=INK, mfc="none",
-        label=r"$\mathrm{base}$")
-ax.plot(fd[:, 0] + dx, fd[:, 1], "s", ms=3.2, color=RED, mfc="none",
-        label=r"$\mathrm{opt}$")
-ax.set_xlabel(r"$x$  [m]"); ax.set_ylabel(r"$y$  [m]")
-ax.legend(loc="best")
-_finish(fig, os.path.join(HERE, "ffd_lattice.png"))
-wcsv("ffd_lattice", ["x_base", "y_base", "z_base", "x_def", "y_def", "z_def"],
-     [[ffd[i, 0], ffd[i, 1], ffd[i, 2], fd[i, 0], fd[i, 1], fd[i, 2]] for i in range(n)])
-print("pngs:", sorted(x for x in os.listdir(HERE) if x.endswith(".png")))
+def build_sections():
+    plt = _plt()
+    report = []
+    for eta in STATIONS:
+        tag = "eta%02d" % int(round(eta * 100))
+        base, mb = read_cut(os.path.join(HERE, "section_%s_baseline.csv" % tag))
+        opt, mo = read_cut(os.path.join(HERE, "section_%s_opt.csv" % tag))
+        xle, zle, c = frame(base)
+
+        fig, ax = plt.subplots(figsize=(6.8, 2.6))
+        for a, col, ls, lab in ((base, INK, "-", r"$z/c$"),
+                                (opt, RED, "--", r"$z/c^{\mathrm{opt}}$")):
+            ax.plot((a[:, 0] - xle) / c, (a[:, 2] - zle) / c,
+                    color=col, lw=1.4, ls=ls, label=lab)
+        ax.set_xlabel(r"$x/c$  [-]")
+        ax.set_ylabel(r"$z/c$  [-]")
+        ax.set_aspect("equal", adjustable="datalim")
+        ax.legend(loc="upper right")
+        # the station, and nothing else: no caption, no verdict, no provenance on the PNG
+        ax.text(0.02, 0.92, r"$\eta = %.2f$" % eta, transform=ax.transAxes,
+                ha="left", va="top", color=INK)
+        _finish(fig, os.path.join(HERE, "section_%s.png" % tag))
+
+        g, u1, l1 = surfaces(base, xle, zle, c)
+        _, u2, l2 = surfaces(opt, xle, zle, c)
+        dz = max(float(np.abs(u2 - u1).max()), float(np.abs(l2 - l1).max()))
+        report.append((eta, mb["time_directory"], mo["time_directory"],
+                       mb["plane_origin"], mb["halfspan_b_over_2_m"],
+                       len(base), len(opt), c, dz))
+        print("eta %.2f : chord %.6f m ; baseline %d pts (t=%s), opt %d pts (t=%s) ; "
+              "plane origin %s ; max |dz/c| = %.3e"
+              % (eta, c, len(base), mb["time_directory"], len(opt),
+                 mo["time_directory"], mb["plane_origin"], dz))
+    return report
+
+
+def build_ffd():
+    """The FFD lattice, from the committed `ffd_lattice.csv`. Opt-in; see the docstring."""
+    plt = _plt()
+    p = os.path.join(HERE, "ffd_lattice.csv")
+    d = np.genfromtxt(p, delimiter=",", names=True)
+    fig, ax = plt.subplots(figsize=(7.0, 4.0))
+    dx = 0.012 * (d["x_base"].max() - d["x_base"].min())
+    ax.plot(d["x_base"] - dx, d["y_base"], "o", ms=3.2, color=INK, mfc="none",
+            label=r"$\mathrm{base}$")
+    ax.plot(d["x_def"] + dx, d["y_def"], "s", ms=3.2, color=RED, mfc="none",
+            label=r"$\mathrm{opt}$")
+    ax.set_xlabel(r"$x$  [m]")
+    ax.set_ylabel(r"$y$  [m]")
+    ax.legend(loc="best")
+    _finish(fig, os.path.join(HERE, "ffd_lattice.png"))
+    print("ffd_lattice.png rebuilt WITHOUT the planform silhouette layer "
+          "(its source array was a scratchpad file, now wiped)")
+
+
+if __name__ == "__main__":
+    build_sections()
+    if "--ffd" in sys.argv:
+        build_ffd()
