@@ -463,3 +463,17 @@ PPTC is set aside until after the demos — no lane effort goes to it; the runni
 > good and remmeber during the optimization we dont do gradient check
 
 **Chief's reading:** during a running optimisation no finite-difference gradient verification step is performed by the run script or any watcher; gradient checks, if ever wanted, are a separate registered item before or after, never inside the optimisation.
+
+---
+
+## AE. MP_R2 mesh and per-condition pressure panels for the demo — byte-exact, 2026-09-14 ~01:55Z (owner directive #47)
+
+> and for this mulitpoint otpimization; itll find the mesh that otpimizs drag for three lift levels (average optimal), correct?
+
+> good. and for the three lift conditions, the primals are done and converged ?
+
+> Then plotting agent plots the meshes on parview per plotting convention, and the pressure fields for each. Well use that in the demo. What's still missing in the other pltos
+
+**Chief's reading:**
+The plot lane renders, per plot library v2 conventions, the MP_R2 wing wall-patch mesh (as meshed, plus a symmetry-plane volume-mesh cut) and the wall pressure field for each of the three lift conditions (same camera, same colour range) from the six converged iteration-zero primals.
+These are demo panels.
