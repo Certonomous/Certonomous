@@ -1,0 +1,84 @@
+{
+  "rung": "MRF_R4",
+  "single_grid": true,
+  "stamp": "SINGLE GRID -- NO GRID-CONVERGENCE CLAIM",
+  "band": [
+    5.29,
+    5.53
+  ],
+  "envelope": [
+    4.54,
+    6.28
+  ],
+  "prediction_frozen_before_run": [
+    5.2,
+    5.4
+  ],
+  "reference": {
+    "value": 5.41,
+    "source": "Beshay, Kratena, Fort & Bruha, Acta Polytechnica 41(6) 2001, Table 3, small rig, h/T = 0.33, MEASURED by strain-gauge torquemeter",
+    "scatter_stated": "average relative standard deviation 2.3 to 16 %, given ACROSS impellers and NOT per impeller"
+  },
+  "run_dir": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/fine",
+  "planted_zero": {
+    "planted_Nm": 0.001234,
+    "expected_dNp": 0.03107595458540925,
+    "seen_dNp": 0.03107595458540402,
+    "reader": "read_np_series",
+    "artifact": "/home/ubuntu/Certonomous/verification/runs/navier_class/MRF/R4/fine/postProcessing/impellerForces/0/moment.dat",
+    "passed": true
+  },
+  "ranks": 6,
+  "completion": {
+    "rc_zero": true,
+    "end_line": true,
+    "exec_count_equals_endTime": true,
+    "last_time_equals_endTime": true,
+    "fields_present": true,
+    "age_guard": true
+  },
+  "iterative_convergence": {
+    "IC1_no_bounding_after_2000": {
+      "events_after_warmup": [
+        2352,
+        3085,
+        3358,
+        3845,
+        4793,
+        4839,
+        4872,
+        7274
+      ],
+      "passed": false,
+      "window": "(2000, n] -- ABSOLUTE left edge; extending can only ADD events"
+    },
+    "IC2_no_nan_no_fpe": {
+      "nan": false,
+      "fpe": true,
+      "passed": false
+    },
+    "IC3_residual_floor": {
+      "final": {
+        "Ux": 0.017238255,
+        "Uy": 0.016382902,
+        "Uz": 0.015335971,
+        "k": 0.0061512408,
+        "omega": 0.0014200264
+      },
+      "cumulative_continuity": 5.3252107e-15,
+      "passed": false,
+      "note": "p's raw initial residual is NOT gated: closed domain, floating pressure reference (NUMERICS_KNOWLEDGE N-X4)"
+    },
+    "IC4_stationarity": {
+      "window_iterations": 2000,
+      "mean_Np": 5.123337112403221,
+      "max_rel_excursion": 0.04922777150804314,
+      "rel_linear_drift": 0.008599767619595028,
+      "passed": false
+    }
+  },
+  "Np": 5.113582223491711,
+  "Np_window_mean": 5.123337112403221,
+  "verdict": "NOT A RESULT",
+  "why": "iterative convergence refused on: IC1_no_bounding_after_2000, IC2_no_nan_no_fpe, IC3_residual_floor, IC4_stationarity. endTime is NOT extended to chase a limb (section 5)."
+}
