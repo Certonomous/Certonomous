@@ -487,3 +487,11 @@ These are demo panels.
 **Chief's reading:**
 This resolves the §Y question — the SUBOFF act shows the hardest completed sweep on disk, which is A1h, the seven-point yaw (β) sweep on the mirrored full L1 mesh (6.5M cells); the instructed α sweep (A1g) never ran and is not required for the act.
 The plot lane reports to the chief when the MP_R2 mesh and three per-condition pressure panels are committed.
+
+---
+
+## AG. The yaw sweep was finished because it was already converged — byte-exact, 2026-09-14 ~02:15Z (owner directive #49)
+
+> for the yaw sweep, we finished it bc it was already converged
+
+**Chief's reading:** the owner declares the residual-converged stop of the seven SUBOFF A1h β points (ordered under §V) to be the run end; cfd files the dated addendum quoting this line and re-grades completion; the physics grade against Roddy stays separate.
