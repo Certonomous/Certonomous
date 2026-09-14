@@ -173,3 +173,92 @@ that the artifact had actually settled: `postProcessing/all/0/forceCoeffs.dat` h
 stopped growing and 879 is the true final iteration rather than whatever happened to
 be on disk mid-write. The iteration and the mean above are read from that file, not
 relayed.
+
+---
+
+## PRESSURE PANELS RE-RENDERED — 2026-09-14
+
+On the owner's order, `drivaer_p_side.png`, `drivaer_p_top.png` and
+`drivaer_p_rear.png` were re-rendered by `render_field_panels.py p-panels`. **No
+number in this file changed and no solver ran**: the panels read
+`coarse_R1/1000/p` — kinematic pressure, `dimensions [0 2 -2 0 0 0 0]`, hence
+m²/s² — on `body2`, `ruotaant` and `ruotapost`, 32,913 faces, the same artifact as
+before. Per-file provenance (case, case directory, time, patches, camera, colour
+range, image size and the sha256 of the field file) is in **`PROVENANCE_PANELS.tsv`**,
+which is a SEPARATE file from `PROVENANCE.tsv` because `build_plots.py` rewrites
+that one whole on every matplotlib build and a row appended there would be lost.
+
+**The window is now the DATA range, not a percentile window.** `p` on those faces
+at iteration 1000 runs **−1142.27 to 472.49 m²/s²**, taken from the reader's array
+information and independently from numpy over the fetched values, which agree to
+1.1e−03. It is rounded outward to **−1500 to 500 m²/s²**, a span of four equal
+500-wide steps, so the bar carries exactly five round ticks — **−1500, −1000,
+−500, 0, 500** — and the SAME bar, identical to 238 ink pixels on all three
+images, is drawn on each panel. The maximum, 472.5, is the nose stagnation value
+and sits just under the free-stream dynamic head 0.5·30² = 450 m²/s² plus the
+domain's own datum; the minimum, −1142.3, is a local suction spot at the front
+wheel.
+
+**🔴 The ordered window is 2.8x wider than the body's own 2nd-to-98th percentile
+band (−402.5 to 180.3 m²/s²), so the body reads nearly uniform.** That is a
+consequence of the window, not of the solution: the extremes are carried by a
+handful of faces, and a diverging `Cool to Warm` map centred on the midpoint of
+an asymmetric range puts its white point at −500 m²/s², where no significant part
+of the body sits. The panels are shown as ordered; the percentile numbers are
+recorded here so the choice can be revisited without re-measuring anything.
+
+**Cameras, all orthographic, all derived from the measured body bounds**
+(x −0.8077…3.8043, y 0.0000…1.0023, z 0.0000…1.3899 m):
+
+| Figure | Camera axis from the body centre | View direction | Up | Parallel scale | Size |
+|---|---|---|---|---|---|
+| `drivaer_p_side.png` | (0, −1, 0) | (0, +1, 0) | (0, 0, 1) | 1.4413 | 1920×1080 |
+| `drivaer_p_top.png` | (0, 0, +1) | (0, 0, −1) | (0, +1, 0) | 1.4413 | 1920×1080 |
+| `drivaer_p_rear.png` | (+1, 0, 0) | (−1, 0, 0) | (0, 0, 1) | 0.7722 | 1600×1200 |
+
+The parallel scale is derived so the body fills **90.0 %** of its limiting axis —
+a 5 % margin on each side — and the fill is **recomputed from the finished
+camera** and refused if it is not 0.90 or if the body would be clipped. Measured:
+side 90.0 % of width and 48.2 % of height; top 90.0 % of width and 34.8 % of
+height (the car now spans the frame, where it previously sat in a narrow vertical
+strip); rear 48.7 % of width and 90.0 % of height.
+
+**Nose left is asserted, not assumed.** The nose of this body is at **min x** —
+the inlet is `ffminx` and `0/U` is `uniform (30 0 0)`, so the flow runs +x — and
+the side and top panels assert that the camera's right vector is +x, which is what
+puts min x on the left of the frame. Both come back (1.000, 0.000, 0.000).
+
+**Two things could not be done exactly as ordered, and both are display limits of
+this ParaView build, measured here on 2026-09-14:**
+
+1. **The bar title is written `p [m²/s²]` and reaches the screen as `p (m²/s²)`.**
+   The superscript twos render correctly; ParaView 5.11.2 draws `[` and `]` in a
+   scalar-bar title as `(` and `)`. Measured by rendering `A[B]C {D} <E>` into a
+   title and reading the PNG back: the braces and angle brackets survive, the
+   square brackets do not. Nothing in the API defeats it.
+2. **"View along −y (driver's side)" and "nose on the left" cannot both hold with
+   z up.** Viewing along −y means the camera is at +y, and the camera's right
+   vector is then −x, which puts the nose on the RIGHT. Nose-left was kept — it is
+   the clause the order asks to be verified on the image — so the camera sits on
+   the −y axis and looks along +y. On a HALF model with its symmetry plane at
+   `ffminy` this renders the same skin either way: the body exists only at y ≥ 0,
+   so the eye is simply on the other side of the missing half, and the silhouette
+   and the pressure on it are identical.
+
+**The colour control was made FAIRER, and the panels pass it.** Until this render
+the null arm was painted a constant `1.0` through whatever lookup table ParaView
+hands a new array, which on these panels came out a **saturated blue silhouette**:
+its own colour spread was then set by how vivid an unrelated colour map happened to
+be, and on the wide window the test failed at 5.6x against its 8x floor for that
+reason and not because the field was missing. The null is now the **same array
+name, the same preset and the same fixed range, held at the field's own mean
+(−116.833 m²/s²)** — the exact null "this picture if p did not vary", carrying the
+panel's own colour and its own edge contrast. **The 8x floor was not touched.**
+Measured on the interior mask: **side 16.3x, top 27.0x, rear 20.9x**, over 625,323 /
+541,393 / 648,070 painted pixels.
+
+**Nothing is written on these images but the bar.** Swept for ink — every pixel
+with max(R,G,B) < 90 — and all 238 of them, on each of the three, lie inside the
+colour bar block at x ≥ 0.891 of frame width. The folder's own `text_sweep.py` was
+not on disk (the scratchpad had been wiped), so this sweep was written fresh and
+is recorded here rather than relied on from memory.

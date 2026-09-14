@@ -50,6 +50,34 @@ MIN_FIELD_PX = 20000       # see _assert_painted: the colour bar alone is about 
 PCT_LO, PCT_HI = 2.0, 98.0
 PRESET_P, PRESET_U = "Cool to Warm", "Viridis (matplotlib)"
 
+# --- THE THREE PRESSURE PANELS, RE-RENDERED 2026-09-14 on the owner's order ----
+# The old panels were percentile-windowed, framed with the caption band still
+# reserved, and the top view was framed with `up = +x`, which puts the car's long
+# axis VERTICAL -- the "narrow vertical strip" the owner sent back. What is fixed
+# here, and every one of these is asserted rather than assumed:
+#
+#   * ONE colour range for all three, taken from the DATA RANGE of `p` on the
+#     body and wheel patches at t = 1000 -- not a percentile window and not the
+#     view's own range -- then rounded OUTWARD to a span that divides into four
+#     equal round steps, so the bar carries exactly five round ticks;
+#   * ORTHOGRAPHIC cameras whose parallel scale is derived from the body bounds
+#     so the body fills the frame to a 5 % margin on each side of the LIMITING
+#     axis, and the fill fraction is COMPUTED FROM THE SAME NUMBERS and refused
+#     if it is not 0.90;
+#   * NOSE ON THE LEFT in the side and top views, asserted as
+#     `dot(camera right, +x) > 0`: the nose of this body is at MIN x -- the inlet
+#     is `ffminx` and `0/U` is `uniform (30 0 0)`, so the flow runs +x -- and a
+#     camera whose right vector is +x therefore lands min x on the left.
+#     `up = (0, 1, 0)` for the top view is what turns the strip on its side.
+P_SIZE_LANDSCAPE = (1920, 1080)      # side and top
+P_SIZE_REAR = (1600, 1200)           # 4:3
+P_MARGIN = 0.05                      # each side of the limiting axis
+P_PAD = 1.0 / (1.0 - 2.0 * P_MARGIN) # so the body spans 1 - 2*margin of the frame
+P_FILL = 1.0 - 2.0 * P_MARGIN
+P_NTICKS = 5
+P_BAR_TITLE = "p [m²/s²]"          # the glyphs are MEASURED, see _assert_bar_title
+P_BODY_FACES = 32913                 # body2 20359 + ruotaant 6284 + ruotapost 6270
+
 STAMP_C = ("WD_DRIVAER_COARSE ; 669416 cells ; simpleFoam ; iteration 1000 ; PASS")
 STAMP_F = ("WD_DRIVAER_FINE ; 4048483 cells ; simpleFoam ; mesh only, the run is "
            "still going ; PENDING")
@@ -153,13 +181,34 @@ def _assert_painted(pos, neg, field):
                  "constant array's %.5f" % (field, cp, cn))
 
 
-def _render_with_control(view, src, disp, out, field, add_caption, size=(1600, 1000)):
+def _render_with_control(view, src, disp, out, field, add_caption, size=(1600, 1000),
+                         control_value=None, control_preset=None,
+                         control_range=None):
+    """Render the panel, and the SAME panel with the field replaced by a constant.
+
+    ``control_value``, ``control_preset`` and ``control_range`` make the null arm
+    a FAIR one, and they were added 2026-09-14 on a MEASURED confound. Until then
+    the constant arm was painted `1.0` through whatever lookup table ParaView
+    hands a brand-new array, which on the pressure panels came out a SATURATED
+    BLUE silhouette: every edge pixel of it ran from saturated blue to white, so
+    the null arm's own colour spread was set by how vivid an unrelated colour map
+    happened to be, not by the picture under test. Measured on
+    `drivaer_p_side.png`: null spread 0.01466 with the arbitrary map, against
+    0.00302-class numbers on the panels this floor was calibrated against.
+
+    Given a value, the null is instead the SAME field array name, the SAME preset
+    and the SAME fixed range, held constant at the field's own MEAN. That is the
+    exact null the control is for -- "this picture if p did not vary" -- and it is
+    a HARDER test than the old one, not an easier one: the null now carries the
+    panel's own colour and its own edge contrast, so the only thing left to
+    separate the two arms is the spatial variation of the field itself.
+    """
     from paraview.simple import (Calculator, Show, Hide, Render, ColorBy,
-                                 UpdatePipeline)
+                                 GetColorTransferFunction, UpdatePipeline)
     flat = Calculator(Input=src)
     flat.AttributeType = "Point Data"
     flat.ResultArrayName = "CONTROL_CONSTANT"
-    flat.Function = "1.0"
+    flat.Function = "1.0" if control_value is None else repr(float(control_value))
     UpdatePipeline(proxy=flat)
     arr = flat.GetPointDataInformation().GetArray("CONTROL_CONSTANT")
     lo, hi = arr.GetComponentRange(0)
@@ -169,6 +218,11 @@ def _render_with_control(view, src, disp, out, field, add_caption, size=(1600, 1
     disp.SetScalarBarVisibility(view, False)
     dn = Show(flat, view)
     ColorBy(dn, ("POINTS", "CONTROL_CONSTANT"))
+    if control_preset is not None:
+        clut = GetColorTransferFunction("CONTROL_CONSTANT")
+        clut.ApplyPreset(control_preset, True)
+        clut.RescaleTransferFunction(*control_range)
+        dn.SetScalarBarVisibility(view, False)
     _flat(dn)
     dn.SetScalarBarVisibility(view, False)
     Render(view)
@@ -195,6 +249,360 @@ def _caption(view, case, stamp, second):
     was drawn, so the verdict guard is kept and only its printing is dropped."""
     return None
 
+
+
+
+# ---------------------------------------------------------------------------
+# The pressure panels: data range, round ticks, derived cameras
+# ---------------------------------------------------------------------------
+
+def _data_range(src, name, assoc="CELLS"):
+    """The DATA range of `name`, taken two independent ways and cross-checked.
+
+    ParaView's array information reports a range computed by the reader; numpy
+    over the fetched array is an independent read of the same values. A window
+    that only one of them can see is not a window, so they must agree.
+    """
+    import numpy as np
+    from paraview import servermanager as sm
+    from paraview.vtk.util import numpy_support
+    info = (src.GetCellDataInformation() if assoc == "CELLS"
+            else src.GetPointDataInformation())
+    arr = info.GetArray(name)
+    if arr is None:
+        C.refuse("no %s array on the %s of the rendered surface; there is no "
+                 "range to take" % (name, assoc))
+    lo, hi = arr.GetComponentRange(0)
+    d = sm.Fetch(src)
+    vals = []
+    blocks = []
+    if hasattr(d, "GetNumberOfBlocks"):
+        it = d.NewIterator(); it.InitTraversal()
+        while not it.IsDoneWithTraversal():
+            blocks.append(it.GetCurrentDataObject()); it.GoToNextItem()
+    else:
+        blocks = [d]
+    for b in blocks:
+        att = b.GetCellData() if assoc == "CELLS" else b.GetPointData()
+        a = att.GetArray(name)
+        if a is not None:
+            vals.append(numpy_support.vtk_to_numpy(a))
+    if not vals:
+        C.refuse("the fetched surface carries no %s array" % name)
+    a = np.concatenate(vals)
+    nlo, nhi = float(a.min()), float(a.max())
+    tol = 1e-6 * max(1.0, abs(nlo), abs(nhi))
+    if abs(nlo - lo) > tol or abs(nhi - hi) > tol:
+        C.refuse("the reader reports %s in [%.6g, %.6g] and numpy over the same "
+                 "fetched values reports [%.6g, %.6g]; a range two readers "
+                 "disagree about is not a range" % (name, lo, hi, nlo, nhi))
+    C.announce("  %s DATA RANGE on %d values: %.6g to %.6g (reader and numpy "
+               "agree to %.1e)" % (name, a.size, nlo, nhi, tol))
+    return nlo, nhi
+
+
+def _mean(src, name, assoc="CELLS"):
+    """The arithmetic mean of the field over the rendered faces -- the value the
+    null arm of the colour control is held at. Face-area weighting would be more
+    physical; this number is never reported as a physical mean, it only has to be
+    a representative colour, so the plain mean is used and said to be one."""
+    import numpy as np
+    from paraview import servermanager as sm
+    from paraview.vtk.util import numpy_support
+    d = sm.Fetch(src)
+    blocks = []
+    if hasattr(d, "GetNumberOfBlocks"):
+        it = d.NewIterator(); it.InitTraversal()
+        while not it.IsDoneWithTraversal():
+            blocks.append(it.GetCurrentDataObject()); it.GoToNextItem()
+    else:
+        blocks = [d]
+    vals = []
+    for b in blocks:
+        att = b.GetCellData() if assoc == "CELLS" else b.GetPointData()
+        a = att.GetArray(name)
+        if a is not None:
+            vals.append(numpy_support.vtk_to_numpy(a))
+    if not vals:
+        C.refuse("the fetched surface carries no %s array to average" % name)
+    m = float(np.concatenate(vals).mean())
+    C.announce("  %s unweighted face mean %.6g (the null arm is held here)"
+               % (name, m))
+    return m
+
+
+def _nice_range(lo, hi, n=P_NTICKS):
+    """Round OUTWARD to a span of n-1 equal round steps, so n round ticks land.
+
+    Every tick is an exact multiple of the step, the step comes from the 1/2/2.5/5
+    ladder, and the rounded range CONTAINS the data range -- checked below rather
+    than trusted. Because the data straddles zero, zero is necessarily one of the
+    ticks: all ticks are multiples of the step and the range spans zero.
+    """
+    import math
+    if not hi > lo:
+        C.refuse("a colour range needs hi > lo, not [%r, %r]" % (lo, hi))
+    k = n - 1
+    base = (hi - lo) / float(k)
+    e0 = int(math.floor(math.log10(base)))
+    for e in range(e0, e0 + 5):
+        for m in (1.0, 2.0, 2.5, 5.0):
+            q = m * 10.0 ** e
+            if q < base * (1.0 - 1e-12):
+                continue
+            t = lo / q
+            t = round(t) if abs(t - round(t)) < 1e-9 else math.floor(t)
+            rlo = t * q
+            rhi = rlo + k * q
+            if rhi >= hi - 1e-9 * max(1.0, abs(hi)):
+                ticks = [(t + i) * q for i in range(n)]
+                if ticks[0] > lo + 1e-9 or ticks[-1] < hi - 1e-9:
+                    continue
+                return ticks[0], ticks[-1], ticks
+    C.refuse("no round %d-tick range was found around [%.6g, %.6g]" % (n, lo, hi))
+
+
+def _tick_format(ticks):
+    for dec in (0, 1, 2, 3):
+        fmt = "%%.%df" % dec
+        if all(abs(float(fmt % t) - t) <= 1e-9 * max(1.0, abs(t)) for t in ticks):
+            return fmt
+    C.refuse("no plain-decimal format prints %r without losing a digit" % (ticks,))
+
+
+#: Glyphs MEASURED on this box, 2026-09-14, by rendering a scalar-bar title in
+#: ParaView 5.11.2 under xvfb and reading the written PNG back (the probe and its
+#: three frames were scratch and are gone; what it established is recorded here,
+#: and `_assert_bar_title` re-checks every character against it):
+#:
+#:   * U+00B2, the superscript two, RENDERS CORRECTLY in the scalar-bar title --
+#:     `p [m²/s²]` reaches the screen with both exponents. It is NOT one of the
+#:     dropped glyphs, so the unit is written the way the order writes it;
+#:   * `[` and `]` are DRAWN AS `(` AND `)` by this build. A title written with
+#:     square brackets appears on the image with round ones, and nothing in the
+#:     pipeline says so. That is a DISPLAY substitution this lane cannot defeat
+#:     from the API, so it is disclosed here and in SIDECAR.md rather than hidden:
+#:     the source says `p [m²/s²]` and the pixels say `p (m²/s²)`, which is also
+#:     what every other ParaView panel in this lab already shows.
+BAR_TITLE_GLYPHS = set(C.SAFE_CAPTION_CHARS) | set("[]²")
+
+
+def _assert_bar_title(text):
+    """The bar title is the ONLY text on these images, so its glyphs are checked.
+
+    Against BAR_TITLE_GLYPHS above -- the set measured to render here -- and
+    against the module's own dropped-glyph table. A character outside both is
+    refused rather than drawn, because a unit that loses an exponent on screen
+    looks deliberate and is simply wrong.
+    """
+    for ch in text:
+        if ch in C.KNOWN_DROPPED_GLYPHS:
+            C.refuse("the colour-bar title uses %r, which is %s"
+                     % (ch, C.KNOWN_DROPPED_GLYPHS[ch]))
+        if ch not in BAR_TITLE_GLYPHS:
+            C.refuse("the colour-bar title uses %r (U+%04X), which is not in the "
+                     "glyph set measured to render on this box: %r"
+                     % (ch, ord(ch), text))
+    return text
+
+
+def _bar_fixed(view, lut, title, ticks):
+    """One bar, a quarter of the frame high, on the right, five custom labels."""
+    b = _bar(view, lut, _assert_bar_title(title))
+    b.AutomaticLabelFormat = 0
+    b.LabelFormat = _tick_format(ticks)
+    b.RangeLabelFormat = b.LabelFormat
+    b.AddRangeLabels = 0                 # the ends are already two of the five
+    b.UseCustomLabels = 1
+    b.CustomLabels = [float(t) for t in ticks]
+    # UPPER RIGHT, and the same on all three panels. NOT hand-picked: with the
+    # body filling 90 % of its limiting axis, a right-hand bar at mid-height sits
+    # ON the car in the side and top views (measured: the tail reaches 94 % of
+    # frame width in the side view, the bar strip sits at 88.5 %). The body's
+    # projected extents are known from `_assert_framing` -- side 0.259..0.741 of
+    # frame height, top 0.326..0.674, rear 0.257..0.743 of frame WIDTH -- so a
+    # quarter-height bar at y = 0.70 clears the body in ALL THREE, at ONE
+    # position, which is what "the same bar on all three panels" asks for.
+    b.Position = [0.885, 0.70]
+    if int(b.UseCustomLabels) != 1 or len(b.CustomLabels) != len(ticks):
+        C.refuse("the scalar bar did not take the %d custom labels" % len(ticks))
+    return b
+
+
+def _axes(direction, up):
+    """The camera's right and up vectors, by the same arithmetic frame_by_extent
+    uses. Used to ASSERT which way the nose points on the finished frame."""
+    import math
+
+    def _norm(v):
+        n = math.sqrt(sum(c * c for c in v))
+        if n == 0:
+            C.refuse("a zero-length camera vector cannot define a view")
+        return [c / n for c in v]
+
+    def _cross(a, b):
+        return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2],
+                a[0] * b[1] - a[1] * b[0]]
+
+    d = _norm(direction)
+    view_dir = [-c for c in d]
+    right = _norm(_cross(view_dir, up))
+    true_up = _norm(_cross(right, view_dir))
+    return right, true_up, view_dir
+
+
+def _assert_framing(name, bounds, focal, direction, up, scale, size, nose_left):
+    """REFUSE a frame that clips the body, mis-fills it, or puts the nose right.
+
+    The fill fraction is recomputed from the measured bounds and the parallel
+    scale actually in force, so this is a check on the finished camera and not a
+    restatement of the request.
+    """
+    right, true_up, _ = _axes(direction, up)
+    x0, x1, y0, y1, z0, z1 = bounds
+    hs, vs = [], []
+    for cx in (x0, x1):
+        for cy in (y0, y1):
+            for cz in (z0, z1):
+                r = [cx - focal[0], cy - focal[1], cz - focal[2]]
+                hs.append(sum(r[i] * right[i] for i in range(3)))
+                vs.append(sum(r[i] * true_up[i] for i in range(3)))
+    half_h = max(abs(min(hs)), abs(max(hs)))
+    half_v = max(abs(min(vs)), abs(max(vs)))
+    aspect = float(size[0]) / float(size[1])
+    fw = half_h / (scale * aspect)
+    fh = half_v / scale
+    C.announce("  %s fills %.1f %% of frame width and %.1f %% of frame height "
+               "(limiting axis %.1f %%, target %.1f %%)"
+               % (name, fw * 100.0, fh * 100.0, max(fw, fh) * 100.0,
+                  P_FILL * 100.0))
+    if fw > 1.0 or fh > 1.0:
+        C.refuse("%s CLIPS the body: it spans %.1f %% of width and %.1f %% of "
+                 "height" % (name, fw * 100.0, fh * 100.0))
+    if abs(max(fw, fh) - P_FILL) > 2e-3:
+        C.refuse("%s fills %.3f of its limiting axis where %.3f was asked for; "
+                 "the margin on this frame is not the margin the order names"
+                 % (name, max(fw, fh), P_FILL))
+    if nose_left:
+        # The nose is at MIN x (inlet ffminx, 0/U uniform (30 0 0)), so it lands
+        # on the left exactly when the camera's right vector points along +x.
+        if right[0] <= 0.5:
+            C.refuse("%s would put the nose on the RIGHT: the camera right "
+                     "vector is %r and the nose is at min x" % (name, right))
+        C.announce("    nose LEFT asserted: camera right vector %.3f %.3f %.3f "
+                   "(+x to the right of frame, nose at x = %.3f)"
+                   % (right[0], right[1], right[2], x0))
+    return fw, fh
+
+
+def p_surface_panel(reader, out, direction, up, prange, ticks, size, nose_left,
+                    pmean):
+    from paraview.simple import (MergeBlocks, Show, Render, ColorBy,
+                                 GetColorTransferFunction, UpdatePipeline)
+    v = _view(size)
+    reader.MeshRegions = BODY
+    UpdatePipeline(time=float(COARSE_T), proxy=reader)
+    surf = MergeBlocks(Input=reader)
+    UpdatePipeline(time=float(COARSE_T), proxy=surf)
+    info = surf.GetDataInformation()
+    n = info.GetNumberOfCells()
+    if n != P_BODY_FACES:
+        C.refuse("the body patches rendered %d faces where constant/polyMesh/"
+                 "boundary sums to %d" % (n, P_BODY_FACES))
+    d = Show(surf, v); _flat(d)
+    ColorBy(d, ("CELLS", "p"))
+    lut = GetColorTransferFunction("p"); lut.ApplyPreset(PRESET_P, True)
+    lut.RescaleTransferFunction(*prange)
+    _bar_fixed(v, lut, P_BAR_TITLE, ticks)
+    b = info.GetBounds()
+    focal = [(b[0] + b[1]) / 2.0, (b[2] + b[3]) / 2.0, (b[4] + b[5]) / 2.0]
+    scale = C.frame_by_extent(v, focal, direction, up=up, bounds=b, pad=P_PAD,
+                              bottom_band=0.0)
+    _assert_framing(os.path.basename(out), b, focal, direction, up, scale, size,
+                    nose_left)
+    Render(v)
+    C.announce("  %s: parallel scale %.4f, view %dx%d, camera direction %r, "
+               "up %r" % (os.path.basename(out), scale, size[0], size[1],
+                          tuple(direction), tuple(up)))
+    return _render_with_control(v, surf, d, out, "p", lambda view: None,
+                                size=size, control_value=pmean,
+                                control_preset=PRESET_P,
+                                control_range=prange), scale
+
+
+def p_panels(reader):
+    """The three pressure panels on ONE range fixed from the side view's data."""
+    import hashlib
+    from paraview.simple import MergeBlocks, UpdatePipeline
+    reader.MeshRegions = BODY
+    UpdatePipeline(time=float(COARSE_T), proxy=reader)
+    surf = MergeBlocks(Input=reader)
+    UpdatePipeline(time=float(COARSE_T), proxy=surf)
+    bbox = surf.GetDataInformation().GetBounds()
+    C.announce("  body bounds MEASURED x %.4f..%.4f y %.4f..%.4f z %.4f..%.4f m"
+               % bbox)
+    raw_lo, raw_hi = _data_range(surf, "p", "CELLS")
+    pmean = _mean(surf, "p", "CELLS")
+    # DIAGNOSTIC ONLY, and acted on rather than filed: the window below is the
+    # DATA range the order names, and these percentiles say how much of the body
+    # that range spends on a handful of faces. They are reported upward with the
+    # panels, never used to choose the window.
+    p2, p98 = _percentiles(surf, "p")
+    C.announce("  DIAGNOSTIC, NOT THE WINDOW: p 2nd/98th percentile %.4g to "
+               "%.4g m2/s2 -- the data range below is %.1fx wider"
+               % (p2, p98, (raw_hi - raw_lo) / (p98 - p2)))
+    lo, hi, ticks = _nice_range(raw_lo, raw_hi)
+    C.announce("  colour range FIXED %.6g to %.6g m2/s2 (rounded outward from "
+               "%.6g to %.6g), ticks %s -- the SAME bar on all three panels"
+               % (lo, hi, raw_lo, raw_hi,
+                  ", ".join(_tick_format(ticks) % t for t in ticks)))
+
+    plan = [("drivaer_p_side.png", (0.0, -1.0, 0.0), (0.0, 0.0, 1.0),
+             P_SIZE_LANDSCAPE, True),
+            ("drivaer_p_top.png", (0.0, 0.0, 1.0), (0.0, 1.0, 0.0),
+             P_SIZE_LANDSCAPE, True),
+            ("drivaer_p_rear.png", (1.0, 0.0, 0.0), (0.0, 0.0, 1.0),
+             P_SIZE_REAR, False)]
+    rows, total = [], 0
+    for name, direction, up, size, nose_left in plan:
+        nb, scale = p_surface_panel(reader, os.path.join(HERE, name), direction,
+                                    up, (lo, hi), ticks, size, nose_left, pmean)
+        total += nb
+        _, _, view_dir = _axes(direction, up)
+        rows.append((name, COARSE,
+                     C.facts(COARSE)["case_dir"], COARSE_T,
+                     "+".join(p.split("/")[-1] for p in BODY),
+                     "camera on the (%g, %g, %g) axis from the body centre "
+                     "(%.4f, %.4f, %.4f); VIEW DIRECTION (%g, %g, %g); "
+                     "up (%g, %g, %g); orthographic, parallel scale %.4f"
+                     % (tuple(direction)
+                        + ((bbox[0] + bbox[1]) / 2.0, (bbox[2] + bbox[3]) / 2.0,
+                           (bbox[4] + bbox[5]) / 2.0)
+                        + tuple(round(c, 12) + 0.0 for c in view_dir)
+                        + tuple(up) + (scale,)),
+                     "%s to %s m2/s2, fixed, five ticks %s"
+                     % (_tick_format(ticks) % lo, _tick_format(ticks) % hi,
+                        "/".join(_tick_format(ticks) % t for t in ticks)),
+                     "%dx%d" % size))
+
+    field = os.path.join(C.facts(COARSE)["case_dir"], COARSE_T, "p")
+    h = hashlib.sha256()
+    with open(field, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    sha = h.hexdigest()
+    prov = os.path.join(HERE, "PROVENANCE_PANELS.tsv")
+    with open(prov, "w") as fh:
+        fh.write("# ParaView panel provenance. SEPARATE from PROVENANCE.tsv "
+                 "because build_plots.py REWRITES that file whole ('w'), so a "
+                 "row appended there is destroyed by the next matplotlib build.\n")
+        fh.write("figure\tcase\tcase_dir\ttime_dir\tpatches\tcamera\t"
+                 "colour_range\timage_size\tfield_sha256\n")
+        for r in rows:
+            fh.write("\t".join(list(r) + [sha]) + "\n")
+    C.announce("  wrote %s (%d rows, field sha256 %s)"
+               % (os.path.basename(prov), len(rows), sha[:16]))
+    return total
 
 
 def surface_panel(reader, out, direction, up, note, prange):
@@ -484,6 +892,7 @@ def main(argv=()):
     only_fine = "fine-mesh-only" in argv
     only_wake = "wake-only" in argv
     round3 = "round3" in argv
+    only_p = "p-panels" in argv
     C.assert_paraview_version()
     C.assert_stamp(STAMP_C, COARSE)
     C.assert_stamp(STAMP_F, FINE)
@@ -495,6 +904,13 @@ def main(argv=()):
     total, root = 0, None
     try:
         if only_fine:
+            raise StopIteration
+        if only_p:
+            reader, root, n = C.open_case(COARSE, ["p"], [COARSE_T],
+                                          decompose_polyhedra=False)
+            C.announce("  %s: %s cells at t = %s" % (COARSE, format(n, ","),
+                                                     COARSE_T))
+            total += p_panels(reader)
             raise StopIteration
         if round3:
             from paraview.simple import (CellDatatoPointData as _C2P,
@@ -634,21 +1050,23 @@ def main(argv=()):
         if root:
             shutil.rmtree(root, ignore_errors=True)
 
-    if not only_fine:
+    if not only_fine and not only_p:
         total += mesh_panel(COARSE, COARSE_T, os.path.join(HERE, "drivaer_mesh_coarse.png"),
                             STAMP_C, GEOM + " ; THEIR COARSE MESH on the body "
                             "and wheel patches, 669416 cells in the volume", 32913)
-    total += mesh_panel(FINE, FINE_T, os.path.join(HERE, "drivaer_mesh_fine.png"),
-                        STAMP_F, GEOM + " ; THEIR FINE MESH on the body and wheel "
-                        "patches ; the solve on this mesh had not finished when "
-                        "this was drawn, so no field panel is taken from it", 101603,
-                        arrays=())
+    if not only_p:
+        total += mesh_panel(FINE, FINE_T, os.path.join(HERE, "drivaer_mesh_fine.png"),
+                            STAMP_F, GEOM + " ; THEIR FINE MESH on the body and wheel "
+                            "patches ; the solve on this mesh had not finished when "
+                            "this was drawn, so no field panel is taken from it", 101603,
+                            arrays=())
 
     if not only_fine:
         C.assert_run_tree_untouched(cdir, before)
         C.announce("  coarse run tree PROVED unchanged: %s" % cdir)
-    C.assert_run_tree_untouched(fine_mesh_dir, fine_before)
-    C.announce("  fine constant/polyMesh PROVED unchanged: %s" % fine_mesh_dir)
+    if not only_p:
+        C.assert_run_tree_untouched(fine_mesh_dir, fine_before)
+        C.announce("  fine constant/polyMesh PROVED unchanged: %s" % fine_mesh_dir)
     C.announce("  %s bytes written" % format(total, ","))
     return 0
 
