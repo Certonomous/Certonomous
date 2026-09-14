@@ -1259,3 +1259,109 @@ is precisely the class of act that produced this addendum.
 registered criterion), cost ≈ **0** beyond construction. **G0 `PASS`; G1 and G2 satisfied on
 disk per B1.6; G3–G7 not yet run.** A rule-12 estimate-versus-actual calibration row is owed
 for the precursor stage and for the transient at its completion.
+
+---
+
+## ADDENDUM B5 — 2026-09-14, AFTER FIRST COMPUTE
+
+**Version 1.6 → 1.7. Lines whose number changed above this section: 0.**
+
+Gates remain **CLOSED**. **G4 (Fy 325 ± 20 N), G5 (|My| 18.0 ± 1.5 N·m), G6 (BPF 100 ± 3 Hz),
+G2a and the §6 cost band are untouched.** This addendum alters **no gate, no threshold, no
+cap and no label**. It records one dictionary repair, one supervisor code read, and two
+deliberate departures from a supervisor's own instruction.
+
+### B5.1 — **`writeInterval` WAS NEVER SET TO THE VALUE §5 REGISTERED. THE REPAIR IS TOWARD THE FREEZE, NOT AWAY FROM IT.**
+
+§5's **D4b** registers, in its own words, `system/controlDict.tr`: **`writeInterval 1.0e-01`
+→ `1.0e-02` (one line)**, for the stated reason *"0.01 s is ~100 steps ≈ 30 min"*. **B1.1
+records what was actually applied as `1.0e-01` → `2.5e-02`, and labels it "§5's D4a/D4b,
+authorised and applied". It is not the registered value.** Both files were read back from
+disk by the supervisor at this addendum: `system/controlDict:25` and `system/controlDict.tr:25`
+each read **`writeInterval 2.5e-02`**, i.e. **2.5× the registered figure**.
+
+**This is a divergence between what was frozen and what was applied, discovered while the
+run was being relaunched, and it is filed as ours.** It is not a new deviation: **`1.0e-02` is
+the number §5 already carries.** Bringing the file to `1.0e-02` is therefore a **repair toward
+the frozen document**, and it is applied to **both** `system/controlDict` (the live file the
+solver reads, which `Allrun` copied from the template) and `system/controlDict.tr`.
+
+**Why it was found now, and why the finding is the checkpoint bound rather than the number.**
+The queue validator runs the daemon's **Gate A checkpoint** test, which asks what a kill would
+cost: `1800 s / 145,100 wall s per simulated second = 0.0124` simulated s of affordable
+checkpoint spacing. **`2.5e-02` exceeds it — 250 steps ≈ 60 minutes of wall time lost on a
+kill, against the 30-minute bound.** `1.0e-02` gives 100 steps ≈ **24.2 min** and clears it.
+**D4b's registered reason and Gate A's bound are the same bound**: the registration already
+sized this line for a 30-minute policy, and applying the registered value is exactly what §5
+intended here.
+
+**Physics is untouched and no gate input moves.** `writeInterval` sets output cadence only;
+it enters no equation. `purgeWrite` stays **2**. `adjustTimeStep` stays **`no`**, `deltaT`
+stays `1e-4`, and both `2.5e-02` and `1.0e-02` are exact multiples of it (250 and 100 steps),
+so no step is resized. **G4, G5 and G6 read `postProcessing/` only** (B3.2), which
+`purgeWrite` never touches. The one visible consequence is an **improvement**: the two
+surviving volume snapshots of B3.2 now sit **0.01 s apart instead of 0.025 s**.
+
+**THE RATE THIS GATE WAS EVALUATED AGAINST IS NOT MEASURED, AND THAT IS STATED, NOT BURIED.**
+`145,100` wall s per simulated second rests on this case's own **measured** precursor
+(`log.rhoSimpleFoam`, 1.451 s/iteration over the last 1000 of 5000) multiplied by §6's
+**inferred** 10× SIMPLE-to-PIMPLE factor. **The multiplier is an inference.** Gate A was
+**not** cleared by choosing a rate to fit it — the lane that filed the entry declined to do
+that, and is recorded here as having declined. If the live probe returns a materially slower
+step, the 30-minute bound is breached again at `1.0e-02` and that is a finding to be reported,
+not re-tuned.
+
+### B5.2 — **SUPERVISOR CODE READ (§3 CHECK 1), AND TWO DEPARTURES FROM MY OWN INSTRUCTION THAT I ACCEPT**
+
+`mb13_relaunch_transient.sh` (sha256 `04b4981203009441d3161dbe2a5658820b83519670bffd5118bb726c51111aa3`)
+was **read in full by the cfd-supervisor as a diff before it was permitted to run**, not
+summarised and not taken on the lane's test. Two of its choices contradict the brief I gave,
+**and both are better than what I asked for**:
+
+1. **The failed log is preserved by `cp` + `cmp` + truncate-in-place, not by `mv` as I
+   instructed.** The reason is the live rate probe, and it is correct: its wait loop is
+   `while [ "$(grep -c '^ExecutionTime' "$L")" -lt 50 ]`, and against a **missing** file the
+   substitution is empty, `[ "" -lt 50 ]` is a `[`-level error rather than a false, and the
+   loop **exits** — after which the probe indexes `t[49]` on an empty capture and dies. **My
+   `mv` had a live chance of killing the instrument that settles the cost band, inside its
+   20 s poll.** Copy, `cmp`-verify, then truncate the original in place keeps the path
+   continuously present, preserves every byte under the filename I named, and deletes nothing.
+   *A supervisor's instruction is answered, not merely obeyed* — this lane answered it.
+2. **`pgrep -x`, not `pgrep -f`.** A `-f` match on `rhoPimpleFoam -parallel` was measured
+   matching the lane's own shell, because the pattern appeared in the text that shell carried
+   — **the same self-match that makes `pkill` kill its own shell.** An exact-name match cannot
+   match a shell and so cannot refuse itself.
+
+**Also verified by reading, not by report:** the six planted controls (standing rule 3 — a
+reader not shown able to see a non-zero is not evidence) exercise both precondition readers in
+the failing direction — a bare `4500` on one rank, a 31-rank tree, `0` as a real directory,
+`0` pointing at the wrong target, an unreadable `U`, an empty `p` — **six plants, six
+refusals**, against an unplanted control that passes. Precondition C reads the dictionary with
+**`foamDictionary`, OpenFOAM's own reader**, so `#include "parameters"` and `#eval{1e-4/$nref}`
+resolve exactly as the solver will resolve them; it returns `deltaT 0.0001`, confirming 25,000
+steps. **B2.1's zero-step refusal is re-armed inside the launching process** (rc 41), where no
+polling interval can outrun it — which is the whole lesson of B4.1.
+
+### B5.3 — COST, AND WHAT IS OWED
+
+**Transient prediction, registered here as a prediction to be scored and NOT as a cap**
+(Sanaa's NO CAP ruling, directive #17, 2026-09-12): 25,000 steps × 14.51 wall s/step ×
+32 ranks / 60 = **193,467 core-min**, **$165.4 DERIVED at the owner-stated $0.0513/core-h —
+not measured, because this box cannot read its own billing** (`COMPUTE_BUDGET_CHARTER.md` §5).
+That sits inside §6's unsettled band of **33,000–607,500 core-min** and below §6.3's central
+243,000, because it uses this case's own measured precursor rather than a cross-case
+inference. **The live probe collapses the band at step 50.**
+
+**Rule-12 calibration owed, and one row is already computable:** the precursor stage ran
+**3,357 core-min actual** against §6.2's **4,860** central — **ratio 0.69**, i.e. the
+registration over-predicted the steady phase by 45 %. That row, and a second for the transient
+at completion, land in `docs/COST_CALIBRATION.md`. **A `/usr/bin/time -v` sidecar is owed from
+this run**: no RSS of the 32-rank precursor was recorded while it was alive, so the entry's
+48 GB memory floor is **derived, not measured**, and says so.
+
+### B5.4 — STATE
+
+Precursor `rhoSimpleFoam` **complete and clean** (5000/5000, `End`, rc 0). `rhoPimpleFoam`
+attempt 3 **`NOT A RESULT`** (zero steps, B2.1's refusal). **G0 `PASS`; G1 and G2 satisfied on
+disk per B1.6; G3–G7 not yet run.** The relaunch entry is validated on every limb but Gate A,
+which B5.1's repair clears.
