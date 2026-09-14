@@ -50,6 +50,9 @@ record is `k2t_dp_history.png`.
 | `k2t_plane_mid.png` | `TMean` on the **horizontal** plane at rack mid-height, z = 1.0 m, captioned with the **measured averaging window** | `K2h_L3` at t = 110 |
 | `k2t_plane_mid_velocity.png` | `UMean` magnitude on the same plane, same window | `K2h_L3` at t = 110 |
 | `k2t_plane_t110.png` | **INSTANTANEOUS** `T` at the last written time, captioned with that time and with the words "NOT a time average" | `K2h_L3` at t = 110 |
+| `k2t_plane_t10.png` | **INSTANTANEOUS** `T` at t = 10 s, the same horizontal plane and the same colour window, so the pair with `k2t_plane_mid.png` shows what the averaging removed | `K2h_L3` **decomposed** tree at t = 10 (`processor0..3/10/T`) |
+| `k2t_indices.csv` | operator indices per rack — inlet and outlet temperature, RCI high, capture index, recirculation, rack rise — recomputed on the graded transient fine level | `K2h_L3/110/TMean`, patch averages on `rack{0..3}_{in,out}` |
+| `k2t_indices_room.csv` | room-level numbers — supply, return, room rise, RTI, hottest inlet and which rack, rack-to-rack spread | `K2h_L3/110/TMean`, patch averages on `tile` and `return` |
 
 The last three were drawn by `../render_K2_field_panels.py`, which renders BOTH K2
 folders in one run so the colour windows are genuinely shared with the steady
@@ -152,3 +155,36 @@ Everything above still holds. What changed is the DRAWING, not a number.
 * **No residual-evolution frames exist for this folder**: `K2h_L3` writes no
   `solverInfo` series, only `dp_tile`/`dp_return`. The steady folder carries the
   residual series for this module.
+
+### The instantaneous pair comes from two different times
+
+`k2t_plane_mid.png` is the window mean over the registered 42 → 112 s window,
+written at t = 110. `k2t_plane_t10.png` is the instantaneous field at **t = 10 s**,
+which is **before** that window: it is a settling instant, not a sample of the
+window the mean covers, and it is here because round 3 asks that the instantaneous
+and the averaged panel not be the same instant. `k2t_plane_t110.png` remains the
+instantaneous field at the last written time, inside the window. The reconstructed
+tree of `K2h_L3` holds only t = 0 and t = 110, so t = 10 was read from the run's own
+decomposed tree; the reader was made to prove it by the 12.16 K spread it reported
+at that time (288.844 to 301.000 K) and by the planted colour control at 83.2x.
+
+### The operator indices on the graded transient fine level
+
+`k2t_indices.csv` and `k2t_indices_room.csv` are computed from `110/TMean` — the
+mean over the registered window — by area average on the run's own patches. **This
+run carries no mdot-weighted inlet function objects** (its `postProcessing` holds
+`dp_tile` and `dp_return` only), so the patch average on `rack{i}_in` is the
+definition used, which is the same definition the K2b table's inlet column was
+cross-checked against.
+
+Two honest caveats belong beside these numbers:
+
+* The rack outlet patches are `fixedValue 301 K` in this case, so the per-rack rise
+  is 12.000 K **by construction** and `RTI` inherits that denominator. RTI here is
+  therefore a statement about the return temperature, not an independently computed
+  rack rise.
+* The rack inlet patches are `zeroGradient`, so the inlet temperatures ARE computed.
+  They read 15.8500 to 15.8505 °C against a 15.850 °C supply: in this run essentially
+  **no warm air reaches the rack inlets**. That is a measurement, not a blind zero —
+  the same field spans 288.957 to 301.000 K over the room, and 223,077 of its 664,848
+  cells are above 289.01 K.

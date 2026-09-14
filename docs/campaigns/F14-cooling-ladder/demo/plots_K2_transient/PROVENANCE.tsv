@@ -14,3 +14,9 @@ k2t_UMean_field.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladde
 k2t_p_rghMean_field.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/110/p_rghMean	110	4b65061344c82b3a95ab99a5410144fb491eeab596c103a594f9561909330fb9
 k2t_mesh.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs/K2f_L1/constant/polyMesh/owner	constant	00849cd367625ad1cfce5ecd372cc1091d25735c6f82be1d51d7d6e4ff15615b
 k2t_plane_mid.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/GRADE.K2h_L3.json	110	e10f036942fa2d4e3e46ee757059145fb039d32bf11d89097febf5daa5834a1d
+k2t_plane_t10.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor0/10/T	10	6cdcd58e5a277ad607c81f499bfa67b57908ad91212e0503869898a66ac63c6b
+k2t_plane_t10.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor1/10/T	10	9cc5144ca07d5c6f4e61eaf8c10b1f2bf01614a87d1ae1e5a9be9dceda4c4ed0
+k2t_plane_t10.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor2/10/T	10	e0d487ca547734a4314ce64f928e0fa2427f9d47f85ce30dc33e0f5eccdb0ce6
+k2t_plane_t10.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/processor3/10/T	10	64d8f69e3e3122a8dd76a86a34c9d0bfcb28ab669690515a5b66a66003843e56
+k2t_indices.csv	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/110/TMean	110	9536baeccc961046996249022066d8d9340ffde11e2f0010275e20ebb51d764f
+k2t_indices_room.csv	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2h_runs/K2h_L3/110/TMean	110	9536baeccc961046996249022066d8d9340ffde11e2f0010275e20ebb51d764f
