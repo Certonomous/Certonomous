@@ -11,14 +11,18 @@ ParaView panels that are white-ground, triad-free and carry no text at all. Rege
 | `drivaer_p_side.png`, `drivaer_p_top.png`, `drivaer_p_rear.png` | `coarse_R1` — **PASS** |
 | `drivaer_umag_symmetry.png`, `drivaer_umag_midheight.png`, `drivaer_umag_wake.png`, `drivaer_streamlines.png` | `coarse_R1` — **PASS** |
 | `drivaer_mesh_coarse.png` | `coarse_R1` mesh — the coarse level, per the ParaView rule |
-| `drivaer_mesh_fine.png` | `fine_R1` mesh — **PENDING**, the solve is still running |
-| `drivaer_cd_history_fine.png` | **PENDING** — axes only. Our fine curve is not drawn until it lands |
+| `drivaer_mesh_fine.png` | `fine_R1` mesh — the solve was **STOPPED**, the mesh stands |
+| `drivaer_cd_history_fine.png` | **PENDING** — axes only. Our fine solve was stopped short of `endTime` and its curve is not drawn |
 | `drivaer_family.png` | our coarse **PASS** against the fine level's number |
 
 **🔴 The fine level's number on the figures is Wolf Dynamics' published fine value,
-`C_D = 0.256412`, not ours** — our own fine solve was still running and is not drawn.
-The provenance is in `SIDECAR.md`; no image says it. Our arrays so far are kept in
-the CSVs, marked NOT PLOTTED.
+`C_D = 0.256412`, not ours** — our own fine solve was **stopped by owner decision**
+short of its `endTime` and is not drawn.
+The provenance is in `SIDECAR.md`; no image says it. What our run did produce — 861
+of 1000 iterations, last-100 mean 0.258115, and its fields under `processor*/700` and
+`processor*/800` — is kept and recorded there, marked NOT PLOTTED. **A run stopped
+short of `endTime` fails the completion rule on its face, so no grade can be built
+from it however close the number looks.**
 
 **🔴 The coarse result is a REPRODUCTION, not a validation.** Our force output is
 byte-identical to Wolf Dynamics' shipped file because the case ran verbatim; that

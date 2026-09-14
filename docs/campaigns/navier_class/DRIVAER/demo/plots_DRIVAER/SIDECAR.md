@@ -25,7 +25,7 @@ independent agreement with Wolf Dynamics would be wrong.
 | Source | Verdict | Where it is recorded |
 |---|---|---|
 | `coarse_R1` — 669,416 cells, COMPLETE at iteration 1000 | **PASS** on G1, G2 and G3; G4 holds in every clause | `verification/campaign/WOLFDYNAMICS_DRIVAER_COARSE_RESULTS.md` |
-| `fine_R1` — 4,048,483 cells | **PENDING** — the solve was still running when this folder was built | no grading record exists yet |
+| `fine_R1` — 4,048,483 cells | **PENDING** — **STOPPED BY OWNER DECISION** short of `endTime` 1000; no gate verdict exists and none can | no grading record exists and none can be built |
 
 Measured here from the artifact, reproducing the record exactly:
 **endpoint Cd(1000) = 0.291162651767** against the registered 0.291163, and
@@ -57,7 +57,7 @@ the registered 0.283631.
 | `drivaer_cd_history.png` | coarse Cd against iteration, their window 200→1000 shaded, their endpoint and window mean and the TUM experiment as lines | `coarse_R1/postProcessing/all/0/forceCoeffs.dat`, 1001 rows |
 | `drivaer_forces.png` | Cd, Cl and Cm against iteration | same file |
 | `drivaer_residuals.png` | initial residuals Ux, Uy, Uz, p, k, ω | `coarse_R1/log.solver`, 1000 iterations |
-| `drivaer_cd_history_fine.png` | fine Cd so far — **the run was in progress**, which the title says | `fine_R1/postProcessing/all/0/forceCoeffs.dat` |
+| `drivaer_cd_history_fine.png` | **axes only, no curve** — our fine solve was stopped short of `endTime`, so nothing is drawn; the arrays it did produce are in the CSV of the same stem | `fine_R1/postProcessing/all/0/forceCoeffs.dat` |
 | `drivaer_family.png` | coarse against fine, published band drawn, TUM as the reference line | both force files |
 | `drivaer_p_side/top/rear.png` | surface pressure on body and wheels, three views, one shared window | `coarse_R1/1000/p`, 32,913 faces |
 | `drivaer_umag_symmetry.png` | velocity magnitude on the symmetry plane at y = 0.02 m | `coarse_R1/1000/U` |
@@ -138,19 +138,37 @@ Everything above still holds. What changed is the DRAWING, not a number.
 
 ### 🔴 THE FINE LEVEL'S NUMBER ON EVERY FIGURE IS WOLF DYNAMICS', NOT OURS
 
-On the owner's instruction of 2026-09-13, **the fine level is represented on the
-figures by Wolf Dynamics' own published fine value, `C_D = 0.256412`** — measured
+On the owner's instruction of 2026-09-13, reaffirmed when the run was stopped,
+**the fine level is represented on the figures by Wolf Dynamics' own published fine
+value, `C_D = 0.256412`** — measured
 in the pre-registration §6b from THEIR shipped fine artifacts over THEIR own
 `fieldAverage` window. It carries no wording on any image. **That provenance is
 recorded here and nowhere else**, which is exactly why this page exists.
 
-**Our own fine solve is NOT DRAWN.** It was still running (626 iterations of 1000
-at the last regeneration, last-100 mean 0.263502), so `drivaer_cd_history_fine.png`
-holds its axes in the library's pending mode and shows no curve. Our arrays so far
-are still written to `drivaer_cd_history_fine.csv` and to the third row of
-`drivaer_family.csv`, marked NOT PLOTTED — **nothing measured is discarded, it is
-simply not shown as a result.** When the solve lands, our value replaces theirs on
-the family figure and our curve replaces the pending axes.
+**OUR OWN FINE SOLVE WAS STOPPED BY OWNER DECISION AND WILL NOT LAND.** It is NOT
+DRAWN, and now there is nothing to wait for: `drivaer_cd_history_fine.png` holds its
+axes in the library's pending mode and shows no curve.
+
+**What the run did produce is kept, and is written down here so it is not lost.** At
+the last read of the artifact it stood at **861 iterations of a registered 1000**,
+last `C_D` **0.255467**, last-100 mean **0.258115** — which had come down to within
+about 0.7 percent of Wolf Dynamics' published fine 0.256412. That is interesting and
+it is **still not a result**: the run was stopped short of its `endTime`, so it fails
+the completion rule on its face and **no grade can be built from it, however close
+the number looks.** Those arrays live in `drivaer_cd_history_fine.csv` and in the
+`fine_ours_stopped` row of `drivaer_family.csv`, both marked NOT PLOTTED. **Nothing
+measured is discarded; it is simply never shown as a result.**
+
+**Its fields are kept too.** `fine_R1` has one reconstructed time, `0`, and the
+solution fields the run wrote live decomposed under `processor*/700` and
+`processor*/800`. `drivaer_mesh_fine.png` is unaffected — it is the mesh, which needs
+no field.
+
+*Honest note on what this lane actually observed*: the stop is the owner's decision,
+carried out outside this lane. At the moment this page was written the four
+`simpleFoam` ranks were STILL VISIBLE in the process table, so the shutdown had not completed. This lane did not stop the run, did not wait on
+it, and has recorded the iteration it read from the artifact rather than a number it
+was told.
 
 The coarse Cd figure now shows the **window mean of our own series as a solid
 line with its value** (v2 §4). It lands on 0.283631, the published coarse window

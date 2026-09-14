@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Build the DrivAer demo plot folder from what is on disk NOW.
 
-Zero solver compute, and NOTHING IS WRITTEN INTO EITHER RUN TREE -- `fine_R1` is
-LIVE (mpirun -np 4 simpleFoam, pid 1486309 at the time of writing) and is read only.
+Zero solver compute, and NOTHING IS WRITTEN INTO EITHER RUN TREE. `fine_R1` is being
+STOPPED BY OWNER DECISION and will not reach its endTime; it is read only here, and
+this lane neither stopped it nor waited on it.
 
 Sources
   coarse_R1  the Wolf Dynamics COARSE case, 669,416 cells, COMPLETE at iteration
              1000, graded PASS on G1, G2 and G3
              (verification/campaign/WOLFDYNAMICS_DRIVAER_COARSE_RESULTS.md)
-  fine_R1    the Wolf Dynamics FINE case, 4,048,483 cells, RUNNING -- whatever
-             iteration it had reached when this ran, recorded in the sidecar
+  fine_R1    the Wolf Dynamics FINE case, 4,048,483 cells, STOPPED BY OWNER DECISION
+             at the iteration recorded in the sidecar. ITS CURVE IS NOT DRAWN and the
+             fine level's number on every figure is CD_FINE, Wolf Dynamics' own
+             published fine value.
 
 No verdict word and no band annotation is drawn on any image; both live in
 SIDECAR.md and README.md.
@@ -125,15 +128,16 @@ note("drivaer_residuals.png", LOG, "1000")
 wcsv("drivaer_residuals", ["iteration"] + list(ser),
      [[rit[i]] + [ser[k][i] for k in ser] for i in range(len(rit))])
 
-# ------------------------------------------------------------------ 4. fine, in progress
+# ------------------------------------------------------------------ 4. fine, not drawn
 pf, hf, rf, idf = forces("fine_R1")
 itf = [r[idf["Time"]] for r in rf]
 cdf = [r[idf["Cd"]] for r in rf]
 note("drivaer_cd_history_fine.png", pf, str(int(itf[-1])))
-# OUR fine curve IS NOT DRAWN until it lands. The fine level's number in this folder
-# is CD_FINE; the figure holds its axes in pending mode and the curve replaces it on
-# landing. The arrays we have so far are still written to the CSV, so nothing measured
-# is discarded.
+# OUR fine curve IS NOT DRAWN. The run was STOPPED BY OWNER DECISION short of its
+# endTime, so there is no landed fine result to draw and none is invented; the fine
+# level's number in this folder is CD_FINE. The figure holds its axes in the library's
+# pending mode. The arrays the run did produce are still written to the CSV, so
+# nothing measured is discarded -- it is simply not shown as a result.
 force_history(os.path.join(HERE, "drivaer_cd_history_fine.png"), pending=True,
               xlabel="iteration", ylabel="$C_D$  [–]")
 wcsv("drivaer_cd_history_fine", ["iteration", "Cd"], list(zip(itf, cdf)))
@@ -154,10 +158,10 @@ wcsv("drivaer_family", ["level", "cells", "Cd", "basis"],
       ["fine", CELLS_FINE, CD_FINE,
        "Wolf Dynamics' published fine value, measured from their shipped fine "
        "artifacts over their own fieldAverage window (prereg s.6b)"],
-      ["fine_ours_in_progress", CELLS_FINE, cd_fine_sofar,
-       "NOT PLOTTED: our own fine solve, mean over the last %d of %d iterations, "
-       "STILL RUNNING; it replaces the row above when it lands"
-       % (len(tail), int(itf[-1]))]])
+      ["fine_ours_stopped", CELLS_FINE, cd_fine_sofar,
+       "NOT PLOTTED: our own fine solve, mean over the last %d of %d iterations "
+       "reached, STOPPED BY OWNER DECISION short of endTime 1000. Kept as a "
+       "measurement, never shown as a result" % (len(tail), int(itf[-1]))]])
 
 with open(os.path.join(HERE, "PROVENANCE.tsv"), "w") as f:
     f.write("figure\tartifact\ttime_dir\tsha256\n")
@@ -165,7 +169,7 @@ with open(os.path.join(HERE, "PROVENANCE.tsv"), "w") as f:
         f.write("\t".join(str(x) for x in r) + "\n")
 print("coarse: %d iterations, window mean Cd %.9f, endpoint %.12f"
       % (len(it), cd_coarse, cd[-1]))
-print("fine: %d iterations so far, last Cd %.6f, last-%d mean %.6f"
+print("fine: STOPPED at %d iterations, last Cd %.6f, last-%d mean %.6f (NOT PLOTTED)"
       % (int(itf[-1]), cdf[-1], len(tail), cd_fine_sofar))
 print("residual keys:", list(res))
 print("pngs:", sorted(x for x in os.listdir(HERE) if x.endswith(".png")))

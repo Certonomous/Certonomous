@@ -175,10 +175,12 @@ CASE_FACTS = {
     # THE COARSE ENTRY OWNS "PASS" AND THE FINE ENTRY OWNS "PENDING", and the
     # difference is the point. The coarse case is COMPLETE at iteration 1000 and
     # graded PASS on G1, G2 and G3 in
-    # verification/campaign/WOLFDYNAMICS_DRIVAER_COARSE_RESULTS.md. The fine
-    # case was STILL RUNNING when these entries were written, so it owns only
-    # PENDING -- the display/queue state -- and assert_stamp REFUSES a PASS on a
-    # fine-level figure before a pixel is drawn.
+    # verification/campaign/WOLFDYNAMICS_DRIVAER_COARSE_RESULTS.md. The fine case
+    # was STOPPED BY OWNER DECISION short of its endTime (2026-09-13/14), so it has
+    # no graded result at all and keeps only PENDING -- the display/queue state --
+    # and assert_stamp REFUSES a PASS on a fine-level figure before a pixel is drawn.
+    # PENDING is NOT being used to soften anything here: there is no gate verdict to
+    # soften, because the run never reached one.
     #
     # AND A DISCLOSURE THAT TRAVELS WITH EVERY COARSE FIGURE: the coarse result
     # is a REPRODUCTION, not a validation. Our forceCoeffs output is BYTE-
@@ -200,11 +202,14 @@ CASE_FACTS = {
         "cells": 4048483,                # log.checkmesh: "cells: 4048483"
         "mesh_words": "4048483 cells, their fine mesh",
         "solver": "simpleFoam",
-        "end_time": "0",                 # RUNNING; no time directory written yet
+        "end_time": "0",                 # the only RECONSTRUCTED time; the fields the
+                                         # run produced are kept decomposed, under
+                                         # processor*/700 and processor*/800
         "fields": ("p", "U", "k", "omega", "nut"),
         "allowed_verdicts": {"PENDING"},
         "verdict_stamp": "PENDING",
-        "source": "the run is live; no grading record exists yet",
+        "source": "stopped by owner decision short of endTime; no grading record "
+                  "exists and none can",
     },
     # ---------------------------------------------------------------------
     # THE ONERA M6 J-FAMILY, added 2026-09-13 for the demo field panels. Two
