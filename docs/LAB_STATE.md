@@ -51655,3 +51655,79 @@ Instrument `check_completion_enforcement.py` (75463642) flagged **18 distinct an
 **THE STALE-WORKTREE RULE HELD ON ITS FIRST USE AFTER I PAID FOR IT.** I put it at the top of the lane's brief; it built both files from `git show HEAD:<path>`, re-derived the row maximum **inside the commit's own invocation** (HEAD moved between its two reads — `0be0f54f7` -> `c44668c956`, exactly the race), and asserted HEAD's bytes are an exact prefix of each new file before `commit-tree`. **Zero deletions on a two-file append is what that rule is supposed to buy, and it bought it.**
 
 **LIVE, verified at this stamp.** VMFL017-R3/L3 pid 316601, 94.2 %, watcher 569814 polling, ETA ~09:20Z (04:10Z superseded). VMFL078/L3 pid 2661137, watcher 2731497 armed PPID 1 with a live child. Lanes 0 of 4. **Nothing further launches tonight: the team is at rest for new cases, both live runs have armed consumers, and the next verdicts land on their own.**
+
+---
+
+## PLOT LANE — RESUME NOTE, 2026-09-14 (demo plot folders)
+
+**Five demo plot folders exist and are committed.** All are plot library **v2**
+(`docs/plot_orders/README_PLOT_LIBRARY_V2.md`) plus the owner's six fixes: math only on
+figures, **no caption / verdict / cell count / level name on any image**, white ground,
+no orientation triad, one quarter-height colour bar titled by symbol and unit,
+residual-evolution frames, one limit line `T_lim = 27 °C`.
+
+| folder | state |
+|---|---|
+| `docs/campaigns/ONERA-M6/demo/plots_M6J` | complete (18 PNG) |
+| `docs/campaigns/F14-cooling-ladder/demo/plots_K2_steady` | complete, round-2 re-render landed |
+| `docs/campaigns/F14-cooling-ladder/demo/plots_K2_transient` | complete, round-2 re-render landed |
+| `docs/campaigns/navier_class/DRIVAER/demo/plots_DRIVAER` | complete **except the wake panel** |
+| `docs/campaigns/navier_class/SUBOFF/demo/plots_SUBOFF` | complete **except two panels**; act graded `NOT A RESULT` |
+
+### OUTSTANDING — four items, each runnable cold
+
+1. **`drivaer_umag_wake.png` re-render.** Queued but not yet landed. Run:
+   `xvfb-run -a pvpython docs/campaigns/navier_class/DRIVAER/demo/plots_DRIVAER/render_field_panels.py wake-only`
+   Two faults were fixed and both are in the script: the frame was y 0–2.2 m on a
+   half-body spanning y 0–1.0 m and the camera's right vector is **−y**, so the car sat
+   in one corner; and the car outline was drawn by re-pointing **the slice's own
+   reader**, which pulls the internalMesh out from under the Slice already on screen —
+   it now opens a second reader for the body.
+2. **`suboff_streamlines_bp12.png` and `suboff_q_bp12.png`.** Run:
+   `xvfb-run -a pvpython docs/campaigns/navier_class/SUBOFF/demo/plots_SUBOFF/render_field_panels.py p12-extras-only`
+   The tube radius is already raised 0.006 → 0.014 m because at 0.006 nearly every tube
+   pixel is antialiased edge, which carries colour in the constant-array arm too and put
+   the control at 5.2x on an 8x floor.
+3. **Baked-text sweep.** `scratchpad/text_sweep.py` measures dark neutral ink in the
+   bottom 10 % of every demo PNG. Last run: **three flags — `m6_mesh`, `k2_mesh`,
+   `k2t_mesh` — all WIREFRAME MESH LINES reaching the bottom edge, verified by eye, not
+   captions.** *The measurement cannot tell a wireframe from lettering*; re-run it after
+   the two renders above and eyeball any new flag.
+4. **`plots_CRM_SP` — not started.** Sanaa asked for "the single point transonic CRM
+   Mach 0.85 optimization" plots. **THE PREMISE DOES NOT HOLD AND THIS IS THE FIRST
+   THING A COLD SESSION MUST KNOW:** the dafoam supervisor's inventory says **NO
+   OPTIMISATION RAN — zero design iterations have ever completed.** Plot what exists and
+   label none of it optimisation, optimised, before/after or drag reduction:
+   * **the verbatim baseline primal**, `P00/` under
+     `/home/ubuntu/certonomous-runs/CURRICULUM-D6R3-crm-wing-mach085/`, log
+     `P00_20260913T192711Z.log`: `CD = 0.02090109066417552`, `CL = 0.5000136952243076`,
+     rc 0, 28 ranks, 155.400 core-min. **The headline figure is a three-way agreement**
+     — ours, DAFoam's published `0.02090`, and a prior independent lab run
+     `0.02090143421526141`, to five significant figures on a mesh rebuilt from the
+     published recipe. That is validation, not optimisation.
+   * **primal residual-evolution frames** over 2000 iterations, six equations, from the
+     `Time = N` blocks of that log.
+   * **the multipoint trim at `J0` ONLY** (`MP_R1/`, rc 1, died in its first adjoint on a
+     PETSc −9 at `cl06`): `J0 = 0.02155297`, three conditions trimmed from a common
+     `2.11031707°` onto `[1.32496937, 2.11023869, 2.88211463]`, CD
+     `0.016173741827808601 / 0.020901474141154439 / 0.028235178601462432` at CL
+     0.400 / 0.500 / 0.600, **74.6 % drag spread**. Iteration zero, nothing more.
+   * **the decomposition sweep**, a real graded result: floor versus rank count against
+     DAFoam's `1.0e-06` — 28 ranks `1.194718885139746e-07`/`1.757696578179007e-06`
+     fails, **20 ranks passes and is bit-identical across positions**, 8 ranks fails.
+   * FFD box `FFD/wingFFD.xyz`, mesh panel from `P00/constant/polyMesh`, 579,072 cells,
+     Cp on the wing from `P00/surfMesh.cgns`. Sidecar carries: *"baseline established and
+     verified against the published result; the optimisation has not yet completed a
+     design iteration."*
+
+### THINGS THAT COST TIME AND SHOULD NOT COST IT TWICE
+* **Two ParaView GL contexts on this box abort each other** — `bad X server connection`,
+  SIGABRT ~3.5 s in, twice. **Render folders SEQUENTIALLY**, and wait on a **PID**
+  (`kill -0 <pid>`) or `pgrep -x pvpython`, never `pgrep -f <script path>`: the latter
+  matches the invoking shell and, used to kill, took out my own monitor and shell.
+* **The colour control cannot see a blank frame.** Two clauses now close that in every
+  driver: the positive arm must cover ≥ 20,000 non-background pixels (a colour bar alone
+  is ~4,600) and the negative arm's spread must not be exactly zero.
+* **`k2_mesh.png` / `k2t_mesh.png` read as a featureless meshed cube** — the room is a
+  box and the racks are voids inside it. Not a defect and not in any instruction, but a
+  clip through the row would make it a better demo panel.
