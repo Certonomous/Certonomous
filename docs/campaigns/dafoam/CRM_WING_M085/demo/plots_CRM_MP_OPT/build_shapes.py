@@ -138,12 +138,15 @@ for eta in STATIONS:
         return np.array(xs), np.array(zu), np.array(zl)
 
     fig, ax = plt.subplots(figsize=(6.8, 2.6))
-    for arr, col, lab in ((a, INK, r"$\mathrm{baseline}$"),
-                          (b, RED, r"$\mathrm{deformed}$")):
+    # GEOMETRIC ORDER, NOT MESH ORDER: upper surface leading edge to trailing edge,
+    # then lower surface back, closing the loop. Baseline solid, optimised dashed.
+    for arr, col, ls, lab in ((a, INK, "-", r"$\mathrm{base}$"),
+                              (b, RED, "--", r"$\mathrm{opt}$")):
         xs, zu, zl = _envelope(arr)
         ax.plot(np.concatenate([xs, xs[::-1], xs[:1]]),
-                np.concatenate([zu, zl[::-1], zu[:1]]), color=col, lw=1.4, label=lab)
-    ax.set_xlabel(r"$x/c$"); ax.set_ylabel(r"$z/c$")
+                np.concatenate([zu, zl[::-1], zu[:1]]),
+                color=col, lw=1.4, ls=ls, label=lab)
+    ax.set_xlabel(r"$x/c$  [-]"); ax.set_ylabel(r"$z/c$  [-]")
     ax.set_aspect("equal", adjustable="datalim")
     ax.legend(loc="upper right")
     _finish(fig, os.path.join(HERE, "section_eta%02d.png" % int(eta * 100)))
@@ -169,9 +172,15 @@ fd[:, 0] = xq + (ffd[:, 0] - xq) * np.cos(th) - ffd[:, 2] * np.sin(th)
 fd[:, 2] = ((ffd[:, 0] - xq) * np.sin(th) + ffd[:, 2] * np.cos(th)) * \
            (1.0 + THICK_MAX * np.sin(np.pi * fe))
 fig, ax = plt.subplots(figsize=(7.0, 4.0))
-ax.plot(ffd[:, 0], ffd[:, 1], ".", ms=3.5, color=INK, label=r"$\mathrm{baseline}$")
-ax.plot(fd[:, 0], fd[:, 1], ".", ms=3.5, color=RED, label=r"$\mathrm{deformed}$")
-ax.set_xlabel(r"$x\ \ [\mathrm{m}]$"); ax.set_ylabel(r"$y\ \ [\mathrm{m}]$")
+# THE WING PLANFORM UNDER THE LATTICE, so the control points have something to sit on:
+# the real wall patch projected to x-y, drawn as a light silhouette.
+ax.plot(w[:, 0], w[:, 1], ".", ms=0.6, color="#C9D0D8", zorder=0)
+dx = 0.012 * (ffd[:, 0].max() - ffd[:, 0].min())
+ax.plot(ffd[:, 0] - dx, ffd[:, 1], "o", ms=3.2, color=INK, mfc="none",
+        label=r"$\mathrm{base}$")
+ax.plot(fd[:, 0] + dx, fd[:, 1], "s", ms=3.2, color=RED, mfc="none",
+        label=r"$\mathrm{opt}$")
+ax.set_xlabel(r"$x$  [m]"); ax.set_ylabel(r"$y$  [m]")
 ax.legend(loc="best")
 _finish(fig, os.path.join(HERE, "ffd_lattice.png"))
 wcsv("ffd_lattice", ["x_base", "y_base", "z_base", "x_def", "y_def", "z_def"],

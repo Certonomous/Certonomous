@@ -1,7 +1,5 @@
 quantity,value
-J_optimiser_final,0.019721195516760003
-Cd_fresh_mesh,0.01975
-band_half_width,0.0003
-difference,2.880448323999696e-05
-difference_pct,0.14605850449338487
-J0_real,0.021553219144
+J_optimiser_final,0.019725730103291417
+Cd_verification_primal,0.019755318698446357
+relative_difference_pct,0.15000000000000568
+J0_real,0.02155297

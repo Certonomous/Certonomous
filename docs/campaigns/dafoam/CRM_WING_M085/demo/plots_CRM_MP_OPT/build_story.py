@@ -67,7 +67,7 @@ for i in it2:
     else:
         slow.append(KSP_REAL[-1] * math.exp(rate * (i - 400)))
 fig, ax = plt.subplots(figsize=(7.6, 3.8))
-ax.set_xlabel(r"$n$"); ax.set_ylabel(r"$r$"); ax.set_yscale("log")
+ax.set_xlabel(r"$n$  [iteration]"); ax.set_ylabel(r"$r$"); ax.set_yscale("log")
 ax.plot(it2, slow, color=BLUE, lw=1.4, label=r"$\|r\|_{\mathrm{adj}}$")
 ax.axvline(STOP_AT, color=RED, lw=1.2, ls="--")
 ax.axhline(1e-7, color=INK, lw=1, ls=":", label=r"$r_{\mathrm{target}}=10^{-7}$")
@@ -190,7 +190,7 @@ ser = {}
 for name, tgt in (("$C_L=0.4$", 0.4), ("$C_L=0.5$", 0.5), ("$C_L=0.6$", 0.6)):
     ser[name] = [tgt + 2.0e-4 * math.exp(-k / 3.0) * math.sin(k * 1.7) for k in it_d]
 force_history(os.path.join(HERE, "cl_history.png"), it_d, series=ser,
-              xlabel="design iteration", ylabel="$C_L$  [–]",
+              xlabel=r"$k$  [design step]", ylabel=r"$C_L$  [-]",
               limits={"target 0.400": 0.4, "target 0.500": 0.5, "target 0.600": 0.6})
 wcsv("cl_history", ["design_iteration"] + list(ser),
      [[it_d[i]] + [ser[k][i] for k in ser] for i in range(len(it_d))])
@@ -268,7 +268,7 @@ for ax, (i0, i1), lab in zip(axes, ((1, 2), (3, 4), (5, 6)),
             label=r"$\mathrm{baseline}$")
     ax.plot(stations, [r[i1] for r in rows], "s-", color=RED, lw=1.4,
             label=r"$\mathrm{optimal}$")
-    ax.set_xlabel(r"$\eta$"); ax.set_ylabel(lab)
+    ax.set_xlabel(r"$\eta$  [-]"); ax.set_ylabel(lab)
 axes[0].legend(loc="best")
 _finish(fig, os.path.join(HERE, "final_dimensions.png"))
 wcsv("final_dimensions",

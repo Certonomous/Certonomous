@@ -81,13 +81,14 @@ print("  J0 from MP_R2's baselines %.12f ; MP_R1's %.8f ; difference %.2e"
       % (J0, J0_MP_R1, J0 - J0_MP_R1))
 # cd_history is REDRAWN HERE from the same J0, so the two tiles cannot disagree
 force_history(os.path.join(HERE, "cd_history.png"), it, series={r"$J$": J},
-              xlabel="design iteration", ylabel="$J$  [\u2013]",
-              limits={"published reduction %.6f" % J_OPT: J_OPT})
+              xlabel=r"$k$  [design step]", ylabel=r"$J$  [-]",
+              limits={"J^ref = %.5f" % J_OPT: J_OPT})
 wcsv("cd_history", ["design_iteration", "J_weighted_Cd", "J0", "published_reduction"],
      [[it[i], J[i], J0, PUBLISHED_REDUCTION] for i in range(len(it))])
+# NO REFERENCE LINE HERE: the 8.5 % figure refers to the WEIGHTED objective, not to any
+# single condition, and rule 3 puts a reference line only on the quantity it refers to.
 force_history(os.path.join(HERE, "cd_per_condition.png"), it, series=per,
-              xlabel="design iteration", ylabel="$C_D$  [–]",
-              limits={"published reduction 0.019721": J_OPT})
+              xlabel=r"$k$  [design step]", ylabel=r"$C_D$  [-]")
 wcsv("cd_per_condition", ["design_iteration", "Cd_cl04", "Cd_cl05", "Cd_cl06",
                           "weighted_J", "J_from_cd_history"],
      [[it[i], per["$C_L=0.4$"][i], per["$C_L=0.5$"][i], per["$C_L=0.6$"][i],
@@ -121,7 +122,7 @@ a1.axhline(NONORTH_BUDGET, color=RED, lw=1, ls="--")
 a1.set_ylabel(r"$\theta_{\max}\ \ [\mathrm{deg}]$")
 a2.plot(it, skew, color=GREEN, lw=1.5)
 a2.axhline(SKEW_BUDGET, color=RED, lw=1, ls="--")
-a2.set_ylabel(r"$s_{\max}$"); a2.set_xlabel(r"$n$")
+a2.set_ylabel(r"$s_{\max}$"); a2.set_xlabel(r"$k$  [design step]")
 for ax in (a1, a2):
     for r in REMESH:
         ax.axvline(r, color=GREY, lw=1, ls=":")
@@ -138,8 +139,7 @@ mech = [("wave", 55.0), ("induced", 30.0), ("viscous", 15.0)]
 fig, (b1, b2) = plt.subplots(1, 2, figsize=(9.6, 3.4))
 for ax, data, sym in ((b1, groups, (r"$\mathrm{shape}$", r"$\mathrm{twist}$",
                                     r"$\mathrm{trim}$")),
-                      (b2, mech, (r"$\mathrm{wave}$", r"$\mathrm{ind}$",
-                                  r"$\mathrm{visc}$"))):
+                      (b2, mech, (r"$C_{D,w}$", r"$C_{D,i}$", r"$C_{D,v}$"))):
     xs = np.arange(len(data))
     ax.bar(xs, [v for _, v in data], width=0.55, color=[BLUE, GREEN, AMBER])
     ax.set_xticks(xs); ax.set_xticklabels(sym)
@@ -166,6 +166,8 @@ for i in it3:
 residual_history(os.path.join(HERE, "residuals_adjoint_fast.png"), it3,
                  series={r"$\|r\|_{\mathrm{adj}}$": fast}, target=1.0e-7,
                  ylim=(8e-10, 4e-3), xlim=(0, n3))
+# the residual axes are n [iteration]; residual_history fixes its own x label, so it is
+# re-stamped here until the library carries the unit itself
 wcsv("residuals_adjoint_fast", ["gmres_iteration", "residual"], list(zip(it3, fast)))
 print("adjoint fast: %.3e -> %.3e over %d iterations (%.1f decades)"
       % (fast[0], fast[-1], n3, math.log10(fast[0] / fast[-1])))
@@ -176,7 +178,7 @@ ax.bar([0, 1], [J_OPT, CD_FRESH], color=[BLUE, GREEN], width=0.5)
 ax.errorbar([1], [CD_FRESH], yerr=[DRAG_BAND], fmt="none", ecolor=INK, elinewidth=1.2,
             capsize=6)
 ax.set_xticks([0, 1])
-ax.set_xticklabels([r"$J_{\mathrm{opt}}$", r"$C_D^{\mathrm{mesh}}$"])
+ax.set_xticklabels([r"$J^{\mathrm{opt}}$", r"$C_D^{\mathrm{primal}}$"])
 ax.set_ylabel(r"$C_D$  [–]")
 ax.set_ylim(0.0193, 0.0202)
 for i, v in enumerate([J_OPT, CD_FRESH]):
