@@ -1,190 +1,119 @@
 # SIDECAR — K2 TRANSIENT demo plot folder (`plots_K2_transient`)
 
-Built 2026-09-13 from REAL series on disk by `build_plots.py` and
-`render_extra_panels.py` in this folder. **Zero solver compute.** Figure names follow
-`docs/plot_orders/README_PLOT_ORDERS.md` section C. Arrays are beside each figure as
-`.csv`; `PROVENANCE.tsv` carries the path, time directory and sha256 of every
-artifact each figure read.
+Round 4, 2026-09-14. Built from REAL series and REAL written fields on disk by
+`build_plots.py` and `render_k2t_panels.py` in this folder. **Zero solver compute.**
+No verdict word, no band annotation, no caption, no cell count and no English is
+drawn on any image (plot library v2; owner corrections 2026-09-13 and the order of
+2026-09-14). Everything a reader needs to interpret a figure is on this page.
 
-**No verdict word and no band annotation is printed on any matplotlib image**
-(owner correction, 2026-09-13). The ParaView panels carry the caption their own
-committed instrument mandates.
+## The run
 
-## The verdict of every source
+`verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59` —
+**137,000 cells** (`log.checkMesh`, `COST.txt` `cells 137000`),
+`buoyantBoussinesqPimpleFoam`, `endTime 80.0`, **995 time steps**, `End` in the log.
+Written time directories: **0, 20, 40, 60, 80**. Room 3.6 × 3.5 × 2.7 m; a row of
+four 0.6 m cabinets spanning x = 0.6 → 3.0 m with **open row ends**; floor tiles in
+the cold aisle at y = 0.6 → 1.2 m; ceiling return at y = 2.6 → 3.2 m.
+Verdict **GATE REACHED** (`K2bU3R3_GRADE.txt`).
 
-| Source | Verdict | Where it is recorded | sha256 |
-|---|---|---|---|
-| `K2h_L3` — 664,848 cells, transient `buoyantBoussinesqPimpleFoam`, graded at t = 110 | **PASS** — `DPbar` **27.981013405397942 m²/s²** inside the pre-registered `G-DPBAR` band **[27.9699, 28.0901]** | `verification/runs/F14-cooling-ladder/K2h_runs/GRADE.K2h_L3.json` | `e10f036942fa2d4e3e46ee757059145fb039d32bf11d89097febf5daa5834a1d` |
-| `K2bU3R3_D59` — 137,000 cells, 3-D four-rack room, t = 80 | **GATE REACHED** — DAMPS, ratio **0.420 ≤ 0.5** | `verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/K2bU3R3_GRADE.txt` | `2491254f2b1d799f9273eaf28158bbfec165ecb74e45690a67a9dcd02330e23b` |
-| `K2bU3_L025` — 11,600 cells, the 2-D slice of the same module | the 2-D arm of the same K2b-U3 comparison | `docs/campaigns/F14-cooling-ladder/K2bU3_RESULTS.md` | — |
-| `K2f_L1` — 58,368 cells, coarse mesh (the mesh panel only) | mesh shown per the ParaView rule | — | — |
+## The window, and how the mean is taken
 
-Two disclosures ride with the `PASS` and are repeated here rather than left in the
-grade file: the graded mean covers **42 → 110 s, 97.1 % of the registered 70 s
-window** (the solver writes only on `writeInterval` boundaries and 112 is not one);
-and **there is NO triple, NO observed order and NO GCI** — `K2h_L1` and `K2h_L2` do
-not exist and §3 forbids a mixed steady / time-averaged triple outright.
+The ordered window is **50 → 80 s**. This run carries **no `fieldAverage`**: there is
+no `TMean`, no `UMean` and no `uniform/fieldAveragingProperties` anywhere in the
+tree, so no solver-side window average exists to be used. The window mean on every
+figure that has one is therefore the **arithmetic mean of the TWO written time
+directories inside the window, 60 s and 80 s** — two snapshots, not a 30 s average,
+and every such figure's `PROVENANCE.tsv` row says so in its `window` column.
 
-## Why the ride-through is drawn from `K2bU3R3_D59` and not from `K2h_L3`
+`k2t_residuals.png` and `k2t_ride_through.png` are **not** window means: they show the
+whole 0 → 80 s record.
 
-The orders ask `k2t_ride_through.png` for **inlet temperature per rack against time**.
-`K2h_L3` **does not emit that**: its only per-write function objects are `dp_tile`
-and `dp_return`, and it writes fields at t = 0, 10 and 110 only. `K2bU3R3_D59` is the
-one run in this territory that writes a **per-rack inlet temperature series**
-(`T_rack0..3_in_mdot`, 400 samples over 0 → 80 s, mass-flow-weighted patch averages
-from the run's own function objects), so the ordered figure is drawn from it and the
-source is named on this page rather than swapped silently. `K2h_L3`'s own transient
-record is `k2t_dp_history.png`.
+## The two checks printed with this set
+
+Both are computed by `k2t_window.py` from the run's own patch data, over the window:
+
+| Check | Measured | Expected in the order |
+|---|---|---|
+| window-mean room rise | **16.1641 K** (flux-weighted `return` temperature 305.1641 K minus the area-weighted `tile` supply 289.0000 K) | ~16.6 K |
+| total tile flow | **0.980000 m³/s** (Σ\|φ\| over the 400 `tile` faces; 0.2450 m³/s under each of the four racks) | 0.98 m³/s |
+
+The tile flow matches exactly. The room rise is **0.44 K below** the order's figure
+and **is not adjusted**: the room is still warming through the window — the same
+number is 15.7958 K at t = 60 and 16.4786 K at t = 80, and the fully-mixed steady
+value the design implies, 4 × 0.35 × 12 ÷ 0.98 = 17.14 K, has not been reached by
+t = 80 s.
+
+## The planted control
+
+`k2t_window.plant_check()` runs before any figure is drawn. It copies `80/T` into a
+scratch tree, plants **1.234e-03 K** on the `tile` patch (`value` entry) and on one
+`rack0_in` owner cell (the zeroGradient path), and re-reads both through the same
+functions the figures use. Both came back **1.234e-03 K, tolerance 1e-09**. Nothing
+is written into the graded run tree, and `demo3d_render_common.assert_run_tree_untouched`
+proves the tree unchanged after every render.
+
+Each coloured ParaView panel additionally carries the folder's colour control at the
+8× margin, both arms in `_control/`: measured **76.6×** (`k2t_plane_mid`),
+**25.9×** (`k2t_plane_mid_velocity`) and **264.9×** (`k2t_plane_hot`) against a
+constant array, over 0.73 M, 0.73 M and 1.19 M painted pixels.
+
+## Why `T` on a rack inlet is read from the owner cell
+
+`T` on `rack{i}_in` is `zeroGradient` — the rack inlet is an **outflow of the room**,
+so the patch entry carries no `value` and the frozen `foam_patch_reader` refuses it,
+correctly. A zeroGradient face carries its owner cell's value by definition, so
+`k2t_window.Case.patch` falls back to `constant/polyMesh/owner` and the internal
+field. Which path produced a number is returned beside it, and the planted control
+above exercises **both** paths.
 
 ## Per figure
 
-| Figure | What it is | Source |
-|---|---|---|
-| `k2t_ride_through.png` | inlet temperature of each of the four racks against time, the single limit T_lim = 27 °C drawn | `K2bU3R3_D59/postProcessing/T_rack{0..3}_in_mdot/0/surfaceFieldValue.dat` |
-| `k2t_2d_vs_3d.png` | hottest rack inlet against time: the 3-D room against the 2-D slice, to the slice's own end at 44.0 s | `K2bU3R3_D59` (max over the four racks) and `K2bU3_L025/postProcessing/T_rack_in_mdot` |
-| `k2t_dp_history.png` | module Δp through the whole transient record, the registered 42 → 112 s averaging window shaded | `K2h_L3/postProcessing/dp_tile/{0,10}/surfaceFieldValue.dat`, 18,950 steps, t = 0.0059 → 111.998 |
-| `k2t_TMean_field.png` | time-averaged temperature on the y–z aisle plane | `K2h_L3` at t = 110, committed render |
-| `k2t_p_rghMean_field.png` | time-averaged `p_rgh` — **the graded field**: `G-DPBAR` is its area average over `tile` minus over `return` | `K2h_L3` at t = 110, committed render |
-| `k2t_UMean_field.png` | time-averaged velocity on the same plane, same camera | `K2h_L3/110/UMean`, rendered here by `render_extra_panels.py` |
-| `k2t_mesh.png` | the **coarse** level's mesh, per the owner's ParaView rule | `K2f_L1`, 58,368 cells, committed render |
-| `k2t_plane_mid.png` | `TMean` on the **horizontal** plane at rack mid-height, z = 1.0 m, captioned with the **measured averaging window** | `K2h_L3` at t = 110 |
-| `k2t_plane_mid_velocity.png` | `UMean` magnitude on the same plane, same window | `K2h_L3` at t = 110 |
-| `k2t_plane_t110.png` | **INSTANTANEOUS** `T` at the last written time, captioned with that time and with the words "NOT a time average" | `K2h_L3` at t = 110 |
-| `k2t_plane_t10.png` | **INSTANTANEOUS** `T` at t = 10 s, the same horizontal plane and the same colour window, so the pair with `k2t_plane_mid.png` shows what the averaging removed | `K2h_L3` **decomposed** tree at t = 10 (`processor0..3/10/T`) |
-| `k2t_indices.csv` | operator indices per rack — inlet and outlet temperature, RCI high, capture index, recirculation, rack rise — recomputed on the graded transient fine level | `K2h_L3/110/TMean`, patch averages on `rack{0..3}_{in,out}` |
-| `k2t_indices_room.csv` | room-level numbers — supply, return, room rise, RTI, hottest inlet and which rack, rack-to-rack spread | `K2h_L3/110/TMean`, patch averages on `tile` and `return` |
+| Figure | Source | Window | Camera / colour range | Note |
+|---|---|---|---|---|
+| `k2t_mesh.png` | `K2bU3R3_D59` mesh | — | ISO from the cold-aisle side | patches `floor`, `tile`, `rack{0..3}_{in,out}`, `rack_top`, `rack_end`; 7,552 faces with their cell edges. The four cabinets are **voids** in this mesh, so their surface *is* the rack patch set; the cabinet outlines separate the four. Tile and floor outlines are lifted 12 mm so they do not z-fight with the floor patch. |
+| `k2t_residuals.png` | `log.buoyantBoussinesqPimpleFoam` | 0 → 80 s | — | first outer corrector of each of the 995 steps, $t$ in seconds |
+| `k2t_dp_history.png` | **`K2h_L3`** | 42 → 112 s registered | — | **as pushed; not redrawn this round** (`REDRAW_DP = False` in `build_plots.py`) |
+| `k2t_ride_through.png` | `K2bU3R3_D59` `T_rack{0..3}_in_mdot` | 0 → 80 s | — | 400 mass-flow-weighted samples per rack. **Both limit lines are drawn**: `T_lim = 27 °C` and the supply line. The supply line carries the run's OWN supply temperature, 289.0 K = **15.85 °C** (`build_k2b.T_SUP`), not the order's rounded 16 °C — a line labelled with a number the case does not carry would be a false reading. The `T_sup` line was **added this round**; the figure previously drew `T_lim` alone. |
+| `k2t_inlet_profiles.png` | `60/T`, `80/T` on `rack{0..3}_in` | 50 → 80 s (2 times) | — | mean over the rack's width at each of the 34 face-centre heights. The inlets are below 27 °C over most of their height and **cross it in the top ~0.2 m** — the recirculation this room actually has. |
+| `k2t_indices.png` | **`K2h_L3` `110/TMean`** | 42 → 110 s | — | **the existing numbers, reused unchanged as the order directs.** They are `K2h_L3`'s, not `K2bU3R3`'s, and are the only numbers in this folder that are not from `K2bU3R3_D59`. They read capture ≈ 100 % and $f_{rec}$ ≈ 0.004 %; the same quantities computed on `K2bU3R3` over this window would not agree, and RTI on `K2bU3R3` would be ≈ 135 %, not the 28.25 % drawn. Nothing is recomputed here. |
+| `k2t_rack_dT.png` | `60/T`, `80/T` on `rack{0..3}_{in,out}` | 50 → 80 s (2 times) | — | **11.9361, 12.0067, 11.9973, 11.8745 K** against the 12 K line. The rack outlet is an `outletMappedUniformInlet` at **+12 K on the mass-averaged inlet**, so this figure shows that the boundary condition is being enforced to within 0.13 K; it is not an independently computed rise. 12 K at 0.35 m³/s is 4.91 kW on the lab property pair. |
+| `k2t_airflow_balance.png` | `60/phi`, `80/phi` on `tile` and `rack{0..3}_in` | 50 → 80 s (2 times) | — | tile supply **0.2450** m³/s per rack, rack demand **0.3500** m³/s, bypass **−0.1050** m³/s. Bypass is defined here as **tile supply minus rack demand**; it is negative because the room is provisioned at 70 %, and the deficit is made up from recirculated room air. `k2t_airflow_balance.csv` carries **SHI = 0.27895** and **RHI = 0.72105** as its last two rows. |
+| `k2t_plane_mid.png` | `60/T`, `80/T` | 50 → 80 s (2 times) | TOP, T 16 → 33 °C | 27 °C contour drawn, 320 segments |
+| `k2t_plane_hot.png` | `60/T`, `80/T` | 50 → 80 s (2 times) | hot-aisle plane normal, T 16 → 33 °C | the vertical cut at y = 2.90 m, the mid hot aisle, spanning the row; 27 °C contour, 256 segments |
+| `k2t_plane_mid_velocity.png` | `60/U`, `80/U` | 50 → 80 s (2 times) | TOP, \|U\| 0 → 1.5 m/s | the 1.5 m/s top clamps a measured room maximum of 1.599 m/s at t = 80 (`Tspan`) |
+| `k2t_streamlines.png` | `60/U`,`80/U`,`60/T`,`80/T` | 50 → 80 s (2 times) | ISO, T 16 → 33 °C | 60 seed points on a 10 × 6 grid over the four tiles; the count is asserted before integration |
 
-The last three were drawn by `../render_K2_field_panels.py`, which renders BOTH K2
-folders in one run so the colour windows are genuinely shared with the steady
-folder: **T 289.00 to 301.00 K**, **U 0.0378 to 0.9820 m/s**, 2nd/98th percentile
-over both cases' planes, printed on every caption with the words *ends clamped*.
-Planted colour controls measured **87.2x**, **68.7x** and **87.0x** against a
-constant array, on a floor of 8x.
+## Two things drawn as projections, and said so
 
-**The averaging window on the two mean panels is read, not typed.** It comes from
-`GRADE.K2h_L3.json`'s own accumulator block: covered start **41.992 s** (measured,
-earlier than the registered 42 because `fieldAverage` adds the whole `deltaT` of
-the step during which it activates), covered end **110.0 s**, `totalTime`
-**68.0082742316576 s** over `totalIter` **11507**. The instantaneous panel says
-**t = 110 s** and says outright that it is not an average.
+* **On the TOP panels** the cut is at z = 1.0 m and the tiles are at z = 0, so in an
+  orthographic view looking down the cut sits between the camera and the tiles and
+  hides them completely. The floor and tile outlines are therefore drawn **in the
+  cut's own plane, as a plan projection of their footprint**. They mark where the
+  tile is in x and y, which is what they mark at z = 0. The ceiling return sits
+  above the cut and is drawn at its true height.
+* **On `k2t_plane_hot.png`** the cut is at y = 2.90 m and the cabinets at
+  y = 1.2 → 2.3 m, i.e. behind the field. The row is drawn as an **elevation outline
+  2 mm in front of the cut** — four cabinet footprints, the room outline, the four
+  tile footprints and the four return openings, each at its true x and z. Painting
+  grey blocks there would cover the hot aisle, which is exactly where this panel's
+  physics is.
 
-The 3-D room's inlets end at **19.3 / 21.9 / 21.8 / 19.4 °C** and never approach the
-27 °C line; the ride-through figure shows the rise and its arrest, not a breach.
+## The camera set
 
-## Ordered figures that could NOT be produced from disk
+TOP is orthographic looking down with **+y up in the frame**, which puts the cold
+aisle at the foot and the hot aisle at the head — and **which side is cold is read
+from the mesh, not assumed**: `render_k2t_panels.assert_cold_aisle_is_low_y` reads
+the `tile` and `return` patch face centres (measured: `tile` y 0.63 → 1.17,
+`return` y 2.63 → 3.17, rack row y 1.20 → 2.30) and refuses before any camera is
+pointed if the cold side is not the low-y side. ISO is the three-quarter view from
+the cold-aisle side. The order's **FRONT** camera is not used: none of the twelve
+figures is an along-the-row view, and the hot-aisle cut seen from the end of the row
+would be edge-on and blank.
 
-* **`k2t_hot_cloud.png`** (iso-surface volume above 27 °C per write) — **no such
-  series is emitted** by either run, and only three time directories exist for
-  `K2h_L3`, so the volume cannot be recovered per write after the fact. Drawn
-  through the library's registered `pending=True` path: ordered axes and labels with
-  a **"run in progress"** mark and no data. **A placeholder, not a result.**
-* **`k2t_temporal_family.png`** (crossing time at two time steps) — **the second
-  time-step run does not exist.** `K2h_L1` and `K2h_L2` were never run and the K2b
-  slice family varies cell size, not `deltaT`. Same registered placeholder.
-* **`k2t_plane_t60.png`, `k2t_plane_t120.png`** — `K2h_L3` writes fields at
-  t = 0, 10 and 110 only. There is no t = 60 and no t = 120 on disk, so neither panel
-  can be rendered from the run that was actually made.
+## Colour bar titles
 
-## A note on the ParaView captions, and a finding
-
-`k2t_mesh.png`, `k2t_TMean_field.png` and `k2t_p_rghMean_field.png` are the
-**committed** output of
-`verification/runs/F14-cooling-ladder/K2h_runs/render_k2h_l3.py`, copied here
-unmodified. `k2t_UMean_field.png` was rendered here by `render_extra_panels.py`,
-which drives that file's own `fig_mean_field` — with its planted colour control
-(measured spread ratio **134.7x** against a constant-array negative arm, floor 8x)
-and its stamp guard — and proves the run tree unchanged afterwards.
-
-`../render_K2_field_panels.py` builds every caption from the field's own time for
-exactly this reason, which is why the instantaneous panel could be shipped from it
-when it could not be shipped through `fig_mean_field`.
-
-**FINDING, reported and not worked around.** `render_k2h_l3.py:325` writes the
-caption fragment *"mean over simulated 42 to <t> s ; S-WINDOW registered 42 to 112"*
-as a **constant**, not as a property of the field it was handed. It is true of
-`TMean`, `p_rghMean` and `UMean` and **false of any instantaneous field or any
-steady case** driven through the same function. An instantaneous `T` panel for this
-folder was **deleted rather than shipped** through that function, and so were two
-panels re-rendered from the steady `K2f_L3`. Both were then produced correctly by
-`../render_K2_field_panels.py`, which derives its caption from the field it is
-handed rather than from a constant.
-
----
-
-## v2 REGENERATION — 2026-09-13
-
-Everything above still holds. What changed is the DRAWING, not a number.
-
-* **Plot library v2** (`docs/plot_orders/README_PLOT_LIBRARY_V2.md`), installed by the
-  owner. Math only: no English on any figure, no titles, no verdict words, no band
-  named in words. **v2 already carries both library changes this lane had made** —
-  `%` in place of the word, and a registered `band=(lo, hi)` on `grid_family` — in a
-  better form, so neither was re-applied. **One minimal change was added:**
-  `residual_history` gained `xlim`/`ylim`, because the residual-evolution frames below
-  are only comparable if the axes do not move; without pinned axes each frame
-  autoscales to its own data, every frame looks identical, and the descent that is the
-  whole point of the series is invisible.
-* **Residual evolution.** `sdk/workflows/act_residual_frames.py` cuts the run at
-  **10, 25, 50, 75 and 100 %** and writes one frame per cut on ONE set of axes, so the
-  act can step through them and the curves are seen to go down. The 100 % frame keeps
-  the ordered file name; the others are `*_f10 … _f75`.
-* **ParaView panels re-rendered to v2 §13:** white ground, **no orientation triad**,
-  **one colour bar a quarter of the frame high** titled by symbol and unit, and
-  **nothing written on the image**. The case, the time, the geometry and the verdict
-  now live HERE and in the act beside the figure. **The verdict guard was not dropped
-  with the caption**: `demo3d_render_common.assert_stamp` still runs on the stamp each
-  driver WOULD have drawn, before any pixel, so a verdict word a case does not own is
-  still refused. What moved is where the sentence is printed, not whether it is checked.
-
-* **THE MODULE IS THE FOUR-RACK ROW, NOT ONE CABINET — measured, not assumed.**
-  `constant/polyMesh/boundary` of BOTH `K2f_L1` and `K2h_L3` carries
-  `rack0_in/out … rack3_in/out`: **four racks**, on a 0.6 m pitch, the row spanning
-  x = 0.6 → 3.0 m of a 3.6 × 3.5 × 2.7 m room. The y–z aisle panels
-  (`k2_plane_hot`, `k2t_*_field`) are a **cross-section THROUGH the row at x = 1.5 m**,
-  which is why one cabinet face is what a viewer sees; the whole row is visible in the
-  mid-height horizontal planes (`k2_plane_mid`, `k2t_plane_mid`) and in the
-  streamline and mesh panels. Nothing needed re-rendering over a wider extent — the
-  act should be worded as a four-rack row cut through its middle.
-* **ONE LIMIT, and it is the user's: `T_lim = 27 °C`.** Every "recommended",
-  "allowable" and every 32 °C line is gone from the figures and from this page.
-* **`k2t_mesh`, `k2t_TMean_field`, `k2t_p_rghMean_field` and `k2t_UMean_field` are
-  re-rendered here caption-free** rather than copied from `render_k2h_l3.py`. The
-  constant-caption finding recorded above is therefore no longer carried by any
-  image in this folder: the averaging window lives on this page, not on the
-  picture, so it cannot be wrong on a panel it does not describe.
-* **No residual-evolution frames exist for this folder**: `K2h_L3` writes no
-  `solverInfo` series, only `dp_tile`/`dp_return`. The steady folder carries the
-  residual series for this module.
-
-### The instantaneous pair comes from two different times
-
-`k2t_plane_mid.png` is the window mean over the registered 42 → 112 s window,
-written at t = 110. `k2t_plane_t10.png` is the instantaneous field at **t = 10 s**,
-which is **before** that window: it is a settling instant, not a sample of the
-window the mean covers, and it is here because round 3 asks that the instantaneous
-and the averaged panel not be the same instant. `k2t_plane_t110.png` remains the
-instantaneous field at the last written time, inside the window. The reconstructed
-tree of `K2h_L3` holds only t = 0 and t = 110, so t = 10 was read from the run's own
-decomposed tree; the reader was made to prove it by the 12.16 K spread it reported
-at that time (288.844 to 301.000 K) and by the planted colour control at 83.2x.
-
-### The operator indices on the graded transient fine level
-
-`k2t_indices.csv` and `k2t_indices_room.csv` are computed from `110/TMean` — the
-mean over the registered window — by area average on the run's own patches. **This
-run carries no mdot-weighted inlet function objects** (its `postProcessing` holds
-`dp_tile` and `dp_return` only), so the patch average on `rack{i}_in` is the
-definition used, which is the same definition the K2b table's inlet column was
-cross-checked against.
-
-Two honest caveats belong beside these numbers:
-
-* The rack outlet patches are `fixedValue 301 K` in this case, so the per-rack rise
-  is 12.000 K **by construction** and `RTI` inherits that denominator. RTI here is
-  therefore a statement about the return temperature, not an independently computed
-  rack rise.
-* The rack inlet patches are `zeroGradient`, so the inlet temperatures ARE computed.
-  They read 15.8500 to 15.8505 °C against a 15.850 °C supply: in this run essentially
-  **no warm air reaches the rack inlets**. That is a measurement, not a blind zero —
-  the same field spans 288.957 to 301.000 K over the room, and 223,077 of its 664,848
-  cells are above 289.01 K.
+`T (degC)` and `U (m/s)`. The degree sign and the vertical bar are **not in the
+measured-renderable glyph set** of this box's ParaView 5.11.2 font
+(`demo3d_render_common.SAFE_CAPTION_CHARS`, `KNOWN_DROPPED_GLYPHS`), so `°C` is
+spelled `degC` and `|U|` is spelled `U`, rather than shipping a bar whose title has
+silently lost characters.

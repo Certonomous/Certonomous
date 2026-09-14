@@ -173,3 +173,28 @@ Everything above still holds. What changed is the DRAWING, not a number.
   `render_k2f_rackset.py` copies.** They are re-rendered here caption-free, which
   also retires the mis-captioned-constant finding for these panels: nothing is
   written on them at all.
+
+
+---
+
+## ROUND 4 — 2026-09-14
+
+Everything above still holds as the record of what this folder WAS. What changed is
+the contents, on the owner's plot order of 2026-09-14.
+
+* **Every temperature and velocity panel was removed** — `k2_plane_mid.png`,
+  `k2_plane_mid_velocity.png`, `k2_plane_hot.png`, `k2_hot_cloud.png` and
+  `k2_streamlines.png` — together with their rows in `PROVENANCE.tsv`. They were
+  `K2f_L3` steady fields; the order rejects them for the rack-inlet sign they carry.
+  Their replacements are in `../plots_K2_transient/`, drawn from `K2bU3R3_D59` over
+  the 50 → 80 s window.
+* **`k2_mesh.png` was re-rendered** and is no longer the `K2f_L1` hex block. It is
+  now the **`K2bU3R3_D59`** surface mesh of the four cabinets, the tiles and the
+  floor, ISO from the cold-aisle side, and it is byte-identical to
+  `../plots_K2_transient/k2t_mesh.png` — one figure, written to both folders by
+  `../plots_K2_transient/render_k2t_panels.py`. Its patch set is `floor`, `tile`,
+  `rack{0..3}_{in,out}`, `rack_top`, `rack_end`: 7,552 faces with their own cell
+  edges. The cabinets are VOIDS in that mesh, so the rack patches ARE their surface.
+* **`k2_family.png`, `k2_residuals.png` and the four residual frames are untouched**
+  and were not redrawn. `k2_indices.png` and its CSVs are untouched.
+* Nothing in this round changed a number in this folder.

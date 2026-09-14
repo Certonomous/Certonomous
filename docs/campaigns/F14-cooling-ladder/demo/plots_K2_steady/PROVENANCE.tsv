@@ -1,15 +1,16 @@
-figure	artifact	time_dir	sha256
-k2_family.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs/K2f_L1/3000/p_rgh	3000	65102cdea11745e019dc58502f81ee749ce24f13bbb5d961448390d01c4f4fa3
-k2_family.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs/K2f_L2/3000/p_rgh	3000	841611ca10ebc10f8a4a2cd3f11a7988871ca316497bac38960c7adb7b714ddb
-k2_family.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/803/p_rgh	803	1465070d61efe9bf9e0991809ca3acd86528d40168a15934fb4e0554d784f1f2
-k2_residuals_f10.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	80	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
-k2_residuals_f25.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	201	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
-k2_residuals_f50.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	402	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
-k2_residuals_f75.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	602	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
-k2_residuals.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	803	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
-k2_residuals.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	803	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
-k2_indices.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/80/T	80	c1a298cfb3a17ff96aa73a4e5226a1b7760e4e08666113bbd1cf3131b70dc8d7
-k2_indices.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack0_in_mdot/0/surfaceFieldValue.dat	0	3d618f4a9f0b22e07fa289434886373f8572bd8adec375d33c0f4866dff683a8
-k2_indices.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack1_in_mdot/0/surfaceFieldValue.dat	0	8034ff7a8699b98c45c4ea8c758355660051868ef615f11b8ea48dc210ee88ce
-k2_indices.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack2_in_mdot/0/surfaceFieldValue.dat	0	a8a7556e5f6a838069f1ff2152be06713e12b87a8aa53685ffc78694d5ce9569
-k2_indices.png	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack3_in_mdot/0/surfaceFieldValue.dat	0	0282f3f605fab57b23235201577dd21616b07709077112809d90219b40753e79
+figure	run	artifact	time_dir	window	patches	camera	colour_range	sha256
+k2_family.png	K2f_L1	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs/K2f_L1/3000/p_rgh	3000	-	-	-	-	65102cdea11745e019dc58502f81ee749ce24f13bbb5d961448390d01c4f4fa3
+k2_family.png	K2f_L2	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2f_runs/K2f_L2/3000/p_rgh	3000	-	-	-	-	841611ca10ebc10f8a4a2cd3f11a7988871ca316497bac38960c7adb7b714ddb
+k2_family.png	K2f_L3	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/803/p_rgh	803	-	-	-	-	1465070d61efe9bf9e0991809ca3acd86528d40168a15934fb4e0554d784f1f2
+k2_residuals_f10.png	K2f_L3	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	80	-	-	-	-	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
+k2_residuals_f25.png	K2f_L3	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	201	-	-	-	-	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
+k2_residuals_f50.png	K2f_L3	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	402	-	-	-	-	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
+k2_residuals_f75.png	K2f_L3	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	602	-	-	-	-	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
+k2_residuals.png	K2f_L3	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	803	-	-	-	-	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
+k2_residuals.png	K2f_L3	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2g_runs/K2f_L3/log.solve	803	-	-	-	-	b41b25d7a9d653b952a131e23da81836d6c0ba1e1fbe70cb426cad1fc290a84b
+k2_indices.png	K2bU3R3_D59	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/80/T	80	-	-	-	-	c1a298cfb3a17ff96aa73a4e5226a1b7760e4e08666113bbd1cf3131b70dc8d7
+k2_indices.png	K2bU3R3_D59	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack0_in_mdot/0/surfaceFieldValue.dat	0	-	-	-	-	3d618f4a9f0b22e07fa289434886373f8572bd8adec375d33c0f4866dff683a8
+k2_indices.png	K2bU3R3_D59	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack1_in_mdot/0/surfaceFieldValue.dat	0	-	-	-	-	8034ff7a8699b98c45c4ea8c758355660051868ef615f11b8ea48dc210ee88ce
+k2_indices.png	K2bU3R3_D59	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack2_in_mdot/0/surfaceFieldValue.dat	0	-	-	-	-	a8a7556e5f6a838069f1ff2152be06713e12b87a8aa53685ffc78694d5ce9569
+k2_indices.png	K2bU3R3_D59	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/postProcessing/T_rack3_in_mdot/0/surfaceFieldValue.dat	0	-	-	-	-	0282f3f605fab57b23235201577dd21616b07709077112809d90219b40753e79
+k2_mesh.png	K2bU3R3_D59	/home/ubuntu/Certonomous/verification/runs/F14-cooling-ladder/K2b_runs/K2bU3R3_D59/constant/polyMesh/owner	constant	-	floor, tile, rack0..3_in, rack0..3_out, rack_top, rack_end	ISO (three-quarter from the cold-aisle side)	-	882e5e50f8420dec9bc9b43f08ad41f69c48dc93cfedad9552563ed4c98eea35
