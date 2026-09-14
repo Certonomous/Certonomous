@@ -1,25 +1,53 @@
 # SIDECAR — SUBOFF drift-sweep demo plot folder (`plots_SUBOFF`)
 
-Built 2026-09-13 from what was on disk at the time, with **zero solver compute** and
-**nothing written into any run tree**. Drawn with plot library **v2**
-(`docs/plot_orders/README_PLOT_LIBRARY_V2.md`): math only on every figure, no
-titles, no verdict words, and the ParaView panels white-ground, triad-free,
-one quarter-height colour bar, nothing written on the image.
+Built 2026-09-14 from the A1h full-domain drift sweep with **zero solver compute** and
+**nothing written into any graded tree**. Drawn with plot library **v2**: math only on
+every figure, no titles, no verdict words, and the ParaView panels white-ground,
+triad-free, one quarter-height colour bar, nothing written on the image.
 
-## 🔴 THE WHOLE FOLDER IS `PENDING`
+## 🔴 THE ACT IS GRADED `NOT A RESULT`
 
-**All seven sweep points were STILL RUNNING** when this was built — between about
-2,450 and 2,640 of a registered `endTime` 3000 — and the `SUBOFF_L1M_BETA_P00` and
-`SUBOFF_L1M_MESH` rows of `demo3d_render_common.CASE_FACTS` own **exactly one
-verdict word, `PENDING`**, so `assert_stamp` refuses a `PASS`, a `GATE FAIL` or a
-`NOT A RESULT` on any figure of this act before a pixel is drawn.
+`verification/runs/navier_class/SUBOFF_A1H_DRIFT/L1M_GRADE/A1H_L1M_GRADE.json`,
+written 2026-09-14T00:18:03Z by `cases/navier_class/SUBOFF_A1/grade_suboff_a1h.py`:
 
-**NO DERIVATIVE AND NO NEUTRAL POINT IS COMPUTED HERE, and neither will be until all
-seven points land.** `Y_v'` and `N_v'` are least-squares slopes over the five points
-`|β| ≤ 8` (registration §4.1); fitting them to unfinished points would be a number
-that changes under its own feet. The `Y'` and `N'` against `β` figures show the
-**preliminary window means only**, and they are labelled as the quantity, never as a
-derivative.
+> **`"verdict": "NOT A RESULT"`** — *"fitted points failing the strict completion rule:
+> [-8, -4, 0, 4, 8]. There is no fit over fewer than the five registered points and no
+> degradation to a shorter sweep."*
+
+**All seven points fail, and they fail on every clause**, not on a technicality:
+
+| β [deg] | rc | last `Time` | `endTime` dir | fields missing | complete |
+|---|---|---|---|---|---|
+| −12 | 1 | 2746 | none | 6 | **no** |
+| −8 | 1 | 2791 | none | 6 | **no** |
+| −4 | 1 | 2821 | none | 6 | **no** |
+| 0 | 1 | 2881 | none | 6 | **no** |
+| +4 | 1 | 2806 | none | 6 | **no** |
+| +8 | 1 | 2836 | none | 6 | **no** |
+| +12 | 1 | 2671 | none | 6 | **no** |
+
+The comparator's own rule-3 plants all **PASS** (force reader, moment reader, age
+guard, and a planted slope recovered to 1e-17 inside and outside the band), so this is
+a **working instrument refusing**, not a broken one. **Every figure in this folder is a
+picture of an incomplete solve.** Nothing here is a result, and nothing here may be
+cited as one.
+
+*cfd is applying the owner's §V `endTime` addendum and re-grading. If the verdict
+changes, only this page changes — the figures are of the same iterations either way.*
+
+## 🔴 FIVE ITEMS OF THE APPROVED LIST WERE NOT BUILT, AND THE REASON IS THE FROZEN
+## REGISTRATION RATHER THAN A PREFERENCE
+
+`SUBOFF_A1h_FULL_DOMAIN_DRIFT_SWEEP_PREREGISTRATION.md` §10, *"WHAT THIS CASE DOES NOT
+CLAIM"*, read rather than recalled:
+
+| asked for | why it is not here |
+|---|---|
+| **Z and M vs α** | This act is a **horizontal-plane drift sweep in β**. §10: *"No vertical-plane result: no `Z`, no `M`, no neutral point — that is A1g's, on a body this one does not have."* The run directories are `BETA_*`. **Drawn instead: `Y'` and `N'` vs β**, the registered channel. |
+| **hull/fin split** | §10: *"No hull/fin split: there are no fins on this body."* The mesh agrees — the boundary file carries `hull`, `sail`, `inlet`, `outlet`, `farfield`, `symm`. **Drawn instead: the hull/SAIL split**, which the run's own `forcesHull` and `forcesSail` objects make possible. |
+| **`Y_v'`/`N_v'` fit line, neutral point** | §10 forbids the neutral point outright, and **the fit does not exist**: the comparator refused to compute one and returned `NOT A RESULT`. A fit drawn here would be a number this lab was told to produce and its own instrument declined to. |
+| **hull Cp vs Huang 1992** | `SUBOFF_R1_bare_hull_zero_incidence.md:17` places surface Cp vs Huang 1992 at rung **R2**, not this act, and no digitised Huang reference is on disk. |
+| **family plot, coarse vs medium, with band** | §10: *"No grid convergence, no observed order, no GCI — single level, by construction."* |
 
 ## The graded channel is the HORIZONTAL plane, `Y'` and `N'`
 
@@ -84,47 +112,43 @@ conclusion reached after seeing the answer.
 
 ## Per figure
 
-| Figure | What it is | Source |
-|---|---|---|
-| `suboff_yprime_history.png` | `Y'` against iteration for all seven points | `BETA_*/postProcessing/forces/0/force.dat`, `total_z` |
-| `suboff_nprime_history.png` | `N'` against iteration for all seven points | `BETA_*/postProcessing/forces/0/moment.dat`, `total_y` |
-| `suboff_yprime_vs_beta.png` | preliminary `Y'` against β, with `Y_v'·sin β` and its ±4 % band | the seven force files + §5 |
-| `suboff_nprime_vs_beta.png` | preliminary `N'` against β, with `N_v'·sin β` and the same ±4 % interval — **which is NOT a gate for `N_v'`** | the seven moment files + §5 |
-| `suboff_residuals.png` + `_f10 … _f75` | the residual-evolution series on ONE set of axes, from the most advanced point | that point's `postProcessing/residuals/0/solverInfo.dat` |
-| `suboff_l2_corner.png` | the L2 zero-incidence corner's drag history, 3000 iterations, `rc = 0`, finished 2026-09-13T17:21:32Z | `SUBOFF_A1/SOLVE_L2/postProcessing/forceCoeffs` |
-| `suboff_mesh_l1m.png` | the **L1 mirror's own mesh** on hull and sail, 399,954 faces of a 6,537,226-cell domain | `MESH_FULL_L1M/constant/polyMesh` |
-| ~~`suboff_p_surface.png`~~, ~~`suboff_umag_symmetry.png`~~, ~~`suboff_umag_wake.png`~~ | **NOT PRODUCIBLE YET — see below.** They are the first thing the final version adds | — |
+| Figure | What it is |
+|---|---|
+| `suboff_yprime_vs_beta.png`, `suboff_nprime_vs_beta.png` | preliminary window means against β, with Roddy's `Y_v'·sin β` (and `N_v'·sin β`) and the ±4 % interval as its band. **No fit line is drawn**, because no fit exists |
+| `suboff_yprime_split_vs_beta.png`, `suboff_nprime_split_vs_beta.png` | the **hull / sail** split of each, from the run's own `forcesHull` and `forcesSail` |
+| `suboff_yprime_history.png`, `suboff_nprime_history.png` | all seven points against iteration, on common axes |
+| `suboff_history_b*.png` | each point's own `Y'` and `N'` history — seven figures, because the seven points stopped at seven different iterations |
+| `suboff_residuals_b*_f10 … _f75`, `suboff_residuals_b*.png` | the residual-evolution series **per point**, five frames each on that point's own pinned axes |
+| `suboff_residuals.png`, `_f10 … _f75` | the same series for the most advanced point, kept under the plain name |
+| `suboff_l2_corner.png` | the L2 zero-incidence corner's drag history, 3000 iterations, `rc = 0`, finished 2026-09-13T17:21:32Z — **the only complete solve anywhere in this folder** |
+| `suboff_mesh_l1m.png` | the **coarse mirror mesh** on hull and sail, 399,954 faces of a 6,537,226-cell domain |
+| `suboff_mesh_sail_cut.png` | a cut through the sail, framed on it, showing the cells across it and the wall layers |
+| `suboff_p_side_b*.png`, `suboff_p_top_b*.png` | surface pressure, side and from above, at β = 0, ±8, ±12 — one shared display window across all five |
+| `suboff_umag_mid_b*.png` | `\|U\|` on the mid-depth plane y = 0, same five angles, one shared window |
+| `suboff_wake_stern_b*.png` | cross-sections 0.30 m aft of the stern, at β = 0 and +12 |
+| `suboff_wake_sail_bp12.png` | a cross-section aft of the sail at β = +12 |
+| `suboff_streamlines_bp12.png` | streamlines over the sail at β = +12, coloured by speed |
+| `suboff_q_bp12.png` | the Q-criterion iso-surface of the sail vortices at β = +12 |
 
-## 🔴 NO FIELD PANEL EXISTS YET, AND THE GUARD IS WHAT STOPPED ONE BEING SHIPPED
+## The field panels exist now, and NOTHING WAS RECONSTRUCTED
 
-The three field panels the brief asks for — surface pressure, the symmetry plane and
-a wake cross-section — **could not be produced from disk, and blank pictures of them
-were refused rather than written.**
+The brief allowed reconstructing each point's last written time into a symlinked
+scratch. **It turned out to be unnecessary, which is strictly better**: ParaView reads
+the DECOMPOSED case directly, read-only, once `CaseType` is set **and the pipeline
+INFORMATION is refreshed**.
 
-**The measurement.** `purgeWrite 2` means the only fields on disk live in
-`processor*/<t>`; nothing is reconstructed. Opened as a decomposed case, ParaView's
-OpenFOAM reader **lists exactly one timestep, `t = 0.0`**, while correctly reporting
-the mesh (6,537,226 cells, asserted) and the six field names (`k nut omega p U
-yPlus`). Asking it for `t = 2700` therefore gets the **initial condition**, not the
-solution — *a picture captioned as the latest time showing a uniform inlet field is
-worse than no picture at all*, and it is exactly the kind of confident-looking wrong
-image this lab refuses. Reconstructing the time directory would be **compute AND a
-write into seven live graded trees**, so it was not done.
+**That refresh is the whole bug behind the blank panels of the first attempt.**
+Without it the reader reports `TimestepValues == [0.0]` on a case whose processor
+directories plainly hold t = 2865 and 2880 — so a panel asked for "the latest time"
+silently drew the initial condition, or nothing at all. The driver now calls
+`Refresh()` and `UpdatePipelineInformation()`, takes the maximum time above zero, and
+**asserts that time is in `TimestepValues` before a pixel is drawn**. The mesh is
+asserted at 6,537,226 cells and every requested field asserted present on the same
+read.
 
-**And it was the GUARD that caught it, twice, not a reading of the log.** The first
-run wrote two blank panels and the colour control PASSED on them — at 49.7x and then
-at 459,558,697x — because the only ink on the frame was the colour bar, itself a
-two-ended ramp, against an all-white negative arm whose spread was exactly zero. **A
-ratio test cannot see a blank frame: 0.45 over nothing is still infinitely more than
-nothing.** Two clauses now close that in every driver in this repository and both
-REFUSE: the positive arm must cover at least 20,000 non-background pixels (the bar
-alone is about 4,600), and the negative arm must not have a spread of exactly zero,
-because a control that measures nothing is not a control (CLAUDE.md rule 3). The bar
-is hidden for both arms. On the re-run the surface panel **refused at 0 pixels**, and
-the image produced under the broken guard was **deleted, not shipped**.
-
-`suboff_mesh_l1m.png` is unaffected: it is the mirror's own `constant/polyMesh` read
-as a reconstructed case, 170,755 body pixels, and it needs no field at all.
+Each panel still carries the planted colour control at the 8x margin **and** the two
+clauses added after the blank-frame failure: at least 20,000 non-background pixels on
+the positive arm, and a negative arm whose spread is not exactly zero.
 
 ## Reading seven LIVE runs without disturbing them
 

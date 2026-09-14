@@ -168,6 +168,49 @@ force_history(os.path.join(HERE, "suboff_l2_corner.png"), it, series={"$C_D$": c
               title="L2 zero-incidence corner, drag history")
 wcsv("suboff_l2_corner", ["iteration", "Cd"], list(zip(it, cd)))
 
+# ------------------------------------------------------------------ hull / sail split
+# THE SPLIT IS HULL AND SAIL, NOT HULL AND FIN. Section 10 of the registration says
+# "No hull/fin split: there are no fins on this body", and the mesh agrees: the
+# boundary file carries `hull`, `sail`, `inlet`, `outlet`, `farfield`, `symm` and
+# nothing else. The run's own `forcesHull` and `forcesSail` function objects are what
+# make this figure possible at all.
+split_y, split_n, srows = {}, {}, []
+for part in ("Hull", "Sail"):
+    ys, ns = [], []
+    for tag, beta in POINTS:
+        base = os.path.join(SWEEP, "BETA_%s" % tag, "postProcessing/forces%s/0" % part)
+        tf, fz = read_total(os.path.join(base, "force.dat"), 3)
+        tm, my = read_total(os.path.join(base, "moment.dat"), 2)
+        yv = [-x / NORM_Y for x in fz][-TAIL:]
+        nv = [-x / NORM_N for x in my][-TAIL:]
+        ys.append(sum(yv) / len(yv)); ns.append(sum(nv) / len(nv))
+        note("suboff_yprime_split_vs_beta.png", os.path.join(base, "force.dat"), str(int(tf[-1])))
+        note("suboff_nprime_split_vs_beta.png", os.path.join(base, "moment.dat"), str(int(tm[-1])))
+    split_y[part.lower()] = ys
+    split_n[part.lower()] = ns
+betas_all = [b for _, b in POINTS]
+sweep_curve(os.path.join(HERE, "suboff_yprime_split_vs_beta.png"), betas_all,
+            series={"hull": {"y": split_y["hull"], "band": None},
+                    "sail": {"y": split_y["sail"], "band": None}},
+            xlabel="drift angle  β  [deg]", ylabel="$Y'$  [–]")
+sweep_curve(os.path.join(HERE, "suboff_nprime_split_vs_beta.png"), betas_all,
+            series={"hull": {"y": split_n["hull"], "band": None},
+                    "sail": {"y": split_n["sail"], "band": None}},
+            xlabel="drift angle  β  [deg]", ylabel="$N'$  [–]")
+wcsv("suboff_split_vs_beta",
+     ["beta_deg", "Y_prime_hull", "Y_prime_sail", "N_prime_hull", "N_prime_sail"],
+     [[betas_all[i], split_y["hull"][i], split_y["sail"][i],
+       split_n["hull"][i], split_n["sail"][i]] for i in range(len(betas_all))])
+
+# ------------------------------------------------------------------ per-point histories
+for tag, beta in POINTS:
+    lab = "β = %+.0f°" % beta
+    force_history(os.path.join(HERE, "suboff_history_b%s.png" % tag), its[lab],
+                  series={"$Y'$": series_y[lab], "$N'$": series_n[lab]},
+                  xlabel="iteration", ylabel="coefficient  [–]")
+    wcsv("suboff_history_b%s" % tag, ["iteration", "Y_prime", "N_prime"],
+         list(zip(its[lab], series_y[lab], series_n[lab])))
+
 # ------------------------------------------------------------------ residual frames
 # ONE point carries the frame series -- the most advanced -- and every point's final
 # frame is written beside it, so the act can step through the evolution and still
@@ -190,13 +233,24 @@ def read_residuals(case):
     it = [float(r[hdr.index("Time")]) for r in rows]
     return p, it, {lab[k]: [float(r[hdr.index(k)]) for r in rows] for k in want}
 
+# ONE SERIES PER POINT, because the owner asked for frames per point and because the
+# seven points stopped at seven different iterations -- a single series would hide
+# that. Each point's own five frames share that point's own axes.
+n_frames = 0
+for tag, beta in POINTS:
+    rp, rit, rser = read_residuals(os.path.join(SWEEP, "BETA_%s" % tag))
+    for _f, _pp, _n in residual_frames(HERE, "suboff_residuals_b%s" % tag, rit, rser,
+                                       target=1e-5,
+                                       final_name="suboff_residuals_b%s.png" % tag):
+        note(os.path.basename(_pp), rp, str(int(_n)))
+        n_frames += 1
 lead = max(table, key=lambda r: r[3])[0]
 rp, rit, rser = read_residuals(os.path.join(SWEEP, "BETA_%s" % lead))
 for _f, _pp, _n in residual_frames(HERE, "suboff_residuals", rit, rser, target=1e-5,
                                    final_name="suboff_residuals.png"):
     note(os.path.basename(_pp), rp, str(int(_n)))
-print("residual frames from the most advanced point BETA_%s, %d iterations"
-      % (lead, int(rit[-1])))
+print("residual frames: %d per-point + 5 for the most advanced point BETA_%s"
+      % (n_frames, lead))
 
 with open(os.path.join(HERE, "PROVENANCE.tsv"), "w") as f:
     f.write("figure\tartifact\ttime_dir\tsha256\n")
