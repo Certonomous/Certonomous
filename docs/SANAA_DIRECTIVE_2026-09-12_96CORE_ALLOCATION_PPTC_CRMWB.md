@@ -506,3 +506,21 @@ The plot lane reports to the chief when the MP_R2 mesh and three per-condition p
 SUBOFF A1h is PARKED until further notice — the physics grade is NOT A RESULT (Y_v' sign inverted and 17.3x low, N_v' 6.8x low, cause the registered slip farfield at +/-2.99 m on a 4.36 m body) and completion is NOT A RESULT under the addendum at 50bff7f4; the parked proposal is a re-run from a published OpenFOAM SUBOFF setup with a proper farfield.
 PPTC stays set aside (per §AC), and no lane effort goes to either case until the demos are shot and sent.
 The lab's active fronts are D6R3 MP_R2 (dafoam) and MB13 marinePropeller (cfd), plus the plot lane.
+
+---
+
+## AI. CRM act folder with six board tiles and a Report; SUBOFF render dropped; the drop was the adjoint residual — byte-exact, 2026-09-14 ~02:50Z (owner directive #51)
+
+> agreed with what u said. plotting agent: forget about suboff for now since we parked it and do the crm plots including Report
+> board tile: Baseline drag at the three lift conditions
+> board tile: Trimmed angle of attack
+> board tile: Decomposition study
+> board tile: C_D history
+> board tile: C_L history
+> board tile: Residuals
+> CHIEF ENGINEER so i can already have them in my act. Also about the drop you are talking about, are you talking about drag? or what ?
+
+**Chief's reading:**
+"agreed with what u said" is the owner's consent to launch D6R3 MP_R3 — `pcFillLevel 2` + `jacMatReOrdering rcm`, hot-started, verbatim otherwise — NOW on 20 of the 48 idle propeller ranks, while MP_R2 continues to its own outcome.
+The plot lane stops the SUBOFF render and builds the CRM act folder: the six named board tiles (Baseline drag at the three lift conditions; Trimmed angle of attack; Decomposition study; C_D history; C_L history; Residuals), the ParaView mesh panels and the three-condition pressure panels of §AE, and a Report README in RUN | PROBLEM | SOLUTION | RESULT format.
+"The drop" the chief reported is the adjoint linear-solver residual decrease per 100 iterations — not drag.
